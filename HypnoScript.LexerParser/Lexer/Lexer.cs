@@ -1,0 +1,289 @@
+using System.Text;
+namespace HypnoScript.LexerParser.Lexer
+{
+	public class HypnoLexer
+	{
+		private readonly string _source;
+		private int _pos;
+		private int _line = 1;
+		private int _column = 1;
+
+		public HypnoLexer(string source)
+		{
+			_source = source;
+		}
+
+		public IEnumerable<Token> Lex()
+		{
+			var tokens = new List<Token>();
+
+			while (!IsAtEnd())
+			{
+				var startPos = _pos;
+				var c = Advance();
+
+				if (char.IsWhiteSpace(c))
+				{
+					if (c == '\n')
+					{
+						_line++;
+						_column = 1;
+					}
+					continue;
+				}
+
+				if (char.IsLetter(c) || c == '_')
+				{
+					// Identifier oder Keyword
+					var ident = ReadIdentifier(c);
+					var tokenType = KeywordOrIdentifier(ident);
+					tokens.Add(new Token(tokenType, ident, _line, _column));
+				}
+				else if (char.IsDigit(c))
+				{
+					// Nummer
+					var number = ReadNumber(c);
+					tokens.Add(new Token(TokenType.NumberLiteral, number, _line, _column));
+				}
+				else
+				{
+					switch (c)
+					{
+						case '=':
+							if (Match('='))
+								tokens.Add(NewToken(TokenType.DoubleEquals, "=="));
+							else
+								tokens.Add(NewToken(TokenType.Equals, "="));
+							break;
+						case '+':
+							tokens.Add(NewToken(TokenType.Plus, "+"));
+							break;
+						case '-':
+							tokens.Add(NewToken(TokenType.Minus, "-"));
+							break;
+						case '*':
+							tokens.Add(NewToken(TokenType.Asterisk, "*"));
+							break;
+						case '/':
+							if (Match('/'))
+							{
+								// Einzeiliger Kommentar
+								SkipLineComment();
+							}
+							else if (Match('*'))
+							{
+								// Mehrzeiliger Kommentar
+								SkipBlockComment();
+							}
+							else
+							{
+								tokens.Add(NewToken(TokenType.Slash, "/"));
+							}
+							break;
+						case '%':
+							tokens.Add(NewToken(TokenType.Percent, "%"));
+							break;
+						case '>':
+							if (Match('='))
+								tokens.Add(NewToken(TokenType.GreaterEqual, ">="));
+							else
+								tokens.Add(NewToken(TokenType.Greater, ">"));
+							break;
+						case '<':
+							if (Match('='))
+								tokens.Add(NewToken(TokenType.LessEqual, "<="));
+							else
+								tokens.Add(NewToken(TokenType.Less, "<"));
+							break;
+						case '!':
+							if (Match('='))
+								tokens.Add(NewToken(TokenType.NotEquals, "!="));
+							else
+								tokens.Add(NewToken(TokenType.Bang, "!"));
+							break;
+						case '&':
+							if (Match('&'))
+								tokens.Add(NewToken(TokenType.AmpAmp, "&&"));
+							// ggf. else-Fehler
+							break;
+						case '|':
+							if (Match('|'))
+								tokens.Add(NewToken(TokenType.PipePipe, "||"));
+							break;
+						case ';':
+							tokens.Add(NewToken(TokenType.Semicolon, ";"));
+							break;
+						case ',':
+							tokens.Add(NewToken(TokenType.Comma, ","));
+							break;
+						case '(':
+							tokens.Add(NewToken(TokenType.LParen, "("));
+							break;
+						case ')':
+							tokens.Add(NewToken(TokenType.RParen, ")"));
+							break;
+						case '{':
+							tokens.Add(NewToken(TokenType.LBrace, "{"));
+							break;
+						case '}':
+							tokens.Add(NewToken(TokenType.RBrace, "}"));
+							break;
+						case '[':
+							tokens.Add(NewToken(TokenType.LBracket, "["));
+							break;
+						case ']':
+							tokens.Add(NewToken(TokenType.RBracket, "]"));
+							break;
+						case ':':
+							tokens.Add(NewToken(TokenType.Colon, ":"));
+							break;
+						case '"':
+							var strVal = ReadString();
+							tokens.Add(NewToken(TokenType.StringLiteral, strVal));
+							break;
+						default:
+							// Unbekanntes Zeichen -> ignorieren oder Fehler
+							break;
+					}
+				}
+			}
+
+			tokens.Add(NewToken(TokenType.Eof, ""));
+			return tokens;
+		}
+
+		private string ReadIdentifier(char firstChar)
+		{
+			var sb = new StringBuilder();
+			sb.Append(firstChar);
+			while (!IsAtEnd() && (char.IsLetterOrDigit(Peek()) || Peek() == '_'))
+			{
+				sb.Append(Advance());
+			}
+			return sb.ToString();
+		}
+
+		private string ReadNumber(char firstChar)
+		{
+			var sb = new StringBuilder();
+			sb.Append(firstChar);
+
+			bool hasDot = false;
+
+			while (!IsAtEnd())
+			{
+				if (char.IsDigit(Peek()))
+				{
+					sb.Append(Advance());
+				}
+				else if (Peek() == '.' && !hasDot)
+				{
+					hasDot = true;
+					sb.Append(Advance());
+				}
+				else
+				{
+					break;
+				}
+			}
+
+			return sb.ToString();
+		}
+
+		private string ReadString()
+		{
+			var sb = new StringBuilder();
+			while (!IsAtEnd() && Peek() != '"')
+			{
+				sb.Append(Advance());
+			}
+			// Schluckendes " Ende
+			if (!IsAtEnd()) Advance();
+			return sb.ToString();
+		}
+
+		private void SkipLineComment()
+		{
+			while (!IsAtEnd() && Peek() != '\n')
+				Advance();
+		}
+
+		private void SkipBlockComment()
+		{
+			while (!IsAtEnd())
+			{
+				if (Peek() == '*' && PeekNext() == '/')
+				{
+					Advance();
+					Advance();
+					break;
+				}
+				else
+				{
+					Advance();
+				}
+			}
+		}
+
+		private TokenType KeywordOrIdentifier(string ident)
+		{
+			return ident switch
+			{
+				"Focus" => TokenType.Focus,
+				"Relax" => TokenType.Relax,
+				"if" => TokenType.If,
+				"else" => TokenType.Else,
+				"while" => TokenType.While,
+				"loop" => TokenType.Loop,
+				"suggestion" => TokenType.Suggestion,
+				"awaken" => TokenType.Awaken,
+				"induce" => TokenType.Induce,
+				"observe" => TokenType.Observe,
+				"drift" => TokenType.Drift,
+				"session" => TokenType.Session,
+				"constructor" => TokenType.Constructor,
+				"tranceify" => TokenType.Tranceify,
+				"entrance" => TokenType.Entrance,
+				"snap" => TokenType.Snap,
+				"sink" => TokenType.Sink,
+
+				// Hypno-Operatoren:
+				"youAreFeelingVerySleepy" => TokenType.YouAreFeelingVerySleepy,
+				"lookAtTheWatch" => TokenType.LookAtTheWatch,
+				"fallUnderMySpell" => TokenType.FallUnderMySpell,
+
+				"true" or "false" => TokenType.BooleanLiteral,
+
+				_ => TokenType.Identifier
+			};
+		}
+
+		private char Advance()
+		{
+			var c = _source[_pos];
+			_pos++;
+			_column++;
+			return c;
+		}
+
+		private bool Match(char expected)
+		{
+			if (IsAtEnd()) return false;
+			if (_source[_pos] == expected)
+			{
+				_pos++;
+				_column++;
+				return true;
+			}
+			return false;
+		}
+
+		private char Peek() => IsAtEnd() ? '\0' : _source[_pos];
+		private char PeekNext() => (_pos + 1 >= _source.Length) ? '\0' : _source[_pos + 1];
+
+		private bool IsAtEnd() => _pos >= _source.Length;
+
+		private Token NewToken(TokenType type, string lexeme)
+			=> new Token(type, lexeme, _line, _column);
+	}
+}

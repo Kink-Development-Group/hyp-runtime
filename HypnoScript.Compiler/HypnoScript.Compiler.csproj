@@ -1,5 +1,11 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
+  <ItemGroup>
+    <ProjectReference Include="..\HypnoScript.LexerParser\HypnoScript.LexerParser.csproj" />
+    <ProjectReference Include="..\HypnoScript.Runtime\HypnoScript.Runtime.csproj" />
+    <ProjectReference Include="..\HypnoScript.Core\HypnoScript.Core.csproj" />
+  </ItemGroup>
+
   <PropertyGroup>
     <TargetFramework>net9.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
