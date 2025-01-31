@@ -1,0 +1,18 @@
+Focus {
+    induce x: number = 3;
+    induce y from external;
+    observe x;
+    observe y;
+
+    if (x youAreFeelingVerySleepy 3) {
+        observe "x == 3";
+    }
+
+    while (x < 10) {
+        x = x + 1;
+        observe x;
+    }
+
+    drift(1000);
+    observe "Done!";
+} Relax

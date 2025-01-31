@@ -13,9 +13,12 @@ var runCmd = new Command("run", "Runs HypnoScript in interpreter or JIT")
 var jitOption = new Option<bool>("--jit", "Use Reflection.Emit JIT (otherwise interpret).");
 runCmd.AddOption(jitOption);
 
-runCmd.SetHandler((FileInfo file, bool useJit) =>
+runCmd.SetHandler(async context =>
 {
-	var source = File.ReadAllText(file.FullName);
+	var file = context.ParseResult.GetValueForArgument<FileInfo>("file");
+	var useJit = context.ParseResult.GetValueForOption<bool>(jitOption);
+
+	var source = await File.ReadAllTextAsync(file.FullName);
 	var lexer = new HypnoLexer(source);
 	var tokens = lexer.Lex();
 	var parser = new HypnoParser(tokens);
@@ -35,9 +38,7 @@ runCmd.SetHandler((FileInfo file, bool useJit) =>
 		action();
 	}
 
-}, new System.CommandLine.Binding.CommandHandler<FileInfo, bool>(
-	(file, jit) => { } // leere Hilfsfunktion 
-));
+});
 
 root.Add(runCmd);
 
@@ -48,9 +49,7 @@ var compileCmd = new Command("compile", "Compile to .wasm (not fully implemented
 compileCmd.SetHandler((FileInfo file) =>
 {
 	Console.WriteLine("WASM compilation not fully implemented in this example :-)");
-}, new System.CommandLine.Binding.CommandHandler<FileInfo>(
-	(file) => { }
-));
+});
 root.Add(compileCmd);
 
 return root.Invoke(args);

@@ -1,6 +1,6 @@
-using HypnoScript.Core.Symbols;
 using HypnoScript.LexerParser.AST;
 using HypnoScript.Runtime;
+using HypnoScript.Core.Symbols;
 
 namespace HypnoScript.Compiler.Interpreter
 {
