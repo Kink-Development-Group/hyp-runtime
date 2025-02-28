@@ -6,7 +6,7 @@ namespace HypnoScript.Compiler.CodeGen
     // WebAssembly-Codegenerator im WAT-Format
     public class WasmCodeGenerator
     {
-        private StringBuilder _wat;
+        private StringBuilder _wat = null!;
 
         public string Generate(ProgramNode program)
         {

@@ -7,7 +7,7 @@ namespace HypnoScript.Compiler.CodeGen
 {
 	public class ILCodeGenerator
 	{
-		private ILGenerator _il;
+		public required ILGenerator _il;
 		private readonly Dictionary<string, LocalBuilder> _locals = new();
 
 		public Action Generate(ProgramNode program)
@@ -36,7 +36,8 @@ namespace HypnoScript.Compiler.CodeGen
 				case ObserveStatementNode obs:
 					EmitExpression(obs.Expression);
 					// Call HypnoBuiltins.Observe for enterprise-grade logging/output handling
-					_il.Emit(OpCodes.Call, typeof(HypnoBuiltins).GetMethod(nameof(HypnoBuiltins.Observe))!);
+					var observeMethod = typeof(HypnoBuiltins).GetMethod(nameof(HypnoBuiltins.Observe)) ?? throw new InvalidOperationException("Method HypnoBuiltins.Observe not found.");
+                    _il.Emit(OpCodes.Call, observeMethod);
 					break;
 				case ExpressionStatementNode exprStmt:
 					EmitExpression(exprStmt.Expression);
@@ -283,12 +284,10 @@ namespace HypnoScript.Compiler.CodeGen
 							throw new NotSupportedException($"Unbekannte Funktion: {id.Name}");
 
 						// Wähle die Methode, die zur Anzahl der Parameter passt
-						var targetMethod = candidates.FirstOrDefault(m => m.GetParameters().Length == call.Arguments.Count);
-						if (targetMethod == null)
-							throw new Exception($"Funktion {id.Name} mit {call.Arguments.Count} Argument(en) wurde nicht gefunden.");
+						var targetMethod = candidates.FirstOrDefault(m => m.GetParameters().Length == call.Arguments.Count) ?? throw new Exception($"Funktion {id.Name} mit {call.Arguments.Count} Argument(en) wurde nicht gefunden.");
 
-						// Argumente evaluieren und auf den erwarteten Typ casten, falls nötig
-						var parameters = targetMethod.GetParameters();
+                        // Argumente evaluieren und auf den erwarteten Typ casten, falls nötig
+                        var parameters = targetMethod.GetParameters();
 						for (int i = 0; i < call.Arguments.Count; i++)
 						{
 							EmitExpression(call.Arguments[i]);

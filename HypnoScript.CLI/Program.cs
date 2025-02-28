@@ -36,7 +36,7 @@ runCmd.SetHandler(async context =>
 	else
 	{
 		// JIT
-		var generator = new ILCodeGenerator();
+		var generator = new ILCodeGenerator { _il = default! };
 		var action = generator.Generate(program);
 		action();
 	}

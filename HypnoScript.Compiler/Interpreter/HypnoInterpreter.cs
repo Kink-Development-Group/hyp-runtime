@@ -4,7 +4,7 @@ using HypnoScript.Core.Symbols;
 
 namespace HypnoScript.Compiler.Interpreter
 {
-	public class HypnoInterpreter
+	public partial class HypnoInterpreter
 	{
 		private readonly SymbolTable _globals = new();
 
