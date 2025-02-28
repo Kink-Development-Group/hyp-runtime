@@ -63,4 +63,12 @@ namespace HypnoScript.LexerParser.AST
 		string Name,
 		List<VarDeclNode> Members
 	) : IStatement;
+
+	// AST-Knoten für Loop-Statements
+	public record LoopStatementNode(
+		IStatement? Initializer,      // z.B. induce i: number = 0;
+		IExpression Condition,       // z.B. i < 10;
+		IStatement? Iteration,       // z.B. i = i + 1;
+		List<IStatement> Body        // Body der Schleife
+	) : IStatement;
 }
