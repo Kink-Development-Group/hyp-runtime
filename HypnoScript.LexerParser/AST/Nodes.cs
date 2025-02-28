@@ -24,6 +24,9 @@ namespace HypnoScript.LexerParser.AST
 	// While
 	public record WhileStatementNode(IExpression Condition, List<IStatement> Body) : IStatement;
 
+	// Block
+	public record BlockStatementNode(List<IStatement> Statements) : IStatement;
+
 	// Function Declaration
 	public record FunctionDeclNode(
 		string Name,

@@ -8,7 +8,7 @@ namespace HypnoScript.Compiler.CodeGen
 	public class ILCodeGenerator
 	{
 		private ILGenerator _il;
-		private Dictionary<string, LocalBuilder> _locals = new();
+		private readonly Dictionary<string, LocalBuilder> _locals = new();
 
 		public Action Generate(ProgramNode program)
 		{
@@ -35,16 +35,88 @@ namespace HypnoScript.Compiler.CodeGen
 					break;
 				case ObserveStatementNode obs:
 					EmitExpression(obs.Expression);
-					// call HypnoBuiltins.Observe
+					// Call HypnoBuiltins.Observe for enterprise-grade logging/output handling
 					_il.Emit(OpCodes.Call, typeof(HypnoBuiltins).GetMethod(nameof(HypnoBuiltins.Observe))!);
 					break;
 				case ExpressionStatementNode exprStmt:
 					EmitExpression(exprStmt.Expression);
-					// Expressionsergebnis ignorieren
+					// Discard the result to maintain stack integrity
 					_il.Emit(OpCodes.Pop);
 					break;
-					// ...
+				case IfStatementNode ifStmt:
+					EmitIfStatement(ifStmt);
+					break;
+				case WhileStatementNode whileStmt:
+					EmitWhileStatement(whileStmt);
+					break;
+				case BlockStatementNode block:
+					// Process each statement in the block
+					foreach (var s in block.Statements)
+					{
+						EmitStatement(s);
+					}
+					break;
+				default:
+					// Centralized error handling for unsupported statement types
+					throw new NotSupportedException($"Unsupported statement type: {stmt.GetType().Name}");
 			}
+		}
+
+		// Enterprise-level extension: handling If statements
+		private void EmitIfStatement(IfStatementNode ifStmt)
+		{
+			// Evaluate the condition
+			EmitExpression(ifStmt.Condition);
+			// Unbox to boolean for condition evaluation; assuming a helper exists
+			_il.Emit(OpCodes.Call, typeof(ILCodeGenerator).GetMethod(nameof(UnboxToBool), BindingFlags.Static | BindingFlags.NonPublic)!);
+
+			// Emit branch instructions with labels for true and end segments
+			Label elseLabel = _il.DefineLabel();
+			Label endLabel = _il.DefineLabel();
+
+			_il.Emit(OpCodes.Brfalse, elseLabel);
+			// True branch
+			EmitStatement(ifStmt.ThenStatement);
+			_il.Emit(OpCodes.Br, endLabel);
+
+			// Else branch, if provided
+			_il.MarkLabel(elseLabel);
+			if (ifStmt.ElseStatement != null)
+			{
+				EmitStatement(ifStmt.ElseStatement);
+			}
+			_il.MarkLabel(endLabel);
+		}
+
+		// Enterprise-level extension: handling While loops
+		private void EmitWhileStatement(WhileStatementNode whileStmt)
+		{
+			Label loopStart = _il.DefineLabel();
+			Label loopEnd = _il.DefineLabel();
+
+			_il.MarkLabel(loopStart);
+			EmitExpression(whileStmt.Condition);
+			_il.Emit(OpCodes.Call, typeof(ILCodeGenerator).GetMethod(nameof(UnboxToBool), BindingFlags.Static | BindingFlags.NonPublic)!);
+			_il.Emit(OpCodes.Brfalse, loopEnd);
+
+			EmitStatement(whileStmt.Body);
+			_il.Emit(OpCodes.Br, loopStart);
+			_il.MarkLabel(loopEnd);
+		}
+
+		// Helper method to unbox an object to a boolean value
+		private static bool UnboxToBool(object obj)
+		{
+			if (obj is bool b)
+			{
+				return b;
+			}
+			// Fallback: attempt to convert common types if necessary
+			if (obj is int i)
+			{
+				return i != 0;
+			}
+			return false;
 		}
 
 		private void EmitVarDecl(VarDeclNode decl)
@@ -173,24 +245,66 @@ namespace HypnoScript.Compiler.CodeGen
 		{
 			if (call.Callee is IdentifierExpressionNode id)
 			{
-				if (id.Name == "drift")
+				switch (id.Name)
 				{
-					// drift(x)
-					if (call.Arguments.Count != 1)
-						throw new Exception("drift needs 1 argument");
+					case "drift":
+						// drift(x)
+						if (call.Arguments.Count != 1)
+							throw new Exception("drift benötigt genau 1 Argument");
 
-					EmitExpression(call.Arguments[0]);
-					// -> unbox int
-					_il.Emit(OpCodes.Call, typeof(ILCodeGenerator).GetMethod(nameof(UnboxToInt), BindingFlags.Static | BindingFlags.NonPublic)!);
+						EmitExpression(call.Arguments[0]);
+						// -> Unbox to int
+						_il.Emit(OpCodes.Call, typeof(ILCodeGenerator).GetMethod(nameof(UnboxToInt), BindingFlags.Static | BindingFlags.NonPublic)!);
 
-					// call HypnoBuiltins.Drift(int)
-					_il.Emit(OpCodes.Call, typeof(HypnoBuiltins).GetMethod(nameof(HypnoBuiltins.Drift))!);
+						// Call HypnoBuiltins.Drift(int)
+						_il.Emit(OpCodes.Call, typeof(HypnoBuiltins).GetMethod(nameof(HypnoBuiltins.Drift))!);
+						break;
+
+					default:
+						// Enterprise-Level: Dynamische Funktionsaufrufe unterstützen
+						// Suche nach einer statischen Methode in HypnoBuiltins mit dem Namen der Funktion
+						var candidates = typeof(HypnoBuiltins).GetMethods()
+							.Where(m => m.Name == id.Name && m.IsStatic)
+							.ToList();
+
+						if (!candidates.Any())
+							throw new NotSupportedException($"Unbekannte Funktion: {id.Name}");
+
+						// Wähle die Methode, die zur Anzahl der Parameter passt
+						var targetMethod = candidates.FirstOrDefault(m => m.GetParameters().Length == call.Arguments.Count);
+						if (targetMethod == null)
+							throw new Exception($"Funktion {id.Name} mit {call.Arguments.Count} Argument(en) wurde nicht gefunden.");
+
+						// Argumente evaluieren und auf den erwarteten Typ casten, falls nötig
+						var parameters = targetMethod.GetParameters();
+						for (int i = 0; i < call.Arguments.Count; i++)
+						{
+							EmitExpression(call.Arguments[i]);
+
+							// Enterprise-Level: Falls der Parameter nicht vom Typ object ist, erfolgt eine Unboxing-Konvertierung
+							if (parameters[i].ParameterType != typeof(object))
+							{
+								var paramType = parameters[i].ParameterType;
+								// Es erfolgt hier eine einfache Fallunterscheidung für int und double
+								if (paramType == typeof(int))
+								{
+									_il.Emit(OpCodes.Call, typeof(ILCodeGenerator).GetMethod(nameof(UnboxToInt), BindingFlags.Static | BindingFlags.NonPublic)!);
+								}
+								else if (paramType == typeof(double))
+								{
+									_il.Emit(OpCodes.Call, typeof(ILCodeGenerator).GetMethod(nameof(UnboxToDouble), BindingFlags.Static | BindingFlags.NonPublic)!);
+								}
+								// Weitere Typkonvertierungen können hier hinzugefügt werden
+							}
+						}
+
+						_il.Emit(OpCodes.Call, targetMethod);
+						break;
 				}
-				else
-				{
-					// Unbekannte function
-					// ...
-				}
+			}
+			else
+			{
+				throw new NotSupportedException("Nur Funktionsaufrufe über Bezeichner werden unterstützt.");
 			}
 		}
 

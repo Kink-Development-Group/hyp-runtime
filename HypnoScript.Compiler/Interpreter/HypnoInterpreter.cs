@@ -6,7 +6,7 @@ namespace HypnoScript.Compiler.Interpreter
 {
 	public class HypnoInterpreter
 	{
-		private SymbolTable _globals = new SymbolTable();
+		private readonly SymbolTable _globals = new();
 
 		public void ExecuteProgram(ProgramNode program)
 		{
