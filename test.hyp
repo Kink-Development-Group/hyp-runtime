@@ -1,18 +1,81 @@
 Focus {
-    induce x: number = 3;
-    induce y from external;
-    observe x;
-    observe y;
 
-    if (x youAreFeelingVerySleepy 3) {
-        observe "x == 3";
+    entrance {
+        observe "Starte HypnoScript Programm...";
+        drift(500);
     }
 
-    while (x < 10) {
-        x = x + 1;
-        observe x;
+    // Variablendeklarationen;
+    induce greeting: string = "Hello from HypnoScript!";
+    induce counter: number = 0;
+    induce userInput: string from external;
+
+    // Definition einer benutzerdefinierten Struktur mittels tranceify;
+    tranceify HypnoRecord {
+        name: string;
+        age: number;
+        isInTrance: boolean;
     }
+
+    // Erzeugen eines Record-Literals;
+    induce record = HypnoRecord {
+        name: "Alice",
+        age: 30,
+        isInTrance: true
+    };
+
+    // Funktionsdeklaration mit suggerierter Rückgabe (awaken);
+    suggestion add(a: number, b: number): number {
+        awaken a + b;
+    }
+
+    // Session-Deklaration (Objektorientierung);
+    session Person {
+        expose name: string;
+        conceal secretId: number;
+
+        suggestion constructor(newName: string, id: number) {
+            this.name = newName;
+            this.secretId = id;
+        }
+
+        suggestion greet() {
+            observe "Hello, " + this.name;
+        }
+    }
+
+    // Instanziierung einer Session;
+    induce person1 = Person("Bob", 123);
+
+    // If-/Else-Struktur mit Operator-Synonym (youAreFeelingVerySleepy für ==);
+    if (counter youAreFeelingVerySleepy 0) deepFocus {
+        observe "Counter is zero.";
+    } else deepFocus {
+        observe "Counter is non-zero.";
+    }
+
+    // While-Schleife mit Operator-Synonym (fallUnderMySpell für <);
+    while (counter fallUnderMySpell 5) {
+        counter = counter + 1;
+        observe "Counter: " + counter;
+    }
+
+    // Loop-Statement (ähnlich einer for-Schleife) mit Break (snap) und Continue (sink);
+    loop (induce i: number = 0; i < 10; i = i + 1) {
+        if (i lookAtTheWatch 5) deepFocus {
+            snap;    // Schleife abbrechen
+        } else if (i youAreFeelingVerySleepy 3) deepFocus {
+            sink;    // Aktuellen Durchlauf überspringen
+        }
+        observe "i: " + i;
+    }
+
+    // Funktionsaufruf;
+    observe "Sum: " + call add(5, 7);
+
+    // Aufruf einer Session-Methode;
+    person1.greet();
 
     drift(1000);
-    observe "Done!";
-} Relax;
+    observe "Program complete.";
+} Relax

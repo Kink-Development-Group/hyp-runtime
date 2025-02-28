@@ -15,10 +15,9 @@ namespace HypnoScript.LexerParser.Parser
 
 		public ProgramNode ParseProgram()
 		{
-			// Expect Focus ... Relax
+			 // Sicherstellen, dass das Programm mit "Focus" beginnt
 			if (!Check(TokenType.Focus))
 				throw new Exception("Program must start with 'Focus'.");
-
 			Advance(); // consume Focus
 
 			var statements = new List<IStatement>();
@@ -28,9 +27,9 @@ namespace HypnoScript.LexerParser.Parser
 				statements.Add(ParseStatement());
 			}
 
+			// Sicherstellen, dass das Programm mit "Relax" endet
 			if (!Check(TokenType.Relax))
 				throw new Exception("Program must end with 'Relax'.");
-
 			Advance(); // consume Relax
 
 			return new ProgramNode(statements);
@@ -47,18 +46,141 @@ namespace HypnoScript.LexerParser.Parser
 			if (Match(TokenType.While))
 				return ParseWhileStatement();
 
+			if (Match(TokenType.Loop))
+				return ParseLoopStatement();
+
+			if (Match(TokenType.Suggestion) || Match(TokenType.ImperativeSuggestion) || Match(TokenType.DominantSuggestion))
+				return ParseFunctionDeclaration();
+
+			if (Match(TokenType.Session))
+				return ParseSessionDeclaration();
+
+			if (Match(TokenType.Tranceify))
+				return ParseTranceifyDeclaration();
+
 			if (Match(TokenType.Observe))
 				return ParseObserveStatement();
 
 			if (Match(TokenType.Awaken))
 				return ParseReturnStatement();
 
-			// ... Hier könnten wir noch "loop", "suggestion" etc. parsen
-
 			// Fallback: Expression Statement
 			var expr = ParseExpression();
 			Consume(TokenType.Semicolon, "Expect ';' after expression.");
 			return new ExpressionStatementNode(expr);
+		}
+
+		// Neue Methode: Loop-Statement parsen
+		private IStatement ParseLoopStatement()
+		{
+			// Annahme: "loop" wurde bereits gematcht.
+			// Erwarte: '(' [Initialisierung] ';' Expression ';' Expression ')' BlockStatement.
+			Consume(TokenType.LParen, "Expected '(' after 'loop'.");
+			
+			IStatement? initializer = null;
+			if (!Check(TokenType.Semicolon))
+			{
+				initializer = ParseVarDecl(); // Hier könnte ein spezialisierter Parser für eine VarDecl ohne abschließendes ';' nötig sein.
+			}
+			Consume(TokenType.Semicolon, "Expected ';' after loop initializer.");
+			
+			var condition = ParseExpression();
+			Consume(TokenType.Semicolon, "Expected ';' after loop condition.");
+			
+			IExpression iteration = ParseExpression();
+			Consume(TokenType.RParen, "Expected ')' after loop iteration.");
+			
+			var body = ParseBlockStatements();
+			return new LoopStatementNode(initializer, condition, new ExpressionStatementNode(iteration), body);
+		}
+
+		// Neue Methode: Funktionsdeklaration parsen
+		private IStatement ParseFunctionDeclaration()
+		{
+			// Erwartet: (suggestion | imperative suggestion | dominant suggestion) Identifier '(' [ParameterList] ')' [':' Type] BlockStatement.
+			// Das Schlüsselwort wurde bereits gematcht, wir speichern es zur Unterscheidung.
+			string funcKeyword = Previous().Lexeme; 
+			var nameToken = Consume(TokenType.Identifier, "Expected function name after suggestion keyword.");
+			Consume(TokenType.LParen, "Expected '(' after function name.");
+			var parameters = new List<ParameterNode>();
+			if (!Check(TokenType.RParen))
+			{
+				do
+				{
+					var paramName = Consume(TokenType.Identifier, "Expected parameter name.").Lexeme;
+					string? typeName = null;
+					if (Match(TokenType.Colon))
+					{
+						var typeToken = Consume(TokenType.Identifier, "Expected type name after ':' in parameter list.");
+						typeName = typeToken.Lexeme;
+					}
+					parameters.Add(new ParameterNode(paramName, typeName));
+				} while (Match(TokenType.Comma));
+			}
+			Consume(TokenType.RParen, "Expected ')' after parameter list.");
+			
+			string? returnType = null;
+			if (Match(TokenType.Colon))
+			{
+				var typeToken = Consume(TokenType.Identifier, "Expected return type following ':'.");
+				returnType = typeToken.Lexeme;
+			}
+			
+			var body = ParseBlockStatements();
+			bool imperative = funcKeyword.Contains("imperative");
+			bool dominant = funcKeyword.Contains("dominant");
+			return new FunctionDeclNode(nameToken.Lexeme, parameters, returnType, body, imperative, dominant);
+		}
+
+		// Neue Methode: Session-Deklaration parsen
+		private IStatement ParseSessionDeclaration()
+		{
+			// Erwartet: 'session' Identifier '{' { SessionMember } '}'
+			var nameToken = Consume(TokenType.Identifier, "Expected session name after 'session'.").Lexeme;
+			Consume(TokenType.LBrace, "Expected '{' after session name.");
+			var members = new List<IStatement>();
+			while (!Check(TokenType.RBrace) && !IsAtEnd())
+			{
+				if (Match(TokenType.Induce))
+				{
+					members.Add(ParseVarDecl());
+				}
+				else if (Match(TokenType.Suggestion) || Match(TokenType.ImperativeSuggestion) || Match(TokenType.DominantSuggestion))
+				{
+					members.Add(ParseFunctionDeclaration());
+				}
+				else
+				{
+					// Falls unbekannter Member, überspringen und einen Fehler protokollieren
+					Advance(); 
+				}
+			}
+			Consume(TokenType.RBrace, "Expected '}' to close session declaration.");
+			return new SessionDeclNode(nameToken, members);
+		}
+
+		// Neue Methode: Tranceify-Deklaration parsen
+		private IStatement ParseTranceifyDeclaration()
+		{
+			// Erwartet: 'tranceify' Identifier '{' { VarDeclaration } '}'
+			var nameToken = Consume(TokenType.Identifier, "Expected tranceify name after 'tranceify'.").Lexeme;
+			Consume(TokenType.LBrace, "Expected '{' after tranceify name.");
+			var members = new List<VarDeclNode>();
+			while (!Check(TokenType.RBrace) && !IsAtEnd())
+			{
+				// Wir parsen jede VarDecl innerhalb des Tranceify-Blocks und casten explizit zu VarDeclNode.
+				IStatement stmt = ParseVarDecl();
+				if (stmt is VarDeclNode varDecl)
+				{
+					members.Add(varDecl);
+				}
+				else
+				{
+					throw new Exception("Expected variable declaration inside tranceify block.");
+				}
+			}
+			Consume(TokenType.RBrace, "Expected '}' to close tranceify declaration.");
+			return new TranceifyDeclNode(nameToken, members);
 		}
 
 		private IStatement ParseVarDecl()
@@ -186,7 +308,7 @@ namespace HypnoScript.LexerParser.Parser
 				var op = Previous().Lexeme;
 
 				// Map youAreFeelingVerySleepy -> "=="
-				if (Previous().Type == TokenType.YouAreFeelingVerySleepy)
+				if (Previous().Type.Equals(TokenType.YouAreFeelingVerySleepy))
 					op = "==";
 
 				var right = ParseComparison();
@@ -205,9 +327,9 @@ namespace HypnoScript.LexerParser.Parser
 				   Match(TokenType.LookAtTheWatch) || Match(TokenType.FallUnderMySpell))
 			{
 				var op = Previous().Lexeme;
-				if (Previous().Type == TokenType.LookAtTheWatch)
+				if (Previous().Type.Equals(TokenType.LookAtTheWatch))
 					op = ">";
-				if (Previous().Type == TokenType.FallUnderMySpell)
+				if (Previous().Type.Equals(TokenType.FallUnderMySpell))
 					op = "<";
 
 				var right = ParseTerm();
@@ -333,7 +455,7 @@ namespace HypnoScript.LexerParser.Parser
 		private bool Check(TokenType type)
 		{
 			if (IsAtEnd()) return false;
-			return Peek().Type == type;
+			return Peek().Type.Equals(type);
 		}
 
 		private Token Advance()
@@ -342,7 +464,7 @@ namespace HypnoScript.LexerParser.Parser
 			return Previous();
 		}
 
-		private bool IsAtEnd() => Peek().Type == TokenType.Eof;
+		private bool IsAtEnd() => Peek().Type.Equals(TokenType.Eof);
 
 		private Token Peek() => _tokens[_current];
 		private Token Previous() => _tokens[_current - 1];

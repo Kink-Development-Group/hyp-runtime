@@ -1,75 +1,135 @@
-﻿using System.CommandLine;
-using System.Linq; // Neu hinzugefügt
+﻿using System;
+using System.CommandLine;
+using System.CommandLine.Invocation;
+using System.IO;
+using System.Linq;
+using System.Threading.Tasks;
 using HypnoScript.LexerParser.Lexer;
 using HypnoScript.LexerParser.Parser;
 using HypnoScript.Compiler.Interpreter;
 using HypnoScript.Compiler.CodeGen;
-using System.IO;
+using HypnoScript.Compiler.Analysis;
+using HypnoScript.Compiler.Error;
 
-var root = new RootCommand("HypnoScript CLI");
+var root = new RootCommand("HypnoScript CLI - Enterprise Edition");
 
-// Run-Befehl (Interpreter/JIT)
-var fileArgument = new Argument<FileInfo>("file", result => new FileInfo(result.Tokens.Single().Value));
-var runCmd = new Command("run", "Runs HypnoScript in interpreter or JIT")
+// ---------- "run" Kommando (Interpreter/JIT) ----------
+var runFileArg = new Argument<FileInfo>("file", result => new FileInfo(result.Tokens.Single().Value))
 {
-	fileArgument
+    Description = "Die Quell-Datei für HypnoScript."
 };
-var jitOption = new Option<bool>("--jit", "Use Reflection.Emit JIT (otherwise interpret).");
+var jitOption = new Option<bool>("--jit", "Nutze Reflection.Emit JIT (ansonsten interpretieren).");
+var runCmd = new Command("run", "Führt HypnoScript über den Interpreter oder JIT aus")
+{
+    runFileArg
+};
 runCmd.AddOption(jitOption);
-runCmd.SetHandler(async context =>
+runCmd.SetHandler(async (FileInfo file, bool useJit) =>
 {
-	var file = context.ParseResult.GetValueForArgument<FileInfo>(fileArgument);
-	var useJit = context.ParseResult.GetValueForOption<bool>(jitOption);
+    try
+    {
+        var source = await File.ReadAllTextAsync(file.FullName);
+        var lexer = new HypnoLexer(source);
+        var tokens = lexer.Lex();
+        var parser = new HypnoParser(tokens);
+        var program = parser.ParseProgram();
 
-	var source = await File.ReadAllTextAsync(file.FullName);
-	var lexer = new HypnoLexer(source);
-	var tokens = lexer.Lex();
-	var parser = new HypnoParser(tokens);
-	var program = parser.ParseProgram();
+        // Enterprise-Level: Verwende den TypeChecker, um vor der Ausführung Typ-Fehler zu erkennen.
+        var typeChecker = new TypeChecker();
+        typeChecker.Check(program);
 
-	if (!useJit)
-	{
-		// interpret
-		var interpreter = new HypnoInterpreter();
-		interpreter.ExecuteProgram(program);
-	}
-	else
-	{
-		// JIT
-		var generator = new ILCodeGenerator { _il = default! };
-		var action = generator.Generate(program);
-		action();
-	}
-});
+        if (!useJit)
+        {
+            var interpreter = new HypnoInterpreter();
+            interpreter.ExecuteProgram(program);
+        }
+        else
+        {
+            var dynamicMethod = new System.Reflection.Emit.DynamicMethod("", typeof(void), Type.EmptyTypes);
+            var generator = new ILCodeGenerator { _il = dynamicMethod.GetILGenerator() };
+            var action = generator.Generate(program);
+            action();
+        }
+    }
+    catch (Exception ex)
+    {
+        ErrorReporter.Report($"Execution error: {ex.Message}", 0, 0);
+    }
+}, runFileArg, jitOption);
+root.AddCommand(runCmd);
 
-root.Add(runCmd);
-
-// Compile-Befehl: WASM (WAT-Code generieren und in Datei schreiben)
-var compileFileArgument = new Argument<FileInfo>("file", result => new FileInfo(result.Tokens.Single().Value));
-var compileCmd = new Command("compile", "Compile to .wasm (WAT-Format)")
+// ---------- "compile" Kommando (WASM) ----------
+var compileFileArg = new Argument<FileInfo>("file", result => new FileInfo(result.Tokens.Single().Value))
 {
-	compileFileArgument
+    Description = "Die Quell-Datei für HypnoScript (WASM-Kompilierung)."
 };
-compileCmd.SetHandler(async context =>
+var compileCmd = new Command("compile", "Kompiliert HypnoScript zu WASM (WAT-Format)")
 {
-	var file = context.ParseResult.GetValueForArgument<FileInfo>(compileFileArgument);
-	// Quellcode einlesen, lexen und parsen
-	var source = await File.ReadAllTextAsync(file.FullName);
-	var lexer = new HypnoLexer(source);
-	var tokens = lexer.Lex();
-	var parser = new HypnoParser(tokens);
-	var program = parser.ParseProgram();
+    compileFileArg
+};
+compileCmd.SetHandler(async (FileInfo file) =>
+{
+    try
+    {
+        var source = await File.ReadAllTextAsync(file.FullName);
+        var lexer = new HypnoLexer(source);
+        var tokens = lexer.Lex();
+        var parser = new HypnoParser(tokens);
+        var program = parser.ParseProgram();
 
-	// WASM-Code generieren
-	var wasmGenerator = new WasmCodeGenerator();
-	var watCode = wasmGenerator.Generate(program);
+        var wasmGenerator = new WasmCodeGenerator();
+        var watCode = wasmGenerator.Generate(program);
 
-	// Ausgabedatei: gleiche Basis, aber mit .wat-Erweiterung
-	var outputFile = Path.ChangeExtension(file.FullName, ".wat");
-	await File.WriteAllTextAsync(outputFile, watCode);
+        // Ausgabe: gleiche Basis mit .wat-Erweiterung
+        var outputFile = Path.ChangeExtension(file.FullName, ".wat");
+        await File.WriteAllTextAsync(outputFile, watCode);
 
-	Console.WriteLine($"WASM (WAT) code generated: {outputFile}");
-});
-root.Add(compileCmd);
+        Console.WriteLine($"WASM (WAT) code generated: {outputFile}");
+    }
+    catch (Exception ex)
+    {
+        ErrorReporter.Report($"Compilation error: {ex.Message}", 0, 0);
+    }
+}, compileFileArg);
+root.AddCommand(compileCmd);
 
-return root.Invoke(args);
+// ---------- "analyze" Kommando (Typprüfung und AST-Debug-Info) ----------
+var analyzeFileArg = new Argument<FileInfo>("file", result => new FileInfo(result.Tokens.Single().Value))
+{
+    Description = "Die Quell-Datei zur statischen Analyse."
+};
+var analyzeCmd = new Command("analyze", "Führt statische Typprüfung und AST-Analyse durch")
+{
+    analyzeFileArg
+};
+analyzeCmd.SetHandler(async (FileInfo file) =>
+{
+    try
+    {
+        var source = await File.ReadAllTextAsync(file.FullName);
+        var lexer = new HypnoLexer(source);
+        var tokens = lexer.Lex();
+        var parser = new HypnoParser(tokens);
+        var program = parser.ParseProgram();
+
+        var typeChecker = new TypeChecker();
+        typeChecker.Check(program);
+
+        // Enterprise-Level: Ausgabe des AST als Debug-Informationen (kann erweitert werden)
+        Console.WriteLine("AST-Analyse erfolgreich. Übersicht der Top-Level Statements:");
+        foreach (var stmt in program.Statements)
+        {
+            Console.WriteLine($" - {stmt.GetType().Name}");
+        }
+    }
+    catch (Exception ex)
+    {
+        ErrorReporter.Report($"Analysis error: {ex.Message}", 0, 0);
+    }
+}, analyzeFileArg);
+root.AddCommand(analyzeCmd);
+
+// Weitere Befehle (z.B. "test", "deploy") können hier ergänzt werden.
+
+// Starte die CLI
+return await root.InvokeAsync(args);
