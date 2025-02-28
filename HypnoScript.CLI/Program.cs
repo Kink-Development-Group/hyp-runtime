@@ -1,4 +1,5 @@
 ﻿using System.CommandLine;
+using System.Linq; // Neu hinzugefügt
 using HypnoScript.LexerParser.Lexer;
 using HypnoScript.LexerParser.Parser;
 using HypnoScript.Compiler.Interpreter;

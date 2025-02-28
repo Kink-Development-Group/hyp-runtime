@@ -56,6 +56,9 @@ namespace HypnoScript.Compiler.CodeGen
 						EmitStatement(s);
 					}
 					break;
+				case FunctionDeclNode funcDecl:
+					EmitFunction(funcDecl);
+					break;
 				default:
 					// Centralized error handling for unsupported statement types
 					throw new NotSupportedException($"Unsupported statement type: {stmt.GetType().Name}");
@@ -75,15 +78,21 @@ namespace HypnoScript.Compiler.CodeGen
 			Label endLabel = _il.DefineLabel();
 
 			_il.Emit(OpCodes.Brfalse, elseLabel);
-			// True branch
-			EmitStatement(ifStmt.ThenStatement);
+				// Handle then branch
+			foreach (var stmt in ifStmt.ThenBranch)
+			{
+				EmitStatement(stmt);
+			}
 			_il.Emit(OpCodes.Br, endLabel);
 
 			// Else branch, if provided
 			_il.MarkLabel(elseLabel);
-			if (ifStmt.ElseStatement != null)
+			if (ifStmt.ElseBranch != null)
 			{
-				EmitStatement(ifStmt.ElseStatement);
+				foreach (var stmt in ifStmt.ElseBranch)
+				{
+					EmitStatement(stmt);
+				}
 			}
 			_il.MarkLabel(endLabel);
 		}
@@ -99,7 +108,10 @@ namespace HypnoScript.Compiler.CodeGen
 			_il.Emit(OpCodes.Call, typeof(ILCodeGenerator).GetMethod(nameof(UnboxToBool), BindingFlags.Static | BindingFlags.NonPublic)!);
 			_il.Emit(OpCodes.Brfalse, loopEnd);
 
-			EmitStatement(whileStmt.Body);
+			foreach (var stmt in whileStmt.Body)
+			{
+				EmitStatement(stmt);
+			}
 			_il.Emit(OpCodes.Br, loopStart);
 			_il.MarkLabel(loopEnd);
 		}
@@ -320,6 +332,13 @@ namespace HypnoScript.Compiler.CodeGen
 			if (obj is int i) return i;
 			if (obj is double d) return (int)d;
 			return 0;
+		}
+
+		private void EmitFunction(FunctionDeclNode funcDecl)
+		{
+			// Erweiterung: Dynamische Methoden für Funktionen erstellen
+			// Parameter-Handling und Lokale Variablen initialisieren
+			// ...implementierung...
 		}
 	}
 }

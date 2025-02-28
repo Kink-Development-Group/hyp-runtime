@@ -5,6 +5,7 @@ namespace HypnoScript.Core.Types
 		Number,
 		String,
 		Boolean,
+		Trance,      // Neuer Basistyp
 		Unknown,
 		// ...
 	}

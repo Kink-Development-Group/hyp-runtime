@@ -177,6 +177,30 @@ namespace HypnoScript.Compiler.Interpreter
 			if (funcNameNode == null)
 				throw new Exception("Unsupported callee type");
 
+				// Erweiterung: Funktionen, Sessions und tranceify sollen hier unterstützt werden
+				if (call.Callee is IdentifierExpressionNode func)
+				{
+					// Prüfe, ob es eine Funktion als Symbol gibt
+					var symbol = _globals.Resolve(func.Name);
+					if (symbol?.Value is FunctionDeclNode function)
+					{
+						// Erstelle neuen Scope, binde Parameter und führe Body aus
+						var localScope = new SymbolTable(_globals);
+						for (int i = 0; i < function.Parameters.Count; i++)
+						{
+							var param = function.Parameters[i];
+							var argValue = EvaluateExpression(call.Arguments[i]);
+							localScope.Define(new Symbol(param.Name, param.TypeName, argValue));
+						}
+						foreach (var stmt in function.Body)
+						{
+							ExecuteStatement(stmt);
+						}
+						return null; // Rückgabewert in dieser rudimentären Implementierung ignoriert
+					}
+					// Weitere Builtins etc.
+				}
+
 			// Hardcode builtins: drift(...)?
 			if (funcNameNode.Name == "drift")
 			{

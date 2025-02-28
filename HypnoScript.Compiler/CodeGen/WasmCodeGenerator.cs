@@ -115,7 +115,14 @@ namespace HypnoScript.Compiler.CodeGen
             switch (expr)
             {
                 case LiteralExpressionNode lit:
-                    EmitLiteral(lit);
+                    if (lit.LiteralType == "string")
+                    {
+                        _wat.AppendLine($"    ;; String Handling is not implemented - placeholder for \"{lit.Value}\"");
+                    }
+                    else
+                    {
+                        EmitLiteral(lit);
+                    }
                     break;
                 case BinaryExpressionNode bin:
                     EmitBinary(bin);

@@ -51,4 +51,16 @@ namespace HypnoScript.LexerParser.AST
 	public record IdentifierExpressionNode(string Name) : IExpression;
 	public record CallExpressionNode(IExpression Callee, List<IExpression> Arguments) : IExpression;
 	public record AssignmentExpressionNode(string Identifier, IExpression Value) : IExpression;
+
+	// AST-Knoten für Sessions (Klassen)
+	public record SessionDeclNode(
+		string Name,
+		List<IStatement> Members // Mitglieder können Fields und Methoden sein
+	) : IStatement;
+
+	// AST-Knoten für tranceify (Strukturdefinition)
+	public record TranceifyDeclNode(
+		string Name,
+		List<VarDeclNode> Members
+	) : IStatement;
 }

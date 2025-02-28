@@ -1,8 +1,15 @@
 namespace HypnoScript.Core.Symbols
 {
+	// Erweiterung: Unterstützung für innere Scopes
 	public class SymbolTable
 	{
+		private readonly SymbolTable? _enclosing;
 		private Dictionary<string, Symbol> _symbols = new();
+
+		public SymbolTable(SymbolTable? enclosing = null)
+		{
+			_enclosing = enclosing;
+		}
 
 		public bool Define(Symbol sym)
 		{
@@ -14,8 +21,9 @@ namespace HypnoScript.Core.Symbols
 
 		public Symbol? Resolve(string name)
 		{
-			_symbols.TryGetValue(name, out var sym);
-			return sym;
+			if (_symbols.TryGetValue(name, out var sym))
+				return sym;
+			return _enclosing?.Resolve(name);
 		}
 	}
 }
