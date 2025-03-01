@@ -15,7 +15,9 @@ namespace HypnoScript.LexerParser.Parser
 
 		public ProgramNode ParseProgram()
 		{
-			 // Sicherstellen, dass das Programm mit "Focus" beginnt
+			SkipLeadingTokens();  // Fügt diese Zeile hinzu
+
+			// Sicherstellen, dass das Programm mit "Focus" beginnt
 			if (!Check(TokenType.Focus))
 				throw new Exception("Program must start with 'Focus'.");
 			Advance(); // consume Focus
@@ -33,6 +35,15 @@ namespace HypnoScript.LexerParser.Parser
 			Advance(); // consume Relax
 
 			return new ProgramNode(statements);
+		}
+
+		private void SkipLeadingTokens()
+		{
+			while (!IsAtEnd() &&
+						   (string.IsNullOrWhiteSpace(Peek().Lexeme) || Peek().Lexeme.StartsWith('\uFEFF')))
+			{
+				Advance();
+			}
 		}
 
 		private IStatement ParseStatement()
