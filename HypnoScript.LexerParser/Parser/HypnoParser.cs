@@ -87,20 +87,20 @@ namespace HypnoScript.LexerParser.Parser
 			// Annahme: "loop" wurde bereits gematcht.
 			// Erwarte: '(' [Initialisierung] ';' Expression ';' Expression ')' BlockStatement.
 			Consume(TokenType.LParen, "Expected '(' after 'loop'.");
-			
+
 			IStatement? initializer = null;
 			if (!Check(TokenType.Semicolon))
 			{
 				initializer = ParseVarDecl(); // Hier könnte ein spezialisierter Parser für eine VarDecl ohne abschließendes ';' nötig sein.
 			}
 			Consume(TokenType.Semicolon, "Expected ';' after loop initializer.");
-			
+
 			var condition = ParseExpression();
 			Consume(TokenType.Semicolon, "Expected ';' after loop condition.");
-			
+
 			IExpression iteration = ParseExpression();
 			Consume(TokenType.RParen, "Expected ')' after loop iteration.");
-			
+
 			var body = ParseBlockStatements();
 			return new LoopStatementNode(initializer, condition, new ExpressionStatementNode(iteration), body);
 		}
@@ -110,7 +110,7 @@ namespace HypnoScript.LexerParser.Parser
 		{
 			// Erwartet: (suggestion | imperative suggestion | dominant suggestion) Identifier '(' [ParameterList] ')' [':' Type] BlockStatement.
 			// Das Schlüsselwort wurde bereits gematcht, wir speichern es zur Unterscheidung.
-			string funcKeyword = Previous().Lexeme; 
+			string funcKeyword = Previous().Lexeme;
 			var nameToken = Consume(TokenType.Identifier, "Expected function name after suggestion keyword.");
 			Consume(TokenType.LParen, "Expected '(' after function name.");
 			var parameters = new List<ParameterNode>();
@@ -129,14 +129,14 @@ namespace HypnoScript.LexerParser.Parser
 				} while (Match(TokenType.Comma));
 			}
 			Consume(TokenType.RParen, "Expected ')' after parameter list.");
-			
+
 			string? returnType = null;
 			if (Match(TokenType.Colon))
 			{
 				var typeToken = Consume(TokenType.Identifier, "Expected return type following ':'.");
 				returnType = typeToken.Lexeme;
 			}
-			
+
 			var body = ParseBlockStatements();
 			bool imperative = funcKeyword.Contains("imperative");
 			bool dominant = funcKeyword.Contains("dominant");
@@ -163,7 +163,7 @@ namespace HypnoScript.LexerParser.Parser
 				else
 				{
 					// Falls unbekannter Member, überspringen und einen Fehler protokollieren
-					Advance(); 
+					Advance();
 				}
 			}
 			Consume(TokenType.RBrace, "Expected '}' to close session declaration.");
