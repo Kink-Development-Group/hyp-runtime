@@ -24,6 +24,12 @@ namespace HypnoScript.LexerParser.Parser
 
 			var statements = new List<IStatement>();
 
+			// Optional: entrance-Block direkt nach Focus
+			if (Match(TokenType.Entrance))
+			{
+				statements.Add(ParseEntranceBlock());
+			}
+
 			while (!Check(TokenType.Relax) && !IsAtEnd())
 			{
 				statements.Add(ParseStatement());
@@ -75,6 +81,50 @@ namespace HypnoScript.LexerParser.Parser
 			if (Match(TokenType.Awaken))
 				return ParseReturnStatement();
 
+			if (Match(TokenType.Snap))
+			{
+				Consume(TokenType.Semicolon, "Expect ';' after snap.");
+				return new SnapStatementNode();
+			}
+			if (Match(TokenType.Sink))
+			{
+				Consume(TokenType.Semicolon, "Expect ';' after sink.");
+				return new SinkStatementNode();
+			}
+			if (Match(TokenType.MindLink))
+			{
+				var fileToken = Consume(TokenType.StringLiteral, "Expected string literal after mindLink.");
+				Consume(TokenType.Semicolon, "Expect ';' after mindLink statement.");
+				return new MindLinkNode(fileToken.Lexeme);
+			}
+			if (Match(TokenType.SharedTrance))
+			{
+				var nameToken = Consume(TokenType.Identifier, "Expect identifier after 'sharedTrance'.");
+				string? typeName = null;
+				IExpression? initializer = null;
+				if (Match(TokenType.Colon))
+				{
+					var typeToken = Consume(TokenType.Identifier, "Expect type name after ':' in sharedTrance.");
+					typeName = typeToken.Lexeme;
+				}
+				if (Match(TokenType.Equals))
+				{
+					initializer = ParseExpression();
+				}
+				Consume(TokenType.Semicolon, "Expect ';' after sharedTrance declaration.");
+				return new SharedTranceVarDeclNode(nameToken.Lexeme, typeName, initializer);
+			}
+			if (Match(TokenType.Label))
+			{
+				var labelName = Previous().Lexeme;
+				return new LabelNode(labelName);
+			}
+			if (Match(TokenType.SinkTo))
+			{
+				var labelToken = Consume(TokenType.Identifier, "Expected label name after 'sinkTo'.");
+				Consume(TokenType.Semicolon, "Expect ';' after sinkTo statement.");
+				return new SinkToNode(labelToken.Lexeme);
+			}
 			// Fallback: Expression Statement
 			var expr = ParseExpression();
 			Consume(TokenType.Semicolon, "Expect ';' after expression.");
@@ -284,11 +334,15 @@ namespace HypnoScript.LexerParser.Parser
 
 		private List<IStatement> ParseBlockStatements()
 		{
-			// Entweder { ... } oder "deepFocus { ... }" 
-			// oder wir machen es einfach und erwarten { ... }
-
-			if (!Match(TokenType.LBrace))
+			// Erlaube { ... } oder deepFocus { ... }
+			if (Match(TokenType.DeepFocus))
+			{
+				Consume(TokenType.LBrace, "Expect '{' after 'deepFocus'.");
+			}
+			else if (!Match(TokenType.LBrace))
+			{
 				throw new Exception("Expect '{' to start block.");
+			}
 
 			var stmts = new List<IStatement>();
 			while (!Check(TokenType.RBrace) && !IsAtEnd())
@@ -314,13 +368,15 @@ namespace HypnoScript.LexerParser.Parser
 			var expr = ParseComparison();
 
 			while (Match(TokenType.DoubleEquals) || Match(TokenType.NotEquals) ||
-				   Match(TokenType.YouAreFeelingVerySleepy))
+				   Match(TokenType.YouAreFeelingVerySleepy) || Match(TokenType.NotSoDeep))
 			{
 				var op = Previous().Lexeme;
 
-				// Map youAreFeelingVerySleepy -> "=="
+				// Map Synonyme
 				if (Previous().Type.Equals(TokenType.YouAreFeelingVerySleepy))
 					op = "==";
+				if (Previous().Type.Equals(TokenType.NotSoDeep))
+					op = "!=";
 
 				var right = ParseComparison();
 				expr = new BinaryExpressionNode(expr, op, right);
@@ -335,13 +391,18 @@ namespace HypnoScript.LexerParser.Parser
 
 			while (Match(TokenType.Greater) || Match(TokenType.GreaterEqual) ||
 				   Match(TokenType.Less) || Match(TokenType.LessEqual) ||
-				   Match(TokenType.LookAtTheWatch) || Match(TokenType.FallUnderMySpell))
+				   Match(TokenType.LookAtTheWatch) || Match(TokenType.FallUnderMySpell) ||
+				   Match(TokenType.DeeplyGreater) || Match(TokenType.DeeplyLess))
 			{
 				var op = Previous().Lexeme;
 				if (Previous().Type.Equals(TokenType.LookAtTheWatch))
 					op = ">";
 				if (Previous().Type.Equals(TokenType.FallUnderMySpell))
 					op = "<";
+				if (Previous().Type.Equals(TokenType.DeeplyGreater))
+					op = ">=";
+				if (Previous().Type.Equals(TokenType.DeeplyLess))
+					op = "<=";
 
 				var right = ParseTerm();
 				expr = new BinaryExpressionNode(expr, op, right);
@@ -382,7 +443,7 @@ namespace HypnoScript.LexerParser.Parser
 			{
 				var op = Previous().Lexeme;
 				var right = ParseUnary();
-				// in unserem AST nicht extra, wir machen es als "BinaryExpressionNode(null, op, right)" 
+				// in unserem AST nicht extra, wir machen es als "BinaryExpressionNode(null, op, right)"
 				// -> oder ein "UnaryExpressionNode"
 				return new BinaryExpressionNode(
 					new LiteralExpressionNode("0", "number"), op, right);
@@ -405,7 +466,26 @@ namespace HypnoScript.LexerParser.Parser
 			if (Match(TokenType.Identifier))
 			{
 				var name = Previous().Lexeme;
+				// Record-Literal: Identifier gefolgt von '{'
+				if (Match(TokenType.LBrace))
+				{
+					var fields = new Dictionary<string, IExpression>();
+					while (!Check(TokenType.RBrace) && !IsAtEnd())
+					{
+						var fieldName = Consume(TokenType.Identifier, $"Expected field name in record literal for {name}.").Lexeme;
+						Consume(TokenType.Colon, "Expected ':' after field name in record literal.");
+						var expr = ParseExpression();
+						fields[fieldName] = expr;
+						if (!Check(TokenType.RBrace))
+						{
+							Consume(TokenType.Comma, "Expected ',' between fields in record literal.");
+						}
+					}
+					Consume(TokenType.RBrace, "Expected '}' to close record literal.");
+					return new RecordLiteralExpressionNode(name, fields);
+				}
 				// könnte Funktionsaufruf sein: name ( ...
+				IExpression expr = new IdentifierExpressionNode(name);
 				if (Match(TokenType.LParen))
 				{
 					var args = new List<IExpression>();
@@ -417,10 +497,15 @@ namespace HypnoScript.LexerParser.Parser
 						} while (Match(TokenType.Comma));
 					}
 					Consume(TokenType.RParen, "Expect ')' after arguments.");
-					return new CallExpressionNode(new IdentifierExpressionNode(name), args);
+					expr = new CallExpressionNode(expr, args);
 				}
-				// Sonst ist es nur 'identifier' => Possibly var usage
-				return new IdentifierExpressionNode(name);
+				// Feldzugriff: .field (beliebig viele Verkettungen)
+				while (Match(TokenType.Dot))
+				{
+					var fieldName = Consume(TokenType.Identifier, "Expected field name after '.'").Lexeme;
+					expr = new FieldAccessExpressionNode(expr, fieldName);
+				}
+				return expr;
 			}
 
 			if (Match(TokenType.LParen))
@@ -479,5 +564,18 @@ namespace HypnoScript.LexerParser.Parser
 
 		private Token Peek() => _tokens[_current];
 		private Token Previous() => _tokens[_current - 1];
+
+		private EntranceBlockNode ParseEntranceBlock()
+		{
+			// Erwartet: entrance { ... }
+			Consume(TokenType.LBrace, "Expected '{' after 'entrance'.");
+			var stmts = new List<IStatement>();
+			while (!Check(TokenType.RBrace) && !IsAtEnd())
+			{
+				stmts.Add(ParseStatement());
+			}
+			Consume(TokenType.RBrace, "Expected '}' to close entrance block.");
+			return new EntranceBlockNode(stmts);
+		}
 	}
 }

@@ -45,5 +45,12 @@ public enum TokenType
     GreaterEqual,
     Less,
     LessEqual,
-    Eof
+    Eof,
+    MindLink,
+    SharedTrance,
+    SinkTo,
+    Label,
+    NotSoDeep,
+    DeeplyGreater,
+    DeeplyLess
 }

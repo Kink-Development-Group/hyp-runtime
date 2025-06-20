@@ -52,6 +52,18 @@ namespace HypnoScript.LexerParser.AST
 	public record CallExpressionNode(IExpression Callee, List<IExpression> Arguments) : IExpression;
 	public record AssignmentExpressionNode(string Identifier, IExpression Value) : IExpression;
 
+	// NEU: Field-Access für record.name
+	public record FieldAccessExpressionNode(
+		IExpression Target,
+		string FieldName
+	) : IExpression;
+
+	// NEU: Record-Literal für tranceify-Instanzen
+	public record RecordLiteralExpressionNode(
+		string TypeName,
+		Dictionary<string, IExpression> Fields
+	) : IExpression;
+
 	// AST-Knoten für Sessions (Klassen)
 	public record SessionDeclNode(
 		string Name,
@@ -71,4 +83,24 @@ namespace HypnoScript.LexerParser.AST
 		IStatement? Iteration,       // z.B. i = i + 1;
 		List<IStatement> Body        // Body der Schleife
 	) : IStatement;
+
+	// Break (snap)
+	public record SnapStatementNode() : IStatement;
+	// Continue (sink)
+	public record SinkStatementNode() : IStatement;
+
+	// Entrance-Block am Programmanfang
+	public record EntranceBlockNode(List<IStatement> Statements) : IStatement;
+
+	// NEU: MindLink-Knoten
+	public record MindLinkNode(string FileName) : IStatement;
+
+	// NEU: SharedTrance-Variable Declaration
+	public record SharedTranceVarDeclNode(string Identifier, string? TypeName, IExpression? Initializer) : IStatement;
+
+	// NEU: Label-Knoten
+	public record LabelNode(string Name) : IStatement;
+
+	// NEU: SinkTo-Knoten
+	public record SinkToNode(string LabelName) : IStatement;
 }

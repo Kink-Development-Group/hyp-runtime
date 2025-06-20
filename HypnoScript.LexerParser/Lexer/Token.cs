@@ -12,6 +12,7 @@ namespace HypnoScript.LexerParser.Lexer
 		Session, Constructor,
 		Tranceify,
 		Entrance,
+		DeepFocus,
 		Snap, Sink,
 
 		// Hypnotische Operator-Synonyme
@@ -39,6 +40,7 @@ namespace HypnoScript.LexerParser.Lexer
 		LBrace, RBrace,
 		LBracket, RBracket,
 		Colon,
+		Dot,
 
 		// Literale
 		NumberLiteral,

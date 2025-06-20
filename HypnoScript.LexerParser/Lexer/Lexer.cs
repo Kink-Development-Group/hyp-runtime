@@ -36,6 +36,12 @@ namespace HypnoScript.LexerParser.Lexer
 				{
 					// Identifier oder Keyword
 					var ident = ReadIdentifier(c);
+					if (Peek() == ':')
+					{
+						Advance(); // ':' konsumieren
+						tokens.Add(new Token(TokenType.Label, ident, _line, _column));
+						break;
+					}
 					var tokenType = KeywordOrIdentifier(ident);
 					tokens.Add(new Token(tokenType, ident, _line, _column));
 				}
@@ -141,6 +147,9 @@ namespace HypnoScript.LexerParser.Lexer
 							var strVal = ReadString();
 							tokens.Add(NewToken(TokenType.StringLiteral, strVal));
 							break;
+						case '.':
+							tokens.Add(NewToken(TokenType.Dot, "."));
+							break;
 						default:
 							// Unbekanntes Zeichen -> ignorieren oder Fehler
 							break;
@@ -244,8 +253,10 @@ namespace HypnoScript.LexerParser.Lexer
 				"constructor" => TokenType.Constructor,
 				"tranceify" => TokenType.Tranceify,
 				"entrance" => TokenType.Entrance,
+				"deepFocus" => TokenType.DeepFocus,
 				"snap" => TokenType.Snap,
 				"sink" => TokenType.Sink,
+				"sinkTo" => TokenType.SinkTo,
 
 				// Hypno-Operatoren:
 				"youAreFeelingVerySleepy" => TokenType.YouAreFeelingVerySleepy,
@@ -253,6 +264,17 @@ namespace HypnoScript.LexerParser.Lexer
 				"fallUnderMySpell" => TokenType.FallUnderMySpell,
 
 				"true" or "false" => TokenType.BooleanLiteral,
+
+				"mindLink" => TokenType.MindLink,
+
+				"sharedTrance" => TokenType.SharedTrance,
+
+				"notSoDeep" => TokenType.NotSoDeep,
+				"deeplyGreater" => TokenType.DeeplyGreater,
+				"deeplyLess" => TokenType.DeeplyLess,
+
+				// dominant suggestion
+				"dominant" => TokenType.Dominant,
 
 				_ => TokenType.Identifier
 			};
@@ -285,5 +307,16 @@ namespace HypnoScript.LexerParser.Lexer
 
 		private Token NewToken(TokenType type, string lexeme)
 			=> new Token(type, lexeme, _line, _column);
+
+		// Hilfsmethode, um das nächste Wort zu peeken (ohne Whitespace zu überspringen)
+		private string PeekWord()
+		{
+			int pos = _pos;
+			while (pos < _source.Length && char.IsWhiteSpace(_source[pos])) pos++;
+			var sb = new StringBuilder();
+			while (pos < _source.Length && (char.IsLetter(_source[pos]) || _source[pos] == '_'))
+				sb.Append(_source[pos++]);
+			return sb.ToString();
+		}
 	}
 }
