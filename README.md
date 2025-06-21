@@ -15,7 +15,7 @@
 - **Strukturen**: `tranceify` (Records/Structs)
 - **Arrays**: `[1, 2, 3]` und Array-Zugriffe `array[index]`
 - **Hypnotische Operatoren**: Synonyme für Standardoperatoren
-- **Builtin-Funktionen**: Mathematische, String- und hypnotische Funktionen
+- **Builtin-Funktionen**: Umfassende mathematische, String- und hypnotische Funktionen
 - **Ein-/Ausgabe**: `observe`, `drift(ms)`
 - **Module**: `mindLink` (Import)
 - **Globale Variablen**: `sharedTrance`
@@ -36,6 +36,10 @@
   - `DeepTrance(duration)`
   - `HypnoticCountdown(from)`
   - `TranceInduction(subjectName)`
+  - `HypnoticVisualization(scene)`
+  - `ProgressiveRelaxation(steps)`
+  - `HypnoticSuggestion(suggestion)`
+  - `TranceDeepening(levels)`
 
 ## 🏗️ Architektur
 
@@ -44,8 +48,8 @@ Die Implementierung besteht aus mehreren .NET-Projekten:
 - **HypnoScript.Core**: Grundlegende Typen und Symbol-Tabellen
 - **HypnoScript.LexerParser**: Lexer, Parser und AST
 - **HypnoScript.Compiler**: TypeChecker, Interpreter und WASM-Codegenerator
-- **HypnoScript.Runtime**: Builtin-Funktionen
-- **HypnoScript.CLI**: Kommandozeilen-Interface
+- **HypnoScript.Runtime**: Umfassende Builtin-Funktionen
+- **HypnoScript.CLI**: Erweiterte Kommandozeilen-Interface
 
 ## 🚀 Verwendung
 
@@ -58,14 +62,49 @@ dotnet build
 ### Ausführung:
 
 ```bash
-dotnet run --project HypnoScript.CLI -- run test_comprehensive.hyp
+dotnet run --project HypnoScript.CLI -- run test_extended_features.hyp
 ```
 
 ### Debug-Modus:
 
 ```bash
-dotnet run --project HypnoScript.CLI -- run test_comprehensive.hyp --debug
+dotnet run --project HypnoScript.CLI -- run test_extended_features.hyp --debug --verbose
 ```
+
+## 📝 CLI-Befehle
+
+### Grundlegende Befehle:
+
+```bash
+# Programm ausführen
+dotnet run -- run <file.hyp> [--debug] [--verbose]
+
+# Zu WASM kompilieren
+dotnet run -- compile <file.hyp> [--debug] [--verbose]
+
+# Statische Analyse
+dotnet run -- analyze <file.hyp> [--debug] [--verbose]
+
+# Datei-Informationen anzeigen
+dotnet run -- info <file.hyp> [--debug] [--verbose]
+
+# Syntax validieren
+dotnet run -- validate <file.hyp> [--debug] [--verbose]
+
+# Code formatieren
+dotnet run -- format <file.hyp> [--debug] [--verbose]
+
+# Version anzeigen
+dotnet run -- version
+
+# Hilfe anzeigen
+dotnet run -- help
+```
+
+### Optionen:
+
+- `--debug`: Aktiviert Debug-Ausgabe
+- `--verbose`: Aktiviert detaillierte Ausgabe
 
 ## 📝 Beispiele
 
@@ -86,17 +125,50 @@ Focus {
 } Relax
 ```
 
-### Funktionen und Arrays:
+### Erweiterte mathematische Funktionen:
 
 ```hypnoscript
 Focus {
-    suggestion add(a: number, b: number): number {
-        awaken a + b;
-    }
+    induce x: number = 10.5;
+    induce y: number = 3.2;
 
+    observe "Max(10.5, 3.2) = " + Max(x, y);
+    observe "Min(10.5, 3.2) = " + Min(x, y);
+    observe "Log(100) = " + Log(100);
+    observe "Random number = " + Random();
+    observe "Random int (1-10) = " + RandomInt(1, 10);
+} Relax
+```
+
+### Erweiterte String-Manipulation:
+
+```hypnoscript
+Focus {
+    induce text: string = "  HypnoScript is amazing!  ";
+
+    observe "Original: '" + text + "'";
+    observe "Trimmed: '" + Trim(text) + "'";
+    observe "Uppercase: '" + ToUpper(text) + "'";
+    observe "Contains 'Script': " + Contains(text, "Script");
+    observe "IndexOf 'Script': " + IndexOf(text, "Script");
+    observe "PadLeft(30, '*'): '" + PadLeft(text, 30, '*') + "'";
+} Relax
+```
+
+### Array-Operationen:
+
+```hypnoscript
+Focus {
     induce numbers = [1, 2, 3, 4, 5];
-    induce sum = call add(numbers[0], numbers[1]);
-    observe "Sum: " + sum;
+    induce moreNumbers = [6, 7, 8];
+
+    observe "Array length: " + ArrayLength(numbers);
+    observe "First element: " + ArrayGet(numbers, 0);
+    observe "Array slice (1-3): " + ArraySlice(numbers, 1, 3);
+    observe "Array contains 3: " + ArrayContains(numbers, 3);
+
+    induce combined = ArrayConcat(numbers, moreNumbers);
+    observe "Combined arrays: " + combined;
 } Relax
 ```
 
@@ -106,35 +178,45 @@ Focus {
 Focus {
     session Person {
         expose name: string;
+        expose age: number;
 
-        suggestion constructor(personName: string) {
+        suggestion constructor(personName: string, personAge: number) {
             this.name = personName;
+            this.age = personAge;
         }
 
         suggestion greet() {
-            observe "Hello, " + this.name;
+            observe "Hello, I am " + this.name + " and I am " + this.age + " years old";
         }
     }
 
-    induce person = Person("Alice");
+    induce person = Person("Alice", 30);
     person.greet();
 } Relax
 ```
 
-### Hypnotische Operatoren:
+### Hypnotische Spezialfunktionen:
 
 ```hypnoscript
 Focus {
-    induce x: number = 10;
-    induce y: number = 5;
+    HypnoticVisualization("a peaceful mountain landscape");
+    ProgressiveRelaxation(3);
+    HypnoticSuggestion("You are becoming more confident");
+    TranceDeepening(2);
+} Relax
+```
 
-    if (x lookAtTheWatch y) deepFocus {
-        observe "10 is greater than 5";
-    }
+### Zeit- und Systemfunktionen:
 
-    if (y fallUnderMySpell x) deepFocus {
-        observe "5 is less than 10";
-    }
+```hypnoscript
+Focus {
+    observe "Current time: " + GetCurrentTime();
+    observe "Current date: " + GetCurrentDate();
+    observe "Current time string: " + GetCurrentTimeString();
+    observe "PATH length: " + Length(GetEnvironmentVariable("PATH"));
+
+    DebugPrint("This is a debug message");
+    DebugPrintType(42);
 } Relax
 ```
 
@@ -142,25 +224,48 @@ Focus {
 
 ### Mathematische Funktionen:
 
-- `Sin(x)`, `Cos(x)`, `Tan(x)`
-- `Sqrt(x)`, `Pow(x, y)`
-- `Abs(x)`, `Floor(x)`, `Ceiling(x)`, `Round(x)`
+- **Grundfunktionen**: `Sin(x)`, `Cos(x)`, `Tan(x)`, `Sqrt(x)`, `Pow(x, y)`
+- **Erweiterte Funktionen**: `Log(x)`, `Log10(x)`, `Exp(x)`, `Abs(x)`
+- **Rundungsfunktionen**: `Floor(x)`, `Ceiling(x)`, `Round(x)`
+- **Vergleichsfunktionen**: `Max(x, y)`, `Min(x, y)`
+- **Zufallsfunktionen**: `Random()`, `RandomInt(min, max)`
 
 ### String-Funktionen:
 
-- `Length(str)`, `ToUpper(str)`, `ToLower(str)`
-- `Substring(str, start, length)`
-- `Contains(str, substring)`, `Replace(str, old, new)`
+- **Grundfunktionen**: `Length(str)`, `ToUpper(str)`, `ToLower(str)`
+- **Erweiterte Funktionen**: `Trim(str)`, `TrimStart(str)`, `TrimEnd(str)`
+- **Suchfunktionen**: `IndexOf(str, substring)`, `LastIndexOf(str, substring)`
+- **Prüffunktionen**: `Contains(str, substring)`, `StartsWith(str, prefix)`, `EndsWith(str, suffix)`
+- **Manipulationsfunktionen**: `Substring(str, start, length)`, `Replace(str, old, new)`
+- **Formatierungsfunktionen**: `PadLeft(str, width, char)`, `PadRight(str, width, char)`
+- **Array-Funktionen**: `Split(str, separator)`, `Join(array, separator)`
+
+### Array-Funktionen:
+
+- **Grundfunktionen**: `ArrayLength(arr)`, `ArrayGet(arr, index)`, `ArraySet(arr, index, value)`
+- **Erweiterte Funktionen**: `ArraySlice(arr, start, length)`, `ArrayConcat(arr1, arr2)`
+- **Suchfunktionen**: `ArrayIndexOf(arr, value)`, `ArrayContains(arr, value)`
 
 ### Konvertierungsfunktionen:
 
-- `ToInt(value)`, `ToDouble(value)`, `ToString(value)`
+- **Typkonvertierung**: `ToInt(value)`, `ToDouble(value)`, `ToString(value)`, `ToBoolean(value)`, `ToChar(value)`
 
 ### Hypnotische Spezialfunktionen:
 
-- `DeepTrance(duration)`
-- `HypnoticCountdown(from)`
-- `TranceInduction(subjectName)`
+- **Trance-Management**: `DeepTrance(duration)`, `TranceDeepening(levels)`
+- **Induktion**: `TranceInduction(subjectName)`, `HypnoticSuggestion(suggestion)`
+- **Visualisierung**: `HypnoticVisualization(scene)`
+- **Entspannung**: `ProgressiveRelaxation(steps)`, `HypnoticCountdown(from)`
+
+### Zeit- und Datumsfunktionen:
+
+- **Zeitstempel**: `GetCurrentTime()`, `GetCurrentDate()`, `GetCurrentTimeString()`, `GetCurrentDateTime()`
+
+### System-Funktionen:
+
+- **System-Info**: `GetEnvironmentVariable(name)`, `ClearScreen()`, `Beep(frequency, duration)`
+- **Debugging**: `DebugPrint(value)`, `DebugPrintType(value)`
+- **Programm-Kontrolle**: `Exit(code)`
 
 ## 🎨 Sprachdesign
 
@@ -170,6 +275,7 @@ HypnoScript kombiniert:
 - **Hypnotische Terminologie** für den esoterischen Charme
 - **Moderne Sprachfeatures** für praktische Nutzbarkeit
 - **Turing-Vollständigkeit** für universelle Berechnungsfähigkeit
+- **Umfassende Standardbibliothek** für produktive Entwicklung
 
 ## 📊 Status
 
@@ -178,9 +284,9 @@ HypnoScript kombiniert:
 - ✅ **AST**: Vollständig implementiert
 - ✅ **TypeChecker**: Grundlegend implementiert
 - ✅ **Interpreter**: Vollständig implementiert
-- ✅ **Builtins**: Umfassend implementiert
-- ✅ **CLI**: Funktional
-- 🔄 **WASM-Codegenerator**: Grundstruktur vorhanden
+- ✅ **Builtins**: Umfassend implementiert (50+ Funktionen)
+- ✅ **CLI**: Erweitert mit 8 Befehlen
+- 🔄 **WASM-Codegenerator**: Erweitert implementiert
 - 🔄 **Optimierungen**: Geplant
 
 ## 🎯 Nächste Schritte
@@ -190,7 +296,16 @@ HypnoScript kombiniert:
 3. **Standardbibliothek erweitern**
 4. **IDE-Integration**
 5. **Package Manager**
+6. **Web-Interface**
+
+## 📚 Testprogramme
+
+- `test_comprehensive.hyp` - Umfassender Test aller Grundfeatures
+- `test_advanced.hyp` - Test der erweiterten Builtin-Funktionen
+- `test_extended_features.hyp` - Vollständige Demonstration aller Features
 
 ---
 
 **HypnoScript** - Where programming meets hypnosis! 🧠✨
+
+_Version 2.0.0 - Enterprise Edition with Advanced Features_

@@ -424,16 +424,20 @@ namespace HypnoScript.Compiler.Interpreter
 				return null;
 			}
 
-			// Mathematische Builtins
+			// ===== MATHEMATISCHE BUILTINS =====
 			if (funcNameNode.Name == "Sin" || funcNameNode.Name == "Cos" || funcNameNode.Name == "Tan" ||
 				funcNameNode.Name == "Sqrt" || funcNameNode.Name == "Pow" || funcNameNode.Name == "Abs" ||
-				funcNameNode.Name == "Floor" || funcNameNode.Name == "Ceiling" || funcNameNode.Name == "Round")
+				funcNameNode.Name == "Floor" || funcNameNode.Name == "Ceiling" || funcNameNode.Name == "Round" ||
+				funcNameNode.Name == "Log" || funcNameNode.Name == "Log10" || funcNameNode.Name == "Exp" ||
+				funcNameNode.Name == "Max" || funcNameNode.Name == "Min" || funcNameNode.Name == "Random" ||
+				funcNameNode.Name == "RandomInt")
 			{
 				if (call.Arguments.Count < 1)
 					throw new Exception($"{funcNameNode.Name} expects at least 1 argument");
 
 				var arg1 = Convert.ToDouble(EvaluateExpression(call.Arguments[0]));
 				var arg2 = call.Arguments.Count > 1 ? Convert.ToDouble(EvaluateExpression(call.Arguments[1])) : 0.0;
+				var arg3 = call.Arguments.Count > 2 ? Convert.ToInt32(EvaluateExpression(call.Arguments[2])) : 0;
 
 				return funcNameNode.Name switch
 				{
@@ -446,39 +450,141 @@ namespace HypnoScript.Compiler.Interpreter
 					"Floor" => HypnoBuiltins.Floor(arg1),
 					"Ceiling" => HypnoBuiltins.Ceiling(arg1),
 					"Round" => HypnoBuiltins.Round(arg1),
+					"Log" => HypnoBuiltins.Log(arg1),
+					"Log10" => HypnoBuiltins.Log10(arg1),
+					"Exp" => HypnoBuiltins.Exp(arg1),
+					"Max" => HypnoBuiltins.Max(arg1, arg2),
+					"Min" => HypnoBuiltins.Min(arg1, arg2),
+					"Random" => HypnoBuiltins.Random(),
+					"RandomInt" => HypnoBuiltins.RandomInt((int)arg1, (int)arg2),
 					_ => throw new Exception($"Unknown mathematical function: {funcNameNode.Name}")
 				};
 			}
 
-			// String Builtins
+			// ===== STRING BUILTINS =====
 			if (funcNameNode.Name == "Length" || funcNameNode.Name == "ToUpper" || funcNameNode.Name == "ToLower" ||
-				funcNameNode.Name == "Substring" || funcNameNode.Name == "Contains" || funcNameNode.Name == "Replace")
+				funcNameNode.Name == "Substring" || funcNameNode.Name == "Contains" || funcNameNode.Name == "Replace" ||
+				funcNameNode.Name == "Trim" || funcNameNode.Name == "TrimStart" || funcNameNode.Name == "TrimEnd" ||
+				funcNameNode.Name == "IndexOf" || funcNameNode.Name == "LastIndexOf" || funcNameNode.Name == "Split" ||
+				funcNameNode.Name == "Join" || funcNameNode.Name == "StartsWith" || funcNameNode.Name == "EndsWith" ||
+				funcNameNode.Name == "PadLeft" || funcNameNode.Name == "PadRight")
 			{
 				if (call.Arguments.Count < 1)
 					throw new Exception($"{funcNameNode.Name} expects at least 1 argument");
 
 				var str = EvaluateExpression(call.Arguments[0])?.ToString() ?? "";
 
-				return funcNameNode.Name switch
+				switch (funcNameNode.Name)
 				{
-					"Length" => HypnoBuiltins.Length(str),
-					"ToUpper" => HypnoBuiltins.ToUpper(str),
-					"ToLower" => HypnoBuiltins.ToLower(str),
-					"Substring" => call.Arguments.Count >= 3
-						? HypnoBuiltins.Substring(str, Convert.ToInt32(EvaluateExpression(call.Arguments[1])), Convert.ToInt32(EvaluateExpression(call.Arguments[2])))
-						: throw new Exception("Substring expects 3 arguments: string, start, length"),
-					"Contains" => call.Arguments.Count >= 2
-						? HypnoBuiltins.Contains(str, EvaluateExpression(call.Arguments[1])?.ToString() ?? "")
-						: throw new Exception("Contains expects 2 arguments: string, substring"),
-					"Replace" => call.Arguments.Count >= 3
-						? HypnoBuiltins.Replace(str, EvaluateExpression(call.Arguments[1])?.ToString() ?? "", EvaluateExpression(call.Arguments[2])?.ToString() ?? "")
-						: throw new Exception("Replace expects 3 arguments: string, oldValue, newValue"),
-					_ => throw new Exception($"Unknown string function: {funcNameNode.Name}")
-				};
+					case "Length": return HypnoBuiltins.Length(str);
+					case "ToUpper": return HypnoBuiltins.ToUpper(str);
+					case "ToLower": return HypnoBuiltins.ToLower(str);
+					case "Substring":
+						if (call.Arguments.Count >= 3)
+							return HypnoBuiltins.Substring(str, Convert.ToInt32(EvaluateExpression(call.Arguments[1])), Convert.ToInt32(EvaluateExpression(call.Arguments[2])));
+						throw new Exception("Substring expects 3 arguments: string, start, length");
+					case "Contains":
+						if (call.Arguments.Count >= 2)
+							return HypnoBuiltins.Contains(str, EvaluateExpression(call.Arguments[1])?.ToString() ?? "");
+						throw new Exception("Contains expects 2 arguments: string, substring");
+					case "Replace":
+						if (call.Arguments.Count >= 3)
+							return HypnoBuiltins.Replace(str, EvaluateExpression(call.Arguments[1])?.ToString() ?? "", EvaluateExpression(call.Arguments[2])?.ToString() ?? "");
+						throw new Exception("Replace expects 3 arguments: string, oldValue, newValue");
+					case "Trim": return HypnoBuiltins.Trim(str);
+					case "TrimStart": return HypnoBuiltins.TrimStart(str);
+					case "TrimEnd": return HypnoBuiltins.TrimEnd(str);
+					case "IndexOf":
+						if (call.Arguments.Count >= 2)
+							return HypnoBuiltins.IndexOf(str, EvaluateExpression(call.Arguments[1])?.ToString() ?? "");
+						throw new Exception("IndexOf expects 2 arguments: string, substring");
+					case "LastIndexOf":
+						if (call.Arguments.Count >= 2)
+							return HypnoBuiltins.LastIndexOf(str, EvaluateExpression(call.Arguments[1])?.ToString() ?? "");
+						throw new Exception("LastIndexOf expects 2 arguments: string, substring");
+					case "Split":
+						if (call.Arguments.Count >= 2)
+							return HypnoBuiltins.Split(str, EvaluateExpression(call.Arguments[1])?.ToString() ?? "");
+						throw new Exception("Split expects 2 arguments: string, separator");
+					case "Join":
+						if (call.Arguments.Count >= 2)
+						{
+							var arrObj = EvaluateExpression(call.Arguments[0]) as object[] ?? new object[0];
+							var sep = EvaluateExpression(call.Arguments[1])?.ToString() ?? "";
+							var strArr = arrObj.Select(o => o?.ToString() ?? "").ToArray();
+							return HypnoBuiltins.Join(strArr, sep);
+						}
+						throw new Exception("Join expects 2 arguments: array, separator");
+					case "StartsWith":
+						if (call.Arguments.Count >= 2)
+							return HypnoBuiltins.StartsWith(str, EvaluateExpression(call.Arguments[1])?.ToString() ?? "");
+						throw new Exception("StartsWith expects 2 arguments: string, prefix");
+					case "EndsWith":
+						if (call.Arguments.Count >= 2)
+							return HypnoBuiltins.EndsWith(str, EvaluateExpression(call.Arguments[1])?.ToString() ?? "");
+						throw new Exception("EndsWith expects 2 arguments: string, suffix");
+					case "PadLeft":
+						if (call.Arguments.Count >= 2)
+							return HypnoBuiltins.PadLeft(str, Convert.ToInt32(EvaluateExpression(call.Arguments[1])), call.Arguments.Count >= 3 ? Convert.ToChar(EvaluateExpression(call.Arguments[2])) : ' ');
+						throw new Exception("PadLeft expects at least 2 arguments: string, width");
+					case "PadRight":
+						if (call.Arguments.Count >= 2)
+							return HypnoBuiltins.PadRight(str, Convert.ToInt32(EvaluateExpression(call.Arguments[1])), call.Arguments.Count >= 3 ? Convert.ToChar(EvaluateExpression(call.Arguments[2])) : ' ');
+						throw new Exception("PadRight expects at least 2 arguments: string, width");
+					default:
+						throw new Exception($"Unknown string function: {funcNameNode.Name}");
+				}
 			}
 
-			// Konvertierungsfunktionen
-			if (funcNameNode.Name == "ToInt" || funcNameNode.Name == "ToDouble" || funcNameNode.Name == "ToString")
+			// ===== ARRAY BUILTINS =====
+			if (funcNameNode.Name == "ArrayLength" || funcNameNode.Name == "ArrayGet" || funcNameNode.Name == "ArraySet" ||
+				funcNameNode.Name == "ArraySlice" || funcNameNode.Name == "ArrayConcat" || funcNameNode.Name == "ArrayIndexOf" ||
+				funcNameNode.Name == "ArrayContains")
+			{
+				if (call.Arguments.Count < 1)
+					throw new Exception($"{funcNameNode.Name} expects at least 1 argument");
+
+				var arr = EvaluateExpression(call.Arguments[0]) as object[] ?? new object[0];
+
+				switch (funcNameNode.Name)
+				{
+					case "ArrayLength":
+						return HypnoBuiltins.ArrayLength(arr);
+					case "ArrayGet":
+						if (call.Arguments.Count >= 2)
+							return HypnoBuiltins.ArrayGet(arr, Convert.ToInt32(EvaluateExpression(call.Arguments[1])));
+						throw new Exception("ArrayGet expects 2 arguments: array, index");
+					case "ArraySet":
+						if (call.Arguments.Count >= 3)
+						{
+							HypnoBuiltins.ArraySet(arr, Convert.ToInt32(EvaluateExpression(call.Arguments[1])), EvaluateExpression(call.Arguments[2]));
+							return null;
+						}
+						throw new Exception("ArraySet expects 3 arguments: array, index, value");
+					case "ArraySlice":
+						if (call.Arguments.Count >= 3)
+							return HypnoBuiltins.ArraySlice(arr, Convert.ToInt32(EvaluateExpression(call.Arguments[1])), Convert.ToInt32(EvaluateExpression(call.Arguments[2])));
+						throw new Exception("ArraySlice expects 3 arguments: array, start, length");
+					case "ArrayConcat":
+						if (call.Arguments.Count >= 2)
+							return HypnoBuiltins.ArrayConcat(arr, EvaluateExpression(call.Arguments[1]) as object[] ?? new object[0]);
+						throw new Exception("ArrayConcat expects 2 arguments: array1, array2");
+					case "ArrayIndexOf":
+						if (call.Arguments.Count >= 2)
+							return HypnoBuiltins.ArrayIndexOf(arr, EvaluateExpression(call.Arguments[1]));
+						throw new Exception("ArrayIndexOf expects 2 arguments: array, value");
+					case "ArrayContains":
+						if (call.Arguments.Count >= 2)
+							return HypnoBuiltins.ArrayContains(arr, EvaluateExpression(call.Arguments[1]));
+						throw new Exception("ArrayContains expects 2 arguments: array, value");
+					default:
+						throw new Exception($"Unknown array function: {funcNameNode.Name}");
+				}
+			}
+
+			// ===== KONVERTIERUNGSFUNKTIONEN =====
+			if (funcNameNode.Name == "ToInt" || funcNameNode.Name == "ToDouble" || funcNameNode.Name == "ToString" ||
+				funcNameNode.Name == "ToBoolean" || funcNameNode.Name == "ToChar")
 			{
 				if (call.Arguments.Count != 1)
 					throw new Exception($"{funcNameNode.Name} expects 1 argument");
@@ -490,14 +596,19 @@ namespace HypnoScript.Compiler.Interpreter
 					"ToInt" => HypnoBuiltins.ToInt(value),
 					"ToDouble" => HypnoBuiltins.ToDouble(value),
 					"ToString" => HypnoBuiltins.ToString(value),
+					"ToBoolean" => HypnoBuiltins.ToBoolean(value),
+					"ToChar" => HypnoBuiltins.ToChar(value),
 					_ => throw new Exception($"Unknown conversion function: {funcNameNode.Name}")
 				};
 			}
 
-			// Hypnotische Spezialfunktionen
-			if (funcNameNode.Name == "DeepTrance" || funcNameNode.Name == "HypnoticCountdown" || funcNameNode.Name == "TranceInduction")
+			// ===== HYPNOTISCHE SPEZIALFUNKTIONEN =====
+			if (funcNameNode.Name == "DeepTrance" || funcNameNode.Name == "HypnoticCountdown" || funcNameNode.Name == "TranceInduction" ||
+				funcNameNode.Name == "HypnoticVisualization" || funcNameNode.Name == "ProgressiveRelaxation" ||
+				funcNameNode.Name == "HypnoticSuggestion" || funcNameNode.Name == "TranceDeepening")
 			{
 				var arg1 = call.Arguments.Count > 0 ? EvaluateExpression(call.Arguments[0]) : null;
+				var arg2 = call.Arguments.Count > 1 ? EvaluateExpression(call.Arguments[1]) : null;
 
 				switch (funcNameNode.Name)
 				{
@@ -513,8 +624,70 @@ namespace HypnoScript.Compiler.Interpreter
 						var subjectName = arg1?.ToString() ?? "Subject";
 						HypnoBuiltins.TranceInduction(subjectName);
 						break;
+					case "HypnoticVisualization":
+						var scene = arg1?.ToString() ?? "a peaceful garden";
+						HypnoBuiltins.HypnoticVisualization(scene);
+						break;
+					case "ProgressiveRelaxation":
+						var steps = arg1 != null ? Convert.ToInt32(arg1) : 5;
+						HypnoBuiltins.ProgressiveRelaxation(steps);
+						break;
+					case "HypnoticSuggestion":
+						var suggestion = arg1?.ToString() ?? "You are feeling very relaxed";
+						HypnoBuiltins.HypnoticSuggestion(suggestion);
+						break;
+					case "TranceDeepening":
+						var levels = arg1 != null ? Convert.ToInt32(arg1) : 3;
+						HypnoBuiltins.TranceDeepening(levels);
+						break;
 				}
 				return null;
+			}
+
+			// ===== ZEIT- UND DATUMSFUNKTIONEN =====
+			if (funcNameNode.Name == "GetCurrentTime" || funcNameNode.Name == "GetCurrentDate" ||
+				funcNameNode.Name == "GetCurrentTimeString" || funcNameNode.Name == "GetCurrentDateTime")
+			{
+				return funcNameNode.Name switch
+				{
+					"GetCurrentTime" => HypnoBuiltins.GetCurrentTime(),
+					"GetCurrentDate" => HypnoBuiltins.GetCurrentDate(),
+					"GetCurrentTimeString" => HypnoBuiltins.GetCurrentTimeString(),
+					"GetCurrentDateTime" => HypnoBuiltins.GetCurrentDateTime(),
+					_ => throw new Exception($"Unknown time function: {funcNameNode.Name}")
+				};
+			}
+
+			// ===== SYSTEM-FUNKTIONEN =====
+			if (funcNameNode.Name == "ClearScreen" || funcNameNode.Name == "Beep" || funcNameNode.Name == "GetEnvironmentVariable" ||
+				funcNameNode.Name == "Exit" || funcNameNode.Name == "DebugPrint" || funcNameNode.Name == "DebugPrintType")
+			{
+				switch (funcNameNode.Name)
+				{
+					case "ClearScreen":
+						HypnoBuiltins.ClearScreen();
+						return null;
+					case "Beep":
+						var frequency = call.Arguments.Count > 0 ? Convert.ToInt32(EvaluateExpression(call.Arguments[0])) : 800;
+						var duration = call.Arguments.Count > 1 ? Convert.ToInt32(EvaluateExpression(call.Arguments[1])) : 200;
+						HypnoBuiltins.Beep(frequency, duration);
+						return null;
+					case "GetEnvironmentVariable":
+						var name = call.Arguments.Count > 0 ? EvaluateExpression(call.Arguments[0])?.ToString() ?? "" : "";
+						return HypnoBuiltins.GetEnvironmentVariable(name);
+					case "Exit":
+						var code = call.Arguments.Count > 0 ? Convert.ToInt32(EvaluateExpression(call.Arguments[0])) : 0;
+						HypnoBuiltins.Exit(code);
+						return null;
+					case "DebugPrint":
+						var value = call.Arguments.Count > 0 ? EvaluateExpression(call.Arguments[0]) : null;
+						HypnoBuiltins.DebugPrint(value);
+						return null;
+					case "DebugPrintType":
+						var typeValue = call.Arguments.Count > 0 ? EvaluateExpression(call.Arguments[0]) : null;
+						HypnoBuiltins.DebugPrintType(typeValue);
+						return null;
+				}
 			}
 
 			// Normal function calls -> not implemented in this minimal example
