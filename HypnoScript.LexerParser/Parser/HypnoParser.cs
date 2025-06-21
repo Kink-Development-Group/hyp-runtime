@@ -45,8 +45,26 @@ namespace HypnoScript.LexerParser.Parser
 			if (Match(TokenType.Loop))
 				return ParseLoopStatement();
 
-			if (Match(TokenType.Suggestion) || Match(TokenType.ImperativeSuggestion) || Match(TokenType.DominantSuggestion))
+			if (Match(TokenType.Suggestion))
 				return ParseFunctionDeclaration();
+
+			// imperative suggestion
+			if (Match(TokenType.ImperativeSuggestion))
+			{
+				if (Match(TokenType.Suggestion))
+					return ParseFunctionDeclaration();
+				else
+					throw new Exception("Expected 'suggestion' after 'imperative'.");
+			}
+
+			// dominant suggestion
+			if (Match(TokenType.DominantSuggestion))
+			{
+				if (Match(TokenType.Suggestion))
+					return ParseFunctionDeclaration();
+				else
+					throw new Exception("Expected 'suggestion' after 'dominant'.");
+			}
 
 			if (Match(TokenType.Session))
 				return ParseSessionDeclaration();
@@ -133,7 +151,7 @@ namespace HypnoScript.LexerParser.Parser
 			IStatement? initializer = null;
 			if (!Check(TokenType.Semicolon))
 			{
-				initializer = ParseVarDecl(); // Hier könnte ein spezialisierter Parser für eine VarDecl ohne abschließendes ';' nötig sein.
+				initializer = ParseVarDeclWithoutSemicolon(); // Spezielle Version ohne Semikolon
 			}
 			Consume(TokenType.Semicolon, "Expected ';' after loop initializer.");
 
@@ -145,6 +163,48 @@ namespace HypnoScript.LexerParser.Parser
 
 			var body = ParseBlockStatements();
 			return new LoopStatementNode(initializer, condition, new ExpressionStatementNode(iteration), body);
+		}
+
+		// Spezielle Version von ParseVarDecl ohne abschließendes Semikolon (für Loop-Statements)
+		private IStatement ParseVarDeclWithoutSemicolon()
+		{
+			// 'induce x: number = 5' (ohne Semikolon)
+			var nameToken = Consume(TokenType.Identifier, "Expect identifier after 'induce'.");
+
+			string? typeName = null;
+			bool fromExternal = false;
+			IExpression? initializer = null;
+
+			if (Match(TokenType.Colon))
+			{
+				// parse type - akzeptiere Identifier oder Typ-Keywords
+				if (Match(TokenType.Number) || Match(TokenType.String) || Match(TokenType.Boolean))
+				{
+					typeName = Previous().Lexeme;
+				}
+				else
+				{
+					var typeToken = Consume(TokenType.Identifier, "Expect type name after ':'.");
+					typeName = typeToken.Lexeme;
+				}
+			}
+
+			if (Match(TokenType.Equals))
+			{
+				// parse initializer
+				initializer = ParseExpression();
+			}
+			else if (Match(TokenType.From))
+			{
+				// parse 'from external'
+				if (!Match(TokenType.External))
+					throw new Exception("Expected 'external' after 'from'.");
+				fromExternal = true;
+			}
+
+			// Kein Semikolon hier - das wird vom aufrufenden Code erwartet
+
+			return new VarDeclNode(nameToken.Lexeme, typeName, initializer, fromExternal);
 		}
 
 		// Neue Methode: Funktionsdeklaration parsen
@@ -180,8 +240,11 @@ namespace HypnoScript.LexerParser.Parser
 			}
 
 			var body = ParseBlockStatements();
-			bool imperative = funcKeyword.Contains("imperative");
-			bool dominant = funcKeyword.Contains("dominant");
+
+			// Bestimme die Flags basierend auf den vorherigen Tokens
+			bool imperative = funcKeyword == "imperative" || funcKeyword.Contains("imperative");
+			bool dominant = funcKeyword == "dominant" || funcKeyword.Contains("dominant");
+
 			return new FunctionDeclNode(nameToken.Lexeme, parameters, returnType, body, imperative, dominant);
 		}
 
@@ -285,10 +348,10 @@ namespace HypnoScript.LexerParser.Parser
 				// parse initializer
 				initializer = ParseExpression();
 			}
-			else if (MatchKeyword("from"))
+			else if (Match(TokenType.From))
 			{
 				// parse 'from external'
-				if (!MatchKeyword("external"))
+				if (!Match(TokenType.External))
 					throw new Exception("Expected 'external' after 'from'.");
 				fromExternal = true;
 			}
@@ -580,6 +643,14 @@ namespace HypnoScript.LexerParser.Parser
 					}
 				}
 
+				// Array-Zugriffe: array[index]
+				while (Match(TokenType.LBracket))
+				{
+					var index = ParseExpression();
+					Consume(TokenType.RBracket, "Expect ']' after array index.");
+					currentExpr = new ArrayAccessExpressionNode(currentExpr, index);
+				}
+
 				return currentExpr;
 			}
 
@@ -588,6 +659,21 @@ namespace HypnoScript.LexerParser.Parser
 				var parenExpr = ParseExpression();
 				Consume(TokenType.RParen, "Expect ')' after group expression.");
 				return new ParenthesizedExpressionNode(parenExpr);
+			}
+
+			// Array-Literal: [ expr1, expr2, ... ]
+			if (Match(TokenType.LBracket))
+			{
+				var elements = new List<IExpression>();
+				if (!Check(TokenType.RBracket))
+				{
+					do
+					{
+						elements.Add(ParseExpression());
+					} while (Match(TokenType.Comma));
+				}
+				Consume(TokenType.RBracket, "Expect ']' to close array literal.");
+				return new ArrayLiteralExpressionNode(elements);
 			}
 
 			throw new Exception($"Unexpected token {Peek().Type} at line {Peek().Line}.");

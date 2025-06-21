@@ -284,7 +284,10 @@ namespace HypnoScript.Compiler.Analysis
                 case BinaryExpressionNode bin:
                     // Vergleichsoperatoren geben boolean zurück
                     if (bin.Operator == "<" || bin.Operator == ">" || bin.Operator == "<=" || bin.Operator == ">=" ||
-                        bin.Operator == "==" || bin.Operator == "!=")
+                        bin.Operator == "==" || bin.Operator == "!=" ||
+                        bin.Operator == "youAreFeelingVerySleepy" || bin.Operator == "notSoDeep" ||
+                        bin.Operator == "lookAtTheWatch" || bin.Operator == "fallUnderMySpell" ||
+                        bin.Operator == "deeplyGreater" || bin.Operator == "deeplyLess")
                     {
                         return "boolean";
                     }

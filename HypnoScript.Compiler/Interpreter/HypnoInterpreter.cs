@@ -424,20 +424,136 @@ namespace HypnoScript.Compiler.Interpreter
 				return null;
 			}
 
+			// Mathematische Builtins
+			if (funcNameNode.Name == "Sin" || funcNameNode.Name == "Cos" || funcNameNode.Name == "Tan" ||
+				funcNameNode.Name == "Sqrt" || funcNameNode.Name == "Pow" || funcNameNode.Name == "Abs" ||
+				funcNameNode.Name == "Floor" || funcNameNode.Name == "Ceiling" || funcNameNode.Name == "Round")
+			{
+				if (call.Arguments.Count < 1)
+					throw new Exception($"{funcNameNode.Name} expects at least 1 argument");
+
+				var arg1 = Convert.ToDouble(EvaluateExpression(call.Arguments[0]));
+				var arg2 = call.Arguments.Count > 1 ? Convert.ToDouble(EvaluateExpression(call.Arguments[1])) : 0.0;
+
+				return funcNameNode.Name switch
+				{
+					"Sin" => HypnoBuiltins.Sin(arg1),
+					"Cos" => HypnoBuiltins.Cos(arg1),
+					"Tan" => HypnoBuiltins.Tan(arg1),
+					"Sqrt" => HypnoBuiltins.Sqrt(arg1),
+					"Pow" => HypnoBuiltins.Pow(arg1, arg2),
+					"Abs" => HypnoBuiltins.Abs(arg1),
+					"Floor" => HypnoBuiltins.Floor(arg1),
+					"Ceiling" => HypnoBuiltins.Ceiling(arg1),
+					"Round" => HypnoBuiltins.Round(arg1),
+					_ => throw new Exception($"Unknown mathematical function: {funcNameNode.Name}")
+				};
+			}
+
+			// String Builtins
+			if (funcNameNode.Name == "Length" || funcNameNode.Name == "ToUpper" || funcNameNode.Name == "ToLower" ||
+				funcNameNode.Name == "Substring" || funcNameNode.Name == "Contains" || funcNameNode.Name == "Replace")
+			{
+				if (call.Arguments.Count < 1)
+					throw new Exception($"{funcNameNode.Name} expects at least 1 argument");
+
+				var str = EvaluateExpression(call.Arguments[0])?.ToString() ?? "";
+
+				return funcNameNode.Name switch
+				{
+					"Length" => HypnoBuiltins.Length(str),
+					"ToUpper" => HypnoBuiltins.ToUpper(str),
+					"ToLower" => HypnoBuiltins.ToLower(str),
+					"Substring" => call.Arguments.Count >= 3
+						? HypnoBuiltins.Substring(str, Convert.ToInt32(EvaluateExpression(call.Arguments[1])), Convert.ToInt32(EvaluateExpression(call.Arguments[2])))
+						: throw new Exception("Substring expects 3 arguments: string, start, length"),
+					"Contains" => call.Arguments.Count >= 2
+						? HypnoBuiltins.Contains(str, EvaluateExpression(call.Arguments[1])?.ToString() ?? "")
+						: throw new Exception("Contains expects 2 arguments: string, substring"),
+					"Replace" => call.Arguments.Count >= 3
+						? HypnoBuiltins.Replace(str, EvaluateExpression(call.Arguments[1])?.ToString() ?? "", EvaluateExpression(call.Arguments[2])?.ToString() ?? "")
+						: throw new Exception("Replace expects 3 arguments: string, oldValue, newValue"),
+					_ => throw new Exception($"Unknown string function: {funcNameNode.Name}")
+				};
+			}
+
+			// Konvertierungsfunktionen
+			if (funcNameNode.Name == "ToInt" || funcNameNode.Name == "ToDouble" || funcNameNode.Name == "ToString")
+			{
+				if (call.Arguments.Count != 1)
+					throw new Exception($"{funcNameNode.Name} expects 1 argument");
+
+				var value = EvaluateExpression(call.Arguments[0]);
+
+				return funcNameNode.Name switch
+				{
+					"ToInt" => HypnoBuiltins.ToInt(value),
+					"ToDouble" => HypnoBuiltins.ToDouble(value),
+					"ToString" => HypnoBuiltins.ToString(value),
+					_ => throw new Exception($"Unknown conversion function: {funcNameNode.Name}")
+				};
+			}
+
+			// Hypnotische Spezialfunktionen
+			if (funcNameNode.Name == "DeepTrance" || funcNameNode.Name == "HypnoticCountdown" || funcNameNode.Name == "TranceInduction")
+			{
+				var arg1 = call.Arguments.Count > 0 ? EvaluateExpression(call.Arguments[0]) : null;
+
+				switch (funcNameNode.Name)
+				{
+					case "DeepTrance":
+						var duration = arg1 != null ? Convert.ToInt32(arg1) : 5000;
+						HypnoBuiltins.DeepTrance(duration);
+						break;
+					case "HypnoticCountdown":
+						var from = arg1 != null ? Convert.ToInt32(arg1) : 10;
+						HypnoBuiltins.HypnoticCountdown(from);
+						break;
+					case "TranceInduction":
+						var subjectName = arg1?.ToString() ?? "Subject";
+						HypnoBuiltins.TranceInduction(subjectName);
+						break;
+				}
+				return null;
+			}
+
 			// Normal function calls -> not implemented in this minimal example
 			throw new Exception($"Unknown function {funcNameNode.Name}");
 		}
 
 		private object? EvaluateMethodCall(MethodCallExpressionNode methodCall)
 		{
-			// Implementation of method call evaluation
-			throw new NotImplementedException();
+			var target = EvaluateExpression(methodCall.Target);
+
+			if (target is SessionInstance session)
+			{
+				// Methodenaufruf auf Session-Instanz
+				var arguments = new List<object?>();
+				foreach (var arg in methodCall.Arguments)
+				{
+					arguments.Add(EvaluateExpression(arg));
+				}
+				return EvaluateSessionMemberCall(session, methodCall.MethodName, arguments);
+			}
+
+			throw new Exception($"Method call on non-session value: {methodCall.MethodName}");
 		}
 
 		private object? EvaluateSessionInstantiation(SessionInstantiationNode sessionInst)
 		{
-			// Implementation of session instantiation evaluation
-			throw new NotImplementedException();
+			// Session-Instanz erstellen
+			var sessionSymbol = _globals.Resolve(sessionInst.SessionName);
+			if (sessionSymbol?.Value is SessionDeclNode sessionDecl)
+			{
+				var arguments = new List<object?>();
+				foreach (var arg in sessionInst.Arguments)
+				{
+					arguments.Add(EvaluateExpression(arg));
+				}
+				return InstantiateSession(sessionDecl, arguments);
+			}
+
+			throw new Exception($"Session '{sessionInst.SessionName}' not found");
 		}
 
 		private object? EvaluateFieldAccess(FieldAccessExpressionNode field)
@@ -471,14 +587,27 @@ namespace HypnoScript.Compiler.Interpreter
 
 		private object? EvaluateArrayAccess(ArrayAccessExpressionNode arrayAccess)
 		{
-			// Implementation of array access evaluation
-			throw new NotImplementedException();
+			var array = EvaluateExpression(arrayAccess.Array);
+			var index = EvaluateExpression(arrayAccess.Index);
+
+			if (array is List<object?> list && index is int intIndex)
+			{
+				if (intIndex >= 0 && intIndex < list.Count)
+					return list[intIndex];
+				throw new Exception($"Array index {intIndex} out of bounds (array length: {list.Count})");
+			}
+
+			throw new Exception("Array access requires a list and integer index");
 		}
 
 		private object? EvaluateArrayLiteral(ArrayLiteralExpressionNode arrayLit)
 		{
-			// Implementation of array literal evaluation
-			throw new NotImplementedException();
+			var elements = new List<object?>();
+			foreach (var element in arrayLit.Elements)
+			{
+				elements.Add(EvaluateExpression(element));
+			}
+			return elements;
 		}
 
 		private void ImportMindLink(string fileName)
