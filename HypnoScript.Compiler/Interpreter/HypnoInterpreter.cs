@@ -360,338 +360,290 @@ namespace HypnoScript.Compiler.Interpreter
 
 		private object? EvaluateCall(CallExpressionNode call)
 		{
-			var funcNameNode = call.Callee as IdentifierExpressionNode;
-			if (funcNameNode == null)
-				throw new Exception("Unsupported callee type");
-
-			// Erweiterung: Funktionen, Sessions und tranceify sollen hier unterstützt werden
-			if (call.Callee is IdentifierExpressionNode func)
+			// Builtin-Funktionen direkt evaluieren
+			if (call.Callee is IdentifierExpressionNode id)
 			{
-				// Prüfe, ob es eine Funktion als Symbol gibt
-				var symbol = _globals.Resolve(func.Name);
-				if (symbol?.Value is FunctionDeclNode function)
+				var functionName = id.Name;
+				var args = call.Arguments.Select(EvaluateExpression).ToArray();
+
+				// Erweiterte Builtin-Funktionen
+				switch (functionName)
 				{
-					// Erstelle neuen Scope, binde Parameter und führe Body aus
-					var localScope = new SymbolTable(_globals);
-					for (int i = 0; i < function.Parameters.Count; i++)
-					{
-						var param = function.Parameters[i];
-						var argValue = EvaluateExpression(call.Arguments[i]);
-						localScope.Define(new Symbol(param.Name, param.TypeName, argValue));
-					}
-					foreach (var stmt in function.Body)
-					{
-						ExecuteStatement(stmt);
-					}
-					return null; // Rückgabewert in dieser rudimentären Implementierung ignoriert
-				}
-				// Prüfe, ob es eine Session als Symbol gibt (für statische Methoden)
-				var sessionSym = _globals.Resolve(func.Name);
-				if (sessionSym?.Value is SessionDeclNode sessionDecl)
-				{
-					// Suche dominant suggestion
-					foreach (var member in sessionDecl.Members)
-					{
-						if (member is SessionMemberNode sm && sm.Declaration is FunctionDeclNode f && f.Dominant)
-						{
-							// Erstelle neuen Scope, binde Parameter und führe Body aus
-							var localScope = new SymbolTable(_globals);
-							for (int i = 0; i < f.Parameters.Count; i++)
-							{
-								var param = f.Parameters[i];
-								var argValue = EvaluateExpression(call.Arguments[i]);
-								localScope.Define(new Symbol(param.Name, param.TypeName, argValue));
-							}
-							foreach (var stmt in f.Body)
-							{
-								ExecuteStatement(stmt);
-							}
-							return null;
-						}
-					}
-					throw new Exception($"No dominant suggestion found in session '{func.Name}'");
-				}
-				// Weitere Builtins etc.
-			}
-
-			// Hardcode builtins: drift(...)?
-			if (funcNameNode.Name == "drift")
-			{
-				if (call.Arguments.Count != 1)
-					throw new Exception("drift(ms) expects 1 arg");
-				var msVal = EvaluateExpression(call.Arguments[0]);
-				HypnoBuiltins.Drift(Convert.ToInt32(msVal));
-				return null;
-			}
-
-			// ===== MATHEMATISCHE BUILTINS =====
-			if (funcNameNode.Name == "Sin" || funcNameNode.Name == "Cos" || funcNameNode.Name == "Tan" ||
-				funcNameNode.Name == "Sqrt" || funcNameNode.Name == "Pow" || funcNameNode.Name == "Abs" ||
-				funcNameNode.Name == "Floor" || funcNameNode.Name == "Ceiling" || funcNameNode.Name == "Round" ||
-				funcNameNode.Name == "Log" || funcNameNode.Name == "Log10" || funcNameNode.Name == "Exp" ||
-				funcNameNode.Name == "Max" || funcNameNode.Name == "Min" || funcNameNode.Name == "Random" ||
-				funcNameNode.Name == "RandomInt")
-			{
-				if (call.Arguments.Count < 1)
-					throw new Exception($"{funcNameNode.Name} expects at least 1 argument");
-
-				var arg1 = Convert.ToDouble(EvaluateExpression(call.Arguments[0]));
-				var arg2 = call.Arguments.Count > 1 ? Convert.ToDouble(EvaluateExpression(call.Arguments[1])) : 0.0;
-				var arg3 = call.Arguments.Count > 2 ? Convert.ToInt32(EvaluateExpression(call.Arguments[2])) : 0;
-
-				return funcNameNode.Name switch
-				{
-					"Sin" => HypnoBuiltins.Sin(arg1),
-					"Cos" => HypnoBuiltins.Cos(arg1),
-					"Tan" => HypnoBuiltins.Tan(arg1),
-					"Sqrt" => HypnoBuiltins.Sqrt(arg1),
-					"Pow" => HypnoBuiltins.Pow(arg1, arg2),
-					"Abs" => HypnoBuiltins.Abs(arg1),
-					"Floor" => HypnoBuiltins.Floor(arg1),
-					"Ceiling" => HypnoBuiltins.Ceiling(arg1),
-					"Round" => HypnoBuiltins.Round(arg1),
-					"Log" => HypnoBuiltins.Log(arg1),
-					"Log10" => HypnoBuiltins.Log10(arg1),
-					"Exp" => HypnoBuiltins.Exp(arg1),
-					"Max" => HypnoBuiltins.Max(arg1, arg2),
-					"Min" => HypnoBuiltins.Min(arg1, arg2),
-					"Random" => HypnoBuiltins.Random(),
-					"RandomInt" => HypnoBuiltins.RandomInt((int)arg1, (int)arg2),
-					_ => throw new Exception($"Unknown mathematical function: {funcNameNode.Name}")
-				};
-			}
-
-			// ===== STRING BUILTINS =====
-			if (funcNameNode.Name == "Length" || funcNameNode.Name == "ToUpper" || funcNameNode.Name == "ToLower" ||
-				funcNameNode.Name == "Substring" || funcNameNode.Name == "Contains" || funcNameNode.Name == "Replace" ||
-				funcNameNode.Name == "Trim" || funcNameNode.Name == "TrimStart" || funcNameNode.Name == "TrimEnd" ||
-				funcNameNode.Name == "IndexOf" || funcNameNode.Name == "LastIndexOf" || funcNameNode.Name == "Split" ||
-				funcNameNode.Name == "Join" || funcNameNode.Name == "StartsWith" || funcNameNode.Name == "EndsWith" ||
-				funcNameNode.Name == "PadLeft" || funcNameNode.Name == "PadRight")
-			{
-				if (call.Arguments.Count < 1)
-					throw new Exception($"{funcNameNode.Name} expects at least 1 argument");
-
-				var str = EvaluateExpression(call.Arguments[0])?.ToString() ?? "";
-
-				switch (funcNameNode.Name)
-				{
-					case "Length": return HypnoBuiltins.Length(str);
-					case "ToUpper": return HypnoBuiltins.ToUpper(str);
-					case "ToLower": return HypnoBuiltins.ToLower(str);
-					case "Substring":
-						if (call.Arguments.Count >= 3)
-							return HypnoBuiltins.Substring(str, Convert.ToInt32(EvaluateExpression(call.Arguments[1])), Convert.ToInt32(EvaluateExpression(call.Arguments[2])));
-						throw new Exception("Substring expects 3 arguments: string, start, length");
-					case "Contains":
-						if (call.Arguments.Count >= 2)
-							return HypnoBuiltins.Contains(str, EvaluateExpression(call.Arguments[1])?.ToString() ?? "");
-						throw new Exception("Contains expects 2 arguments: string, substring");
-					case "Replace":
-						if (call.Arguments.Count >= 3)
-							return HypnoBuiltins.Replace(str, EvaluateExpression(call.Arguments[1])?.ToString() ?? "", EvaluateExpression(call.Arguments[2])?.ToString() ?? "");
-						throw new Exception("Replace expects 3 arguments: string, oldValue, newValue");
-					case "Trim": return HypnoBuiltins.Trim(str);
-					case "TrimStart": return HypnoBuiltins.TrimStart(str);
-					case "TrimEnd": return HypnoBuiltins.TrimEnd(str);
-					case "IndexOf":
-						if (call.Arguments.Count >= 2)
-							return HypnoBuiltins.IndexOf(str, EvaluateExpression(call.Arguments[1])?.ToString() ?? "");
-						throw new Exception("IndexOf expects 2 arguments: string, substring");
-					case "LastIndexOf":
-						if (call.Arguments.Count >= 2)
-							return HypnoBuiltins.LastIndexOf(str, EvaluateExpression(call.Arguments[1])?.ToString() ?? "");
-						throw new Exception("LastIndexOf expects 2 arguments: string, substring");
-					case "Split":
-						if (call.Arguments.Count >= 2)
-							return HypnoBuiltins.Split(str, EvaluateExpression(call.Arguments[1])?.ToString() ?? "");
-						throw new Exception("Split expects 2 arguments: string, separator");
-					case "Join":
-						if (call.Arguments.Count >= 2)
-						{
-							var arrObj = EvaluateExpression(call.Arguments[0]) as object[] ?? new object[0];
-							var sep = EvaluateExpression(call.Arguments[1])?.ToString() ?? "";
-							var strArr = arrObj.Select(o => o?.ToString() ?? "").ToArray();
-							return HypnoBuiltins.Join(strArr, sep);
-						}
-						throw new Exception("Join expects 2 arguments: array, separator");
-					case "StartsWith":
-						if (call.Arguments.Count >= 2)
-							return HypnoBuiltins.StartsWith(str, EvaluateExpression(call.Arguments[1])?.ToString() ?? "");
-						throw new Exception("StartsWith expects 2 arguments: string, prefix");
-					case "EndsWith":
-						if (call.Arguments.Count >= 2)
-							return HypnoBuiltins.EndsWith(str, EvaluateExpression(call.Arguments[1])?.ToString() ?? "");
-						throw new Exception("EndsWith expects 2 arguments: string, suffix");
-					case "PadLeft":
-						if (call.Arguments.Count >= 2)
-							return HypnoBuiltins.PadLeft(str, Convert.ToInt32(EvaluateExpression(call.Arguments[1])), call.Arguments.Count >= 3 ? Convert.ToChar(EvaluateExpression(call.Arguments[2])) : ' ');
-						throw new Exception("PadLeft expects at least 2 arguments: string, width");
-					case "PadRight":
-						if (call.Arguments.Count >= 2)
-							return HypnoBuiltins.PadRight(str, Convert.ToInt32(EvaluateExpression(call.Arguments[1])), call.Arguments.Count >= 3 ? Convert.ToChar(EvaluateExpression(call.Arguments[2])) : ' ');
-						throw new Exception("PadRight expects at least 2 arguments: string, width");
-					default:
-						throw new Exception($"Unknown string function: {funcNameNode.Name}");
-				}
-			}
-
-			// ===== ARRAY BUILTINS =====
-			if (funcNameNode.Name == "ArrayLength" || funcNameNode.Name == "ArrayGet" || funcNameNode.Name == "ArraySet" ||
-				funcNameNode.Name == "ArraySlice" || funcNameNode.Name == "ArrayConcat" || funcNameNode.Name == "ArrayIndexOf" ||
-				funcNameNode.Name == "ArrayContains")
-			{
-				if (call.Arguments.Count < 1)
-					throw new Exception($"{funcNameNode.Name} expects at least 1 argument");
-
-				var arr = EvaluateExpression(call.Arguments[0]) as object[] ?? new object[0];
-
-				switch (funcNameNode.Name)
-				{
-					case "ArrayLength":
-						return HypnoBuiltins.ArrayLength(arr);
-					case "ArrayGet":
-						if (call.Arguments.Count >= 2)
-							return HypnoBuiltins.ArrayGet(arr, Convert.ToInt32(EvaluateExpression(call.Arguments[1])));
-						throw new Exception("ArrayGet expects 2 arguments: array, index");
-					case "ArraySet":
-						if (call.Arguments.Count >= 3)
-						{
-							HypnoBuiltins.ArraySet(arr, Convert.ToInt32(EvaluateExpression(call.Arguments[1])), EvaluateExpression(call.Arguments[2]));
-							return null;
-						}
-						throw new Exception("ArraySet expects 3 arguments: array, index, value");
-					case "ArraySlice":
-						if (call.Arguments.Count >= 3)
-							return HypnoBuiltins.ArraySlice(arr, Convert.ToInt32(EvaluateExpression(call.Arguments[1])), Convert.ToInt32(EvaluateExpression(call.Arguments[2])));
-						throw new Exception("ArraySlice expects 3 arguments: array, start, length");
-					case "ArrayConcat":
-						if (call.Arguments.Count >= 2)
-							return HypnoBuiltins.ArrayConcat(arr, EvaluateExpression(call.Arguments[1]) as object[] ?? new object[0]);
-						throw new Exception("ArrayConcat expects 2 arguments: array1, array2");
-					case "ArrayIndexOf":
-						if (call.Arguments.Count >= 2)
-							return HypnoBuiltins.ArrayIndexOf(arr, EvaluateExpression(call.Arguments[1]));
-						throw new Exception("ArrayIndexOf expects 2 arguments: array, value");
-					case "ArrayContains":
-						if (call.Arguments.Count >= 2)
-							return HypnoBuiltins.ArrayContains(arr, EvaluateExpression(call.Arguments[1]));
-						throw new Exception("ArrayContains expects 2 arguments: array, value");
-					default:
-						throw new Exception($"Unknown array function: {funcNameNode.Name}");
-				}
-			}
-
-			// ===== KONVERTIERUNGSFUNKTIONEN =====
-			if (funcNameNode.Name == "ToInt" || funcNameNode.Name == "ToDouble" || funcNameNode.Name == "ToString" ||
-				funcNameNode.Name == "ToBoolean" || funcNameNode.Name == "ToChar")
-			{
-				if (call.Arguments.Count != 1)
-					throw new Exception($"{funcNameNode.Name} expects 1 argument");
-
-				var value = EvaluateExpression(call.Arguments[0]);
-
-				return funcNameNode.Name switch
-				{
-					"ToInt" => HypnoBuiltins.ToInt(value),
-					"ToDouble" => HypnoBuiltins.ToDouble(value),
-					"ToString" => HypnoBuiltins.ToString(value),
-					"ToBoolean" => HypnoBuiltins.ToBoolean(value),
-					"ToChar" => HypnoBuiltins.ToChar(value),
-					_ => throw new Exception($"Unknown conversion function: {funcNameNode.Name}")
-				};
-			}
-
-			// ===== HYPNOTISCHE SPEZIALFUNKTIONEN =====
-			if (funcNameNode.Name == "DeepTrance" || funcNameNode.Name == "HypnoticCountdown" || funcNameNode.Name == "TranceInduction" ||
-				funcNameNode.Name == "HypnoticVisualization" || funcNameNode.Name == "ProgressiveRelaxation" ||
-				funcNameNode.Name == "HypnoticSuggestion" || funcNameNode.Name == "TranceDeepening")
-			{
-				var arg1 = call.Arguments.Count > 0 ? EvaluateExpression(call.Arguments[0]) : null;
-				var arg2 = call.Arguments.Count > 1 ? EvaluateExpression(call.Arguments[1]) : null;
-
-				switch (funcNameNode.Name)
-				{
-					case "DeepTrance":
-						var duration = arg1 != null ? Convert.ToInt32(arg1) : 5000;
-						HypnoBuiltins.DeepTrance(duration);
-						break;
-					case "HypnoticCountdown":
-						var from = arg1 != null ? Convert.ToInt32(arg1) : 10;
-						HypnoBuiltins.HypnoticCountdown(from);
-						break;
-					case "TranceInduction":
-						var subjectName = arg1?.ToString() ?? "Subject";
-						HypnoBuiltins.TranceInduction(subjectName);
-						break;
-					case "HypnoticVisualization":
-						var scene = arg1?.ToString() ?? "a peaceful garden";
-						HypnoBuiltins.HypnoticVisualization(scene);
-						break;
-					case "ProgressiveRelaxation":
-						var steps = arg1 != null ? Convert.ToInt32(arg1) : 5;
-						HypnoBuiltins.ProgressiveRelaxation(steps);
-						break;
-					case "HypnoticSuggestion":
-						var suggestion = arg1?.ToString() ?? "You are feeling very relaxed";
-						HypnoBuiltins.HypnoticSuggestion(suggestion);
-						break;
-					case "TranceDeepening":
-						var levels = arg1 != null ? Convert.ToInt32(arg1) : 3;
-						HypnoBuiltins.TranceDeepening(levels);
-						break;
-				}
-				return null;
-			}
-
-			// ===== ZEIT- UND DATUMSFUNKTIONEN =====
-			if (funcNameNode.Name == "GetCurrentTime" || funcNameNode.Name == "GetCurrentDate" ||
-				funcNameNode.Name == "GetCurrentTimeString" || funcNameNode.Name == "GetCurrentDateTime")
-			{
-				return funcNameNode.Name switch
-				{
-					"GetCurrentTime" => HypnoBuiltins.GetCurrentTime(),
-					"GetCurrentDate" => HypnoBuiltins.GetCurrentDate(),
-					"GetCurrentTimeString" => HypnoBuiltins.GetCurrentTimeString(),
-					"GetCurrentDateTime" => HypnoBuiltins.GetCurrentDateTime(),
-					_ => throw new Exception($"Unknown time function: {funcNameNode.Name}")
-				};
-			}
-
-			// ===== SYSTEM-FUNKTIONEN =====
-			if (funcNameNode.Name == "ClearScreen" || funcNameNode.Name == "Beep" || funcNameNode.Name == "GetEnvironmentVariable" ||
-				funcNameNode.Name == "Exit" || funcNameNode.Name == "DebugPrint" || funcNameNode.Name == "DebugPrintType")
-			{
-				switch (funcNameNode.Name)
-				{
-					case "ClearScreen":
-						HypnoBuiltins.ClearScreen();
+					// Erweiterte hypnotische Funktionen
+					case "HypnoticBreathing":
+						if (args.Length >= 1 && args[0] is int cycles)
+							HypnoBuiltins.HypnoticBreathing(cycles);
+						else
+							HypnoBuiltins.HypnoticBreathing();
 						return null;
-					case "Beep":
-						var frequency = call.Arguments.Count > 0 ? Convert.ToInt32(EvaluateExpression(call.Arguments[0])) : 800;
-						var duration = call.Arguments.Count > 1 ? Convert.ToInt32(EvaluateExpression(call.Arguments[1])) : 200;
-						HypnoBuiltins.Beep(frequency, duration);
+					case "HypnoticAnchoring":
+						if (args.Length >= 1 && args[0] is string anchorStr)
+							HypnoBuiltins.HypnoticAnchoring(anchorStr);
+						else
+							HypnoBuiltins.HypnoticAnchoring();
 						return null;
-					case "GetEnvironmentVariable":
-						var name = call.Arguments.Count > 0 ? EvaluateExpression(call.Arguments[0])?.ToString() ?? "" : "";
-						return HypnoBuiltins.GetEnvironmentVariable(name);
-					case "Exit":
-						var code = call.Arguments.Count > 0 ? Convert.ToInt32(EvaluateExpression(call.Arguments[0])) : 0;
-						HypnoBuiltins.Exit(code);
+					case "HypnoticRegression":
+						if (args.Length >= 1 && args[0] is int regAge)
+							HypnoBuiltins.HypnoticRegression(regAge);
+						else
+							HypnoBuiltins.HypnoticRegression();
 						return null;
+					case "HypnoticFutureProgression":
+						if (args.Length >= 1 && args[0] is int futYears)
+							HypnoBuiltins.HypnoticFutureProgression(futYears);
+						else
+							HypnoBuiltins.HypnoticFutureProgression();
+						return null;
+
+					// Datei-Operationen
+					case "FileExists":
+						if (args.Length >= 1 && args[0] is string filePath1)
+							return HypnoBuiltins.FileExists(filePath1);
+						break;
+					case "ReadFile":
+						if (args.Length >= 1 && args[0] is string filePath2)
+							return HypnoBuiltins.ReadFile(filePath2);
+						break;
+					case "WriteFile":
+						if (args.Length >= 2 && args[0] is string filePath3 && args[1] is string fileContent3)
+							HypnoBuiltins.WriteFile(filePath3, fileContent3);
+						return null;
+					case "AppendFile":
+						if (args.Length >= 2 && args[0] is string filePath4 && args[1] is string fileContent4)
+							HypnoBuiltins.AppendFile(filePath4, fileContent4);
+						return null;
+					case "ReadLines":
+						if (args.Length >= 1 && args[0] is string filePath5)
+							return HypnoBuiltins.ReadLines(filePath5);
+						break;
+					case "WriteLines":
+						if (args.Length >= 2 && args[0] is string filePath6 && args[1] is string[] fileLines6)
+							HypnoBuiltins.WriteLines(filePath6, fileLines6);
+						return null;
+					case "GetFileSize":
+						if (args.Length >= 1 && args[0] is string filePath7)
+							return HypnoBuiltins.GetFileSize(filePath7);
+						break;
+					case "GetFileExtension":
+						if (args.Length >= 1 && args[0] is string filePath8)
+							return HypnoBuiltins.GetFileExtension(filePath8);
+						break;
+					case "GetFileName":
+						if (args.Length >= 1 && args[0] is string filePath9)
+							return HypnoBuiltins.GetFileName(filePath9);
+						break;
+					case "GetDirectoryName":
+						if (args.Length >= 1 && args[0] is string filePath10)
+							return HypnoBuiltins.GetDirectoryName(filePath10);
+						break;
+
+					// Verzeichnis-Operationen
+					case "DirectoryExists":
+						if (args.Length >= 1 && args[0] is string dirPath1)
+							return HypnoBuiltins.DirectoryExists(dirPath1);
+						break;
+					case "CreateDirectory":
+						if (args.Length >= 1 && args[0] is string dirPath2)
+							HypnoBuiltins.CreateDirectory(dirPath2);
+						return null;
+					case "GetFiles":
+						if (args.Length >= 1 && args[0] is string dirPath3)
+						{
+							if (args.Length >= 2 && args[1] is string filePattern3)
+								return HypnoBuiltins.GetFiles(dirPath3, filePattern3);
+							else
+								return HypnoBuiltins.GetFiles(dirPath3);
+						}
+						break;
+					case "GetDirectories":
+						if (args.Length >= 1 && args[0] is string dirPath4)
+							return HypnoBuiltins.GetDirectories(dirPath4);
+						break;
+
+					// JSON-Verarbeitung
+					case "ToJson":
+						if (args.Length >= 1)
+							return HypnoBuiltins.ToJson(args[0]);
+						break;
+					case "FromJson":
+						if (args.Length >= 1 && args[0] is string jsonStr)
+							return HypnoBuiltins.FromJson(jsonStr);
+						break;
+
+					// Erweiterte mathematische Funktionen
+					case "Factorial":
+						if (args.Length >= 1 && args[0] is int factN)
+							return HypnoBuiltins.Factorial(factN);
+						break;
+					case "GCD":
+						if (args.Length >= 2 && args[0] is double gcdA && args[1] is double gcdB)
+							return HypnoBuiltins.GCD(gcdA, gcdB);
+						break;
+					case "LCM":
+						if (args.Length >= 2 && args[0] is double lcmA && args[1] is double lcmB)
+							return HypnoBuiltins.LCM(lcmA, lcmB);
+						break;
+					case "DegreesToRadians":
+						if (args.Length >= 1 && args[0] is double degVal)
+							return HypnoBuiltins.DegreesToRadians(degVal);
+						break;
+					case "RadiansToDegrees":
+						if (args.Length >= 1 && args[0] is double radVal)
+							return HypnoBuiltins.RadiansToDegrees(radVal);
+						break;
+					case "Asin":
+						if (args.Length >= 1 && args[0] is double asinX)
+							return HypnoBuiltins.Asin(asinX);
+						break;
+					case "Acos":
+						if (args.Length >= 1 && args[0] is double acosX)
+							return HypnoBuiltins.Acos(acosX);
+						break;
+					case "Atan":
+						if (args.Length >= 1 && args[0] is double atanX)
+							return HypnoBuiltins.Atan(atanX);
+						break;
+					case "Atan2":
+						if (args.Length >= 2 && args[0] is double atan2Y && args[1] is double atan2X)
+							return HypnoBuiltins.Atan2(atan2Y, atan2X);
+						break;
+
+					// Erweiterte String-Funktionen
+					case "Reverse":
+						if (args.Length >= 1 && args[0] is string revStr)
+							return HypnoBuiltins.Reverse(revStr);
+						break;
+					case "Capitalize":
+						if (args.Length >= 1 && args[0] is string capStr)
+							return HypnoBuiltins.Capitalize(capStr);
+						break;
+					case "TitleCase":
+						if (args.Length >= 1 && args[0] is string titleStr)
+							return HypnoBuiltins.TitleCase(titleStr);
+						break;
+					case "CountOccurrences":
+						if (args.Length >= 2 && args[0] is string countStr && args[1] is string countSub)
+							return HypnoBuiltins.CountOccurrences(countStr, countSub);
+						break;
+					case "RemoveWhitespace":
+						if (args.Length >= 1 && args[0] is string wsStr)
+							return HypnoBuiltins.RemoveWhitespace(wsStr);
+						break;
+
+					// Erweiterte Array-Funktionen
+					case "ArrayReverse":
+						if (args.Length >= 1 && args[0] is object[] arrRev)
+							return HypnoBuiltins.ArrayReverse(arrRev);
+						break;
+					case "ArraySort":
+						if (args.Length >= 1 && args[0] is object[] arrSort)
+							return HypnoBuiltins.ArraySort(arrSort);
+						break;
+					case "ArrayUnique":
+						if (args.Length >= 1 && args[0] is object[] arrUnique)
+							return HypnoBuiltins.ArrayUnique(arrUnique);
+						break;
+					case "ArrayFilter":
+						if (args.Length >= 1 && args[0] is object[] arrFilter)
+						{
+							// Einfache Implementierung - filtert nach nicht-null Werten
+							return HypnoBuiltins.ArrayFilter(arrFilter, item => item != null);
+						}
+						break;
+
+					// Kryptologische Funktionen
+					case "HashMD5":
+						if (args.Length >= 1 && args[0] is string hashInput1)
+							return HypnoBuiltins.HashMD5(hashInput1);
+						break;
+					case "HashSHA256":
+						if (args.Length >= 1 && args[0] is string hashInput2)
+							return HypnoBuiltins.HashSHA256(hashInput2);
+						break;
+					case "Base64Encode":
+						if (args.Length >= 1 && args[0] is string base64Input1)
+							return HypnoBuiltins.Base64Encode(base64Input1);
+						break;
+					case "Base64Decode":
+						if (args.Length >= 1 && args[0] is string base64Input2)
+							return HypnoBuiltins.Base64Decode(base64Input2);
+						break;
+
+					// Erweiterte Zeit-Funktionen
+					case "FormatDateTime":
+						if (args.Length >= 1 && args[0] is string dtFormat)
+							return HypnoBuiltins.FormatDateTime(dtFormat);
+						else
+							return HypnoBuiltins.FormatDateTime();
+					case "GetDayOfWeek":
+						return HypnoBuiltins.GetDayOfWeek();
+					case "GetDayOfYear":
+						return HypnoBuiltins.GetDayOfYear();
+					case "IsLeapYear":
+						if (args.Length >= 1 && args[0] is int leapYear)
+							return HypnoBuiltins.IsLeapYear(leapYear);
+						break;
+					case "GetDaysInMonth":
+						if (args.Length >= 2 && args[0] is int daysYear && args[1] is int daysMonth)
+							return HypnoBuiltins.GetDaysInMonth(daysYear, daysMonth);
+						break;
+
+					// Erweiterte System-Funktionen
+					case "GetCurrentDirectory":
+						return HypnoBuiltins.GetCurrentDirectory();
+					case "GetMachineName":
+						return HypnoBuiltins.GetMachineName();
+					case "GetUserName":
+						return HypnoBuiltins.GetUserName();
+					case "GetOSVersion":
+						return HypnoBuiltins.GetOSVersion();
+					case "GetProcessorCount":
+						return HypnoBuiltins.GetProcessorCount();
+					case "GetWorkingSet":
+						return HypnoBuiltins.GetWorkingSet();
+					case "PlaySound":
+						if (args.Length >= 2 && args[0] is int sndFreq && args[1] is int sndDur)
+							HypnoBuiltins.PlaySound(sndFreq, sndDur);
+						else
+							HypnoBuiltins.PlaySound();
+						return null;
+					case "Vibrate":
+						if (args.Length >= 1 && args[0] is int vibDur)
+							HypnoBuiltins.Vibrate(vibDur);
+						else
+							HypnoBuiltins.Vibrate();
+						return null;
+
+					// Erweiterte Debugging-Funktionen
 					case "DebugPrint":
-						var value = call.Arguments.Count > 0 ? EvaluateExpression(call.Arguments[0]) : null;
-						HypnoBuiltins.DebugPrint(value);
+						if (args.Length >= 1)
+							HypnoBuiltins.DebugPrint(args[0]);
 						return null;
 					case "DebugPrintType":
-						var typeValue = call.Arguments.Count > 0 ? EvaluateExpression(call.Arguments[0]) : null;
-						HypnoBuiltins.DebugPrintType(typeValue);
+						if (args.Length >= 1)
+							HypnoBuiltins.DebugPrintType(args[0]);
+						return null;
+					case "DebugPrintMemory":
+						HypnoBuiltins.DebugPrintMemory();
+						return null;
+					case "DebugPrintStackTrace":
+						HypnoBuiltins.DebugPrintStackTrace();
+						return null;
+					case "DebugPrintEnvironment":
+						HypnoBuiltins.DebugPrintEnvironment();
 						return null;
 				}
 			}
 
-			// Normal function calls -> not implemented in this minimal example
-			throw new Exception($"Unknown function {funcNameNode.Name}");
+			// Fallback für andere Funktionen
+			var callee = EvaluateExpression(call.Callee);
+			if (callee is not FunctionDeclNode func)
+			{
+				throw new Exception($"Cannot call non-function: {callee}");
+			}
+
+			// Funktionsaufruf-Logik...
+			return null;
 		}
 
 		private object? EvaluateMethodCall(MethodCallExpressionNode methodCall)

@@ -72,6 +72,34 @@ namespace HypnoScript.CLI
                             return 1;
                         }
                         return FormatFile(args[1], debug, verbose);
+                    case "benchmark":
+                        if (args.Length < 2)
+                        {
+                            Console.WriteLine("Error: File path required for 'benchmark' command");
+                            return 1;
+                        }
+                        return BenchmarkFile(args[1], debug, verbose);
+                    case "profile":
+                        if (args.Length < 2)
+                        {
+                            Console.WriteLine("Error: File path required for 'profile' command");
+                            return 1;
+                        }
+                        return ProfileFile(args[1], debug, verbose);
+                    case "lint":
+                        if (args.Length < 2)
+                        {
+                            Console.WriteLine("Error: File path required for 'lint' command");
+                            return 1;
+                        }
+                        return LintFile(args[1], debug, verbose);
+                    case "optimize":
+                        if (args.Length < 2)
+                        {
+                            Console.WriteLine("Error: File path required for 'optimize' command");
+                            return 1;
+                        }
+                        return OptimizeFile(args[1], debug, verbose);
                     case "version":
                         ShowVersion();
                         return 0;
@@ -101,6 +129,10 @@ namespace HypnoScript.CLI
             Console.WriteLine("  dotnet run -- info <file.hyp> [--debug] [--verbose]    - Show file information");
             Console.WriteLine("  dotnet run -- validate <file.hyp> [--debug] [--verbose] - Validate syntax");
             Console.WriteLine("  dotnet run -- format <file.hyp> [--debug] [--verbose]  - Format code");
+            Console.WriteLine("  dotnet run -- benchmark <file.hyp> [--debug] [--verbose] - Performance benchmark");
+            Console.WriteLine("  dotnet run -- profile <file.hyp> [--debug] [--verbose] - Code profiling");
+            Console.WriteLine("  dotnet run -- lint <file.hyp> [--debug] [--verbose]    - Code linting");
+            Console.WriteLine("  dotnet run -- optimize <file.hyp> [--debug] [--verbose] - Code optimization");
             Console.WriteLine("  dotnet run -- version                                 - Show version");
             Console.WriteLine("  dotnet run -- help                                    - Show this help");
             Console.WriteLine();
@@ -519,6 +551,30 @@ namespace HypnoScript.CLI
                 if (debug) Console.Error.WriteLine(ex.StackTrace);
                 return 1;
             }
+        }
+
+        private static int BenchmarkFile(string filePath, bool debug, bool verbose)
+        {
+            // Implementation of BenchmarkFile method
+            return 0; // Placeholder return, actual implementation needed
+        }
+
+        private static int ProfileFile(string filePath, bool debug, bool verbose)
+        {
+            // Implementation of ProfileFile method
+            return 0; // Placeholder return, actual implementation needed
+        }
+
+        private static int LintFile(string filePath, bool debug, bool verbose)
+        {
+            // Implementation of LintFile method
+            return 0; // Placeholder return, actual implementation needed
+        }
+
+        private static int OptimizeFile(string filePath, bool debug, bool verbose)
+        {
+            // Implementation of OptimizeFile method
+            return 0; // Placeholder return, actual implementation needed
         }
     }
 }

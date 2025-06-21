@@ -110,6 +110,159 @@ namespace HypnoScript.Compiler.CodeGen
             _wat.AppendLine("    local.get $num");
             _wat.AppendLine("    call $console_log");
             _wat.AppendLine("  )");
+
+            // Erweiterte mathematische Funktionen
+            _wat.AppendLine("  ;; Erweiterte mathematische Funktionen");
+            _wat.AppendLine("  (func $factorial (param $n i32) (result i32)");
+            _wat.AppendLine("    (local $result i32)");
+            _wat.AppendLine("    i32.const 1");
+            _wat.AppendLine("    local.set $result");
+            _wat.AppendLine("    block");
+            _wat.AppendLine("      loop");
+            _wat.AppendLine("        local.get $n");
+            _wat.AppendLine("        i32.const 1");
+            _wat.AppendLine("        i32.le_s");
+            _wat.AppendLine("        br_if 1");
+            _wat.AppendLine("        local.get $result");
+            _wat.AppendLine("        local.get $n");
+            _wat.AppendLine("        i32.mul");
+            _wat.AppendLine("        local.set $result");
+            _wat.AppendLine("        local.get $n");
+            _wat.AppendLine("        i32.const 1");
+            _wat.AppendLine("        i32.sub");
+            _wat.AppendLine("        local.set $n");
+            _wat.AppendLine("        br 0");
+            _wat.AppendLine("      end");
+            _wat.AppendLine("    end");
+            _wat.AppendLine("    local.get $result");
+            _wat.AppendLine("  )");
+
+            // GCD-Funktion
+            _wat.AppendLine("  (func $gcd (param $a i32) (param $b i32) (result i32)");
+            _wat.AppendLine("    (local $temp i32)");
+            _wat.AppendLine("    block");
+            _wat.AppendLine("      loop");
+            _wat.AppendLine("        local.get $b");
+            _wat.AppendLine("        i32.eqz");
+            _wat.AppendLine("        br_if 1");
+            _wat.AppendLine("        local.get $b");
+            _wat.AppendLine("        local.set $temp");
+            _wat.AppendLine("        local.get $a");
+            _wat.AppendLine("        local.get $b");
+            _wat.AppendLine("        i32.rem_s");
+            _wat.AppendLine("        local.set $b");
+            _wat.AppendLine("        local.get $temp");
+            _wat.AppendLine("        local.set $a");
+            _wat.AppendLine("        br 0");
+            _wat.AppendLine("      end");
+            _wat.AppendLine("    end");
+            _wat.AppendLine("    local.get $a");
+            _wat.AppendLine("  )");
+
+            // Array-Hilfsfunktionen
+            _wat.AppendLine("  ;; Array-Hilfsfunktionen");
+            _wat.AppendLine("  (func $array_length (param $arr i32) (result i32)");
+            _wat.AppendLine("    local.get $arr");
+            _wat.AppendLine("    i32.load");
+            _wat.AppendLine("  )");
+
+            _wat.AppendLine("  (func $array_get (param $arr i32) (param $index i32) (result i32)");
+            _wat.AppendLine("    local.get $arr");
+            _wat.AppendLine("    i32.const 4");
+            _wat.AppendLine("    i32.add");
+            _wat.AppendLine("    local.get $index");
+            _wat.AppendLine("    i32.const 4");
+            _wat.AppendLine("    i32.mul");
+            _wat.AppendLine("    i32.add");
+            _wat.AppendLine("    i32.load");
+            _wat.AppendLine("  )");
+
+            _wat.AppendLine("  (func $array_set (param $arr i32) (param $index i32) (param $value i32)");
+            _wat.AppendLine("    local.get $arr");
+            _wat.AppendLine("    i32.const 4");
+            _wat.AppendLine("    i32.add");
+            _wat.AppendLine("    local.get $index");
+            _wat.AppendLine("    i32.const 4");
+            _wat.AppendLine("    i32.mul");
+            _wat.AppendLine("    i32.add");
+            _wat.AppendLine("    local.get $value");
+            _wat.AppendLine("    i32.store");
+            _wat.AppendLine("  )");
+
+            // String-Vergleich
+            _wat.AppendLine("  (func $string_equals (param $str1 i32) (param $len1 i32) (param $str2 i32) (param $len2 i32) (result i32)");
+            _wat.AppendLine("    (local $i i32)");
+            _wat.AppendLine("    local.get $len1");
+            _wat.AppendLine("    local.get $len2");
+            _wat.AppendLine("    i32.ne");
+            _wat.AppendLine("    if");
+            _wat.AppendLine("      i32.const 0");
+            _wat.AppendLine("      return");
+            _wat.AppendLine("    end");
+            _wat.AppendLine("    i32.const 0");
+            _wat.AppendLine("    local.set $i");
+            _wat.AppendLine("    block");
+            _wat.AppendLine("      loop");
+            _wat.AppendLine("        local.get $i");
+            _wat.AppendLine("        local.get $len1");
+            _wat.AppendLine("        i32.ge_s");
+            _wat.AppendLine("        br_if 1");
+            _wat.AppendLine("        local.get $str1");
+            _wat.AppendLine("        local.get $i");
+            _wat.AppendLine("        i32.add");
+            _wat.AppendLine("        i32.load8_u");
+            _wat.AppendLine("        local.get $str2");
+            _wat.AppendLine("        local.get $i");
+            _wat.AppendLine("        i32.add");
+            _wat.AppendLine("        i32.load8_u");
+            _wat.AppendLine("        i32.ne");
+            _wat.AppendLine("        if");
+            _wat.AppendLine("          i32.const 0");
+            _wat.AppendLine("          return");
+            _wat.AppendLine("        end");
+            _wat.AppendLine("        local.get $i");
+            _wat.AppendLine("        i32.const 1");
+            _wat.AppendLine("        i32.add");
+            _wat.AppendLine("        local.set $i");
+            _wat.AppendLine("        br 0");
+            _wat.AppendLine("      end");
+            _wat.AppendLine("    end");
+            _wat.AppendLine("    i32.const 1");
+            _wat.AppendLine("  )");
+
+            // Konvertierungsfunktionen
+            _wat.AppendLine("  ;; Konvertierungsfunktionen");
+            _wat.AppendLine("  (func $int_to_string (param $num i32) (result i32)");
+            _wat.AppendLine("    (local $str i32)");
+            _wat.AppendLine("    (local $len i32)");
+            _wat.AppendLine("    ;; Einfache Implementierung für positive Zahlen");
+            _wat.AppendLine("    local.get $num");
+            _wat.AppendLine("    i32.const 10");
+            _wat.AppendLine("    i32.lt_s");
+            _wat.AppendLine("    if");
+            _wat.AppendLine("      i32.const 1");
+            _wat.AppendLine("      local.set $len");
+            _wat.AppendLine("    else");
+            _wat.AppendLine("      i32.const 2");
+            _wat.AppendLine("      local.set $len");
+            _wat.AppendLine("    end");
+            _wat.AppendLine("    local.get $len");
+            _wat.AppendLine("    call $store_string");
+            _wat.AppendLine("    local.set $str");
+            _wat.AppendLine("    local.get $str");
+            _wat.AppendLine("  )");
+
+            // Boolean-Konvertierung
+            _wat.AppendLine("  (func $bool_to_string (param $bool i32) (result i32)");
+            _wat.AppendLine("    local.get $bool");
+            _wat.AppendLine("    if");
+            _wat.AppendLine("      i32.const 4  ;; \"true\"");
+            _wat.AppendLine("      call $store_string");
+            _wat.AppendLine("    else");
+            _wat.AppendLine("      i32.const 5  ;; \"false\"");
+            _wat.AppendLine("      call $store_string");
+            _wat.AppendLine("    end");
+            _wat.AppendLine("  )");
         }
 
         private void EmitStatements(List<IStatement> statements)

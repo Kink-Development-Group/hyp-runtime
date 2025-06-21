@@ -276,35 +276,357 @@ namespace HypnoScript.Compiler.Analysis
             {
                 case LiteralExpressionNode lit:
                     return lit.LiteralType;
+                case BinaryExpressionNode bin:
+                    var leftType = InferExpressionType(bin.Left);
+                    var rightType = InferExpressionType(bin.Right);
+                    return InferBinaryType(bin.Operator, leftType, rightType);
+                case UnaryExpressionNode unary:
+                    var operandType = InferExpressionType(unary.Operand);
+                    return InferUnaryType(unary.Operator, operandType);
+                case ParenthesizedExpressionNode paren:
+                    return InferExpressionType(paren.Expression);
+                case AssignmentExpressionNode assign:
+                    return InferExpressionType(assign.Value);
                 case IdentifierExpressionNode id:
                     var sym = _globals.Resolve(id.Name);
                     return sym?.TypeName;
-                case RecordLiteralExpressionNode rec:
-                    return rec.TypeName;
-                case BinaryExpressionNode bin:
-                    // Vergleichsoperatoren geben boolean zurück
-                    if (bin.Operator == "<" || bin.Operator == ">" || bin.Operator == "<=" || bin.Operator == ">=" ||
-                        bin.Operator == "==" || bin.Operator == "!=" ||
-                        bin.Operator == "youAreFeelingVerySleepy" || bin.Operator == "notSoDeep" ||
-                        bin.Operator == "lookAtTheWatch" || bin.Operator == "fallUnderMySpell" ||
-                        bin.Operator == "deeplyGreater" || bin.Operator == "deeplyLess")
-                    {
-                        return "boolean";
-                    }
-                    // Arithmetische Operatoren geben number zurück (falls beide Operanden number sind)
-                    if (bin.Operator == "+" || bin.Operator == "-" || bin.Operator == "*" || bin.Operator == "/" || bin.Operator == "%")
-                    {
-                        var leftType = InferExpressionType(bin.Left);
-                        var rightType = InferExpressionType(bin.Right);
-                        if (leftType == "number" && rightType == "number")
-                        {
-                            return "number";
-                        }
-                    }
-                    return null;
+                case CallExpressionNode call:
+                    return InferCallType(call);
+                case ArrayLiteralExpressionNode arrayLit:
+                    return "array";
+                case ArrayAccessExpressionNode arrayAccess:
+                    return InferArrayAccessType(arrayAccess);
+                case FieldAccessExpressionNode fieldAccess:
+                    return InferFieldAccessType(fieldAccess);
                 default:
-                    return null;
+                    return "unknown";
             }
+        }
+
+        private string? InferBinaryType(string op, string? leftType, string? rightType)
+        {
+            // Erweiterte Typinferenz für binäre Operatoren
+            switch (op)
+            {
+                case "+":
+                    if (leftType == "string" || rightType == "string") return "string";
+                    if (leftType == "number" && rightType == "number") return "number";
+                    return "unknown";
+                case "-":
+                case "*":
+                case "/":
+                case "%":
+                    if (leftType == "number" && rightType == "number") return "number";
+                    return "unknown";
+                case "==":
+                case "!=":
+                case "youAreFeelingVerySleepy":
+                case "notSoDeep":
+                    return "boolean";
+                case ">":
+                case "<":
+                case ">=":
+                case "<=":
+                case "lookAtTheWatch":
+                case "fallUnderMySpell":
+                case "deeplyGreater":
+                case "deeplyLess":
+                    if (leftType == "number" && rightType == "number") return "boolean";
+                    return "unknown";
+                case "&&":
+                case "||":
+                    if (leftType == "boolean" && rightType == "boolean") return "boolean";
+                    return "unknown";
+                default:
+                    return "unknown";
+            }
+        }
+
+        private string? InferUnaryType(string op, string? operandType)
+        {
+            switch (op)
+            {
+                case "!":
+                    if (operandType == "boolean") return "boolean";
+                    return "unknown";
+                case "+":
+                case "-":
+                    if (operandType == "number") return "number";
+                    return "unknown";
+                default:
+                    return "unknown";
+            }
+        }
+
+        private string? InferCallType(CallExpressionNode call)
+        {
+            // Builtin-Funktionen Typinferenz
+            if (call.Callee is IdentifierExpressionNode id)
+            {
+                return InferBuiltinReturnType(id.Name);
+            }
+            return "unknown";
+        }
+
+        private string? InferBuiltinReturnType(string functionName)
+        {
+            // Umfassende Builtin-Funktionen Typinferenz
+            switch (functionName)
+            {
+                // Mathematische Funktionen
+                case "Abs":
+                case "Sin":
+                case "Cos":
+                case "Tan":
+                case "Sqrt":
+                case "Pow":
+                case "Floor":
+                case "Ceiling":
+                case "Round":
+                case "Log":
+                case "Log10":
+                case "Exp":
+                case "Max":
+                case "Min":
+                case "Random":
+                case "Factorial":
+                case "GCD":
+                case "LCM":
+                case "DegreesToRadians":
+                case "RadiansToDegrees":
+                case "Asin":
+                case "Acos":
+                case "Atan":
+                case "Atan2":
+                    return "number";
+
+                // String-Funktionen
+                case "Length":
+                case "IndexOf":
+                case "LastIndexOf":
+                case "CountOccurrences":
+                    return "number";
+                case "Substring":
+                case "ToUpper":
+                case "ToLower":
+                case "Trim":
+                case "TrimStart":
+                case "TrimEnd":
+                case "Replace":
+                case "PadLeft":
+                case "PadRight":
+                case "Reverse":
+                case "Capitalize":
+                case "TitleCase":
+                case "RemoveWhitespace":
+                case "ToString":
+                case "Base64Encode":
+                case "Base64Decode":
+                case "HashMD5":
+                case "HashSHA256":
+                case "FormatDateTime":
+                case "GetCurrentDate":
+                case "GetCurrentTimeString":
+                case "GetCurrentDateTime":
+                case "GetCurrentDirectory":
+                case "GetMachineName":
+                case "GetUserName":
+                case "GetOSVersion":
+                case "GetFileExtension":
+                case "GetFileName":
+                case "GetDirectoryName":
+                case "ToJson":
+                    return "string";
+
+                // Boolean-Funktionen
+                case "Contains":
+                case "StartsWith":
+                case "EndsWith":
+                case "ArrayContains":
+                case "FileExists":
+                case "DirectoryExists":
+                case "IsLeapYear":
+                case "ToBoolean":
+                    return "boolean";
+
+                // Array-Funktionen
+                case "ArrayLength":
+                    return "number";
+                case "ArrayGet":
+                case "ArraySlice":
+                case "ArrayConcat":
+                case "ArrayReverse":
+                case "ArraySort":
+                case "ArrayUnique":
+                case "ArrayFilter":
+                case "Split":
+                    return "array";
+
+                // Konvertierungsfunktionen
+                case "ToInt":
+                    return "number";
+                case "ToDouble":
+                    return "number";
+                case "ToChar":
+                    return "string";
+
+                // Void-Funktionen (kein Rückgabewert)
+                case "Observe":
+                case "Drift":
+                case "DeepTrance":
+                case "HypnoticCountdown":
+                case "TranceInduction":
+                case "HypnoticVisualization":
+                case "ProgressiveRelaxation":
+                case "HypnoticSuggestion":
+                case "TranceDeepening":
+                case "HypnoticBreathing":
+                case "HypnoticAnchoring":
+                case "HypnoticRegression":
+                case "HypnoticFutureProgression":
+                case "WriteFile":
+                case "AppendFile":
+                case "WriteLines":
+                case "CreateDirectory":
+                case "ClearScreen":
+                case "Beep":
+                case "Exit":
+                case "DebugPrint":
+                case "DebugPrintType":
+                case "DebugPrintMemory":
+                case "DebugPrintStackTrace":
+                case "DebugPrintEnvironment":
+                case "PlaySound":
+                case "Vibrate":
+                    return "void";
+
+                // Zeit-Funktionen
+                case "GetCurrentTime":
+                case "GetDayOfWeek":
+                case "GetDayOfYear":
+                case "GetDaysInMonth":
+                case "GetFileSize":
+                case "GetProcessorCount":
+                case "GetWorkingSet":
+                    return "number";
+
+                default:
+                    return "unknown";
+            }
+        }
+
+        private string? InferArrayAccessType(ArrayAccessExpressionNode arrayAccess)
+        {
+            var arrayType = InferExpressionType(arrayAccess.Array);
+            if (arrayType == "array")
+            {
+                // Für Arrays geben wir "unknown" zurück, da wir den Elementtyp nicht kennen
+                return "unknown";
+            }
+            return "unknown";
+        }
+
+        private string? InferFieldAccessType(FieldAccessExpressionNode fieldAccess)
+        {
+            var objectType = InferExpressionType(fieldAccess.Target);
+
+            // Session-Member-Zugriff
+            if (!string.IsNullOrEmpty(objectType) && _sessions.ContainsKey(objectType))
+            {
+                var session = _sessions[objectType];
+                foreach (var member in session.Members)
+                {
+                    if (member.Declaration is VarDeclNode varDecl && varDecl.Identifier == fieldAccess.FieldName)
+                    {
+                        return varDecl.TypeName;
+                    }
+                }
+            }
+
+            // Tranceify-Member-Zugriff
+            if (!string.IsNullOrEmpty(objectType) && _tranceifies.ContainsKey(objectType))
+            {
+                var tranceify = _tranceifies[objectType];
+                foreach (var member in tranceify.Members)
+                {
+                    if (member is VarDeclNode varDecl && varDecl.Identifier == fieldAccess.FieldName)
+                    {
+                        return varDecl.TypeName;
+                    }
+                }
+            }
+
+            return "unknown";
+        }
+
+        // Erweiterte Validierung für Session-Definitionen
+        private void ValidateSession(SessionDeclNode session)
+        {
+            var sessionSymbols = new Dictionary<string, string>();
+
+            foreach (var member in session.Members)
+            {
+                if (member.Declaration is VarDeclNode varDecl)
+                {
+                    if (sessionSymbols.ContainsKey(varDecl.Identifier))
+                    {
+                        ErrorReporter.Report($"Duplicate member '{varDecl.Identifier}' in session '{session.Name}'", 0, 0, "TYPE040");
+                    }
+                    else
+                    {
+                        sessionSymbols[varDecl.Identifier] = varDecl.TypeName ?? "unknown";
+                    }
+                }
+                else if (member.Declaration is FunctionDeclNode funcDecl)
+                {
+                    if (sessionSymbols.ContainsKey(funcDecl.Name))
+                    {
+                        ErrorReporter.Report($"Duplicate method '{funcDecl.Name}' in session '{session.Name}'", 0, 0, "TYPE041");
+                    }
+                    else
+                    {
+                        sessionSymbols[funcDecl.Name] = funcDecl.ReturnType ?? "void";
+                    }
+                }
+            }
+        }
+
+        // Erweiterte Validierung für Tranceify-Definitionen
+        private void ValidateTranceify(TranceifyDeclNode tranceify)
+        {
+            var fieldNames = new HashSet<string>();
+
+            foreach (var member in tranceify.Members)
+            {
+                if (member is VarDeclNode varDecl)
+                {
+                    if (fieldNames.Contains(varDecl.Identifier))
+                    {
+                        ErrorReporter.Report($"Duplicate field '{varDecl.Identifier}' in tranceify '{tranceify.Name}'", 0, 0, "TYPE050");
+                    }
+                    else
+                    {
+                        fieldNames.Add(varDecl.Identifier);
+                    }
+                }
+            }
+        }
+
+        // Performance-Optimierung: Caching für wiederholte Typüberprüfungen
+        private readonly Dictionary<string, string?> _typeCache = new();
+
+        private string? GetCachedType(string key)
+        {
+            return _typeCache.TryGetValue(key, out var type) ? type : null;
+        }
+
+        private void CacheType(string key, string? type)
+        {
+            if (_typeCache.Count > 1000) // Cache-Größe begrenzen
+            {
+                _typeCache.Clear();
+            }
+            _typeCache[key] = type;
         }
     }
 }
