@@ -1064,6 +1064,115 @@ namespace HypnoScript.Compiler.Interpreter
 						if (args.Length >= 2 && args[0] is object[] arrChunk && args[1] is int chunkSize)
 							return HypnoBuiltins.ChunkArray(arrChunk, chunkSize);
 						break;
+					case "ArraySum":
+						if (args.Length >= 1 && args[0] is object[] arrSum2)
+							return HypnoBuiltins.ArraySum(arrSum2);
+						break;
+					case "ArrayMin":
+						if (args.Length >= 1 && args[0] is object[] arrMin)
+							return HypnoBuiltins.ArrayMin(arrMin);
+						break;
+					case "ArrayMax":
+						if (args.Length >= 1 && args[0] is object[] arrMax)
+							return HypnoBuiltins.ArrayMax(arrMax);
+						break;
+					case "ArrayCount":
+						if (args.Length >= 2 && args[0] is object[] arrCount)
+							return HypnoBuiltins.ArrayCount(arrCount, args[1]);
+						break;
+					case "ArrayRemove":
+						if (args.Length >= 2 && args[0] is object[] arrRem)
+							return HypnoBuiltins.ArrayRemove(arrRem, args[1]);
+						break;
+					case "ArrayDistinct":
+						if (args.Length >= 1 && args[0] is object[] arrDist)
+							return HypnoBuiltins.ArrayDistinct(arrDist);
+						break;
+					case "IsNullOrEmpty":
+						if (args.Length >= 1)
+							return HypnoBuiltins.IsNullOrEmpty(args[0]?.ToString());
+						break;
+					case "RepeatString":
+						if (args.Length >= 2 && args[0] is string repStr && args[1] is int repN)
+							return HypnoBuiltins.RepeatString(repStr, repN);
+						break;
+					case "ReverseWords":
+						if (args.Length >= 1 && args[0] is string revWords)
+							return HypnoBuiltins.ReverseWords(revWords);
+						break;
+					case "Truncate":
+						if (args.Length >= 2 && args[0] is string truncStr && args[1] is int truncLen)
+							return HypnoBuiltins.Truncate(truncStr, truncLen);
+						break;
+					case "RemoveDigits":
+						if (args.Length >= 1 && args[0] is string remDig)
+							return HypnoBuiltins.RemoveDigits(remDig);
+						break;
+					case "IsPrime":
+						if (args.Length >= 1 && args[0] is int nPrime)
+							return HypnoBuiltins.IsPrime(nPrime);
+						break;
+					case "FactorialBig":
+						if (args.Length >= 1 && args[0] is int nFact)
+							return HypnoBuiltins.FactorialBig(nFact);
+						break;
+					case "ToHex":
+						if (args.Length >= 1 && args[0] is long nHex)
+							return HypnoBuiltins.ToHex(nHex);
+						break;
+					case "ToBinary":
+						if (args.Length >= 1 && args[0] is long nBin)
+							return HypnoBuiltins.ToBinary(nBin);
+						break;
+					case "ParseInt":
+						if (args.Length >= 1 && args[0] is string strInt)
+							return HypnoBuiltins.ParseInt(strInt);
+						break;
+					case "GetEnvVars":
+						return HypnoBuiltins.GetEnvVars();
+					case "GetTempPath":
+						return HypnoBuiltins.GetTempPath();
+					case "GetTickCount":
+						return HypnoBuiltins.GetTickCount();
+					case "Sleep":
+						if (args.Length >= 1 && args[0] is int ms)
+						{
+							HypnoBuiltins.Sleep(ms);
+							return null;
+						}
+						break;
+					case "AddDays":
+						if (args.Length >= 2 && args[0] is string date1 && args[1] is int days1)
+							return HypnoBuiltins.AddDays(date1, days1);
+						break;
+					case "AddMonths":
+						if (args.Length >= 2 && args[0] is string date2 && args[1] is int months)
+							return HypnoBuiltins.AddMonths(date2, months);
+						break;
+					case "AddYears":
+						if (args.Length >= 2 && args[0] is string date3 && args[1] is int years)
+							return HypnoBuiltins.AddYears(date3, years);
+						break;
+					case "ParseDate":
+						if (args.Length >= 1 && args[0] is string dateStr)
+							return HypnoBuiltins.ParseDate(dateStr);
+						break;
+					case "IsArray":
+						if (args.Length >= 1)
+							return HypnoBuiltins.IsArray(args[0]);
+						break;
+					case "IsNumber":
+						if (args.Length >= 1)
+							return HypnoBuiltins.IsNumber(args[0]);
+						break;
+					case "IsString":
+						if (args.Length >= 1)
+							return HypnoBuiltins.IsString(args[0]);
+						break;
+					case "IsBoolean":
+						if (args.Length >= 1)
+							return HypnoBuiltins.IsBoolean(args[0]);
+						break;
 				}
 			}
 

@@ -954,5 +954,58 @@ namespace HypnoScript.Runtime
 				.Select(g => g.Select(v => v.x).ToArray())
 				.ToArray();
 		}
+
+		// ===== WEITERE UTILITY-FUNKTIONEN (Ergänzung) =====
+		public static double ArraySum(object[] arr) => arr.OfType<IConvertible>().Sum(x => Convert.ToDouble(x));
+		public static object? ArrayMin(object[] arr) => arr.Length == 0 ? null : arr.Min();
+		public static object? ArrayMax(object[] arr) => arr.Length == 0 ? null : arr.Max();
+		public static int ArrayCount(object[] arr, object? value) => arr.Count(x => Equals(x, value));
+		public static object[] ArrayRemove(object[] arr, object? value) => arr.Where(x => !Equals(x, value)).ToArray();
+		public static object[] ArrayDistinct(object[] arr) => arr.Distinct().ToArray();
+
+		public static bool IsNullOrEmpty(string? str) => string.IsNullOrEmpty(str);
+		public static string RepeatString(string str, int n) => string.Concat(Enumerable.Repeat(str, n));
+		public static string ReverseWords(string str) => string.Join(" ", str.Split(' ').Reverse());
+		public static string Truncate(string str, int length) => str.Length <= length ? str : str.Substring(0, length);
+		public static string RemoveDigits(string str) => new string(str.Where(c => !char.IsDigit(c)).ToArray());
+
+		public static bool IsPrime(int n)
+		{
+			if (n <= 1) return false;
+			if (n == 2) return true;
+			if (n % 2 == 0) return false;
+			int boundary = (int)Math.Floor(Math.Sqrt(n));
+			for (int i = 3; i <= boundary; i += 2)
+				if (n % i == 0) return false;
+			return true;
+		}
+		public static System.Numerics.BigInteger FactorialBig(int n)
+		{
+			System.Numerics.BigInteger result = 1;
+			for (int i = 2; i <= n; i++) result *= i;
+			return result;
+		}
+		public static string ToHex(long n) => n.ToString("X");
+		public static string ToBinary(long n) => Convert.ToString(n, 2);
+		public static int ParseInt(string str)
+		{
+			int.TryParse(str, out int result);
+			return result;
+		}
+
+		public static Dictionary<string, string> GetEnvVars() => Environment.GetEnvironmentVariables().Cast<System.Collections.DictionaryEntry>().ToDictionary(e => (string)e.Key, e => (string)e.Value);
+		public static string GetTempPath() => System.IO.Path.GetTempPath();
+		public static long GetTickCount() => Environment.TickCount64;
+		public static void Sleep(int ms) => System.Threading.Thread.Sleep(ms);
+
+		public static string AddDays(string date, int n) => DateTime.Parse(date).AddDays(n).ToString("yyyy-MM-dd");
+		public static string AddMonths(string date, int n) => DateTime.Parse(date).AddMonths(n).ToString("yyyy-MM-dd");
+		public static string AddYears(string date, int n) => DateTime.Parse(date).AddYears(n).ToString("yyyy-MM-dd");
+		public static string ParseDate(string str) => DateTime.Parse(str).ToString("yyyy-MM-dd");
+
+		public static bool IsArray(object? obj) => obj is object[];
+		public static bool IsNumber(object? obj) => obj is sbyte or byte or short or ushort or int or uint or long or ulong or float or double or decimal;
+		public static bool IsString(object? obj) => obj is string;
+		public static bool IsBoolean(object? obj) => obj is bool;
 	}
 }
