@@ -1,3 +1,12 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Security.Cryptography;
+using System.Text.Json;
+using System.Net.Http;
+using System.Threading.Tasks;
+
 namespace HypnoScript.Runtime
 {
 	public static class HypnoBuiltins
@@ -200,7 +209,7 @@ namespace HypnoScript.Runtime
 			Console.WriteLine($"[DEBUG] Type: {value?.GetType().Name ?? "null"}");
 		}
 
-		// ===== ERWEITERTE HYPNOTISCHE FUNKTIONEN =====
+		// ===== ERWEITERTE HYPNOTISCHE FUNKTIONEN (Enterprise) =====
 		public static void HypnoticBreathing(int cycles = 5)
 		{
 			Observe("Let's practice hypnotic breathing...");
@@ -208,58 +217,61 @@ namespace HypnoScript.Runtime
 			{
 				Observe($"Cycle {i}: Breathe in deeply...");
 				Drift(2000);
-				Observe("Hold...");
+				Observe("Hold your breath...");
 				Drift(1000);
-				Observe("Breathe out slowly...");
+				Observe("Now exhale slowly...");
 				Drift(2000);
 			}
-			Observe("You are now in a state of deep relaxation.");
+			Observe("You are now in a state of perfect calm.");
 		}
 
 		public static void HypnoticAnchoring(string anchor = "peaceful")
 		{
-			Observe($"I will now create a powerful {anchor} anchor...");
+			Observe($"I will now create a powerful anchor for '{anchor}'...");
 			Drift(1500);
-			Observe("Every time you hear this word, you will feel this calm...");
+			Observe("Every time you think of this anchor, you will feel this way...");
 			Drift(2000);
-			Observe($"Your {anchor} anchor is now established.");
+			Observe($"Your '{anchor}' anchor is now established.");
 		}
 
 		public static void HypnoticRegression(int age = 10)
 		{
-			Observe("We will now travel back in time...");
+			Observe($"We will now travel back in time to when you were {age} years old...");
+			Drift(3000);
+			Observe("You can see yourself as a child...");
 			Drift(2000);
-			Observe($"You are now {age} years old...");
-			Drift(1500);
-			Observe("Feel the memories and experiences of that time...");
+			Observe("Feel the memories and emotions of that time...");
 			Drift(2000);
+			Observe("You are now experiencing your past self.");
 		}
 
 		public static void HypnoticFutureProgression(int years = 5)
 		{
-			Observe("We will now travel into the future...");
+			Observe($"Let's travel forward {years} years into your future...");
+			Drift(3000);
+			Observe("You can see your future self...");
 			Drift(2000);
-			Observe($"You are now {years} years in the future...");
-			Drift(1500);
-			Observe("See your goals achieved and dreams realized...");
+			Observe("Feel the wisdom and experience of your future...");
 			Drift(2000);
+			Observe("You are now connected to your future potential.");
 		}
 
-		// ===== DATEI-OPERATIONEN =====
+		// ===== DATEI- UND VERZEICHNIS-OPERATIONEN =====
 		public static bool FileExists(string path)
 		{
-			return File.Exists(path);
+			try { return System.IO.File.Exists(path); }
+			catch { return false; }
 		}
 
 		public static string ReadFile(string path)
 		{
 			try
 			{
-				return File.ReadAllText(path);
+				return System.IO.File.ReadAllText(path);
 			}
 			catch (Exception ex)
 			{
-				Observe($"Error reading file: {ex.Message}");
+				Observe($"Error reading file '{path}': {ex.Message}");
 				return "";
 			}
 		}
@@ -268,12 +280,12 @@ namespace HypnoScript.Runtime
 		{
 			try
 			{
-				File.WriteAllText(path, content);
-				Observe($"File written successfully: {path}");
+				System.IO.File.WriteAllText(path, content);
+				Observe($"File '{path}' written successfully.");
 			}
 			catch (Exception ex)
 			{
-				Observe($"Error writing file: {ex.Message}");
+				Observe($"Error writing file '{path}': {ex.Message}");
 			}
 		}
 
@@ -281,12 +293,12 @@ namespace HypnoScript.Runtime
 		{
 			try
 			{
-				File.AppendAllText(path, content);
-				Observe($"Content appended to: {path}");
+				System.IO.File.AppendAllText(path, content);
+				Observe($"Content appended to '{path}' successfully.");
 			}
 			catch (Exception ex)
 			{
-				Observe($"Error appending to file: {ex.Message}");
+				Observe($"Error appending to file '{path}': {ex.Message}");
 			}
 		}
 
@@ -294,11 +306,11 @@ namespace HypnoScript.Runtime
 		{
 			try
 			{
-				return File.ReadAllLines(path);
+				return System.IO.File.ReadAllLines(path);
 			}
 			catch (Exception ex)
 			{
-				Observe($"Error reading file lines: {ex.Message}");
+				Observe($"Error reading lines from '{path}': {ex.Message}");
 				return new string[0];
 			}
 		}
@@ -307,12 +319,12 @@ namespace HypnoScript.Runtime
 		{
 			try
 			{
-				File.WriteAllLines(path, lines);
-				Observe($"Lines written to: {path}");
+				System.IO.File.WriteAllLines(path, lines);
+				Observe($"Lines written to '{path}' successfully.");
 			}
 			catch (Exception ex)
 			{
-				Observe($"Error writing lines to file: {ex.Message}");
+				Observe($"Error writing lines to '{path}': {ex.Message}");
 			}
 		}
 
@@ -320,47 +332,46 @@ namespace HypnoScript.Runtime
 		{
 			try
 			{
-				var fileInfo = new FileInfo(path);
-				return fileInfo.Length;
+				var fileInfo = new System.IO.FileInfo(path);
+				return fileInfo.Exists ? fileInfo.Length : -1;
 			}
-			catch (Exception ex)
+			catch
 			{
-				Observe($"Error getting file size: {ex.Message}");
 				return -1;
 			}
 		}
 
 		public static string GetFileExtension(string path)
 		{
-			return Path.GetExtension(path);
+			return System.IO.Path.GetExtension(path);
 		}
 
 		public static string GetFileName(string path)
 		{
-			return Path.GetFileName(path);
+			return System.IO.Path.GetFileName(path);
 		}
 
 		public static string GetDirectoryName(string path)
 		{
-			return Path.GetDirectoryName(path) ?? "";
+			return System.IO.Path.GetDirectoryName(path) ?? "";
 		}
 
-		// ===== VERZEICHNIS-OPERATIONEN =====
 		public static bool DirectoryExists(string path)
 		{
-			return Directory.Exists(path);
+			try { return System.IO.Directory.Exists(path); }
+			catch { return false; }
 		}
 
 		public static void CreateDirectory(string path)
 		{
 			try
 			{
-				Directory.CreateDirectory(path);
-				Observe($"Directory created: {path}");
+				System.IO.Directory.CreateDirectory(path);
+				Observe($"Directory '{path}' created successfully.");
 			}
 			catch (Exception ex)
 			{
-				Observe($"Error creating directory: {ex.Message}");
+				Observe($"Error creating directory '{path}': {ex.Message}");
 			}
 		}
 
@@ -368,11 +379,11 @@ namespace HypnoScript.Runtime
 		{
 			try
 			{
-				return Directory.GetFiles(path, pattern);
+				return System.IO.Directory.GetFiles(path, pattern);
 			}
 			catch (Exception ex)
 			{
-				Observe($"Error getting files: {ex.Message}");
+				Observe($"Error getting files from '{path}': {ex.Message}");
 				return new string[0];
 			}
 		}
@@ -381,11 +392,11 @@ namespace HypnoScript.Runtime
 		{
 			try
 			{
-				return Directory.GetDirectories(path);
+				return System.IO.Directory.GetDirectories(path);
 			}
 			catch (Exception ex)
 			{
-				Observe($"Error getting directories: {ex.Message}");
+				Observe($"Error getting directories from '{path}': {ex.Message}");
 				return new string[0];
 			}
 		}
@@ -395,7 +406,7 @@ namespace HypnoScript.Runtime
 		{
 			try
 			{
-				return System.Text.Json.JsonSerializer.Serialize(obj);
+				return JsonSerializer.Serialize(obj, new JsonSerializerOptions { WriteIndented = true });
 			}
 			catch (Exception ex)
 			{
@@ -408,7 +419,7 @@ namespace HypnoScript.Runtime
 		{
 			try
 			{
-				return System.Text.Json.JsonSerializer.Deserialize<object>(json);
+				return JsonSerializer.Deserialize<object>(json);
 			}
 			catch (Exception ex)
 			{
@@ -420,20 +431,21 @@ namespace HypnoScript.Runtime
 		// ===== ERWEITERTE MATHEMATISCHE FUNKTIONEN =====
 		public static double Factorial(int n)
 		{
+			if (n < 0) return double.NaN;
 			if (n <= 1) return 1;
 			double result = 1;
 			for (int i = 2; i <= n; i++)
-			{
 				result *= i;
-			}
 			return result;
 		}
 
 		public static double GCD(double a, double b)
 		{
+			a = Math.Abs(a);
+			b = Math.Abs(b);
 			while (b != 0)
 			{
-				double temp = b;
+				var temp = b;
 				b = a % b;
 				a = temp;
 			}
@@ -445,15 +457,8 @@ namespace HypnoScript.Runtime
 			return Math.Abs(a * b) / GCD(a, b);
 		}
 
-		public static double DegreesToRadians(double degrees)
-		{
-			return degrees * Math.PI / 180.0;
-		}
-
-		public static double RadiansToDegrees(double radians)
-		{
-			return radians * 180.0 / Math.PI;
-		}
+		public static double DegreesToRadians(double degrees) => degrees * Math.PI / 180.0;
+		public static double RadiansToDegrees(double radians) => radians * 180.0 / Math.PI;
 
 		public static double Asin(double x) => Math.Asin(x) * 180.0 / Math.PI;
 		public static double Acos(double x) => Math.Acos(x) * 180.0 / Math.PI;
@@ -463,7 +468,7 @@ namespace HypnoScript.Runtime
 		// ===== ERWEITERTE STRING-FUNKTIONEN =====
 		public static string Reverse(string str)
 		{
-			char[] chars = str.ToCharArray();
+			var chars = str.ToCharArray();
 			Array.Reverse(chars);
 			return new string(chars);
 		}
@@ -481,15 +486,16 @@ namespace HypnoScript.Runtime
 			for (int i = 0; i < words.Length; i++)
 			{
 				if (!string.IsNullOrEmpty(words[i]))
-				{
 					words[i] = Capitalize(words[i]);
-				}
 			}
 			return string.Join(" ", words);
 		}
 
 		public static int CountOccurrences(string str, string substring)
 		{
+			if (string.IsNullOrEmpty(str) || string.IsNullOrEmpty(substring))
+				return 0;
+
 			int count = 0;
 			int index = 0;
 			while ((index = str.IndexOf(substring, index)) != -1)
@@ -502,7 +508,7 @@ namespace HypnoScript.Runtime
 
 		public static string RemoveWhitespace(string str)
 		{
-			return str.Replace(" ", "").Replace("\t", "").Replace("\n", "").Replace("\r", "");
+			return string.Join("", str.Where(c => !char.IsWhiteSpace(c)));
 		}
 
 		// ===== ERWEITERTE ARRAY-FUNKTIONEN =====
@@ -524,54 +530,36 @@ namespace HypnoScript.Runtime
 
 		public static object[] ArrayUnique(object[] arr)
 		{
-			var unique = new List<object>();
-			foreach (var item in arr)
-			{
-				if (!unique.Contains(item))
-				{
-					unique.Add(item);
-				}
-			}
-			return unique.ToArray();
+			return arr.Distinct().ToArray();
 		}
 
 		public static object[] ArrayFilter(object[] arr, Func<object, bool> predicate)
 		{
-			var filtered = new List<object>();
-			foreach (var item in arr)
-			{
-				if (predicate(item))
-				{
-					filtered.Add(item);
-				}
-			}
-			return filtered.ToArray();
+			return arr.Where(predicate).ToArray();
 		}
 
 		// ===== KRYPTOLOGISCHE FUNKTIONEN =====
 		public static string HashMD5(string input)
 		{
-			using (var md5 = System.Security.Cryptography.MD5.Create())
+			using (var md5 = MD5.Create())
 			{
-				byte[] inputBytes = System.Text.Encoding.ASCII.GetBytes(input);
-				byte[] hashBytes = md5.ComputeHash(inputBytes);
-				return Convert.ToHexString(hashBytes).ToLower();
+				var hash = md5.ComputeHash(Encoding.UTF8.GetBytes(input));
+				return Convert.ToHexString(hash).ToLower();
 			}
 		}
 
 		public static string HashSHA256(string input)
 		{
-			using (var sha256 = System.Security.Cryptography.SHA256.Create())
+			using (var sha256 = SHA256.Create())
 			{
-				byte[] inputBytes = System.Text.Encoding.ASCII.GetBytes(input);
-				byte[] hashBytes = sha256.ComputeHash(inputBytes);
-				return Convert.ToHexString(hashBytes).ToLower();
+				var hash = sha256.ComputeHash(Encoding.UTF8.GetBytes(input));
+				return Convert.ToHexString(hash).ToLower();
 			}
 		}
 
 		public static string Base64Encode(string input)
 		{
-			byte[] bytes = System.Text.Encoding.UTF8.GetBytes(input);
+			var bytes = Encoding.UTF8.GetBytes(input);
 			return Convert.ToBase64String(bytes);
 		}
 
@@ -579,72 +567,33 @@ namespace HypnoScript.Runtime
 		{
 			try
 			{
-				byte[] bytes = Convert.FromBase64String(input);
-				return System.Text.Encoding.UTF8.GetString(bytes);
+				var bytes = Convert.FromBase64String(input);
+				return Encoding.UTF8.GetString(bytes);
 			}
-			catch (Exception ex)
+			catch
 			{
-				Observe($"Error decoding Base64: {ex.Message}");
 				return "";
 			}
 		}
 
-		// ===== ERWEITERTE ZEIT-FUNKTIONEN =====
+		// ===== ERWEITERTE ZEIT- UND DATUMSFUNKTIONEN =====
 		public static string FormatDateTime(string format = "yyyy-MM-dd HH:mm:ss")
 		{
 			return DateTime.Now.ToString(format);
 		}
 
-		public static int GetDayOfWeek()
-		{
-			return (int)DateTime.Now.DayOfWeek;
-		}
-
-		public static int GetDayOfYear()
-		{
-			return DateTime.Now.DayOfYear;
-		}
-
-		public static bool IsLeapYear(int year)
-		{
-			return DateTime.IsLeapYear(year);
-		}
-
-		public static int GetDaysInMonth(int year, int month)
-		{
-			return DateTime.DaysInMonth(year, month);
-		}
+		public static int GetDayOfWeek() => (int)DateTime.Now.DayOfWeek;
+		public static int GetDayOfYear() => DateTime.Now.DayOfYear;
+		public static bool IsLeapYear(int year) => DateTime.IsLeapYear(year);
+		public static int GetDaysInMonth(int year, int month) => DateTime.DaysInMonth(year, month);
 
 		// ===== ERWEITERTE SYSTEM-FUNKTIONEN =====
-		public static string GetCurrentDirectory()
-		{
-			return Environment.CurrentDirectory;
-		}
-
-		public static string GetMachineName()
-		{
-			return Environment.MachineName;
-		}
-
-		public static string GetUserName()
-		{
-			return Environment.UserName;
-		}
-
-		public static string GetOSVersion()
-		{
-			return Environment.OSVersion.ToString();
-		}
-
-		public static int GetProcessorCount()
-		{
-			return Environment.ProcessorCount;
-		}
-
-		public static long GetWorkingSet()
-		{
-			return Environment.WorkingSet;
-		}
+		public static string GetCurrentDirectory() => Environment.CurrentDirectory;
+		public static string GetMachineName() => Environment.MachineName;
+		public static string GetUserName() => Environment.UserName;
+		public static string GetOSVersion() => Environment.OSVersion.ToString();
+		public static int GetProcessorCount() => Environment.ProcessorCount;
+		public static long GetWorkingSet() => Environment.WorkingSet;
 
 		public static void PlaySound(int frequency = 800, int duration = 200)
 		{
@@ -653,32 +602,301 @@ namespace HypnoScript.Runtime
 
 		public static void Vibrate(int duration = 1000)
 		{
-			// Simulierte Vibration durch mehrere Beeps
-			for (int i = 0; i < duration / 100; i++)
+			// Simuliere Vibration durch mehrere Beeps
+			var startTime = DateTime.Now;
+			while ((DateTime.Now - startTime).TotalMilliseconds < duration)
 			{
-				Console.Beep(400, 50);
-				Thread.Sleep(50);
+				Console.Beep(200, 50);
+				System.Threading.Thread.Sleep(50);
 			}
 		}
 
-		// ===== ERWEITERTE DEBUGGING-FUNKTIONEN =====
 		public static void DebugPrintMemory()
 		{
 			var process = System.Diagnostics.Process.GetCurrentProcess();
-			Console.WriteLine($"[DEBUG] Memory Usage: {process.WorkingSet64 / 1024 / 1024} MB");
+			Observe($"Memory Usage: {process.WorkingSet64 / 1024 / 1024} MB");
 		}
 
 		public static void DebugPrintStackTrace()
 		{
-			Console.WriteLine($"[DEBUG] Stack Trace: {Environment.StackTrace}");
+			Observe("Stack Trace:");
+			Observe(Environment.StackTrace);
 		}
 
 		public static void DebugPrintEnvironment()
 		{
-			Console.WriteLine($"[DEBUG] Current Directory: {Environment.CurrentDirectory}");
-			Console.WriteLine($"[DEBUG] Machine Name: {Environment.MachineName}");
-			Console.WriteLine($"[DEBUG] User Name: {Environment.UserName}");
-			Console.WriteLine($"[DEBUG] OS Version: {Environment.OSVersion}");
+			Observe("Environment Variables:");
+			foreach (var env in Environment.GetEnvironmentVariables().Cast<System.Collections.DictionaryEntry>().Take(10))
+			{
+				Observe($"  {env.Key} = {env.Value}");
+			}
+		}
+
+		// ===== NEUE ENTERPRISE-FEATURES =====
+
+		// Machine Learning Funktionen
+		public static double LinearRegression(object[] x, object[] y)
+		{
+			if (x.Length != y.Length || x.Length < 2) return double.NaN;
+
+			var n = x.Length;
+			var sumX = 0.0;
+			var sumY = 0.0;
+			var sumXY = 0.0;
+			var sumX2 = 0.0;
+
+			for (int i = 0; i < n; i++)
+			{
+				var xi = Convert.ToDouble(x[i]);
+				var yi = Convert.ToDouble(y[i]);
+				sumX += xi;
+				sumY += yi;
+				sumXY += xi * yi;
+				sumX2 += xi * xi;
+			}
+
+			var slope = (n * sumXY - sumX * sumY) / (n * sumX2 - sumX * sumX);
+			return slope;
+		}
+
+		public static double CalculateMean(object[] values)
+		{
+			if (values.Length == 0) return double.NaN;
+			var sum = values.Sum(v => Convert.ToDouble(v));
+			return sum / values.Length;
+		}
+
+		public static double CalculateStandardDeviation(object[] values)
+		{
+			if (values.Length < 2) return double.NaN;
+			var mean = CalculateMean(values);
+			var sumSquaredDiff = values.Sum(v => Math.Pow(Convert.ToDouble(v) - mean, 2));
+			return Math.Sqrt(sumSquaredDiff / (values.Length - 1));
+		}
+
+		// Netzwerk-Funktionen
+		public static string HttpGet(string url)
+		{
+			try
+			{
+				using (var client = new HttpClient())
+				{
+					client.Timeout = TimeSpan.FromSeconds(10);
+					var response = client.GetAsync(url).Result;
+					return response.Content.ReadAsStringAsync().Result;
+				}
+			}
+			catch (Exception ex)
+			{
+				Observe($"HTTP GET error: {ex.Message}");
+				return "";
+			}
+		}
+
+		public static string HttpPost(string url, string data)
+		{
+			try
+			{
+				using (var client = new HttpClient())
+				{
+					client.Timeout = TimeSpan.FromSeconds(10);
+					var content = new StringContent(data, Encoding.UTF8, "application/json");
+					var response = client.PostAsync(url, content).Result;
+					return response.Content.ReadAsStringAsync().Result;
+				}
+			}
+			catch (Exception ex)
+			{
+				Observe($"HTTP POST error: {ex.Message}");
+				return "";
+			}
+		}
+
+		// Datenbank-ähnliche Funktionen
+		public static Dictionary<string, object> CreateRecord(string[] keys, object[] values)
+		{
+			var record = new Dictionary<string, object>();
+			for (int i = 0; i < Math.Min(keys.Length, values.Length); i++)
+			{
+				record[keys[i]] = values[i];
+			}
+			return record;
+		}
+
+		public static object? GetRecordValue(Dictionary<string, object> record, string key)
+		{
+			return record.TryGetValue(key, out var value) ? value : null;
+		}
+
+		public static void SetRecordValue(Dictionary<string, object> record, string key, object value)
+		{
+			record[key] = value;
+		}
+
+		// Erweiterte hypnotische Funktionen
+		public static void HypnoticPatternMatching(string pattern)
+		{
+			Observe($"I will now establish a pattern matching system for '{pattern}'...");
+			Drift(2000);
+			Observe("Your mind will automatically recognize this pattern...");
+			Drift(1500);
+			Observe("Every time you encounter this pattern, you will respond automatically...");
+			Drift(2000);
+			Observe($"The '{pattern}' pattern is now deeply embedded in your subconscious.");
+		}
+
+		public static void HypnoticTimeDilation(double factor = 2.0)
+		{
+			Observe($"I will now alter your perception of time by a factor of {factor}...");
+			Drift(3000);
+			Observe("Time will feel different to you now...");
+			Drift(2000);
+			Observe("Minutes will feel like hours, or hours like minutes...");
+			Drift(2000);
+			Observe("Your time perception has been successfully modified.");
+		}
+
+		public static void HypnoticMemoryEnhancement()
+		{
+			Observe("I will now enhance your memory capabilities...");
+			Drift(2000);
+			Observe("Your ability to remember and recall information will improve...");
+			Drift(2000);
+			Observe("You will find it easier to learn and retain new knowledge...");
+			Drift(2000);
+			Observe("Your memory enhancement is now active.");
+		}
+
+		public static void HypnoticCreativityBoost()
+		{
+			Observe("I will now unlock your creative potential...");
+			Drift(2000);
+			Observe("Your imagination will become more vivid and active...");
+			Drift(2000);
+			Observe("Creative solutions will come to you more easily...");
+			Drift(2000);
+			Observe("Your creativity is now enhanced.");
+		}
+
+		// Performance-Monitoring
+		public static Dictionary<string, object> GetPerformanceMetrics()
+		{
+			var process = System.Diagnostics.Process.GetCurrentProcess();
+			var metrics = new Dictionary<string, object>
+			{
+				["cpu_time"] = process.TotalProcessorTime.TotalMilliseconds,
+				["memory_usage"] = process.WorkingSet64,
+				["thread_count"] = process.Threads.Count,
+				["start_time"] = process.StartTime.ToString(),
+				["uptime"] = (DateTime.Now - process.StartTime).TotalSeconds
+			};
+			return metrics;
+		}
+
+		// Erweiterte Validierungsfunktionen
+		public static bool IsValidEmail(string email)
+		{
+			try
+			{
+				var addr = new System.Net.Mail.MailAddress(email);
+				return addr.Address == email;
+			}
+			catch
+			{
+				return false;
+			}
+		}
+
+		public static bool IsValidUrl(string url)
+		{
+			return Uri.TryCreate(url, UriKind.Absolute, out _);
+		}
+
+		public static bool IsValidJson(string json)
+		{
+			try
+			{
+				JsonSerializer.Deserialize<object>(json);
+				return true;
+			}
+			catch
+			{
+				return false;
+			}
+		}
+
+		// Erweiterte Formatierungsfunktionen
+		public static string FormatNumber(double number, int decimals = 2)
+		{
+			return number.ToString($"F{decimals}");
+		}
+
+		public static string FormatCurrency(double amount, string currency = "USD")
+		{
+			return $"{currency} {amount:F2}";
+		}
+
+		public static string FormatPercentage(double value)
+		{
+			return $"{value:F2}%";
+		}
+
+		// Erweiterte Array-Operationen
+		public static object[] ArrayMap(object[] arr, Func<object, object> mapper)
+		{
+			return arr.Select(mapper).ToArray();
+		}
+
+		public static object ArrayReduce(object[] arr, Func<object, object, object> reducer, object initial)
+		{
+			return arr.Aggregate(initial, reducer);
+		}
+
+		public static object[] ArrayFlatten(object[] arr)
+		{
+			var result = new List<object>();
+			foreach (var item in arr)
+			{
+				if (item is object[] subArray)
+					result.AddRange(subArray);
+				else
+					result.Add(item);
+			}
+			return result.ToArray();
+		}
+
+		// Erweiterte String-Operationen
+		public static string[] StringSplitByLength(string str, int maxLength)
+		{
+			var result = new List<string>();
+			for (int i = 0; i < str.Length; i += maxLength)
+			{
+				var length = Math.Min(maxLength, str.Length - i);
+				result.Add(str.Substring(i, length));
+			}
+			return result.ToArray();
+		}
+
+		public static string StringRotate(string str, int positions)
+		{
+			if (string.IsNullOrEmpty(str)) return str;
+			positions = positions % str.Length;
+			if (positions < 0) positions += str.Length;
+			return str.Substring(positions) + str.Substring(0, positions);
+		}
+
+		public static string StringShuffle(string str)
+		{
+			var chars = str.ToCharArray();
+			var random = new Random();
+			for (int i = chars.Length - 1; i > 0; i--)
+			{
+				int j = random.Next(i + 1);
+				var temp = chars[i];
+				chars[i] = chars[j];
+				chars[j] = temp;
+			}
+			return new string(chars);
 		}
 	}
 }
