@@ -1,56 +1,106 @@
 public enum TokenType
 {
-    // ...existing token types...
+    // Grundlegende Programmstruktur
     Focus,
     Relax,
+    Entrance,
+    DeepFocus,
+
+    // Variablen und Deklarationen
     Induce,
+    From,
+    External,
+
+    // Kontrollstrukturen
     If,
     Else,
     While,
     Loop,
-    Observe,
-    Awaken,
-    // Neue Tokens für Funktionen
+    Snap,      // break
+    Sink,      // continue
+    SinkTo,    // goto
+
+    // Funktionen
     Suggestion,
     ImperativeSuggestion,
     DominantSuggestion,
-    Session,      // Neuer Token für Session-Deklarationen
-    Tranceify,    // Neuer Token für Tranceify-Deklarationen
-    // Weitere operatorische Tokens
-    DoubleEquals,
-    NotEquals,
-    YouAreFeelingVerySleepy,  // Hinzugefügt für '=='-Synonym
-    LookAtTheWatch,
-    FallUnderMySpell,
-    // ...weitere Token...
-    Identifier,
-    NumberLiteral,
-    StringLiteral,
-    BooleanLiteral,
-    LParen,
-    RParen,
-    LBrace,
-    RBrace,
-    Comma,
-    Colon,
-    Equals,
-    Semicolon,
+    Awaken,    // return
+    Call,
+
+    // Objektorientierung
+    Session,
+    Constructor,
+    Expose,    // public
+    Conceal,   // private
+    Dominant,  // static
+
+    // Strukturen
+    Tranceify,
+
+    // Ein-/Ausgabe
+    Observe,
+    Drift,
+
+    // Hypnotische Operatoren
+    YouAreFeelingVerySleepy,  // ==
+    LookAtTheWatch,           // >
+    FallUnderMySpell,         // <
+    NotSoDeep,                // !=
+    DeeplyGreater,            // >=
+    DeeplyLess,               // <=
+
+    // Module und Globale
+    MindLink,     // import
+    SharedTrance, // global
+
+    // Labels
+    Label,
+
+    // Standard Operatoren
+    DoubleEquals,     // ==
+    NotEquals,        // !=
+    Greater,
+    GreaterEqual,     // >=
+    Less,
+    LessEqual,        // <=
     Plus,
     Minus,
     Asterisk,
     Slash,
     Percent,
-    Bang,
-    Greater,
-    GreaterEqual,
-    Less,
-    LessEqual,
-    Eof,
-    MindLink,
-    SharedTrance,
-    SinkTo,
-    Label,
-    NotSoDeep,
-    DeeplyGreater,
-    DeeplyLess
+    Bang,             // !
+    AmpAmp,           // &&
+    PipePipe,         // ||
+
+    // Literale und Bezeichner
+    Identifier,
+    NumberLiteral,
+    StringLiteral,
+    BooleanLiteral,
+
+    // Typen
+    Number,
+    String,
+    Boolean,
+    Trance,
+
+    // Boolean Literale
+    True,
+    False,
+
+    // Trennzeichen und Klammern
+    LParen,     // (
+    RParen,     // )
+    LBrace,     // {
+    RBrace,     // }
+    LBracket,   // [
+    RBracket,   // ]
+    Comma,
+    Colon,      // :
+    Semicolon,  // ;
+    Dot,        // .
+    Equals,     // =
+
+    // Ende der Datei
+    Eof
 }

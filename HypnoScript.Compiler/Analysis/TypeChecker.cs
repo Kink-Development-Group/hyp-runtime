@@ -3,6 +3,7 @@ using HypnoScript.LexerParser.AST;
 using HypnoScript.Core.Types;
 using HypnoScript.Compiler.Error;
 using System.Collections.Generic;
+using HypnoScript.Core.Symbols;
 
 namespace HypnoScript.Compiler.Analysis
 {
@@ -58,8 +59,11 @@ namespace HypnoScript.Compiler.Analysis
                     // Felder und Methoden prüfen
                     foreach (var member in session.Members)
                     {
-                        CheckStatement(member);
+                        CheckSessionMember(member);
                     }
+                    break;
+                case SessionMemberNode sessionMember:
+                    CheckSessionMember(sessionMember);
                     break;
                 case TranceifyDeclNode trance:
                     // Felder prüfen
@@ -74,8 +78,53 @@ namespace HypnoScript.Compiler.Analysis
                 case ObserveStatementNode obs:
                     CheckExpression(obs.Expression);
                     break;
+                case DriftStatementNode drift:
+                    var driftType = InferExpressionType(drift.Milliseconds);
+                    if (driftType != "number")
+                    {
+                        ErrorReporter.Report($"drift() expects number, got '{driftType}'", 0, 0, "TYPE004");
+                    }
+                    break;
                 case ReturnStatementNode ret:
                     CheckExpression(ret.Expression);
+                    break;
+                case IfStatementNode ifStmt:
+                    var conditionType = InferExpressionType(ifStmt.Condition);
+                    if (conditionType != "boolean")
+                    {
+                        ErrorReporter.Report($"if condition must be boolean, got '{conditionType}'", 0, 0, "TYPE005");
+                    }
+                    foreach (var s in ifStmt.ThenBranch)
+                        CheckStatement(s);
+                    if (ifStmt.ElseBranch != null)
+                        foreach (var s in ifStmt.ElseBranch)
+                            CheckStatement(s);
+                    break;
+                case WhileStatementNode whileStmt:
+                    var whileConditionType = InferExpressionType(whileStmt.Condition);
+                    if (whileConditionType != "boolean")
+                    {
+                        ErrorReporter.Report($"while condition must be boolean, got '{whileConditionType}'", 0, 0, "TYPE006");
+                    }
+                    foreach (var s in whileStmt.Body)
+                        CheckStatement(s);
+                    break;
+                case LoopStatementNode loopStmt:
+                    var loopConditionType = InferExpressionType(loopStmt.Condition);
+                    if (loopConditionType != "boolean")
+                    {
+                        ErrorReporter.Report($"loop condition must be boolean, got '{loopConditionType}'", 0, 0, "TYPE007");
+                    }
+                    if (loopStmt.Initializer != null)
+                        CheckStatement(loopStmt.Initializer);
+                    if (loopStmt.Iteration != null)
+                        CheckStatement(loopStmt.Iteration);
+                    foreach (var s in loopStmt.Body)
+                        CheckStatement(s);
+                    break;
+                case SnapStatementNode:
+                case SinkStatementNode:
+                    // Keine spezielle Typprüfung nötig
                     break;
                 case MindLinkNode mindLink:
                     // TODO: Später importierte Symbole in _sessions, _tranceifies, _globals übernehmen
@@ -100,9 +149,19 @@ namespace HypnoScript.Compiler.Analysis
                         ErrorReporter.Report($"sinkTo label '{sinkTo.LabelName}' not found in scope", 0, 0, "TYPE030");
                     }
                     break;
+                case EntranceBlockNode entrance:
+                    foreach (var s in entrance.Statements)
+                        CheckStatement(s);
+                    break;
                 default:
                     break;
             }
+        }
+
+        private void CheckSessionMember(SessionMemberNode member)
+        {
+            // Prüfe die eigentliche Deklaration
+            CheckStatement(member.Declaration);
         }
 
         private void CheckExpression(IExpression? expr)
@@ -119,6 +178,40 @@ namespace HypnoScript.Compiler.Analysis
                 case BinaryExpressionNode bin:
                     CheckExpression(bin.Left);
                     CheckExpression(bin.Right);
+                    break;
+                case UnaryExpressionNode unary:
+                    CheckExpression(unary.Operand);
+                    break;
+                case ParenthesizedExpressionNode paren:
+                    CheckExpression(paren.Expression);
+                    break;
+                case AssignmentExpressionNode assign:
+                    CheckExpression(assign.Value);
+                    break;
+                case IdentifierExpressionNode id:
+                    var sym = _globals.Resolve(id.Name);
+                    if (sym == null)
+                    {
+                        ErrorReporter.Report($"Variable '{id.Name}' not defined", 0, 0, "TYPE008");
+                    }
+                    break;
+                case CallExpressionNode call:
+                    CheckExpression(call.Callee);
+                    foreach (var arg in call.Arguments)
+                        CheckExpression(arg);
+                    break;
+                case MethodCallExpressionNode methodCall:
+                    CheckExpression(methodCall.Target);
+                    foreach (var arg in methodCall.Arguments)
+                        CheckExpression(arg);
+                    break;
+                case SessionInstantiationNode sessionInst:
+                    if (!_sessions.ContainsKey(sessionInst.SessionName))
+                    {
+                        ErrorReporter.Report($"Session '{sessionInst.SessionName}' not defined", 0, 0, "TYPE009");
+                    }
+                    foreach (var arg in sessionInst.Arguments)
+                        CheckExpression(arg);
                     break;
                 case RecordLiteralExpressionNode rec:
                     // Prüfe, ob tranceify-Typ existiert
@@ -155,47 +248,20 @@ namespace HypnoScript.Compiler.Analysis
                     // Prüfe Session-Feld
                     if (_sessions.TryGetValue(targetType, out var sessionType))
                     {
-                        var found = sessionType.Members.Exists(f => f is VarDeclNode v && v.Identifier == field.FieldName);
+                        var found = sessionType.Members.Exists(f => f.Declaration is VarDeclNode v && v.Identifier == field.FieldName);
                         if (!found)
                         {
                             ErrorReporter.Report($"Field '{field.FieldName}' not found in session '{targetType}'", 0, 0, "TYPE013");
                         }
                     }
                     break;
-                case CallExpressionNode call:
-                    // Methodenaufruf auf Session oder tranceify
-                    if (call.Callee is FieldAccessExpressionNode fieldCall)
-                    {
-                        var calleeType = InferExpressionType(fieldCall.Target);
-                        if (calleeType != null && _sessions.TryGetValue(calleeType, out var sessionType))
-                        {
-                            var method = sessionType.Members.Find(m => m is FunctionDeclNode f && f.Name == fieldCall.FieldName) as FunctionDeclNode;
-                            if (method == null)
-                            {
-                                ErrorReporter.Report($"Method '{fieldCall.FieldName}' not found in session '{calleeType}'", 0, 0, "TYPE014");
-                            }
-                            else if (call.Arguments.Count != method.Parameters.Count)
-                            {
-                                ErrorReporter.Report($"Method '{fieldCall.FieldName}' expects {method.Parameters.Count} arguments, got {call.Arguments.Count}", 0, 0, "TYPE015");
-                            }
-                            else
-                            {
-                                for (int i = 0; i < call.Arguments.Count; i++)
-                                {
-                                    CheckExpression(call.Arguments[i]);
-                                }
-                            }
-                        }
-                    }
-                    else if (call.Callee is IdentifierExpressionNode id)
-                    {
-                        // Funktionsaufruf im globalen Scope
-                        var sym = _globals.Resolve(id.Name);
-                        if (sym == null)
-                        {
-                            ErrorReporter.Report($"Function '{id.Name}' not defined", 0, 0, "TYPE016");
-                        }
-                    }
+                case ArrayAccessExpressionNode arrayAccess:
+                    CheckExpression(arrayAccess.Array);
+                    CheckExpression(arrayAccess.Index);
+                    break;
+                case ArrayLiteralExpressionNode arrayLit:
+                    foreach (var element in arrayLit.Elements)
+                        CheckExpression(element);
                     break;
                 default:
                     break;

@@ -78,6 +78,9 @@ namespace HypnoScript.LexerParser.Parser
 			if (Match(TokenType.Observe))
 				return ParseObserveStatement();
 
+			if (Match(TokenType.Drift))
+				return ParseDriftStatement();
+
 			if (Match(TokenType.Awaken))
 				return ParseReturnStatement();
 
@@ -129,6 +132,16 @@ namespace HypnoScript.LexerParser.Parser
 			var expr = ParseExpression();
 			Consume(TokenType.Semicolon, "Expect ';' after expression.");
 			return new ExpressionStatementNode(expr);
+		}
+
+		private IStatement ParseDriftStatement()
+		{
+			// drift(expression);
+			Consume(TokenType.LParen, "Expect '(' after 'drift'.");
+			var milliseconds = ParseExpression();
+			Consume(TokenType.RParen, "Expect ')' after drift expression.");
+			Consume(TokenType.Semicolon, "Expect ';' after drift statement.");
+			return new DriftStatementNode(milliseconds);
 		}
 
 		// Neue Methode: Loop-Statement parsen
@@ -199,25 +212,46 @@ namespace HypnoScript.LexerParser.Parser
 			// Erwartet: 'session' Identifier '{' { SessionMember } '}'
 			var nameToken = Consume(TokenType.Identifier, "Expected session name after 'session'.").Lexeme;
 			Consume(TokenType.LBrace, "Expected '{' after session name.");
-			var members = new List<IStatement>();
+			var members = new List<SessionMemberNode>();
 			while (!Check(TokenType.RBrace) && !IsAtEnd())
 			{
-				if (Match(TokenType.Induce))
-				{
-					members.Add(ParseVarDecl());
-				}
-				else if (Match(TokenType.Suggestion) || Match(TokenType.ImperativeSuggestion) || Match(TokenType.DominantSuggestion))
-				{
-					members.Add(ParseFunctionDeclaration());
-				}
-				else
-				{
-					// Falls unbekannter Member, überspringen und einen Fehler protokollieren
-					Advance();
-				}
+				members.Add(ParseSessionMember());
 			}
 			Consume(TokenType.RBrace, "Expected '}' to close session declaration.");
 			return new SessionDeclNode(nameToken, members);
+		}
+
+		private SessionMemberNode ParseSessionMember()
+		{
+			bool isExposed = false;
+			bool isDominant = false;
+
+			// Parse expose/conceal
+			if (Match(TokenType.Expose))
+				isExposed = true;
+			else if (Match(TokenType.Conceal))
+				isExposed = false;
+
+			// Parse dominant
+			if (Match(TokenType.Dominant))
+				isDominant = true;
+
+			// Parse the actual declaration
+			IStatement declaration;
+			if (Match(TokenType.Induce))
+			{
+				declaration = ParseVarDecl();
+			}
+			else if (Match(TokenType.Suggestion))
+			{
+				declaration = ParseFunctionDeclaration();
+			}
+			else
+			{
+				throw new Exception("Expected 'induce' or 'suggestion' in session member.");
+			}
+
+			return new SessionMemberNode(isExposed, isDominant, declaration);
 		}
 
 		// Neue Methode: Tranceify-Deklaration parsen
@@ -460,32 +494,14 @@ namespace HypnoScript.LexerParser.Parser
 			if (Match(TokenType.StringLiteral))
 				return new LiteralExpressionNode(Previous().Lexeme, "string");
 
-			if (Match(TokenType.BooleanLiteral))
+			if (Match(TokenType.True) || Match(TokenType.False))
 				return new LiteralExpressionNode(Previous().Lexeme, "boolean");
 
 			if (Match(TokenType.Identifier))
 			{
 				var name = Previous().Lexeme;
-				// Record-Literal: Identifier gefolgt von '{'
-				if (Match(TokenType.LBrace))
-				{
-					var fields = new Dictionary<string, IExpression>();
-					while (!Check(TokenType.RBrace) && !IsAtEnd())
-					{
-						var fieldName = Consume(TokenType.Identifier, $"Expected field name in record literal for {name}.").Lexeme;
-						Consume(TokenType.Colon, "Expected ':' after field name in record literal.");
-						var expr = ParseExpression();
-						fields[fieldName] = expr;
-						if (!Check(TokenType.RBrace))
-						{
-							Consume(TokenType.Comma, "Expected ',' between fields in record literal.");
-						}
-					}
-					Consume(TokenType.RBrace, "Expected '}' to close record literal.");
-					return new RecordLiteralExpressionNode(name, fields);
-				}
-				// könnte Funktionsaufruf sein: name ( ...
-				IExpression expr = new IdentifierExpressionNode(name);
+
+				// Session-Instanziierung: Identifier( ... )
 				if (Match(TokenType.LParen))
 				{
 					var args = new List<IExpression>();
@@ -496,23 +512,66 @@ namespace HypnoScript.LexerParser.Parser
 							args.Add(ParseExpression());
 						} while (Match(TokenType.Comma));
 					}
-					Consume(TokenType.RParen, "Expect ')' after arguments.");
-					expr = new CallExpressionNode(expr, args);
+					Consume(TokenType.RParen, "Expect ')' after session arguments.");
+					return new SessionInstantiationNode(name, args);
 				}
-				// Feldzugriff: .field (beliebig viele Verkettungen)
+
+				// Record-Literal: Identifier gefolgt von '{'
+				if (Match(TokenType.LBrace))
+				{
+					var fields = new Dictionary<string, IExpression>();
+					while (!Check(TokenType.RBrace) && !IsAtEnd())
+					{
+						var fieldName = Consume(TokenType.Identifier, $"Expected field name in record literal for {name}.").Lexeme;
+						Consume(TokenType.Colon, "Expected ':' after field name in record literal.");
+						var fieldExpr = ParseExpression();
+						fields[fieldName] = fieldExpr;
+						if (!Check(TokenType.RBrace))
+						{
+							Consume(TokenType.Comma, "Expected ',' between fields in record literal.");
+						}
+					}
+					Consume(TokenType.RBrace, "Expected '}' to close record literal.");
+					return new RecordLiteralExpressionNode(name, fields);
+				}
+
+				// Normale Identifier
+				IExpression currentExpr = new IdentifierExpressionNode(name);
+
+				// Feldzugriff und Methodenaufrufe: .field oder .method( ... )
 				while (Match(TokenType.Dot))
 				{
-					var fieldName = Consume(TokenType.Identifier, "Expected field name after '.'").Lexeme;
-					expr = new FieldAccessExpressionNode(expr, fieldName);
+					var memberName = Consume(TokenType.Identifier, "Expected member name after '.'").Lexeme;
+
+					// Methodenaufruf: .method( ... )
+					if (Match(TokenType.LParen))
+					{
+						var args = new List<IExpression>();
+						if (!Check(TokenType.RParen))
+						{
+							do
+							{
+								args.Add(ParseExpression());
+							} while (Match(TokenType.Comma));
+						}
+						Consume(TokenType.RParen, "Expect ')' after method arguments.");
+						currentExpr = new MethodCallExpressionNode(currentExpr, memberName, args);
+					}
+					else
+					{
+						// Feldzugriff: .field
+						currentExpr = new FieldAccessExpressionNode(currentExpr, memberName);
+					}
 				}
-				return expr;
+
+				return currentExpr;
 			}
 
 			if (Match(TokenType.LParen))
 			{
-				var expr = ParseExpression();
+				var parenExpr = ParseExpression();
 				Consume(TokenType.RParen, "Expect ')' after group expression.");
-				return expr;
+				return new ParenthesizedExpressionNode(parenExpr);
 			}
 
 			throw new Exception($"Unexpected token {Peek().Type} at line {Peek().Line}.");

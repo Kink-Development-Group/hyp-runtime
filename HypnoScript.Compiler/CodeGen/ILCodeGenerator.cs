@@ -39,6 +39,12 @@ namespace HypnoScript.Compiler.CodeGen
 					var observeMethod = typeof(HypnoBuiltins).GetMethod(nameof(HypnoBuiltins.Observe)) ?? throw new InvalidOperationException("Method HypnoBuiltins.Observe not found.");
                     _il.Emit(OpCodes.Call, observeMethod);
 					break;
+				case DriftStatementNode drift:
+					EmitExpression(drift.Milliseconds);
+					// Call HypnoBuiltins.Drift
+					var driftMethod = typeof(HypnoBuiltins).GetMethod(nameof(HypnoBuiltins.Drift)) ?? throw new InvalidOperationException("Method HypnoBuiltins.Drift not found.");
+					_il.Emit(OpCodes.Call, driftMethod);
+					break;
 				case ExpressionStatementNode exprStmt:
 					EmitExpression(exprStmt.Expression);
 					// Discard the result to maintain stack integrity
@@ -50,6 +56,17 @@ namespace HypnoScript.Compiler.CodeGen
 				case WhileStatementNode whileStmt:
 					EmitWhileStatement(whileStmt);
 					break;
+				case LoopStatementNode loopStmt:
+					EmitLoopStatement(loopStmt);
+					break;
+				case SnapStatementNode:
+					// Break - jump to end of current loop
+					// TODO: Implement proper break handling with loop labels
+					break;
+				case SinkStatementNode:
+					// Continue - jump to start of current loop
+					// TODO: Implement proper continue handling with loop labels
+					break;
 				case BlockStatementNode block:
 					// Process each statement in the block
 					foreach (var s in block.Statements)
@@ -59,6 +76,25 @@ namespace HypnoScript.Compiler.CodeGen
 					break;
 				case FunctionDeclNode funcDecl:
 					EmitFunction(funcDecl);
+					break;
+				case SessionDeclNode sessionDecl:
+					EmitSessionDeclaration(sessionDecl);
+					break;
+				case TranceifyDeclNode tranceifyDecl:
+					EmitTranceifyDeclaration(tranceifyDecl);
+					break;
+				case ReturnStatementNode returnStmt:
+					if (returnStmt.Expression != null)
+					{
+						EmitExpression(returnStmt.Expression);
+					}
+					_il.Emit(OpCodes.Ret);
+					break;
+				case EntranceBlockNode entrance:
+					foreach (var s in entrance.Statements)
+					{
+						EmitStatement(s);
+					}
 					break;
 				default:
 					// Centralized error handling for unsupported statement types
@@ -179,8 +215,35 @@ namespace HypnoScript.Compiler.CodeGen
 				case BinaryExpressionNode bin:
 					EmitBinary(bin);
 					break;
+				case UnaryExpressionNode unary:
+					EmitUnary(unary);
+					break;
+				case ParenthesizedExpressionNode paren:
+					EmitExpression(paren.Expression);
+					break;
+				case AssignmentExpressionNode assign:
+					EmitAssignment(assign);
+					break;
 				case CallExpressionNode call:
 					EmitCall(call);
+					break;
+				case MethodCallExpressionNode methodCall:
+					EmitMethodCall(methodCall);
+					break;
+				case SessionInstantiationNode sessionInst:
+					EmitSessionInstantiation(sessionInst);
+					break;
+				case FieldAccessExpressionNode fieldAccess:
+					EmitFieldAccess(fieldAccess);
+					break;
+				case RecordLiteralExpressionNode recordLit:
+					EmitRecordLiteral(recordLit);
+					break;
+				case ArrayAccessExpressionNode arrayAccess:
+					EmitArrayAccess(arrayAccess);
+					break;
+				case ArrayLiteralExpressionNode arrayLit:
+					EmitArrayLiteral(arrayLit);
 					break;
 			}
 		}
@@ -252,6 +315,16 @@ namespace HypnoScript.Compiler.CodeGen
 					_il.Emit(OpCodes.Call, typeof(object).GetMethod(nameof(object.Equals), new[] { typeof(object), typeof(object) })!);
 					break;
 			}
+		}
+
+		private void EmitUnary(UnaryExpressionNode unary)
+		{
+			// Implement unary expression emission logic
+		}
+
+		private void EmitAssignment(AssignmentExpressionNode assign)
+		{
+			// Implement assignment expression emission logic
 		}
 
 		private void EmitCall(CallExpressionNode call)
@@ -338,6 +411,91 @@ namespace HypnoScript.Compiler.CodeGen
 			// Erweiterung: Dynamische Methoden für Funktionen erstellen
 			// Parameter-Handling und Lokale Variablen initialisieren
 			// ...implementierung...
+		}
+
+		// Enterprise-level extension: handling Loop statements
+		private void EmitLoopStatement(LoopStatementNode loopStmt)
+		{
+			Label loopStart = _il.DefineLabel();
+			Label loopEnd = _il.DefineLabel();
+
+			// Emit initializer
+			if (loopStmt.Initializer != null)
+			{
+				EmitStatement(loopStmt.Initializer);
+			}
+
+			_il.MarkLabel(loopStart);
+
+			// Emit condition
+			EmitExpression(loopStmt.Condition);
+			_il.Emit(OpCodes.Call, typeof(ILCodeGenerator).GetMethod(nameof(UnboxToBool), BindingFlags.Static | BindingFlags.NonPublic)!);
+			_il.Emit(OpCodes.Brfalse, loopEnd);
+
+			// Emit body
+			foreach (var stmt in loopStmt.Body)
+			{
+				EmitStatement(stmt);
+			}
+
+			// Emit iteration
+			if (loopStmt.Iteration != null)
+			{
+				EmitStatement(loopStmt.Iteration);
+			}
+
+			_il.Emit(OpCodes.Br, loopStart);
+			_il.MarkLabel(loopEnd);
+		}
+
+		private void EmitSessionDeclaration(SessionDeclNode sessionDecl)
+		{
+			// For now, just emit the members as regular statements
+			// In a full implementation, this would create a class type
+			foreach (var member in sessionDecl.Members)
+			{
+				EmitStatement(member.Declaration);
+			}
+		}
+
+		private void EmitTranceifyDeclaration(TranceifyDeclNode tranceifyDecl)
+		{
+			// For now, just emit the members as regular variable declarations
+			// In a full implementation, this would create a struct type
+			foreach (var member in tranceifyDecl.Members)
+			{
+				EmitStatement(member);
+			}
+		}
+
+		private void EmitMethodCall(MethodCallExpressionNode methodCall)
+		{
+			// Implement method call emission logic
+		}
+
+		private void EmitSessionInstantiation(SessionInstantiationNode sessionInst)
+		{
+			// Implement session instantiation emission logic
+		}
+
+		private void EmitFieldAccess(FieldAccessExpressionNode fieldAccess)
+		{
+			// Implement field access emission logic
+		}
+
+		private void EmitRecordLiteral(RecordLiteralExpressionNode recordLit)
+		{
+			// Implement record literal emission logic
+		}
+
+		private void EmitArrayAccess(ArrayAccessExpressionNode arrayAccess)
+		{
+			// Implement array access emission logic
+		}
+
+		private void EmitArrayLiteral(ArrayLiteralExpressionNode arrayLit)
+		{
+			// Implement array literal emission logic
 		}
 	}
 }

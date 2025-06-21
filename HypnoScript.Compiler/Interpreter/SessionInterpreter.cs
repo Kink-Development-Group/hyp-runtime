@@ -15,24 +15,24 @@ namespace HypnoScript.Compiler.Interpreter
             // Initialisierung der Felder und Registrierung von Methoden.
             foreach (var member in sessionDecl.Members)
             {
-                switch (member)
+                if (member is SessionMemberNode smVar && smVar.Declaration is VarDeclNode v)
                 {
-                    case VarDeclNode varDecl:
-                        // Setze das Feld auf den Wert des Initializers (falls vorhanden) oder auf null.
-                        instance.Fields[varDecl.Identifier] = varDecl.Initializer != null ? EvaluateExpression(varDecl.Initializer) : null;
-                        break;
-                    case FunctionDeclNode funcDecl:
-                        if (funcDecl.Name != "constructor")
-                        {
-                            instance.Methods[funcDecl.Name] = funcDecl;
-                        }
-                        // Den Konstruktor behandeln wir später.
-                        break;
+                    // Setze das Feld auf den Wert des Initializers (falls vorhanden) oder auf null.
+                    instance.Fields[v.Identifier] = v.Initializer != null ? EvaluateExpression(v.Initializer) : null;
+                }
+                else if (member is SessionMemberNode smFunc && smFunc.Declaration is FunctionDeclNode f)
+                {
+                    if (f.Name != "constructor")
+                    {
+                        instance.Methods[f.Name] = f;
+                    }
+                    // Den Konstruktor behandeln wir später.
                 }
             }
 
             // Falls ein Konstruktor definiert ist, führe ihn aus.
-            var constructor = sessionDecl.Members.Find(m => m is FunctionDeclNode fd && fd.Name == "constructor") as FunctionDeclNode;
+            var constructorMember = sessionDecl.Members.Find(m => m is SessionMemberNode sm && sm.Declaration is FunctionDeclNode fd && fd.Name == "constructor") as SessionMemberNode;
+            var constructor = constructorMember?.Declaration as FunctionDeclNode;
             if (constructor != null)
             {
                 // Erstelle einen separaten Scope für den Konstruktor.

@@ -238,43 +238,67 @@ namespace HypnoScript.LexerParser.Lexer
 		{
 			return ident switch
 			{
+				// Grundlegende Programmstruktur
 				"Focus" => TokenType.Focus,
 				"Relax" => TokenType.Relax,
+				"entrance" => TokenType.Entrance,
+				"deepFocus" => TokenType.DeepFocus,
+
+				// Variablen und Deklarationen
+				"induce" => TokenType.Induce,
+				"from" => TokenType.From,
+				"external" => TokenType.External,
+
+				// Kontrollstrukturen
 				"if" => TokenType.If,
 				"else" => TokenType.Else,
 				"while" => TokenType.While,
 				"loop" => TokenType.Loop,
-				"suggestion" => TokenType.Suggestion,
-				"awaken" => TokenType.Awaken,
-				"induce" => TokenType.Induce,
-				"observe" => TokenType.Observe,
-				"drift" => TokenType.Drift,
-				"session" => TokenType.Session,
-				"constructor" => TokenType.Constructor,
-				"tranceify" => TokenType.Tranceify,
-				"entrance" => TokenType.Entrance,
-				"deepFocus" => TokenType.DeepFocus,
 				"snap" => TokenType.Snap,
 				"sink" => TokenType.Sink,
 				"sinkTo" => TokenType.SinkTo,
 
-				// Hypno-Operatoren:
+				// Funktionen
+				"suggestion" => TokenType.Suggestion,
+				"imperative" => TokenType.ImperativeSuggestion,
+				"dominant" => TokenType.Dominant,
+				"awaken" => TokenType.Awaken,
+				"call" => TokenType.Call,
+
+				// Objektorientierung
+				"session" => TokenType.Session,
+				"constructor" => TokenType.Constructor,
+				"expose" => TokenType.Expose,
+				"conceal" => TokenType.Conceal,
+
+				// Strukturen
+				"tranceify" => TokenType.Tranceify,
+
+				// Ein-/Ausgabe
+				"observe" => TokenType.Observe,
+				"drift" => TokenType.Drift,
+
+				// Hypnotische Operatoren
 				"youAreFeelingVerySleepy" => TokenType.YouAreFeelingVerySleepy,
 				"lookAtTheWatch" => TokenType.LookAtTheWatch,
 				"fallUnderMySpell" => TokenType.FallUnderMySpell,
-
-				"true" or "false" => TokenType.BooleanLiteral,
-
-				"mindLink" => TokenType.MindLink,
-
-				"sharedTrance" => TokenType.SharedTrance,
-
 				"notSoDeep" => TokenType.NotSoDeep,
 				"deeplyGreater" => TokenType.DeeplyGreater,
 				"deeplyLess" => TokenType.DeeplyLess,
 
-				// dominant suggestion
-				"dominant" => TokenType.Dominant,
+				// Module und Globale
+				"mindLink" => TokenType.MindLink,
+				"sharedTrance" => TokenType.SharedTrance,
+
+				// Typen
+				"number" => TokenType.Number,
+				"string" => TokenType.String,
+				"boolean" => TokenType.Boolean,
+				"trance" => TokenType.Trance,
+
+				// Boolean Literale
+				"true" => TokenType.True,
+				"false" => TokenType.False,
 
 				_ => TokenType.Identifier
 			};
