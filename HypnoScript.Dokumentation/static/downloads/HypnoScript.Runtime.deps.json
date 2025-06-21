@@ -1,0 +1,40 @@
+{
+  "runtimeTarget": {
+    "name": ".NETCoreApp,Version=v8.0/win-x64",
+    "signature": ""
+  },
+  "compilationOptions": {},
+  "targets": {
+    ".NETCoreApp,Version=v8.0": {},
+    ".NETCoreApp,Version=v8.0/win-x64": {
+      "HypnoScript.Runtime/1.0.0": {
+        "dependencies": {
+          "HypnoScript.Core": "1.0.0"
+        },
+        "runtime": {
+          "HypnoScript.Runtime.dll": {}
+        }
+      },
+      "HypnoScript.Core/1.0.0": {
+        "runtime": {
+          "HypnoScript.Core.dll": {
+            "assemblyVersion": "1.0.0.0",
+            "fileVersion": "1.0.0.0"
+          }
+        }
+      }
+    }
+  },
+  "libraries": {
+    "HypnoScript.Runtime/1.0.0": {
+      "type": "project",
+      "serviceable": false,
+      "sha512": ""
+    },
+    "HypnoScript.Core/1.0.0": {
+      "type": "project",
+      "serviceable": false,
+      "sha512": ""
+    }
+  }
+}

@@ -5,8 +5,8 @@ import { themes as prismThemes } from 'prism-react-renderer';
 // This runs in Node.js - Don't use client-side code here (browser APIs, JSX...)
 
 const config: Config = {
-  title: 'My Site',
-  tagline: 'Dinosaurs are cool',
+  title: 'HypnoScript',
+  tagline: 'Code with style',
   favicon: 'img/favicon.ico',
 
   // Future flags, see https://docusaurus.io/docs/api/docusaurus-config#future
@@ -73,10 +73,10 @@ const config: Config = {
     // Replace with your project's social card
     image: 'img/docusaurus-social-card.jpg',
     navbar: {
-      title: 'HypnoScript',
+      title: 'HYPNO Script',
       logo: {
-        alt: 'HypnoScript Logo',
-        src: 'img/logo.png',
+        alt: 'HYP Logo',
+        src: 'img/logo.svg',
       },
       items: [
         {
@@ -136,7 +136,7 @@ const config: Config = {
           ],
         },
       ],
-      copyright: `Copyright © ${new Date().getFullYear()} My Project, Inc. Built with Docusaurus.`,
+      copyright: `Copyright © ${new Date().getFullYear()} HypnoScript. Built with Docusaurus.`,
     },
     prism: {
       theme: prismThemes.github,

@@ -39,6 +39,36 @@ export default function Home(): ReactNode {
     >
       <HomepageHeader />
       <main>
+        <div className="container margin-vert--xl">
+          <div className="text--center">
+            <Heading as="h2">🚀 Download</Heading>
+            <p className="text--lg">
+              Lade die neueste Version der HypnoScript-Runtime herunter und
+              starte deine hypnotische Programmierreise.
+            </p>
+            <div className={styles.buttons}>
+              <Link
+                className="button button--primary button--lg margin-horiz--sm"
+                to="/downloads/HypnoScript.Runtime.exe"
+                download
+              >
+                Windows (x64)
+              </Link>
+              <Link
+                className="button button--secondary button--lg margin-horiz--sm"
+                to="#"
+              >
+                Linux (x64)
+              </Link>
+              <Link
+                className="button button--secondary button--lg margin-horiz--sm"
+                to="#"
+              >
+                macOS (x64)
+              </Link>
+            </div>
+          </div>
+        </div>
         <HomepageFeatures />
         <div className="container margin-vert--xl">
           <div className="row">

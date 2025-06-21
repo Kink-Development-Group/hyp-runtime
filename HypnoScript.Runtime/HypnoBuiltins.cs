@@ -1019,10 +1019,6 @@ namespace HypnoScript.Runtime
 		public static int DictionaryCount(Dictionary<string, object> dict) => dict.Count;
 
 		// ===== ERWEITERTE STRING-UTILITIES =====
-		public static bool StartsWith(string str, string prefix) => str.StartsWith(prefix);
-		public static bool EndsWith(string str, string suffix) => str.EndsWith(suffix);
-		public static string PadLeft(string str, int width, char paddingChar = ' ') => str.PadLeft(width, paddingChar);
-		public static string PadRight(string str, int width, char paddingChar = ' ') => str.PadRight(width, paddingChar);
 		public static string Insert(string str, int index, string value) => str.Insert(index, value);
 		public static string Remove(string str, int start, int count) => str.Remove(start, count);
 		public static int Compare(string str1, string str2) => string.Compare(str1, str2);
@@ -1127,7 +1123,7 @@ namespace HypnoScript.Runtime
 			if (nums.Length == 0) return 0;
 			var result = nums[0];
 			for (int i = 1; i < nums.Length; i++)
-				result = GCD(result, nums[i]);
+				result = (int)GCD(result, nums[i]);
 			return result;
 		}
 		public static int LCMArray(object[] arr)
@@ -1136,7 +1132,7 @@ namespace HypnoScript.Runtime
 			if (nums.Length == 0) return 0;
 			var result = nums[0];
 			for (int i = 1; i < nums.Length; i++)
-				result = LCM(result, nums[i]);
+				result = (int)LCM(result, nums[i]);
 			return result;
 		}
 		public static int SumOfDigits(long n) => n.ToString().Sum(c => c - '0');
@@ -1359,15 +1355,16 @@ namespace HypnoScript.Runtime
 		}
 		public static double Benchmark(Func<object> func, int iterations)
 		{
-			var stopwatch = System.Diagnostics.Stopwatch.StartNew();
+			var sw = System.Diagnostics.Stopwatch.StartNew();
 			for (int i = 0; i < iterations; i++)
 				func();
-			stopwatch.Stop();
-			return stopwatch.ElapsedMilliseconds / (double)iterations;
+			return sw.Elapsed.TotalMilliseconds;
 		}
 		public static string[] GetCallStack()
 		{
-			return System.Diagnostics.StackTrace.GetFrames()?.Select(f => f.GetMethod()?.Name ?? "Unknown").ToArray() ?? new string[0];
+			return new System.Diagnostics.StackTrace(true).GetFrames()
+				.Select(f => f.ToString())
+				.ToArray();
 		}
 		public static Dictionary<string, object> GetExceptionInfo(Exception ex)
 		{
