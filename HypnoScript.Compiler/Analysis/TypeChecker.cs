@@ -281,6 +281,24 @@ namespace HypnoScript.Compiler.Analysis
                     return sym?.TypeName;
                 case RecordLiteralExpressionNode rec:
                     return rec.TypeName;
+                case BinaryExpressionNode bin:
+                    // Vergleichsoperatoren geben boolean zurück
+                    if (bin.Operator == "<" || bin.Operator == ">" || bin.Operator == "<=" || bin.Operator == ">=" ||
+                        bin.Operator == "==" || bin.Operator == "!=")
+                    {
+                        return "boolean";
+                    }
+                    // Arithmetische Operatoren geben number zurück (falls beide Operanden number sind)
+                    if (bin.Operator == "+" || bin.Operator == "-" || bin.Operator == "*" || bin.Operator == "/" || bin.Operator == "%")
+                    {
+                        var leftType = InferExpressionType(bin.Left);
+                        var rightType = InferExpressionType(bin.Right);
+                        if (leftType == "number" && rightType == "number")
+                        {
+                            return "number";
+                        }
+                    }
+                    return null;
                 default:
                     return null;
             }

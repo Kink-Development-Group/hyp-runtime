@@ -1,0 +1,3 @@
+Focus {
+    observe "Hello World!";
+} Relax

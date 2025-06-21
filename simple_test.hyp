@@ -1,0 +1,13 @@
+Focus {
+    observe "Hello from HypnoScript!";
+
+    induce counter: number = 0;
+    induce greeting: string = "Welcome to the hypnotic world!";
+
+    while (counter < 3) {
+        observe greeting + " (Counter: " + counter + ")";
+        counter = counter + 1;
+    }
+
+    observe "Program complete!";
+} Relax

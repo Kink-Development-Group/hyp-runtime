@@ -15,10 +15,12 @@ namespace HypnoScript.LexerParser.Lexer
 
 		public IEnumerable<Token> Lex()
 		{
+			Console.WriteLine("[DEBUG] Lex() aufgerufen");
 			var tokens = new List<Token>();
 
 			while (!IsAtEnd())
 			{
+				Console.WriteLine($"[DEBUG] Lexer-Schleife: pos={_pos}, char='{Peek()}'");
 				var startPos = _pos;
 				var c = Advance();
 
@@ -36,20 +38,18 @@ namespace HypnoScript.LexerParser.Lexer
 				{
 					// Identifier oder Keyword
 					var ident = ReadIdentifier(c);
-					if (Peek() == ':')
-					{
-						Advance(); // ':' konsumieren
-						tokens.Add(new Token(TokenType.Label, ident, _line, _column));
-						break;
-					}
 					var tokenType = KeywordOrIdentifier(ident);
-					tokens.Add(new Token(tokenType, ident, _line, _column));
+					var token = new Token(tokenType, ident, _line, _column);
+					Console.WriteLine($"[DEBUG][Lexer] Token: {tokenType} '{ident}' @ {_line}:{_column}");
+					tokens.Add(token);
 				}
 				else if (char.IsDigit(c))
 				{
 					// Nummer
 					var number = ReadNumber(c);
-					tokens.Add(new Token(TokenType.NumberLiteral, number, _line, _column));
+					var token = new Token(TokenType.NumberLiteral, number, _line, _column);
+					Console.WriteLine($"[DEBUG][Lexer] Token: {TokenType.NumberLiteral} '{number}' @ {_line}:{_column}");
+					tokens.Add(token);
 				}
 				else
 				{
@@ -145,7 +145,9 @@ namespace HypnoScript.LexerParser.Lexer
 							break;
 						case '"':
 							var strVal = ReadString();
-							tokens.Add(NewToken(TokenType.StringLiteral, strVal));
+							var strToken = new Token(TokenType.StringLiteral, strVal, _line, _column);
+							Console.WriteLine($"[DEBUG][Lexer] Token: {TokenType.StringLiteral} '{strVal}' @ {_line}:{_column}");
+							tokens.Add(strToken);
 							break;
 						case '.':
 							tokens.Add(NewToken(TokenType.Dot, "."));
@@ -158,18 +160,26 @@ namespace HypnoScript.LexerParser.Lexer
 			}
 
 			tokens.Add(NewToken(TokenType.Eof, ""));
+			Console.WriteLine($"[DEBUG] Lex() fertig, {tokens.Count} Tokens");
 			return tokens;
 		}
 
 		private string ReadIdentifier(char firstChar)
 		{
+			Console.WriteLine($"[DEBUG] ReadIdentifier startet mit '{firstChar}'");
 			var sb = new StringBuilder();
 			sb.Append(firstChar);
+
 			while (!IsAtEnd() && (char.IsLetterOrDigit(Peek()) || Peek() == '_'))
 			{
+				var nextChar = Peek();
+				Console.WriteLine($"[DEBUG] ReadIdentifier: pos={_pos}, nextChar='{nextChar}'");
 				sb.Append(Advance());
 			}
-			return sb.ToString();
+
+			var result = sb.ToString();
+			Console.WriteLine($"[DEBUG] ReadIdentifier fertig: '{result}'");
+			return result;
 		}
 
 		private string ReadNumber(char firstChar)
@@ -207,7 +217,10 @@ namespace HypnoScript.LexerParser.Lexer
 				sb.Append(Advance());
 			}
 			// Schluckendes " Ende
-			if (!IsAtEnd()) Advance();
+			if (!IsAtEnd())
+			{
+				Advance(); // Konsumiere das schließende Anführungszeichen
+			}
 			return sb.ToString();
 		}
 
@@ -330,7 +343,11 @@ namespace HypnoScript.LexerParser.Lexer
 		private bool IsAtEnd() => _pos >= _source.Length;
 
 		private Token NewToken(TokenType type, string lexeme)
-			=> new Token(type, lexeme, _line, _column);
+		{
+			var token = new Token(type, lexeme, _line, _column);
+			Console.WriteLine($"[DEBUG][NewToken] Token: {type} '{lexeme}' @ {_line}:{_column}");
+			return token;
+		}
 
 		// Hilfsmethode, um das nächste Wort zu peeken (ohne Whitespace zu überspringen)
 		private string PeekWord()

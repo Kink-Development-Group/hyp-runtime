@@ -293,6 +293,11 @@ namespace HypnoScript.Compiler.Interpreter
 			switch (bin.Operator)
 			{
 				case "+":
+					// String-Konkatenation oder arithmetische Addition
+					if (leftVal is string || rightVal is string)
+					{
+						return leftVal?.ToString() + rightVal?.ToString();
+					}
 					return Convert.ToDouble(leftVal) + Convert.ToDouble(rightVal);
 				case "-":
 					return Convert.ToDouble(leftVal) - Convert.ToDouble(rightVal);

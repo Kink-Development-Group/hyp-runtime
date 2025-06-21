@@ -15,41 +15,20 @@ namespace HypnoScript.LexerParser.Parser
 
 		public ProgramNode ParseProgram()
 		{
-			SkipLeadingTokens();  // Fügt diese Zeile hinzu
-
+			Console.WriteLine($"[DEBUG] Start ParseProgram, current token: {Peek().Type} '{Peek().Lexeme}'");
 			// Sicherstellen, dass das Programm mit "Focus" beginnt
 			if (!Check(TokenType.Focus))
 				throw new Exception("Program must start with 'Focus'.");
 			Advance(); // consume Focus
 
-			var statements = new List<IStatement>();
+			var statements = ParseBlockStatements();
 
-			// Optional: entrance-Block direkt nach Focus
-			if (Match(TokenType.Entrance))
-			{
-				statements.Add(ParseEntranceBlock());
-			}
-
-			while (!Check(TokenType.Relax) && !IsAtEnd())
-			{
-				statements.Add(ParseStatement());
-			}
-
-			// Sicherstellen, dass das Programm mit "Relax" endet
+			Console.WriteLine($"[DEBUG] Nach Block, current token: {Peek().Type} '{Peek().Lexeme}'");
 			if (!Check(TokenType.Relax))
 				throw new Exception("Program must end with 'Relax'.");
 			Advance(); // consume Relax
 
 			return new ProgramNode(statements);
-		}
-
-		private void SkipLeadingTokens()
-		{
-			while (!IsAtEnd() &&
-						   (string.IsNullOrWhiteSpace(Peek().Lexeme) || Peek().Lexeme.StartsWith('\uFEFF')))
-			{
-				Advance();
-			}
 		}
 
 		private IStatement ParseStatement()
@@ -289,9 +268,16 @@ namespace HypnoScript.LexerParser.Parser
 
 			if (Match(TokenType.Colon))
 			{
-				// parse type
-				var typeToken = Consume(TokenType.Identifier, "Expect type name after ':'.");
-				typeName = typeToken.Lexeme;
+				// parse type - akzeptiere Identifier oder Typ-Keywords
+				if (Match(TokenType.Number) || Match(TokenType.String) || Match(TokenType.Boolean))
+				{
+					typeName = Previous().Lexeme;
+				}
+				else
+				{
+					var typeToken = Consume(TokenType.Identifier, "Expect type name after ':'.");
+					typeName = typeToken.Lexeme;
+				}
 			}
 
 			if (Match(TokenType.Equals))
@@ -368,7 +354,7 @@ namespace HypnoScript.LexerParser.Parser
 
 		private List<IStatement> ParseBlockStatements()
 		{
-			// Erlaube { ... } oder deepFocus { ... }
+			Console.WriteLine($"[DEBUG] Enter Block, current token: {Peek().Type} '{Peek().Lexeme}'");
 			if (Match(TokenType.DeepFocus))
 			{
 				Consume(TokenType.LBrace, "Expect '{' after 'deepFocus'.");
@@ -381,9 +367,18 @@ namespace HypnoScript.LexerParser.Parser
 			var stmts = new List<IStatement>();
 			while (!Check(TokenType.RBrace) && !IsAtEnd())
 			{
-				stmts.Add(ParseStatement());
+				Console.WriteLine($"[DEBUG] Block loop, current token: {Peek().Type} '{Peek().Lexeme}'");
+				if (Match(TokenType.Entrance))
+				{
+					stmts.Add(ParseEntranceBlock());
+				}
+				else
+				{
+					stmts.Add(ParseStatement());
+				}
 			}
 
+			Console.WriteLine($"[DEBUG] Leave Block, current token: {Peek().Type} '{Peek().Lexeme}'");
 			Consume(TokenType.RBrace, "Expect '}' to end block.");
 			return stmts;
 		}
@@ -394,7 +389,28 @@ namespace HypnoScript.LexerParser.Parser
 
 		private IExpression ParseExpression()
 		{
-			return ParseEquality();
+			return ParseAssignment();
+		}
+
+		private IExpression ParseAssignment()
+		{
+			var expr = ParseEquality();
+
+			if (Match(TokenType.Equals))
+			{
+				var equals = Previous();
+				var value = ParseAssignment();
+
+				if (expr is IdentifierExpressionNode)
+				{
+					var name = ((IdentifierExpressionNode)expr).Name;
+					return new AssignmentExpressionNode(name, value);
+				}
+
+				throw new Exception("Invalid assignment target.");
+			}
+
+			return expr;
 		}
 
 		private IExpression ParseEquality()
