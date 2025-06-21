@@ -1,0 +1,41 @@
+Focus {
+    entrance {
+        observe "Willkommen in der erweiterten HypnoScript-Welt!";
+        drift(1000);
+    }
+
+    // Variablen und Berechnungen
+    induce x: number = 10;
+    induce y: number = 5;
+    induce result: number = x * y + 15;
+    induce greeting: string = "Hello from HypnoScript!";
+
+    // Kontrollstrukturen
+    if (x > 5) deepFocus {
+        observe "x ist größer als 5";
+    } else deepFocus {
+        observe "x ist kleiner oder gleich 5";
+    }
+
+    // Schleifen
+    while (y > 0) {
+        observe "Countdown: " + y;
+        y = y - 1;
+        drift(500);
+    }
+
+    // Funktionen
+    suggestion add(a: number, b: number): number {
+        awaken a + b;
+    }
+
+    // Funktionsaufruf
+    induce sum = call add(3, 7);
+    observe "Summe: " + sum;
+
+    // Arrays
+    induce numbers = [1, 2, 3, 4, 5];
+    induce names = ["Alice", "Bob", "Charlie"];
+
+    observe "Programm erfolgreich abgeschlossen!";
+} Relax
