@@ -1,0 +1,65 @@
+{
+  "name": "hypnoscript-documentation",
+  "version": "0.0.0",
+  "private": true,
+  "scripts": {
+    "docusaurus": "docusaurus",
+    "start": "docusaurus start",
+    "build": "docusaurus build",
+    "swizzle": "docusaurus swizzle",
+    "deploy": "docusaurus deploy",
+    "clear": "docusaurus clear",
+    "serve": "docusaurus serve",
+    "write-translations": "docusaurus write-translations",
+    "write-heading-ids": "docusaurus write-heading-ids",
+    "typecheck": "tsc"
+  },
+  "dependencies": {
+    "@docusaurus/core": "3.8.0",
+    "@docusaurus/preset-classic": "3.8.0",
+    "@docusaurus/theme-search-algolia": "^3.8.0",
+    "@mdx-js/react": "^3.0.0",
+    "clsx": "^2.1.0",
+    "prism-react-renderer": "^2.3.1",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0"
+  },
+  "devDependencies": {
+    "@docusaurus/module-type-aliases": "3.8.0",
+    "@docusaurus/types": "3.8.0",
+    "@tsconfig/docusaurus": "^3.0.0",
+    "typescript": "^5.3.3"
+  },
+  "browserslist": {
+    "production": [
+      ">0.5%",
+      "not dead",
+      "not op_mini all"
+    ],
+    "development": [
+      "last 1 chrome version",
+      "last 1 firefox version",
+      "last 1 safari version"
+    ]
+  },
+  "engines": {
+    "node": ">=18.0"
+  },
+  "description": "Vollständige Dokumentation für HypnoScript - Die hypnotische Programmiersprache",
+  "keywords": [
+    "hypnoscript",
+    "programming-language",
+    "documentation",
+    "docusaurus",
+    "hypnotic",
+    "german"
+  ],
+  "author": "HypnoScript Team",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/hypnoscript/hyp-runtime.git",
+    "directory": "HypnoScript.Dokumentation"
+  },
+  "homepage": "https://hypnoscript.github.io/hyp-runtime/"
+}
