@@ -8,6 +8,8 @@ using HypnoScript.Compiler.Analysis;
 using HypnoScript.Compiler.Interpreter;
 using HypnoScript.Compiler.CodeGen;
 using HypnoScript.LexerParser.AST;
+using System.Linq;
+using System.Collections.Generic;
 
 namespace HypnoScript.CLI
 {
@@ -133,9 +135,10 @@ namespace HypnoScript.CLI
                     case "test":
                         if (args.Length < 2)
                         {
-                            Console.WriteLine("Error: File path required for 'test' command");
-                            return 1;
+                            // Kein Dateipfad: Alle Tests ausführen
+                            return RunTests(null, debug, verbose);
                         }
+                        // Mit Dateipfad: Nur diese Datei testen
                         return RunTests(args[1], debug, verbose);
                     case "docs":
                         if (args.Length < 2)
@@ -280,6 +283,19 @@ namespace HypnoScript.CLI
                 interpreter.ExecuteProgram(program);
                 var endTime = DateTime.Now;
                 var executionTime = (endTime - startTime).TotalMilliseconds;
+
+                var assertionFailures = interpreter.GetAssertionFailures();
+                if (assertionFailures.Count > 0)
+                {
+                    Console.ForegroundColor = ConsoleColor.Red;
+                    Console.WriteLine($"\n❌ {assertionFailures.Count} assertion(s) failed:");
+                    foreach (var fail in assertionFailures)
+                    {
+                        Console.WriteLine($"   - {fail}");
+                    }
+                    Console.ResetColor();
+                    return 1;
+                }
 
                 Console.WriteLine("✓ Execution completed!");
                 Console.WriteLine($"⏱️  Execution time: {executionTime:F2}ms");
@@ -685,43 +701,102 @@ namespace HypnoScript.CLI
             Console.WriteLine("=== TEST MODE ===");
             Console.WriteLine("🧪 Running HypnoScript Tests...");
 
-            if (!File.Exists(filePath))
+            List<string> testFiles;
+            if (string.IsNullOrEmpty(filePath))
             {
-                Console.Error.WriteLine($"[ERROR] File not found: {filePath}");
-                return 2;
+                // Alle .hyp-Dateien im Projektverzeichnis rekursiv finden
+                testFiles = Directory.GetFiles(Directory.GetCurrentDirectory(), "*.hyp", SearchOption.AllDirectories)
+                    .OrderBy(f => f).ToList();
+            }
+            else
+            {
+                if (!File.Exists(filePath))
+                {
+                    Console.Error.WriteLine($"[ERROR] File not found: {filePath}");
+                    return 2;
+                }
+                testFiles = new List<string> { filePath };
             }
 
-            try
+            if (testFiles.Count == 0)
             {
-                Console.WriteLine("✅ Testing features:");
-                Console.WriteLine("  - Unit test framework");
-                Console.WriteLine("  - Integration tests");
-                Console.WriteLine("  - Performance tests");
-                Console.WriteLine("  - Memory leak detection");
-                Console.WriteLine("  - Code coverage analysis");
-                Console.WriteLine("  - Automated test generation");
-                Console.WriteLine("  - Test result reporting");
-                Console.WriteLine("  - Continuous testing");
-
-                Console.WriteLine("\n🧪 Test types supported:");
-                Console.WriteLine("  - Syntax validation tests");
-                Console.WriteLine("  - Type checking tests");
-                Console.WriteLine("  - Runtime execution tests");
-                Console.WriteLine("  - Builtin function tests");
-                Console.WriteLine("  - Error handling tests");
-                Console.WriteLine("  - Performance benchmarks");
-
-                Console.WriteLine("\n⚠️  Testing framework is not yet fully implemented.");
-                Console.WriteLine("   This is a placeholder for the Enterprise Edition feature.");
-
+                Console.WriteLine("[WARN] No .hyp test files found.");
                 return 0;
             }
-            catch (Exception ex)
+
+            int passed = 0, failed = 0;
+            var results = new List<(string file, bool ok, TimeSpan duration, string? error)>();
+
+            foreach (var testFile in testFiles)
             {
-                Console.Error.WriteLine($"[ERROR] Testing failed: {ex.Message}");
-                if (debug) Console.Error.WriteLine(ex.StackTrace);
-                return 1;
+                var sw = System.Diagnostics.Stopwatch.StartNew();
+                try
+                {
+                    int exitCode = RunFile(testFile, debug, verbose);
+                    sw.Stop();
+                    if (exitCode == 0)
+                    {
+                        results.Add((testFile, true, sw.Elapsed, null));
+                        passed++;
+                    }
+                    else
+                    {
+                        results.Add((testFile, false, sw.Elapsed, $"Exit code: {exitCode}"));
+                        failed++;
+                    }
+                }
+                catch (Exception ex)
+                {
+                    sw.Stop();
+                    string errorMessage = ex.Message;
+                    bool isAssertionFailure = errorMessage.Contains("Assertion failed") || errorMessage.StartsWith("Assertion failed");
+
+                    if (isAssertionFailure)
+                    {
+                        // Assertion-Fehler speziell hervorheben
+                        errorMessage = $"ASSERTION FAILED: {errorMessage}";
+                    }
+
+                    results.Add((testFile, false, sw.Elapsed, errorMessage));
+                    failed++;
+                }
             }
+
+            // Testreport
+            Console.WriteLine("\n=== Test Results ===");
+            foreach (var (file, ok, duration, error) in results)
+            {
+                if (ok)
+                {
+                    Console.ForegroundColor = ConsoleColor.Green;
+                    Console.WriteLine($"[OK]     {Path.GetFileName(file),-30} ({duration.TotalMilliseconds:F0} ms)");
+                    Console.ResetColor();
+                }
+                else
+                {
+                    Console.ForegroundColor = ConsoleColor.Red;
+                    if (error?.Contains("ASSERTION FAILED") == true)
+                    {
+                        Console.WriteLine($"[ASSERT] {Path.GetFileName(file),-30} ({duration.TotalMilliseconds:F0} ms)");
+                        Console.WriteLine($"         └─ {error}");
+                    }
+                    else
+                    {
+                        Console.WriteLine($"[FAIL]   {Path.GetFileName(file),-30} ({duration.TotalMilliseconds:F0} ms)  {error}");
+                    }
+                    Console.ResetColor();
+                }
+            }
+
+            Console.WriteLine($"\nSummary: {passed} passed, {failed} failed, {testFiles.Count} total");
+            if (failed > 0)
+            {
+                Console.ForegroundColor = ConsoleColor.Yellow;
+                Console.WriteLine($"⚠️  {failed} test(s) failed. Check the output above for details.");
+                Console.ResetColor();
+            }
+
+            return failed == 0 ? 0 : 1;
         }
 
         private static int GenerateDocs(string filePath, bool debug, bool verbose)

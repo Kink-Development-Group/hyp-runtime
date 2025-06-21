@@ -117,7 +117,7 @@ Focus {
 
 ### Run-Modus
 
-```
+```bash
 === RUN MODE ===
 ✓ Datei beginnt mit 'Focus' - Syntax OK
 ✓ Lexing erfolgreich!
@@ -129,7 +129,7 @@ Focus {
 
 ### Compile-Modus
 
-```
+```bash
 === COMPILE MODE ===
 ✓ Lexing erfolgreich!
 ✓ Parsing erfolgreich!
@@ -140,7 +140,7 @@ Focus {
 
 ### Analyze-Modus
 
-```
+```bash
 === ANALYZE MODE ===
 ✓ Lexing erfolgreich!
 
@@ -216,7 +216,7 @@ Der `--debug` Flag aktiviert zusätzliche Ausgaben:
 
 ### Projektstruktur
 
-```
+```bash
 HypnoScript.CLI/
 ├── Program.cs          # Haupt-CLI-Logik
 ├── HypnoScript.CLI.csproj

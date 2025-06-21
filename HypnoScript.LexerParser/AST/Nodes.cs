@@ -117,4 +117,7 @@ namespace HypnoScript.LexerParser.AST
 
 	// Array Literal
 	public record ArrayLiteralExpressionNode(List<IExpression> Elements) : IExpression;
+
+	// Assert Statement
+	public record AssertStatementNode(IExpression Condition, string? Message) : IStatement;
 }

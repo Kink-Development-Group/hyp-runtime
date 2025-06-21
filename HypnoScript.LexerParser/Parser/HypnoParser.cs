@@ -125,6 +125,19 @@ namespace HypnoScript.LexerParser.Parser
 				Consume(TokenType.Semicolon, "Expect ';' after sinkTo statement.");
 				return new SinkToNode(labelToken.Lexeme);
 			}
+			if (Match(TokenType.Assert))
+			{
+				Consume(TokenType.LParen, "Expect '(' after 'assert'.");
+				var condition = ParseExpression();
+				Consume(TokenType.RParen, "Expect ')' after assert condition.");
+				string? message = null;
+				if (Check(TokenType.StringLiteral))
+				{
+					message = Advance().Lexeme;
+				}
+				Consume(TokenType.Semicolon, "Expect ';' after assert statement.");
+				return new AssertStatementNode(condition, message);
+			}
 			// Fallback: Expression Statement
 			var expr = ParseExpression();
 			Consume(TokenType.Semicolon, "Expect ';' after expression.");

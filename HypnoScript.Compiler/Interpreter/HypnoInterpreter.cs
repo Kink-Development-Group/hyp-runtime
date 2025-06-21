@@ -3,6 +3,7 @@ using HypnoScript.Runtime;
 using HypnoScript.Core.Symbols;
 using HypnoScript.LexerParser.Parser;
 using System.IO;
+using System.Collections.Generic;
 
 namespace HypnoScript.Compiler.Interpreter
 {
@@ -12,6 +13,7 @@ namespace HypnoScript.Compiler.Interpreter
 	public partial class HypnoInterpreter
 	{
 		private readonly SymbolTable _globals = new();
+		private readonly List<string> _assertionFailures = new();
 
 		private class SinkToLabelException : Exception
 		{
@@ -106,6 +108,11 @@ namespace HypnoScript.Compiler.Interpreter
 					break;
 				case SinkToNode sinkTo:
 					throw new SinkToLabelException(sinkTo.LabelName);
+				case AssertStatementNode assertStmt:
+					var cond = EvaluateExpression(assertStmt.Condition);
+					if (!IsTruthy(cond))
+						_assertionFailures.Add(assertStmt.Message ?? "Assertion failed");
+					break;
 				default:
 					throw new NotSupportedException($"Unsupported statement type: {stmt.GetType().Name}");
 			}
@@ -798,5 +805,7 @@ namespace HypnoScript.Compiler.Interpreter
 				}
 			}
 		}
+
+		public IReadOnlyList<string> GetAssertionFailures() => _assertionFailures.AsReadOnly();
 	}
 }

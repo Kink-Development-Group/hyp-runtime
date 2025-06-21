@@ -102,5 +102,8 @@ public enum TokenType
     Equals,     // =
 
     // Ende der Datei
-    Eof
+    Eof,
+
+    // Assert-Statement
+    Assert
 }

@@ -70,7 +70,7 @@ namespace HypnoScript.Runtime
 		// ===== ARRAY-FUNKTIONEN =====
 		public static int ArrayLength(object[] arr) => arr.Length;
 		public static object? ArrayGet(object[] arr, int index) => arr[index];
-		public static void ArraySet(object[] arr, int index, object? value) => arr[index] = value;
+		public static void ArraySet(object[] arr, int index, object? value) => arr[index] = value ?? "";
 		public static object[] ArraySlice(object[] arr, int start, int length)
 		{
 			var result = new object[length];
@@ -185,7 +185,12 @@ namespace HypnoScript.Runtime
 
 		public static void Beep(int frequency = 800, int duration = 200)
 		{
+#if WINDOWS
 			Console.Beep(frequency, duration);
+#else
+			// Fallback für nicht-Windows Plattformen
+			System.Threading.Thread.Sleep(duration);
+#endif
 		}
 
 		public static string GetEnvironmentVariable(string name)
@@ -597,7 +602,12 @@ namespace HypnoScript.Runtime
 
 		public static void PlaySound(int frequency = 800, int duration = 200)
 		{
+#if WINDOWS
 			Console.Beep(frequency, duration);
+#else
+			// Fallback für nicht-Windows Plattformen
+			System.Threading.Thread.Sleep(duration);
+#endif
 		}
 
 		public static void Vibrate(int duration = 1000)
@@ -606,7 +616,12 @@ namespace HypnoScript.Runtime
 			var startTime = DateTime.Now;
 			while ((DateTime.Now - startTime).TotalMilliseconds < duration)
 			{
+#if WINDOWS
 				Console.Beep(200, 50);
+#else
+				// Fallback für nicht-Windows Plattformen
+				System.Threading.Thread.Sleep(50);
+#endif
 				System.Threading.Thread.Sleep(50);
 			}
 		}

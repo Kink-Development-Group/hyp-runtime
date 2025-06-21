@@ -314,6 +314,8 @@ namespace HypnoScript.LexerParser.Lexer
 				"true" => TokenType.True,
 				"false" => TokenType.False,
 
+				"assert" => TokenType.Assert,
+
 				_ => TokenType.Identifier
 			};
 		}
