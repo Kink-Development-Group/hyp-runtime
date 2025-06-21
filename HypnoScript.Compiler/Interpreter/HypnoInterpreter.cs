@@ -639,6 +639,382 @@ namespace HypnoScript.Compiler.Interpreter
 					case "DebugPrintEnvironment":
 						HypnoBuiltins.DebugPrintEnvironment();
 						return null;
+
+					// Array-Funktionen
+					case "ArrayLength":
+						if (args.Length >= 1 && args[0] is object[] arrLen)
+							return HypnoBuiltins.ArrayLength(arrLen);
+						break;
+					case "ArrayGet":
+						if (args.Length >= 2 && args[0] is object[] arrGet && args[1] is int index)
+							return HypnoBuiltins.ArrayGet(arrGet, index);
+						break;
+					case "ArraySet":
+						if (args.Length >= 3 && args[0] is object[] arrSet && args[1] is int index)
+						{
+							HypnoBuiltins.ArraySet(arrSet, index, args[2]);
+							return null;
+						}
+						break;
+					case "ArraySlice":
+						if (args.Length >= 3 && args[0] is object[] arrSlice && args[1] is int start && args[2] is int length)
+							return HypnoBuiltins.ArraySlice(arrSlice, start, length);
+						break;
+					case "ArrayConcat":
+						if (args.Length >= 2 && args[0] is object[] arr1 && args[1] is object[] arr2)
+							return HypnoBuiltins.ArrayConcat(arr1, arr2);
+						break;
+					case "ArrayIndexOf":
+						if (args.Length >= 2 && args[0] is object[] arrIdx)
+							return HypnoBuiltins.ArrayIndexOf(arrIdx, args[1]);
+						break;
+					case "ArrayContains":
+						if (args.Length >= 2 && args[0] is object[] arrCont)
+							return HypnoBuiltins.ArrayContains(arrCont, args[1]);
+						break;
+					case "ArrayMap":
+						if (args.Length >= 1 && args[0] is object[] arrMap)
+							return HypnoBuiltins.ArrayMap(arrMap, item => item); // Einfache Implementierung
+						break;
+					case "ArrayReduce":
+						if (args.Length >= 2 && args[0] is object[] arrRed)
+							return HypnoBuiltins.ArrayReduce(arrRed, (acc, item) => item, args[1]); // Einfache Implementierung
+						break;
+					case "ArrayFlatten":
+						if (args.Length >= 1 && args[0] is object[] arrFlat)
+							return HypnoBuiltins.ArrayFlatten(arrFlat);
+						break;
+
+					// Mathematische Funktionen
+					case "Abs":
+						if (args.Length >= 1 && args[0] is double absVal)
+							return HypnoBuiltins.Abs(absVal);
+						break;
+					case "Sin":
+						if (args.Length >= 1 && args[0] is double sinVal)
+							return HypnoBuiltins.Sin(sinVal);
+						break;
+					case "Cos":
+						if (args.Length >= 1 && args[0] is double cosVal)
+							return HypnoBuiltins.Cos(cosVal);
+						break;
+					case "Tan":
+						if (args.Length >= 1 && args[0] is double tanVal)
+							return HypnoBuiltins.Tan(tanVal);
+						break;
+					case "Sqrt":
+						if (args.Length >= 1 && args[0] is double sqrtVal)
+							return HypnoBuiltins.Sqrt(sqrtVal);
+						break;
+					case "Pow":
+						if (args.Length >= 2 && args[0] is double powX && args[1] is double powY)
+							return HypnoBuiltins.Pow(powX, powY);
+						break;
+					case "Floor":
+						if (args.Length >= 1 && args[0] is double floorVal)
+							return HypnoBuiltins.Floor(floorVal);
+						break;
+					case "Ceiling":
+						if (args.Length >= 1 && args[0] is double ceilVal)
+							return HypnoBuiltins.Ceiling(ceilVal);
+						break;
+					case "Round":
+						if (args.Length >= 1 && args[0] is double roundVal)
+							return HypnoBuiltins.Round(roundVal);
+						break;
+					case "Log":
+						if (args.Length >= 1 && args[0] is double logVal)
+							return HypnoBuiltins.Log(logVal);
+						break;
+					case "Log10":
+						if (args.Length >= 1 && args[0] is double log10Val)
+							return HypnoBuiltins.Log10(log10Val);
+						break;
+					case "Exp":
+						if (args.Length >= 1 && args[0] is double expVal)
+							return HypnoBuiltins.Exp(expVal);
+						break;
+					case "Max":
+						if (args.Length >= 2 && args[0] is double maxX && args[1] is double maxY)
+							return HypnoBuiltins.Max(maxX, maxY);
+						break;
+					case "Min":
+						if (args.Length >= 2 && args[0] is double minX && args[1] is double minY)
+							return HypnoBuiltins.Min(minX, minY);
+						break;
+					case "Random":
+						return HypnoBuiltins.Random();
+					case "RandomInt":
+						if (args.Length >= 2 && args[0] is int randMin && args[1] is int randMax)
+							return HypnoBuiltins.RandomInt(randMin, randMax);
+						break;
+
+					// String-Funktionen
+					case "Length":
+						if (args.Length >= 1 && args[0] is string lenStr)
+							return HypnoBuiltins.Length(lenStr);
+						break;
+					case "Substring":
+						if (args.Length >= 3 && args[0] is string subStr && args[1] is int subStart && args[2] is int subLen)
+							return HypnoBuiltins.Substring(subStr, subStart, subLen);
+						break;
+					case "ToUpper":
+						if (args.Length >= 1 && args[0] is string upperStr)
+							return HypnoBuiltins.ToUpper(upperStr);
+						break;
+					case "ToLower":
+						if (args.Length >= 1 && args[0] is string lowerStr)
+							return HypnoBuiltins.ToLower(lowerStr);
+						break;
+					case "Contains":
+						if (args.Length >= 2 && args[0] is string contStr && args[1] is string contSub)
+							return HypnoBuiltins.Contains(contStr, contSub);
+						break;
+					case "Replace":
+						if (args.Length >= 3 && args[0] is string repStr && args[1] is string repOld && args[2] is string repNew)
+							return HypnoBuiltins.Replace(repStr, repOld, repNew);
+						break;
+					case "Trim":
+						if (args.Length >= 1 && args[0] is string trimStr)
+							return HypnoBuiltins.Trim(trimStr);
+						break;
+					case "IndexOf":
+						if (args.Length >= 2 && args[0] is string idxStr && args[1] is string idxSub)
+							return HypnoBuiltins.IndexOf(idxStr, idxSub);
+						break;
+					case "Split":
+						if (args.Length >= 2 && args[0] is string splitStr && args[1] is string splitSep)
+							return HypnoBuiltins.Split(splitStr, splitSep);
+						break;
+					case "Join":
+						if (args.Length >= 2 && args[0] is string[] joinArr && args[1] is string joinSep)
+							return HypnoBuiltins.Join(joinArr, joinSep);
+						break;
+
+					// Konvertierungsfunktionen
+					case "ToInt":
+						if (args.Length >= 1)
+							return HypnoBuiltins.ToInt(args[0]);
+						break;
+					case "ToDouble":
+						if (args.Length >= 1)
+							return HypnoBuiltins.ToDouble(args[0]);
+						break;
+					case "ToString":
+						if (args.Length >= 1)
+							return HypnoBuiltins.ToString(args[0]);
+						break;
+					case "ToBoolean":
+						if (args.Length >= 1)
+							return HypnoBuiltins.ToBoolean(args[0]);
+						break;
+
+					// Zeit- und Datumsfunktionen
+					case "GetCurrentTime":
+						return HypnoBuiltins.GetCurrentTime();
+					case "GetCurrentDate":
+						return HypnoBuiltins.GetCurrentDate();
+					case "GetCurrentTimeString":
+						return HypnoBuiltins.GetCurrentTimeString();
+					case "GetCurrentDateTime":
+						return HypnoBuiltins.GetCurrentDateTime();
+					case "FormatDateTime":
+						if (args.Length >= 1 && args[0] is string format)
+							return HypnoBuiltins.FormatDateTime(format);
+						else
+							return HypnoBuiltins.FormatDateTime();
+					case "GetDayOfWeek":
+						return HypnoBuiltins.GetDayOfWeek();
+					case "GetDayOfYear":
+						return HypnoBuiltins.GetDayOfYear();
+					case "IsLeapYear":
+						if (args.Length >= 1 && args[0] is int leapYear)
+							return HypnoBuiltins.IsLeapYear(leapYear);
+						break;
+					case "GetDaysInMonth":
+						if (args.Length >= 2 && args[0] is int daysYear && args[1] is int daysMonth)
+							return HypnoBuiltins.GetDaysInMonth(daysYear, daysMonth);
+						break;
+
+					// System-Funktionen
+					case "ClearScreen":
+						HypnoBuiltins.ClearScreen();
+						return null;
+					case "Beep":
+						if (args.Length >= 2 && args[0] is int beepFreq && args[1] is int beepDur)
+							HypnoBuiltins.Beep(beepFreq, beepDur);
+						else
+							HypnoBuiltins.Beep();
+						return null;
+					case "GetEnvironmentVariable":
+						if (args.Length >= 1 && args[0] is string envVar)
+							return HypnoBuiltins.GetEnvironmentVariable(envVar);
+						break;
+					case "GetCurrentDirectory":
+						return HypnoBuiltins.GetCurrentDirectory();
+					case "GetMachineName":
+						return HypnoBuiltins.GetMachineName();
+					case "GetUserName":
+						return HypnoBuiltins.GetUserName();
+					case "GetOSVersion":
+						return HypnoBuiltins.GetOSVersion();
+					case "GetProcessorCount":
+						return HypnoBuiltins.GetProcessorCount();
+					case "GetWorkingSet":
+						return HypnoBuiltins.GetWorkingSet();
+
+					// Utility-Funktionen
+					case "IsValidEmail":
+						if (args.Length >= 1 && args[0] is string email)
+							return HypnoBuiltins.IsValidEmail(email);
+						break;
+					case "IsValidUrl":
+						if (args.Length >= 1 && args[0] is string url)
+							return HypnoBuiltins.IsValidUrl(url);
+						break;
+					case "IsValidJson":
+						if (args.Length >= 1 && args[0] is string json)
+							return HypnoBuiltins.IsValidJson(json);
+						break;
+					case "FormatNumber":
+						if (args.Length >= 2 && args[0] is double num && args[1] is int dec)
+							return HypnoBuiltins.FormatNumber(num, dec);
+						else if (args.Length >= 1 && args[0] is double num2)
+							return HypnoBuiltins.FormatNumber(num2);
+						break;
+					case "FormatCurrency":
+						if (args.Length >= 2 && args[0] is double curr && args[1] is string currency)
+							return HypnoBuiltins.FormatCurrency(curr, currency);
+						else if (args.Length >= 1 && args[0] is double curr2)
+							return HypnoBuiltins.FormatCurrency(curr2);
+						break;
+					case "FormatPercentage":
+						if (args.Length >= 1 && args[0] is double perc)
+							return HypnoBuiltins.FormatPercentage(perc);
+						break;
+
+					// HTTP-Funktionen
+					case "HttpGet":
+						if (args.Length >= 1 && args[0] is string httpUrl)
+							return HypnoBuiltins.HttpGet(httpUrl);
+						break;
+					case "HttpPost":
+						if (args.Length >= 2 && args[0] is string postUrl && args[1] is string postData)
+							return HypnoBuiltins.HttpPost(postUrl, postData);
+						break;
+
+					// Hash- und Encoding-Funktionen
+					case "HashMD5":
+						if (args.Length >= 1 && args[0] is string md5Input)
+							return HypnoBuiltins.HashMD5(md5Input);
+						break;
+					case "HashSHA256":
+						if (args.Length >= 1 && args[0] is string shaInput)
+							return HypnoBuiltins.HashSHA256(shaInput);
+						break;
+					case "Base64Encode":
+						if (args.Length >= 1 && args[0] is string base64Input)
+							return HypnoBuiltins.Base64Encode(base64Input);
+						break;
+					case "Base64Decode":
+						if (args.Length >= 1 && args[0] is string base64Decode)
+							return HypnoBuiltins.Base64Decode(base64Decode);
+						break;
+
+					// Debug-Funktionen
+					case "DebugPrint":
+						if (args.Length >= 1)
+							HypnoBuiltins.DebugPrint(args[0]);
+						return null;
+					case "DebugPrintType":
+						if (args.Length >= 1)
+							HypnoBuiltins.DebugPrintType(args[0]);
+						return null;
+					case "DebugPrintMemory":
+						HypnoBuiltins.DebugPrintMemory();
+						return null;
+					case "DebugPrintStackTrace":
+						HypnoBuiltins.DebugPrintStackTrace();
+						return null;
+					case "DebugPrintEnvironment":
+						HypnoBuiltins.DebugPrintEnvironment();
+						return null;
+
+					// Statistik-Funktionen
+					case "CalculateMean":
+						if (args.Length >= 1 && args[0] is object[] meanArr)
+							return HypnoBuiltins.CalculateMean(meanArr);
+						break;
+					case "CalculateStandardDeviation":
+						if (args.Length >= 1 && args[0] is object[] stdArr)
+							return HypnoBuiltins.CalculateStandardDeviation(stdArr);
+						break;
+					case "LinearRegression":
+						if (args.Length >= 2 && args[0] is object[] lrX && args[1] is object[] lrY)
+							return HypnoBuiltins.LinearRegression(lrX, lrY);
+						break;
+
+					// Performance-Funktionen
+					case "GetPerformanceMetrics":
+						return HypnoBuiltins.GetPerformanceMetrics();
+
+					// Hypnotische Spezialfunktionen
+					case "DeepTrance":
+						if (args.Length >= 1 && args[0] is int deepDur)
+							HypnoBuiltins.DeepTrance(deepDur);
+						else
+							HypnoBuiltins.DeepTrance();
+						return null;
+					case "HypnoticCountdown":
+						if (args.Length >= 1 && args[0] is int countFrom)
+							HypnoBuiltins.HypnoticCountdown(countFrom);
+						else
+							HypnoBuiltins.HypnoticCountdown();
+						return null;
+					case "TranceInduction":
+						if (args.Length >= 1 && args[0] is string subject)
+							HypnoBuiltins.TranceInduction(subject);
+						else
+							HypnoBuiltins.TranceInduction();
+						return null;
+					case "HypnoticVisualization":
+						if (args.Length >= 1 && args[0] is string scene)
+							HypnoBuiltins.HypnoticVisualization(scene);
+						else
+							HypnoBuiltins.HypnoticVisualization();
+						return null;
+					case "ProgressiveRelaxation":
+						if (args.Length >= 1 && args[0] is int steps)
+							HypnoBuiltins.ProgressiveRelaxation(steps);
+						else
+							HypnoBuiltins.ProgressiveRelaxation();
+						return null;
+					case "HypnoticSuggestion":
+						if (args.Length >= 1 && args[0] is string suggestion)
+							HypnoBuiltins.HypnoticSuggestion(suggestion);
+						return null;
+					case "TranceDeepening":
+						if (args.Length >= 1 && args[0] is int levels)
+							HypnoBuiltins.TranceDeepening(levels);
+						else
+							HypnoBuiltins.TranceDeepening();
+						return null;
+					case "HypnoticPatternMatching":
+						if (args.Length >= 1 && args[0] is string pattern)
+							HypnoBuiltins.HypnoticPatternMatching(pattern);
+						return null;
+					case "HypnoticTimeDilation":
+						if (args.Length >= 1 && args[0] is double factor)
+							HypnoBuiltins.HypnoticTimeDilation(factor);
+						else
+							HypnoBuiltins.HypnoticTimeDilation();
+						return null;
+					case "HypnoticMemoryEnhancement":
+						HypnoBuiltins.HypnoticMemoryEnhancement();
+						return null;
+					case "HypnoticCreativityBoost":
+						HypnoBuiltins.HypnoticCreativityBoost();
+						return null;
 				}
 			}
 
