@@ -1015,6 +1015,55 @@ namespace HypnoScript.Compiler.Interpreter
 					case "HypnoticCreativityBoost":
 						HypnoBuiltins.HypnoticCreativityBoost();
 						return null;
+
+					// Weitere Utility-Funktionen
+					case "Clamp":
+						if (args.Length >= 3 && args[0] is double val && args[1] is double min && args[2] is double max)
+							return HypnoBuiltins.Clamp(val, min, max);
+						break;
+					case "Sign":
+						if (args.Length >= 1 && args[0] is double signVal)
+							return HypnoBuiltins.Sign(signVal);
+						break;
+					case "IsEven":
+						if (args.Length >= 1 && args[0] is int evenVal)
+							return HypnoBuiltins.IsEven(evenVal);
+						break;
+					case "IsOdd":
+						if (args.Length >= 1 && args[0] is int oddVal)
+							return HypnoBuiltins.IsOdd(oddVal);
+						break;
+					case "ShuffleArray":
+						if (args.Length >= 1 && args[0] is object[] arrShuf)
+							return HypnoBuiltins.ShuffleArray(arrShuf);
+						break;
+					case "SumArray":
+						if (args.Length >= 1 && args[0] is object[] arrSum)
+							return HypnoBuiltins.SumArray(arrSum);
+						break;
+					case "AverageArray":
+						if (args.Length >= 1 && args[0] is object[] arrAvg)
+							return HypnoBuiltins.AverageArray(arrAvg);
+						break;
+					case "Range":
+						if (args.Length >= 2 && args[0] is int start && args[1] is int count)
+							return HypnoBuiltins.Range(start, count);
+						break;
+					case "Repeat":
+						if (args.Length >= 2 && args[1] is int repCount)
+							return HypnoBuiltins.Repeat(args[0], repCount);
+						break;
+					case "Swap":
+						if (args.Length >= 3 && args[0] is object[] arrSwap && args[1] is int i && args[2] is int j)
+						{
+							HypnoBuiltins.Swap(arrSwap, i, j);
+							return null;
+						}
+						break;
+					case "ChunkArray":
+						if (args.Length >= 2 && args[0] is object[] arrChunk && args[1] is int chunkSize)
+							return HypnoBuiltins.ChunkArray(arrChunk, chunkSize);
+						break;
 				}
 			}
 

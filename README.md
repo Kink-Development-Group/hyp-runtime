@@ -546,3 +546,186 @@ dotnet run --project HypnoScript.CLI -- run test_enterprise_v3.hyp
 _Version 3.0.0 - Enterprise Edition with Advanced Features including Machine Learning, Networking, and Enhanced Hypnotic Functions_
 
 **Features**: 150+ Builtin Functions | 18 CLI Commands | File Operations | JSON Processing | Cryptographic Functions | Advanced Mathematics | Performance Optimizations | WebAssembly Support | Machine Learning Integration | Networking Functions | Database-like Operations | Enhanced Hypnotic Functions | Performance Monitoring | Input Validation | Formatting Functions | Advanced Array Operations | Advanced String Operations
+
+# HypnoScript Builtin-Standardbibliothek
+
+Die HypnoScript-Standardbibliothek bietet zahlreiche eingebaute Funktionen (Builtins) für Arrays, Strings, Mathematik, Utilities, System, Zeit/Datum, Statistik, Hashing/Encoding und hypnotische Spezialfunktionen.
+
+## Inhaltsverzeichnis
+
+- [Array-Funktionen](#array-funktionen)
+- [String-Funktionen](#string-funktionen)
+- [Mathematische Funktionen](#mathematische-funktionen)
+- [Utility-Funktionen](#utility-funktionen)
+- [System-Funktionen](#system-funktionen)
+- [Zeit- und Datumsfunktionen](#zeit-und-datumsfunktionen)
+- [Statistik-Funktionen](#statistik-funktionen)
+- [Hashing/Encoding](#hashingencoding)
+- [Hypnotische Spezialfunktionen](#hypnotische-spezialfunktionen)
+
+---
+
+## Array-Funktionen
+
+| Funktion                         | Beschreibung                    |
+| -------------------------------- | ------------------------------- |
+| `ArrayLength(arr)`               | Länge des Arrays                |
+| `ArrayGet(arr, index)`           | Element an Index                |
+| `ArraySet(arr, index, value)`    | Setzt Wert an Index             |
+| `ArraySlice(arr, start, length)` | Teil-Array                      |
+| `ArrayConcat(arr1, arr2)`        | Arrays verketten                |
+| `ArrayIndexOf(arr, value)`       | Index eines Werts               |
+| `ArrayContains(arr, value)`      | Enthält Wert?                   |
+| `ArrayReverse(arr)`              | Umgekehrtes Array               |
+| `ArraySort(arr)`                 | Sortiertes Array                |
+| `ArrayUnique(arr)`               | Duplikate entfernen             |
+| `ArrayFilter(arr)`               | Filtert nicht-null Werte        |
+| `ArrayMap(arr)`                  | Mappt Werte (Identität)         |
+| `ArrayReduce(arr, initial)`      | Reduziert Werte (Identität)     |
+| `ArrayFlatten(arr)`              | Flacht verschachtelte Arrays ab |
+| `ShuffleArray(arr)`              | Mischt das Array zufällig       |
+| `SumArray(arr)`                  | Summe aller Werte               |
+| `AverageArray(arr)`              | Durchschnitt aller Werte        |
+| `Range(start, count)`            | Array von Zahlen                |
+| `Repeat(value, count)`           | Wiederholt Wert                 |
+| `Swap(arr, i, j)`                | Vertauscht zwei Elemente        |
+| `ChunkArray(arr, chunkSize)`     | Teilt Array in Blöcke           |
+
+## String-Funktionen
+
+| Funktion                        | Beschreibung              |
+| ------------------------------- | ------------------------- |
+| `Length(str)`                   | Länge des Strings         |
+| `Substring(str, start, length)` | Teilstring                |
+| `ToUpper(str)`                  | Großbuchstaben            |
+| `ToLower(str)`                  | Kleinbuchstaben           |
+| `Contains(str, sub)`            | Enthält Teilstring?       |
+| `Replace(str, old, new)`        | Ersetzt Teilstring        |
+| `Trim(str)`                     | Entfernt Leerzeichen      |
+| `IndexOf(str, sub)`             | Index von Teilstring      |
+| `Split(str, sep)`               | Teilt String              |
+| `Join(arr, sep)`                | Verbindet Strings         |
+| `Reverse(str)`                  | Kehrt String um           |
+| `Capitalize(str)`               | Erstes Zeichen groß       |
+| `TitleCase(str)`                | Jedes Wort groß           |
+| `CountOccurrences(str, sub)`    | Zählt Vorkommen           |
+| `RemoveWhitespace(str)`         | Entfernt alle Leerzeichen |
+| `StringRotate(str, n)`          | Rotiert String            |
+| `StringShuffle(str)`            | Mischt Zeichen zufällig   |
+| `StringSplitByLength(str, n)`   | Teilt String in Blöcke    |
+
+## Mathematische Funktionen
+
+| Funktion              | Beschreibung                     |
+| --------------------- | -------------------------------- |
+| `Abs(x)`              | Absolutwert                      |
+| `Sin(x)`              | Sinus (Grad)                     |
+| `Cos(x)`              | Kosinus (Grad)                   |
+| `Tan(x)`              | Tangens (Grad)                   |
+| `Sqrt(x)`             | Quadratwurzel                    |
+| `Pow(x, y)`           | Potenz                           |
+| `Floor(x)`            | Abrunden                         |
+| `Ceiling(x)`          | Aufrunden                        |
+| `Round(x)`            | Runden                           |
+| `Log(x)`              | Natürlicher Logarithmus          |
+| `Log10(x)`            | Zehnerlogarithmus                |
+| `Exp(x)`              | Exponentialfunktion              |
+| `Max(x, y)`           | Maximum                          |
+| `Min(x, y)`           | Minimum                          |
+| `Random()`            | Zufallszahl [0,1)                |
+| `RandomInt(min, max)` | Zufallszahl int                  |
+| `Clamp(x, min, max)`  | Begrenzen                        |
+| `Sign(x)`             | Vorzeichen                       |
+| `IsEven(x)`           | Gerade Zahl?                     |
+| `IsOdd(x)`            | Ungerade Zahl?                   |
+| `Factorial(n)`        | Fakultät                         |
+| `GCD(a, b)`           | Größter gemeinsamer Teiler       |
+| `LCM(a, b)`           | Kleinstes gemeinsames Vielfaches |
+| `DegreesToRadians(x)` | Grad → Radiant                   |
+| `RadiansToDegrees(x)` | Radiant → Grad                   |
+| `Asin(x)`             | Arkussinus (Grad)                |
+| `Acos(x)`             | Arkuskosinus (Grad)              |
+| `Atan(x)`             | Arkustangens (Grad)              |
+| `Atan2(y, x)`         | Arkustangens2 (Grad)             |
+
+## Utility-Funktionen
+
+| Funktion                 | Beschreibung       |
+| ------------------------ | ------------------ |
+| `IsValidEmail(str)`      | Prüft E-Mail       |
+| `IsValidUrl(str)`        | Prüft URL          |
+| `IsValidJson(str)`       | Prüft JSON         |
+| `FormatNumber(x, d)`     | Formatiert Zahl    |
+| `FormatCurrency(x, cur)` | Formatiert Währung |
+| `FormatPercentage(x)`    | Prozentformat      |
+
+## System-Funktionen
+
+| Funktion                       | Beschreibung          |
+| ------------------------------ | --------------------- |
+| `ClearScreen()`                | Konsole löschen       |
+| `Beep(freq, dur)`              | Piepton               |
+| `GetEnvironmentVariable(name)` | Umgebungsvariable     |
+| `GetCurrentDirectory()`        | Aktuelles Verzeichnis |
+| `GetMachineName()`             | Rechnername           |
+| `GetUserName()`                | Benutzername          |
+| `GetOSVersion()`               | Betriebssystem        |
+| `GetProcessorCount()`          | CPU-Kerne             |
+| `GetWorkingSet()`              | RAM-Nutzung           |
+
+## Zeit- und Datumsfunktionen
+
+| Funktion                 | Beschreibung       |
+| ------------------------ | ------------------ |
+| `GetCurrentTime()`       | Unix-Timestamp     |
+| `GetCurrentDate()`       | Datum (yyyy-MM-dd) |
+| `GetCurrentTimeString()` | Uhrzeit (HH:mm:ss) |
+| `GetCurrentDateTime()`   | Datum & Uhrzeit    |
+| `FormatDateTime(fmt)`    | Formatiert Datum   |
+| `GetDayOfWeek()`         | Wochentag          |
+| `GetDayOfYear()`         | Tag im Jahr        |
+| `IsLeapYear(y)`          | Schaltjahr?        |
+| `GetDaysInMonth(y, m)`   | Tage im Monat      |
+
+## Statistik-Funktionen
+
+| Funktion                          | Beschreibung       |
+| --------------------------------- | ------------------ |
+| `CalculateMean(arr)`              | Mittelwert         |
+| `CalculateStandardDeviation(arr)` | Standardabweichung |
+| `LinearRegression(x, y)`          | Lineare Regression |
+
+## Hashing/Encoding
+
+| Funktion            | Beschreibung       |
+| ------------------- | ------------------ |
+| `HashMD5(str)`      | MD5-Hash           |
+| `HashSHA256(str)`   | SHA256-Hash        |
+| `Base64Encode(str)` | Base64-Kodierung   |
+| `Base64Decode(str)` | Base64-Dekodierung |
+
+## Hypnotische Spezialfunktionen
+
+| Funktion                           | Beschreibung            |
+| ---------------------------------- | ----------------------- |
+| `DeepTrance(dur)`                  | Tiefe Trance            |
+| `HypnoticCountdown(from)`          | Countdown               |
+| `TranceInduction(name)`            | Trance-Induktion        |
+| `HypnoticVisualization(scene)`     | Visualisierung          |
+| `ProgressiveRelaxation(steps)`     | Progressive Entspannung |
+| `HypnoticSuggestion(msg)`          | Suggestion              |
+| `TranceDeepening(levels)`          | Trance vertiefen        |
+| `HypnoticPatternMatching(pattern)` | Mustererkennung         |
+| `HypnoticTimeDilation(factor)`     | Zeitdehnung             |
+| `HypnoticMemoryEnhancement()`      | Gedächtnis              |
+| `HypnoticCreativityBoost()`        | Kreativität             |
+
+---
+
+**Hinweis:**
+
+- Alle Funktionen sind direkt in HypnoScript aufrufbar.
+- Typen: `arr` = Array, `str` = String, `x/y` = Zahl, `obj` = beliebig, `n` = int.
+- Viele Funktionen sind überladen und akzeptieren verschiedene Typen.
+
+Für Details siehe die Implementierung in `HypnoScript.Runtime/HypnoBuiltins.cs`.

@@ -913,5 +913,46 @@ namespace HypnoScript.Runtime
 			}
 			return new string(chars);
 		}
+
+		// ===== WEITERE UTILITY-FUNKTIONEN =====
+		public static double Clamp(double value, double min, double max) => Math.Max(min, Math.Min(max, value));
+		public static int Sign(double value) => Math.Sign(value);
+		public static bool IsEven(int value) => value % 2 == 0;
+		public static bool IsOdd(int value) => value % 2 != 0;
+		public static object[] ShuffleArray(object[] arr)
+		{
+			var rnd = new Random();
+			return arr.OrderBy(x => rnd.Next()).ToArray();
+		}
+		public static double SumArray(object[] arr)
+		{
+			return arr.OfType<IConvertible>().Sum(x => Convert.ToDouble(x));
+		}
+		public static double AverageArray(object[] arr)
+		{
+			var nums = arr.OfType<IConvertible>().Select(x => Convert.ToDouble(x)).ToArray();
+			return nums.Length > 0 ? nums.Average() : 0.0;
+		}
+		public static object[] Range(int start, int count)
+		{
+			return Enumerable.Range(start, count).Cast<object>().ToArray();
+		}
+		public static object[] Repeat(object value, int count)
+		{
+			return Enumerable.Repeat(value, count).ToArray();
+		}
+		public static void Swap(object[] arr, int i, int j)
+		{
+			var tmp = arr[i];
+			arr[i] = arr[j];
+			arr[j] = tmp;
+		}
+		public static object[][] ChunkArray(object[] arr, int chunkSize)
+		{
+			return arr.Select((x, i) => new { x, i })
+				.GroupBy(x => x.i / chunkSize)
+				.Select(g => g.Select(v => v.x).ToArray())
+				.ToArray();
+		}
 	}
 }
