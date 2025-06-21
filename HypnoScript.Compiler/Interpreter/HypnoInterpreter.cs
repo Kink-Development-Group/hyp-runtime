@@ -1173,6 +1173,100 @@ namespace HypnoScript.Compiler.Interpreter
 						if (args.Length >= 1)
 							return HypnoBuiltins.IsBoolean(args[0]);
 						break;
+
+					// Dictionary-Utilities
+					case "CreateDictionary":
+						return HypnoBuiltins.CreateDictionary();
+					case "DictionaryKeys":
+						if (args.Length >= 1 && args[0] is Dictionary<string, object> dictKeys)
+							return HypnoBuiltins.DictionaryKeys(dictKeys);
+						break;
+					case "DictionaryValues":
+						if (args.Length >= 1 && args[0] is Dictionary<string, object> dictValues)
+							return HypnoBuiltins.DictionaryValues(dictValues);
+						break;
+					case "DictionaryContainsKey":
+						if (args.Length >= 2 && args[0] is Dictionary<string, object> dictCont && args[1] is string key)
+							return HypnoBuiltins.DictionaryContainsKey(dictCont, key);
+						break;
+					case "DictionaryGet":
+						if (args.Length >= 2 && args[0] is Dictionary<string, object> dictGet && args[1] is string keyGet)
+						{
+							var defaultValue = args.Length >= 3 ? args[2] : null;
+							return HypnoBuiltins.DictionaryGet(dictGet, keyGet, defaultValue);
+						}
+						break;
+					case "DictionarySet":
+						if (args.Length >= 3 && args[0] is Dictionary<string, object> dictSet && args[1] is string keySet)
+						{
+							HypnoBuiltins.DictionarySet(dictSet, keySet, args[2]);
+							return null;
+						}
+						break;
+					case "DictionaryRemove":
+						if (args.Length >= 2 && args[0] is Dictionary<string, object> dictRem && args[1] is string keyRem)
+							return HypnoBuiltins.DictionaryRemove(dictRem, keyRem);
+						break;
+					case "DictionaryCount":
+						if (args.Length >= 1 && args[0] is Dictionary<string, object> dictCount)
+							return HypnoBuiltins.DictionaryCount(dictCount);
+						break;
+
+					// Erweiterte String-Utilities
+					case "StartsWith":
+						if (args.Length >= 2 && args[0] is string strStart && args[1] is string prefix)
+							return HypnoBuiltins.StartsWith(strStart, prefix);
+						break;
+					case "EndsWith":
+						if (args.Length >= 2 && args[0] is string strEnd && args[1] is string suffix)
+							return HypnoBuiltins.EndsWith(strEnd, suffix);
+						break;
+					case "PadLeft":
+						if (args.Length >= 2 && args[0] is string strPadL && args[1] is int widthL)
+						{
+							var charL = args.Length >= 3 && args[2] is char cL ? cL : ' ';
+							return HypnoBuiltins.PadLeft(strPadL, widthL, charL);
+						}
+						break;
+					case "PadRight":
+						if (args.Length >= 2 && args[0] is string strPadR && args[1] is int widthR)
+						{
+							var charR = args.Length >= 3 && args[2] is char cR ? cR : ' ';
+							return HypnoBuiltins.PadRight(strPadR, widthR, charR);
+						}
+						break;
+					case "Insert":
+						if (args.Length >= 3 && args[0] is string strIns && args[1] is int indexIns && args[2] is string valueIns)
+							return HypnoBuiltins.Insert(strIns, indexIns, valueIns);
+						break;
+					case "Remove":
+						if (args.Length >= 3 && args[0] is string strRem && args[1] is int startRem && args[2] is int countRem)
+							return HypnoBuiltins.Remove(strRem, startRem, countRem);
+						break;
+					case "Compare":
+						if (args.Length >= 2 && args[0] is string str1 && args[1] is string str2)
+							return HypnoBuiltins.Compare(str1, str2);
+						break;
+					case "EqualsIgnoreCase":
+						if (args.Length >= 2 && args[0] is string strEq1 && args[1] is string strEq2)
+							return HypnoBuiltins.EqualsIgnoreCase(strEq1, strEq2);
+						break;
+					case "IsPalindrome":
+						if (args.Length >= 1 && args[0] is string strPal)
+							return HypnoBuiltins.IsPalindrome(strPal);
+						break;
+					case "CountWords":
+						if (args.Length >= 1 && args[0] is string strWords)
+							return HypnoBuiltins.CountWords(strWords);
+						break;
+					case "ExtractNumbers":
+						if (args.Length >= 1 && args[0] is string strNum)
+							return HypnoBuiltins.ExtractNumbers(strNum);
+						break;
+					case "ExtractLetters":
+						if (args.Length >= 1 && args[0] is string strLet)
+							return HypnoBuiltins.ExtractLetters(strLet);
+						break;
 				}
 			}
 

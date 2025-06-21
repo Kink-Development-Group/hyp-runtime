@@ -1007,5 +1007,383 @@ namespace HypnoScript.Runtime
 		public static bool IsNumber(object? obj) => obj is sbyte or byte or short or ushort or int or uint or long or ulong or float or double or decimal;
 		public static bool IsString(object? obj) => obj is string;
 		public static bool IsBoolean(object? obj) => obj is bool;
+
+		// ===== DICTIONARY-UTILITIES =====
+		public static Dictionary<string, object> CreateDictionary() => new();
+		public static string[] DictionaryKeys(Dictionary<string, object> dict) => dict.Keys.ToArray();
+		public static object[] DictionaryValues(Dictionary<string, object> dict) => dict.Values.ToArray();
+		public static bool DictionaryContainsKey(Dictionary<string, object> dict, string key) => dict.ContainsKey(key);
+		public static object? DictionaryGet(Dictionary<string, object> dict, string key, object? defaultValue = null) => dict.TryGetValue(key, out var value) ? value : defaultValue;
+		public static void DictionarySet(Dictionary<string, object> dict, string key, object value) => dict[key] = value;
+		public static bool DictionaryRemove(Dictionary<string, object> dict, string key) => dict.Remove(key);
+		public static int DictionaryCount(Dictionary<string, object> dict) => dict.Count;
+
+		// ===== ERWEITERTE STRING-UTILITIES =====
+		public static bool StartsWith(string str, string prefix) => str.StartsWith(prefix);
+		public static bool EndsWith(string str, string suffix) => str.EndsWith(suffix);
+		public static string PadLeft(string str, int width, char paddingChar = ' ') => str.PadLeft(width, paddingChar);
+		public static string PadRight(string str, int width, char paddingChar = ' ') => str.PadRight(width, paddingChar);
+		public static string Insert(string str, int index, string value) => str.Insert(index, value);
+		public static string Remove(string str, int start, int count) => str.Remove(start, count);
+		public static int Compare(string str1, string str2) => string.Compare(str1, str2);
+		public static bool EqualsIgnoreCase(string str1, string str2) => string.Equals(str1, str2, StringComparison.OrdinalIgnoreCase);
+		public static bool IsPalindrome(string str)
+		{
+			var clean = new string(str.Where(char.IsLetterOrDigit).ToArray()).ToLower();
+			return clean == new string(clean.Reverse().ToArray());
+		}
+		public static int CountWords(string str) => str.Split(new[] { ' ', '\t', '\n', '\r' }, StringSplitOptions.RemoveEmptyEntries).Length;
+		public static string ExtractNumbers(string str) => new string(str.Where(char.IsDigit).ToArray());
+		public static string ExtractLetters(string str) => new string(str.Where(char.IsLetter).ToArray());
+
+		// ===== ERWEITERTE ARRAY-UTILITIES =====
+		public static object[] ArrayInsert(object[] arr, int index, object value)
+		{
+			var result = new object[arr.Length + 1];
+			Array.Copy(arr, 0, result, 0, index);
+			result[index] = value;
+			Array.Copy(arr, index, result, index + 1, arr.Length - index);
+			return result;
+		}
+		public static object[] ArrayRemoveAt(object[] arr, int index)
+		{
+			var result = new object[arr.Length - 1];
+			Array.Copy(arr, 0, result, 0, index);
+			Array.Copy(arr, index + 1, result, index, arr.Length - index - 1);
+			return result;
+		}
+		public static void ArrayClear(object[] arr) => Array.Clear(arr, 0, arr.Length);
+		public static object[] ArrayCopy(object[] arr)
+		{
+			var result = new object[arr.Length];
+			Array.Copy(arr, result, arr.Length);
+			return result;
+		}
+		public static object[] ArrayResize(object[] arr, int newSize)
+		{
+			var result = new object[newSize];
+			Array.Copy(arr, result, Math.Min(arr.Length, newSize));
+			return result;
+		}
+		public static void ArrayFill(object[] arr, object value) => Array.Fill(arr, value);
+		public static int ArrayIndexOf(object[] arr, object value, int startIndex) => Array.IndexOf(arr, value, startIndex);
+		public static int ArrayLastIndexOf(object[] arr, object value) => Array.LastIndexOf(arr, value);
+		public static object[] ArraySubArray(object[] arr, int start, int end)
+		{
+			var length = end - start + 1;
+			var result = new object[length];
+			Array.Copy(arr, start, result, 0, length);
+			return result;
+		}
+		public static object[] ArrayRotate(object[] arr, int positions)
+		{
+			var result = new object[arr.Length];
+			for (int i = 0; i < arr.Length; i++)
+			{
+				var newIndex = (i + positions) % arr.Length;
+				if (newIndex < 0) newIndex += arr.Length;
+				result[newIndex] = arr[i];
+			}
+			return result;
+		}
+		public static object[] ArrayShuffle(object[] arr, int seed)
+		{
+			var rnd = new Random(seed);
+			return arr.OrderBy(x => rnd.Next()).ToArray();
+		}
+		public static object[][] ArrayPartition(object[] arr, Func<object, bool> predicate)
+		{
+			var trueItems = arr.Where(predicate).ToArray();
+			var falseItems = arr.Where(x => !predicate(x)).ToArray();
+			return new[] { trueItems, falseItems };
+		}
+
+		// ===== MATHEMATISCHE ERWEITERUNGEN =====
+		public static double RoundToDecimal(double x, int decimals) => Math.Round(x, decimals);
+		public static double CeilingToDecimal(double x, int decimals) => Math.Ceiling(x * Math.Pow(10, decimals)) / Math.Pow(10, decimals);
+		public static double FloorToDecimal(double x, int decimals) => Math.Floor(x * Math.Pow(10, decimals)) / Math.Pow(10, decimals);
+		public static double Modulo(double a, double b) => a % b;
+		public static bool PowerOf2(int n) => n > 0 && (n & (n - 1)) == 0;
+		public static int NextPowerOf2(int n)
+		{
+			if (n <= 1) return 1;
+			n--;
+			n |= n >> 1;
+			n |= n >> 2;
+			n |= n >> 4;
+			n |= n >> 8;
+			n |= n >> 16;
+			return n + 1;
+		}
+		public static bool IsPerfectSquare(int n)
+		{
+			var sqrt = (int)Math.Sqrt(n);
+			return sqrt * sqrt == n;
+		}
+		public static int SqrtInt(int n) => (int)Math.Sqrt(n);
+		public static int GCDArray(object[] arr)
+		{
+			var nums = arr.OfType<IConvertible>().Select(x => Convert.ToInt32(x)).ToArray();
+			if (nums.Length == 0) return 0;
+			var result = nums[0];
+			for (int i = 1; i < nums.Length; i++)
+				result = GCD(result, nums[i]);
+			return result;
+		}
+		public static int LCMArray(object[] arr)
+		{
+			var nums = arr.OfType<IConvertible>().Select(x => Convert.ToInt32(x)).ToArray();
+			if (nums.Length == 0) return 0;
+			var result = nums[0];
+			for (int i = 1; i < nums.Length; i++)
+				result = LCM(result, nums[i]);
+			return result;
+		}
+		public static int SumOfDigits(long n) => n.ToString().Sum(c => c - '0');
+		public static long ReverseNumber(long n) => long.Parse(new string(n.ToString().Reverse().ToArray()));
+
+		// ===== DATEI/SYSTEM-ERWEITERUNGEN =====
+		public static void FileCopy(string source, string dest) => System.IO.File.Copy(source, dest);
+		public static void FileMove(string source, string dest) => System.IO.File.Move(source, dest);
+		public static void FileDelete(string path) => System.IO.File.Delete(path);
+		public static Dictionary<string, object> GetFileInfo(string path)
+		{
+			var info = new System.IO.FileInfo(path);
+			return new Dictionary<string, object>
+			{
+				["Name"] = info.Name,
+				["FullName"] = info.FullName,
+				["Length"] = info.Length,
+				["CreationTime"] = info.CreationTime.ToString("yyyy-MM-dd HH:mm:ss"),
+				["LastWriteTime"] = info.LastWriteTime.ToString("yyyy-MM-dd HH:mm:ss"),
+				["Extension"] = info.Extension,
+				["Exists"] = info.Exists
+			};
+		}
+		public static bool IsFileReadOnly(string path) => (System.IO.File.GetAttributes(path) & System.IO.FileAttributes.ReadOnly) != 0;
+		public static void SetFileReadOnly(string path, bool readOnly)
+		{
+			var attributes = System.IO.File.GetAttributes(path);
+			if (readOnly)
+				attributes |= System.IO.FileAttributes.ReadOnly;
+			else
+				attributes &= ~System.IO.FileAttributes.ReadOnly;
+			System.IO.File.SetAttributes(path, attributes);
+		}
+		public static string GetFileCreationTime(string path) => System.IO.File.GetCreationTime(path).ToString("yyyy-MM-dd HH:mm:ss");
+		public static string GetFileLastWriteTime(string path) => System.IO.File.GetLastWriteTime(path).ToString("yyyy-MM-dd HH:mm:ss");
+		public static double GetFileSizeMB(string path) => new System.IO.FileInfo(path).Length / (1024.0 * 1024.0);
+		public static string GetFileNameWithoutExtension(string path) => System.IO.Path.GetFileNameWithoutExtension(path);
+		public static string CombinePath(string path1, string path2) => System.IO.Path.Combine(path1, path2);
+
+		// ===== NETZWERK/WEB-UTILITIES =====
+		public static bool IsValidIPAddress(string str) => System.Net.IPAddress.TryParse(str, out _);
+		public static bool IsValidPort(int port) => port >= 1 && port <= 65535;
+		public static string UrlEncode(string str) => System.Web.HttpUtility.UrlEncode(str);
+		public static string UrlDecode(string str) => System.Web.HttpUtility.UrlDecode(str);
+		public static string HtmlEncode(string str) => System.Web.HttpUtility.HtmlEncode(str);
+		public static string HtmlDecode(string str) => System.Web.HttpUtility.HtmlDecode(str);
+		public static string ExtractDomain(string url)
+		{
+			try
+			{
+				var uri = new Uri(url);
+				return uri.Host;
+			}
+			catch { return ""; }
+		}
+		public static string ExtractPath(string url)
+		{
+			try
+			{
+				var uri = new Uri(url);
+				return uri.AbsolutePath;
+			}
+			catch { return ""; }
+		}
+		public static bool IsLocalhost(string url)
+		{
+			try
+			{
+				var uri = new Uri(url);
+				return uri.Host == "localhost" || uri.Host == "127.0.0.1";
+			}
+			catch { return false; }
+		}
+
+		// ===== VALIDIERUNG/FORMATIERUNG =====
+		public static bool IsValidPhoneNumber(string str)
+		{
+			var clean = new string(str.Where(char.IsDigit).ToArray());
+			return clean.Length >= 10 && clean.Length <= 15;
+		}
+		public static bool IsValidCreditCard(string str)
+		{
+			var clean = new string(str.Where(char.IsDigit).ToArray());
+			return clean.Length >= 13 && clean.Length <= 19;
+		}
+		public static bool IsValidPostalCode(string str)
+		{
+			var clean = new string(str.Where(char.IsLetterOrDigit).ToArray());
+			return clean.Length >= 4 && clean.Length <= 10;
+		}
+		public static bool IsValidSSN(string str)
+		{
+			var clean = new string(str.Where(char.IsDigit).ToArray());
+			return clean.Length == 9;
+		}
+		public static string FormatPhoneNumber(string str)
+		{
+			var clean = new string(str.Where(char.IsDigit).ToArray());
+			if (clean.Length == 10)
+				return $"({clean.Substring(0, 3)}) {clean.Substring(3, 3)}-{clean.Substring(6)}";
+			return str;
+		}
+		public static string FormatCreditCard(string str)
+		{
+			var clean = new string(str.Where(char.IsDigit).ToArray());
+			if (clean.Length >= 4)
+				return new string('*', clean.Length - 4) + clean.Substring(clean.Length - 4);
+			return str;
+		}
+		public static string MaskString(string str, char maskChar, int start, int end)
+		{
+			if (start >= str.Length || end < start) return str;
+			var chars = str.ToCharArray();
+			for (int i = start; i <= Math.Min(end, str.Length - 1); i++)
+				chars[i] = maskChar;
+			return new string(chars);
+		}
+		public static string GenerateRandomString(int length)
+		{
+			const string chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+			var random = new Random();
+			return new string(Enumerable.Repeat(chars, length).Select(s => s[random.Next(s.Length)]).ToArray());
+		}
+		public static string GenerateUUID() => Guid.NewGuid().ToString();
+
+		// ===== ZEIT/DATUM-ERWEITERUNGEN =====
+		public static string GetTimeZone() => TimeZoneInfo.Local.DisplayName;
+		public static string ConvertTimeZone(string date, string fromZone, string toZone)
+		{
+			try
+			{
+				var dt = DateTime.Parse(date);
+				var fromTz = TimeZoneInfo.FindSystemTimeZoneById(fromZone);
+				var toTz = TimeZoneInfo.FindSystemTimeZoneById(toZone);
+				var converted = TimeZoneInfo.ConvertTime(dt, fromTz, toTz);
+				return converted.ToString("yyyy-MM-dd HH:mm:ss");
+			}
+			catch { return date; }
+		}
+		public static int GetWeekOfYear(string date)
+		{
+			var dt = DateTime.Parse(date);
+			var calendar = System.Globalization.CultureInfo.InvariantCulture.Calendar;
+			return calendar.GetWeekOfYear(dt, System.Globalization.CalendarWeekRule.FirstFourDayWeek, DayOfWeek.Monday);
+		}
+		public static int GetQuarter(string date)
+		{
+			var dt = DateTime.Parse(date);
+			return (dt.Month - 1) / 3 + 1;
+		}
+		public static bool IsWeekend(string date)
+		{
+			var dt = DateTime.Parse(date);
+			return dt.DayOfWeek == DayOfWeek.Saturday || dt.DayOfWeek == DayOfWeek.Sunday;
+		}
+		public static bool IsBusinessDay(string date) => !IsWeekend(date);
+		public static string AddBusinessDays(string date, int days)
+		{
+			var dt = DateTime.Parse(date);
+			var added = 0;
+			while (added < days)
+			{
+				dt = dt.AddDays(1);
+				if (IsBusinessDay(dt.ToString("yyyy-MM-dd")))
+					added++;
+			}
+			return dt.ToString("yyyy-MM-dd");
+		}
+		public static int GetDaysBetween(string date1, string date2)
+		{
+			var dt1 = DateTime.Parse(date1);
+			var dt2 = DateTime.Parse(date2);
+			return Math.Abs((dt2 - dt1).Days);
+		}
+		public static int GetAge(string birthDate)
+		{
+			var birth = DateTime.Parse(birthDate);
+			var today = DateTime.Today;
+			var age = today.Year - birth.Year;
+			if (birth.Date > today.AddYears(-age)) age--;
+			return age;
+		}
+		public static bool IsLeapDay(string date)
+		{
+			var dt = DateTime.Parse(date);
+			return dt.Month == 2 && dt.Day == 29;
+		}
+
+		// ===== PERFORMANCE/DEBUG-UTILITIES =====
+		public static long GetMemoryUsage() => GC.GetTotalMemory(false);
+		public static double GetCPUUsage()
+		{
+			// Vereinfachte Implementierung - in der Praxis würde man PerformanceCounter verwenden
+			return Environment.ProcessorCount * 10.0; // Simuliert 10% pro Core
+		}
+		public static Dictionary<string, object> GetProcessInfo()
+		{
+			var process = System.Diagnostics.Process.GetCurrentProcess();
+			return new Dictionary<string, object>
+			{
+				["Id"] = process.Id,
+				["ProcessName"] = process.ProcessName,
+				["WorkingSet"] = process.WorkingSet64,
+				["PrivateMemorySize"] = process.PrivateMemorySize64,
+				["VirtualMemorySize"] = process.VirtualMemorySize64,
+				["StartTime"] = process.StartTime.ToString("yyyy-MM-dd HH:mm:ss")
+			};
+		}
+		public static Dictionary<string, object> GetSystemInfo()
+		{
+			return new Dictionary<string, object>
+			{
+				["MachineName"] = Environment.MachineName,
+				["OSVersion"] = Environment.OSVersion.ToString(),
+				["ProcessorCount"] = Environment.ProcessorCount,
+				["WorkingSet"] = Environment.WorkingSet,
+				["SystemPageSize"] = Environment.SystemPageSize,
+				["TickCount"] = Environment.TickCount64
+			};
+		}
+		public static double Benchmark(Func<object> func, int iterations)
+		{
+			var stopwatch = System.Diagnostics.Stopwatch.StartNew();
+			for (int i = 0; i < iterations; i++)
+				func();
+			stopwatch.Stop();
+			return stopwatch.ElapsedMilliseconds / (double)iterations;
+		}
+		public static string[] GetCallStack()
+		{
+			return System.Diagnostics.StackTrace.GetFrames()?.Select(f => f.GetMethod()?.Name ?? "Unknown").ToArray() ?? new string[0];
+		}
+		public static Dictionary<string, object> GetExceptionInfo(Exception ex)
+		{
+			return new Dictionary<string, object>
+			{
+				["Message"] = ex.Message,
+				["Type"] = ex.GetType().Name,
+				["StackTrace"] = ex.StackTrace ?? "",
+				["Source"] = ex.Source ?? ""
+			};
+		}
+		public static void Log(string message, string level = "INFO")
+		{
+			var timestamp = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
+			Console.WriteLine($"[{timestamp}] [{level}] {message}");
+		}
+		public static void Trace(string message) => Log(message, "TRACE");
 	}
 }
