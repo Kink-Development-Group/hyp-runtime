@@ -146,12 +146,21 @@ namespace HypnoScript.LexerParser.Parser
 		{
 			// Annahme: "loop" wurde bereits gematcht.
 			// Erwarte: '(' [Initialisierung] ';' Expression ';' Expression ')' BlockStatement.
-			Consume(TokenType.LParen, "Expected '(' after 'loop'.");
-
-			IStatement? initializer = null;
+			Consume(TokenType.LParen, "Expected '(' after 'loop'."); IStatement? initializer = null;
 			if (!Check(TokenType.Semicolon))
 			{
-				initializer = ParseVarDeclWithoutSemicolon(); // Spezielle Version ohne Semikolon
+				// Check if it's a variable declaration starting with 'induce'
+				if (Check(TokenType.Induce))
+				{
+					Advance(); // consume 'induce'
+					initializer = ParseVarDeclWithoutSemicolon(); // Spezielle Version ohne Semikolon
+				}
+				else
+				{
+					// Expression statement
+					var expr = ParseExpression();
+					initializer = new ExpressionStatementNode(expr);
+				}
 			}
 			Consume(TokenType.Semicolon, "Expected ';' after loop initializer.");
 
@@ -203,17 +212,30 @@ namespace HypnoScript.LexerParser.Parser
 			}
 
 			// Kein Semikolon hier - das wird vom aufrufenden Code erwartet
-
 			return new VarDeclNode(nameToken.Lexeme, typeName, initializer, fromExternal);
 		}
 
 		// Neue Methode: Funktionsdeklaration parsen
 		private IStatement ParseFunctionDeclaration()
 		{
-			// Erwartet: (suggestion | imperative suggestion | dominant suggestion) Identifier '(' [ParameterList] ')' [':' Type] BlockStatement.
+			// Erwartet: (suggestion | imperative suggestion | dominant suggestion) (Identifier | Constructor) '(' [ParameterList] ')' [':' Type] BlockStatement.
 			// Das Schlüsselwort wurde bereits gematcht, wir speichern es zur Unterscheidung.
 			string funcKeyword = Previous().Lexeme;
-			var nameToken = Consume(TokenType.Identifier, "Expected function name after suggestion keyword.");
+
+			// Accept either function name (Identifier) or constructor keyword
+			Token nameToken;
+			if (Check(TokenType.Identifier))
+			{
+				nameToken = Advance();
+			}
+			else if (Check(TokenType.Constructor))
+			{
+				nameToken = Advance();
+			}
+			else
+			{
+				throw new Exception("Expected function name or 'constructor' after suggestion keyword.");
+			}
 			Consume(TokenType.LParen, "Expected '(' after function name.");
 			var parameters = new List<ParameterNode>();
 			if (!Check(TokenType.RParen))
@@ -221,10 +243,9 @@ namespace HypnoScript.LexerParser.Parser
 				do
 				{
 					var paramName = Consume(TokenType.Identifier, "Expected parameter name.").Lexeme;
-					string? typeName = null;
-					if (Match(TokenType.Colon))
+					string? typeName = null; if (Match(TokenType.Colon))
 					{
-						var typeToken = Consume(TokenType.Identifier, "Expected type name after ':' in parameter list.");
+						var typeToken = ConsumeTypeToken("Expected type name after ':' in parameter list.");
 						typeName = typeToken.Lexeme;
 					}
 					parameters.Add(new ParameterNode(paramName, typeName));
@@ -232,10 +253,9 @@ namespace HypnoScript.LexerParser.Parser
 			}
 			Consume(TokenType.RParen, "Expected ')' after parameter list.");
 
-			string? returnType = null;
-			if (Match(TokenType.Colon))
+			string? returnType = null; if (Match(TokenType.Colon))
 			{
-				var typeToken = Consume(TokenType.Identifier, "Expected return type following ':'.");
+				var typeToken = ConsumeTypeToken("Expected return type following ':'.");
 				returnType = typeToken.Lexeme;
 			}
 
@@ -276,9 +296,7 @@ namespace HypnoScript.LexerParser.Parser
 
 			// Parse dominant
 			if (Match(TokenType.Dominant))
-				isDominant = true;
-
-			// Parse the actual declaration
+				isDominant = true;      // Parse the actual declaration
 			IStatement declaration;
 			if (Match(TokenType.Induce))
 			{
@@ -288,9 +306,14 @@ namespace HypnoScript.LexerParser.Parser
 			{
 				declaration = ParseFunctionDeclaration();
 			}
+			else if (Check(TokenType.Identifier))
+			{
+				// Parse property declaration (e.g., name: string;)
+				declaration = ParsePropertyDeclaration();
+			}
 			else
 			{
-				throw new Exception("Expected 'induce' or 'suggestion' in session member.");
+				throw new Exception("Expected 'induce', 'suggestion', or property declaration in session member.");
 			}
 
 			return new SessionMemberNode(isExposed, isDominant, declaration);
@@ -454,7 +477,6 @@ namespace HypnoScript.LexerParser.Parser
 		{
 			return ParseAssignment();
 		}
-
 		private IExpression ParseAssignment()
 		{
 			var expr = ParseEquality();
@@ -469,6 +491,24 @@ namespace HypnoScript.LexerParser.Parser
 					var name = ((IdentifierExpressionNode)expr).Name;
 					return new AssignmentExpressionNode(name, value);
 				}
+				else if (expr is FieldAccessExpressionNode fieldAccess)
+				{
+					// For field access like this.property, we need a special assignment node
+					// For now, we'll create a special identifier that represents the field access
+					// The interpreter will need to handle this specially
+					var target = fieldAccess.Target;
+					var fieldName = fieldAccess.FieldName;
+
+					// Create a compound identifier for field access assignments
+					if (target is IdentifierExpressionNode targetId && targetId.Name == "this")
+					{
+						return new AssignmentExpressionNode($"this.{fieldName}", value);
+					}
+					else
+					{
+						throw new Exception("Complex field access assignments not yet supported.");
+					}
+				}
 
 				throw new Exception("Invalid assignment target.");
 			}
@@ -481,7 +521,7 @@ namespace HypnoScript.LexerParser.Parser
 			var expr = ParseComparison();
 
 			while (Match(TokenType.DoubleEquals) || Match(TokenType.NotEquals) ||
-				   Match(TokenType.YouAreFeelingVerySleepy) || Match(TokenType.NotSoDeep))
+					 Match(TokenType.YouAreFeelingVerySleepy) || Match(TokenType.NotSoDeep))
 			{
 				var op = Previous().Lexeme;
 
@@ -503,9 +543,9 @@ namespace HypnoScript.LexerParser.Parser
 			var expr = ParseTerm();
 
 			while (Match(TokenType.Greater) || Match(TokenType.GreaterEqual) ||
-				   Match(TokenType.Less) || Match(TokenType.LessEqual) ||
-				   Match(TokenType.LookAtTheWatch) || Match(TokenType.FallUnderMySpell) ||
-				   Match(TokenType.DeeplyGreater) || Match(TokenType.DeeplyLess))
+					 Match(TokenType.Less) || Match(TokenType.LessEqual) ||
+					 Match(TokenType.LookAtTheWatch) || Match(TokenType.FallUnderMySpell) ||
+					 Match(TokenType.DeeplyGreater) || Match(TokenType.DeeplyLess))
 			{
 				var op = Previous().Lexeme;
 				if (Previous().Type.Equals(TokenType.LookAtTheWatch))
@@ -737,6 +777,52 @@ namespace HypnoScript.LexerParser.Parser
 			}
 			Consume(TokenType.RBrace, "Expected '}' to close entrance block.");
 			return new EntranceBlockNode(stmts);
+		}
+		// Neue Methode: Eigenschaftsdeklaration parsen (für Session-Member)
+		private IStatement ParsePropertyDeclaration()
+		{
+			// 'name: string;' oder 'age: number;'
+			var nameToken = Consume(TokenType.Identifier, "Expect property name.");
+
+			string? typeName = null;
+			IExpression? initializer = null;
+
+			if (Match(TokenType.Colon))
+			{
+				// parse type - akzeptiere Identifier oder Typ-Keywords
+				if (Match(TokenType.Number) || Match(TokenType.String) || Match(TokenType.Boolean))
+				{
+					typeName = Previous().Lexeme;
+				}
+				else
+				{
+					var typeToken = Consume(TokenType.Identifier, "Expect type name after ':'.");
+					typeName = typeToken.Lexeme;
+				}
+			}
+
+			if (Match(TokenType.Equals))
+			{
+				// parse initializer
+				initializer = ParseExpression();
+			}
+
+			Consume(TokenType.Semicolon, "Expect ';' after property declaration.");
+
+			return new VarDeclNode(nameToken.Lexeme, typeName, initializer, false);
+		}
+
+		private Token ConsumeTypeToken(string errorMessage)
+		{
+			if (Check(TokenType.Identifier) ||
+				Check(TokenType.String) ||
+				Check(TokenType.Number) ||
+				Check(TokenType.Boolean) ||
+				Check(TokenType.Trance))
+			{
+				return Advance();
+			}
+			throw new Exception(errorMessage + $" Found {Peek().Type}.");
 		}
 	}
 }

@@ -276,6 +276,7 @@ namespace HypnoScript.LexerParser.Lexer
 				"imperative" => TokenType.ImperativeSuggestion,
 				"dominant" => TokenType.Dominant,
 				"awaken" => TokenType.Awaken,
+				"return" => TokenType.Awaken,
 				"call" => TokenType.Call,
 
 				// Objektorientierung
