@@ -136,7 +136,7 @@ namespace HypnoScript.CLI
                         if (args.Length < 2)
                         {
                             // Kein Dateipfad: Alle Tests ausführen
-                            return RunTests(null, debug, verbose);
+                            return RunTests(string.Empty, debug, verbose);
                         }
                         // Mit Dateipfad: Nur diese Datei testen
                         return RunTests(args[1], debug, verbose);

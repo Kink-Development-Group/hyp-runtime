@@ -993,7 +993,7 @@ namespace HypnoScript.Runtime
 			return result;
 		}
 
-		public static Dictionary<string, string> GetEnvVars() => Environment.GetEnvironmentVariables().Cast<System.Collections.DictionaryEntry>().ToDictionary(e => (string)e.Key, e => (string)e.Value);
+		public static Dictionary<string, string> GetEnvVars() => Environment.GetEnvironmentVariables().Cast<System.Collections.DictionaryEntry>().ToDictionary(e => (string)e.Key, e => e.Value as string ?? "");
 		public static string GetTempPath() => System.IO.Path.GetTempPath();
 		public static long GetTickCount() => Environment.TickCount64;
 		public static void Sleep(int ms) => System.Threading.Thread.Sleep(ms);

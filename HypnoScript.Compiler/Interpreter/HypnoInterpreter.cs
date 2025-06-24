@@ -675,7 +675,7 @@ namespace HypnoScript.Compiler.Interpreter
 						break;
 					case "ArrayReduce":
 						if (args.Length >= 2 && args[0] is object[] arrRed)
-							return HypnoBuiltins.ArrayReduce(arrRed, (acc, item) => item, args[1]); // Einfache Implementierung
+							return HypnoBuiltins.ArrayReduce(arrRed, (acc, item) => item, args[1] ?? new object());
 						break;
 					case "ArrayFlatten":
 						if (args.Length >= 1 && args[0] is object[] arrFlat)
@@ -982,7 +982,7 @@ namespace HypnoScript.Compiler.Interpreter
 						break;
 					case "Repeat":
 						if (args.Length >= 2 && args[1] is int repCount)
-							return HypnoBuiltins.Repeat(args[0], repCount);
+							return HypnoBuiltins.Repeat(args[0] ?? "", repCount);
 						break;
 					case "Swap":
 						if (args.Length >= 3 && args[0] is object[] arrSwap && args[1] is int i && args[2] is int j)
@@ -1130,7 +1130,7 @@ namespace HypnoScript.Compiler.Interpreter
 					case "DictionarySet":
 						if (args.Length >= 3 && args[0] is Dictionary<string, object> dictSet && args[1] is string keySet)
 						{
-							HypnoBuiltins.DictionarySet(dictSet, keySet, args[2]);
+							HypnoBuiltins.DictionarySet(dictSet, keySet, args[2] ?? "");
 							return null;
 						}
 						break;
