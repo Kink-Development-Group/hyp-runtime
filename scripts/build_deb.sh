@@ -1,6 +1,12 @@
 #!/bin/bash
 set -e
 
+# Check for fpm
+if ! command -v fpm >/dev/null 2>&1; then
+  echo 'Error: fpm is not installed. Please install fpm (e.g. via `gem install fpm`) before running this script.' >&2
+  exit 1
+fi
+
 # build_deb.sh
 # Erstellt self-contained Linux-Binary und .deb-Paket
 

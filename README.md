@@ -176,4 +176,13 @@ Siehe [Doku-Beispiele](HypnoScript.Dokumentation/docs/examples/basic-examples.md
 
 ---
 
+## Automatisierte Dokumentation, CI/CD und Testabdeckung
+
+- Die Builtin-Dokumentation wird automatisch aus dem Code generiert und mit der Doku synchronisiert.
+- Die CI/CD-Pipeline (GitHub Actions) baut, testet und released automatisch für Windows und Linux.
+- Testabdeckung und Monitoring werden kontinuierlich ausgebaut.
+- Fehlerbehandlung und Logging folgen Best Practices für Zuverlässigkeit und Wartbarkeit.
+
+---
+
 **Bereit für die hypnotische Programmierung?**

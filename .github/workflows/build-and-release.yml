@@ -43,6 +43,10 @@ jobs:
           sha256sum publish/HypnoScript-windows-x64.zip | awk '{print $1}' > publish/sha256.txt
           echo "sha256=$(cat publish/sha256.txt)" >> $GITHUB_OUTPUT
 
+      - name: Generate Builtins Documentation
+        run: |
+          dotnet run --project HypnoScript.Runtime/Builtins/DocGenerator.cs HypnoScript.Dokumentation/docs/builtins/
+
       - name: Create Release
         uses: softprops/action-gh-release@v1
         with:

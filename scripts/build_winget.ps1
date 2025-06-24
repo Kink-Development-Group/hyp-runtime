@@ -13,4 +13,13 @@ $zipPath = '../publish/HypnoScript-windows-x64.zip'
 if (Test-Path $zipPath) { Remove-Item $zipPath }
 Compress-Archive -Path ../publish/win/* -DestinationPath $zipPath
 
+# 3. SHA256 berechnen und ins Manifest eintragen
+Write-Host 'Berechne SHA256-Hash für ZIP...'
+$sha256 = (Get-FileHash $zipPath -Algorithm SHA256).Hash
+$manifestPath = 'winget-manifest.yaml'
+$manifestContent = Get-Content $manifestPath
+$updatedContent = $manifestContent -replace '(InstallerSha256: ).*', "`$1$sha256"
+$updatedContent | Set-Content $manifestPath
+Write-Host "SHA256 ($sha256) wurde ins Manifest eingetragen."
+
 Write-Host 'Fertig! Release liegt in ../publish/win und als ZIP vor.'

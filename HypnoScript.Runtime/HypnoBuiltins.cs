@@ -6,11 +6,17 @@ using System.Security.Cryptography;
 using System.Text.Json;
 using System.Net.Http;
 using System.Threading.Tasks;
+using System.Threading;
+using HypnoScript.Runtime.Builtins;
 
 namespace HypnoScript.Runtime
 {
 	public static class HypnoBuiltins
 	{
+		// Thread-safe static Random instance for all non-crypto random operations
+		internal static readonly Random _random = new Random();
+		// For cryptographic randomness, use System.Security.Cryptography.RandomNumberGenerator
+
 		// Flexible Input/Output für Interpreter
 		public static Func<string, string> InputProvider = prompt => {
 			Console.Write(prompt);
@@ -31,67 +37,13 @@ namespace HypnoScript.Runtime
 		}
 
 		// ===== MATHEMATISCHE FUNKTIONEN =====
-		public static double Abs(double x) => Math.Abs(x);
-		public static double Sin(double x) => Math.Sin(x * Math.PI / 180.0); // Grad zu Radiant
-		public static double Cos(double x) => Math.Cos(x * Math.PI / 180.0);
-		public static double Tan(double x) => Math.Tan(x * Math.PI / 180.0);
-		public static double Sqrt(double x) => Math.Sqrt(x);
-		public static double Pow(double x, double y) => Math.Pow(x, y);
-		public static double Floor(double x) => Math.Floor(x);
-		public static double Ceiling(double x) => Math.Ceiling(x);
-		public static double Round(double x) => Math.Round(x);
-		public static double Log(double x) => Math.Log(x);
-		public static double Log10(double x) => Math.Log10(x);
-		public static double Exp(double x) => Math.Exp(x);
-		public static double Max(double x, double y) => Math.Max(x, y);
-		public static double Min(double x, double y) => Math.Min(x, y);
-		public static double Random() => new Random().NextDouble();
-		public static int RandomInt(int min, int max) => new Random().Next(min, max + 1);
+		// (Moved to Builtins/MathBuiltins.cs)
 
 		// ===== STRING-FUNKTIONEN =====
-		public static int Length(string str) => str.Length;
-		public static string Substring(string str, int start, int length) => str.Substring(start, length);
-		public static string ToUpper(string str) => str.ToUpper();
-		public static string ToLower(string str) => str.ToLower();
-		public static bool Contains(string str, string substring) => str.Contains(substring);
-		public static string Replace(string str, string oldValue, string newValue) => str.Replace(oldValue, newValue);
-		public static string Trim(string str) => str.Trim();
-		public static string TrimStart(string str) => str.TrimStart();
-		public static string TrimEnd(string str) => str.TrimEnd();
-		public static int IndexOf(string str, string substring) => str.IndexOf(substring);
-		public static int LastIndexOf(string str, string substring) => str.LastIndexOf(substring);
-		public static string[] Split(string str, string separator) => str.Split(separator);
-		public static string Join(string[] array, string separator) => string.Join(separator, array);
-		public static bool StartsWith(string str, string prefix) => str.StartsWith(prefix);
-		public static bool EndsWith(string str, string suffix) => str.EndsWith(suffix);
-		public static string PadLeft(string str, int width, char paddingChar = ' ') => str.PadLeft(width, paddingChar);
-		public static string PadRight(string str, int width, char paddingChar = ' ') => str.PadRight(width, paddingChar);
+		// (Moved to Builtins/StringBuiltins.cs)
 
 		// ===== ARRAY-FUNKTIONEN =====
-		public static int ArrayLength(object[] arr) => arr.Length;
-		public static object? ArrayGet(object[] arr, int index) => arr[index];
-		public static void ArraySet(object[] arr, int index, object? value) => arr[index] = value ?? "";
-		public static object[] ArraySlice(object[] arr, int start, int length)
-		{
-			var result = new object[length];
-			Array.Copy(arr, start, result, 0, length);
-			return result;
-		}
-		public static object[] ArrayConcat(object[] arr1, object[] arr2)
-		{
-			var result = new object[arr1.Length + arr2.Length];
-			Array.Copy(arr1, 0, result, 0, arr1.Length);
-			Array.Copy(arr2, 0, result, arr1.Length, arr2.Length);
-			return result;
-		}
-		public static int ArrayIndexOf(object[] arr, object? value)
-		{
-			return Array.IndexOf(arr, value);
-		}
-		public static bool ArrayContains(object[] arr, object? value)
-		{
-			return Array.IndexOf(arr, value) >= 0;
-		}
+		// (Moved to Builtins/ArrayBuiltins.cs)
 
 		// ===== KONVERTIERUNGSFUNKTIONEN =====
 		public static int ToInt(object? value) => Convert.ToInt32(value);
@@ -262,149 +214,7 @@ namespace HypnoScript.Runtime
 		}
 
 		// ===== DATEI- UND VERZEICHNIS-OPERATIONEN =====
-		public static bool FileExists(string path)
-		{
-			try { return System.IO.File.Exists(path); }
-			catch { return false; }
-		}
-
-		public static string ReadFile(string path)
-		{
-			try
-			{
-				return System.IO.File.ReadAllText(path);
-			}
-			catch (Exception ex)
-			{
-				Observe($"Error reading file '{path}': {ex.Message}");
-				return "";
-			}
-		}
-
-		public static void WriteFile(string path, string content)
-		{
-			try
-			{
-				System.IO.File.WriteAllText(path, content);
-				Observe($"File '{path}' written successfully.");
-			}
-			catch (Exception ex)
-			{
-				Observe($"Error writing file '{path}': {ex.Message}");
-			}
-		}
-
-		public static void AppendFile(string path, string content)
-		{
-			try
-			{
-				System.IO.File.AppendAllText(path, content);
-				Observe($"Content appended to '{path}' successfully.");
-			}
-			catch (Exception ex)
-			{
-				Observe($"Error appending to file '{path}': {ex.Message}");
-			}
-		}
-
-		public static string[] ReadLines(string path)
-		{
-			try
-			{
-				return System.IO.File.ReadAllLines(path);
-			}
-			catch (Exception ex)
-			{
-				Observe($"Error reading lines from '{path}': {ex.Message}");
-				return new string[0];
-			}
-		}
-
-		public static void WriteLines(string path, string[] lines)
-		{
-			try
-			{
-				System.IO.File.WriteAllLines(path, lines);
-				Observe($"Lines written to '{path}' successfully.");
-			}
-			catch (Exception ex)
-			{
-				Observe($"Error writing lines to '{path}': {ex.Message}");
-			}
-		}
-
-		public static long GetFileSize(string path)
-		{
-			try
-			{
-				var fileInfo = new System.IO.FileInfo(path);
-				return fileInfo.Exists ? fileInfo.Length : -1;
-			}
-			catch
-			{
-				return -1;
-			}
-		}
-
-		public static string GetFileExtension(string path)
-		{
-			return System.IO.Path.GetExtension(path);
-		}
-
-		public static string GetFileName(string path)
-		{
-			return System.IO.Path.GetFileName(path);
-		}
-
-		public static string GetDirectoryName(string path)
-		{
-			return System.IO.Path.GetDirectoryName(path) ?? "";
-		}
-
-		public static bool DirectoryExists(string path)
-		{
-			try { return System.IO.Directory.Exists(path); }
-			catch { return false; }
-		}
-
-		public static void CreateDirectory(string path)
-		{
-			try
-			{
-				System.IO.Directory.CreateDirectory(path);
-				Observe($"Directory '{path}' created successfully.");
-			}
-			catch (Exception ex)
-			{
-				Observe($"Error creating directory '{path}': {ex.Message}");
-			}
-		}
-
-		public static string[] GetFiles(string path, string pattern = "*")
-		{
-			try
-			{
-				return System.IO.Directory.GetFiles(path, pattern);
-			}
-			catch (Exception ex)
-			{
-				Observe($"Error getting files from '{path}': {ex.Message}");
-				return new string[0];
-			}
-		}
-
-		public static string[] GetDirectories(string path)
-		{
-			try
-			{
-				return System.IO.Directory.GetDirectories(path);
-			}
-			catch (Exception ex)
-			{
-				Observe($"Error getting directories from '{path}': {ex.Message}");
-				return new string[0];
-			}
-		}
+		// (Moved to Builtins/FileBuiltins.cs)
 
 		// ===== JSON-VERARBEITUNG =====
 		public static string ToJson(object? obj)
@@ -689,44 +499,6 @@ namespace HypnoScript.Runtime
 			return Math.Sqrt(sumSquaredDiff / (values.Length - 1));
 		}
 
-		// Netzwerk-Funktionen
-		public static string HttpGet(string url)
-		{
-			try
-			{
-				using (var client = new HttpClient())
-				{
-					client.Timeout = TimeSpan.FromSeconds(10);
-					var response = client.GetAsync(url).Result;
-					return response.Content.ReadAsStringAsync().Result;
-				}
-			}
-			catch (Exception ex)
-			{
-				Observe($"HTTP GET error: {ex.Message}");
-				return "";
-			}
-		}
-
-		public static string HttpPost(string url, string data)
-		{
-			try
-			{
-				using (var client = new HttpClient())
-				{
-					client.Timeout = TimeSpan.FromSeconds(10);
-					var content = new StringContent(data, Encoding.UTF8, "application/json");
-					var response = client.PostAsync(url, content).Result;
-					return response.Content.ReadAsStringAsync().Result;
-				}
-			}
-			catch (Exception ex)
-			{
-				Observe($"HTTP POST error: {ex.Message}");
-				return "";
-			}
-		}
-
 		// Datenbank-ähnliche Funktionen
 		public static Dictionary<string, object> CreateRecord(string[] keys, object[] values)
 		{
@@ -903,10 +675,9 @@ namespace HypnoScript.Runtime
 		public static string StringShuffle(string str)
 		{
 			var chars = str.ToCharArray();
-			var random = new Random();
 			for (int i = chars.Length - 1; i > 0; i--)
 			{
-				int j = random.Next(i + 1);
+				int j = _random.Next(i + 1);
 				var temp = chars[i];
 				chars[i] = chars[j];
 				chars[j] = temp;
@@ -921,8 +692,7 @@ namespace HypnoScript.Runtime
 		public static bool IsOdd(int value) => value % 2 != 0;
 		public static object[] ShuffleArray(object[] arr)
 		{
-			var rnd = new Random();
-			return arr.OrderBy(x => rnd.Next()).ToArray();
+			return arr.OrderBy(x => _random.Next()).ToArray();
 		}
 		public static double SumArray(object[] arr)
 		{
@@ -1035,6 +805,16 @@ namespace HypnoScript.Runtime
 		// ===== ERWEITERTE ARRAY-UTILITIES =====
 		public static object[] ArrayInsert(object[] arr, int index, object value)
 		{
+			if (arr == null)
+			{
+				Observe("Error: Array is null.");
+				return Array.Empty<object>();
+			}
+			if (index < 0 || index > arr.Length)
+			{
+				Observe($"Error: Array insert index {index} out of bounds (length: {arr.Length}).");
+				return arr;
+			}
 			var result = new object[arr.Length + 1];
 			Array.Copy(arr, 0, result, 0, index);
 			result[index] = value;
@@ -1043,6 +823,16 @@ namespace HypnoScript.Runtime
 		}
 		public static object[] ArrayRemoveAt(object[] arr, int index)
 		{
+			if (arr == null)
+			{
+				Observe("Error: Array is null.");
+				return Array.Empty<object>();
+			}
+			if (index < 0 || index >= arr.Length)
+			{
+				Observe($"Error: Array remove index {index} out of bounds (length: {arr.Length}).");
+				return arr;
+			}
 			var result = new object[arr.Length - 1];
 			Array.Copy(arr, 0, result, 0, index);
 			Array.Copy(arr, index + 1, result, index, arr.Length - index - 1);
@@ -1139,9 +929,42 @@ namespace HypnoScript.Runtime
 		public static long ReverseNumber(long n) => long.Parse(new string(n.ToString().Reverse().ToArray()));
 
 		// ===== DATEI/SYSTEM-ERWEITERUNGEN =====
-		public static void FileCopy(string source, string dest) => System.IO.File.Copy(source, dest);
-		public static void FileMove(string source, string dest) => System.IO.File.Move(source, dest);
-		public static void FileDelete(string path) => System.IO.File.Delete(path);
+		public static void FileCopy(string source, string dest)
+		{
+			try
+			{
+				System.IO.File.Copy(source, dest);
+				Observe($"File copied from '{source}' to '{dest}'.");
+			}
+			catch (Exception ex)
+			{
+				Observe($"Error copying file from '{source}' to '{dest}': {ex.Message}");
+			}
+		}
+		public static void FileMove(string source, string dest)
+		{
+			try
+			{
+				System.IO.File.Move(source, dest);
+				Observe($"File moved from '{source}' to '{dest}'.");
+			}
+			catch (Exception ex)
+			{
+				Observe($"Error moving file from '{source}' to '{dest}': {ex.Message}");
+			}
+		}
+		public static void FileDelete(string path)
+		{
+			try
+			{
+				System.IO.File.Delete(path);
+				Observe($"File '{path}' deleted successfully.");
+			}
+			catch (Exception ex)
+			{
+				Observe($"Error deleting file '{path}': {ex.Message}");
+			}
+		}
 		public static Dictionary<string, object> GetFileInfo(string path)
 		{
 			var info = new System.IO.FileInfo(path);
@@ -1173,39 +996,7 @@ namespace HypnoScript.Runtime
 		public static string CombinePath(string path1, string path2) => System.IO.Path.Combine(path1, path2);
 
 		// ===== NETZWERK/WEB-UTILITIES =====
-		public static bool IsValidIPAddress(string str) => System.Net.IPAddress.TryParse(str, out _);
-		public static bool IsValidPort(int port) => port >= 1 && port <= 65535;
-		public static string UrlEncode(string str) => System.Web.HttpUtility.UrlEncode(str);
-		public static string UrlDecode(string str) => System.Web.HttpUtility.UrlDecode(str);
-		public static string HtmlEncode(string str) => System.Web.HttpUtility.HtmlEncode(str);
-		public static string HtmlDecode(string str) => System.Web.HttpUtility.HtmlDecode(str);
-		public static string ExtractDomain(string url)
-		{
-			try
-			{
-				var uri = new Uri(url);
-				return uri.Host;
-			}
-			catch { return ""; }
-		}
-		public static string ExtractPath(string url)
-		{
-			try
-			{
-				var uri = new Uri(url);
-				return uri.AbsolutePath;
-			}
-			catch { return ""; }
-		}
-		public static bool IsLocalhost(string url)
-		{
-			try
-			{
-				var uri = new Uri(url);
-				return uri.Host == "localhost" || uri.Host == "127.0.0.1";
-			}
-			catch { return false; }
-		}
+		// (Moved to Builtins/NetworkBuiltins.cs)
 
 		// ===== VALIDIERUNG/FORMATIERUNG =====
 		public static bool IsValidPhoneNumber(string str)
@@ -1253,8 +1044,7 @@ namespace HypnoScript.Runtime
 		public static string GenerateRandomString(int length)
 		{
 			const string chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
-			var random = new Random();
-			return new string(Enumerable.Repeat(chars, length).Select(s => s[random.Next(s.Length)]).ToArray());
+			return new string(Enumerable.Repeat(chars, length).Select(s => s[_random.Next(s.Length)]).ToArray());
 		}
 		public static string GenerateUUID() => Guid.NewGuid().ToString();
 

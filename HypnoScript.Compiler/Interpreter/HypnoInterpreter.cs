@@ -2,6 +2,7 @@ using HypnoScript.LexerParser.AST;
 using HypnoScript.Runtime;
 using HypnoScript.Core.Symbols;
 using HypnoScript.LexerParser.Parser;
+using HypnoScript.Runtime.Builtins;
 using System.IO;
 using System.Collections.Generic;
 
@@ -412,66 +413,66 @@ namespace HypnoScript.Compiler.Interpreter
 					// Datei-Operationen
 					case "FileExists":
 						if (args.Length >= 1 && args[0] is string filePath1)
-							return HypnoBuiltins.FileExists(filePath1);
+							return FileBuiltins.FileExists(filePath1);
 						break;
 					case "ReadFile":
 						if (args.Length >= 1 && args[0] is string filePath2)
-							return HypnoBuiltins.ReadFile(filePath2);
+							return FileBuiltins.ReadFile(filePath2);
 						break;
 					case "WriteFile":
 						if (args.Length >= 2 && args[0] is string filePath3 && args[1] is string fileContent3)
-							HypnoBuiltins.WriteFile(filePath3, fileContent3);
+							FileBuiltins.WriteFile(filePath3, fileContent3);
 						return null;
 					case "AppendFile":
 						if (args.Length >= 2 && args[0] is string filePath4 && args[1] is string fileContent4)
-							HypnoBuiltins.AppendFile(filePath4, fileContent4);
+							FileBuiltins.AppendFile(filePath4, fileContent4);
 						return null;
 					case "ReadLines":
 						if (args.Length >= 1 && args[0] is string filePath5)
-							return HypnoBuiltins.ReadLines(filePath5);
+							return FileBuiltins.ReadLines(filePath5);
 						break;
 					case "WriteLines":
 						if (args.Length >= 2 && args[0] is string filePath6 && args[1] is string[] fileLines6)
-							HypnoBuiltins.WriteLines(filePath6, fileLines6);
+							FileBuiltins.WriteLines(filePath6, fileLines6);
 						return null;
 					case "GetFileSize":
 						if (args.Length >= 1 && args[0] is string filePath7)
-							return HypnoBuiltins.GetFileSize(filePath7);
+							return FileBuiltins.GetFileSize(filePath7);
 						break;
 					case "GetFileExtension":
 						if (args.Length >= 1 && args[0] is string filePath8)
-							return HypnoBuiltins.GetFileExtension(filePath8);
+							return FileBuiltins.GetFileExtension(filePath8);
 						break;
 					case "GetFileName":
 						if (args.Length >= 1 && args[0] is string filePath9)
-							return HypnoBuiltins.GetFileName(filePath9);
+							return FileBuiltins.GetFileName(filePath9);
 						break;
 					case "GetDirectoryName":
 						if (args.Length >= 1 && args[0] is string filePath10)
-							return HypnoBuiltins.GetDirectoryName(filePath10);
+							return FileBuiltins.GetDirectoryName(filePath10);
 						break;
 
 					// Verzeichnis-Operationen
 					case "DirectoryExists":
 						if (args.Length >= 1 && args[0] is string dirPath1)
-							return HypnoBuiltins.DirectoryExists(dirPath1);
+							return FileBuiltins.DirectoryExists(dirPath1);
 						break;
 					case "CreateDirectory":
 						if (args.Length >= 1 && args[0] is string dirPath2)
-							HypnoBuiltins.CreateDirectory(dirPath2);
+							FileBuiltins.CreateDirectory(dirPath2);
 						return null;
 					case "GetFiles":
 						if (args.Length >= 1 && args[0] is string dirPath3)
 						{
 							if (args.Length >= 2 && args[1] is string filePattern3)
-								return HypnoBuiltins.GetFiles(dirPath3, filePattern3);
+								return FileBuiltins.GetFiles(dirPath3, filePattern3);
 							else
-								return HypnoBuiltins.GetFiles(dirPath3);
+								return FileBuiltins.GetFiles(dirPath3);
 						}
 						break;
 					case "GetDirectories":
 						if (args.Length >= 1 && args[0] is string dirPath4)
-							return HypnoBuiltins.GetDirectories(dirPath4);
+							return FileBuiltins.GetDirectories(dirPath4);
 						break;
 
 					// JSON-Verarbeitung
@@ -599,26 +600,26 @@ namespace HypnoScript.Compiler.Interpreter
 
 					// Erweiterte System-Funktionen
 					case "GetMachineName":
-						return HypnoBuiltins.GetMachineName();
+						return SystemBuiltins.GetMachineName();
 					case "GetUserName":
-						return HypnoBuiltins.GetUserName();
+						return SystemBuiltins.GetUserName();
 					case "GetOSVersion":
-						return HypnoBuiltins.GetOSVersion();
+						return SystemBuiltins.GetOSVersion();
 					case "GetProcessorCount":
-						return HypnoBuiltins.GetProcessorCount();
+						return SystemBuiltins.GetProcessorCount();
 					case "GetWorkingSet":
-						return HypnoBuiltins.GetWorkingSet();
+						return SystemBuiltins.GetWorkingSet();
 					case "PlaySound":
 						if (args.Length >= 2 && args[0] is int sndFreq && args[1] is int sndDur)
-							HypnoBuiltins.PlaySound(sndFreq, sndDur);
+							SystemBuiltins.PlaySound(sndFreq, sndDur);
 						else
-							HypnoBuiltins.PlaySound();
+							SystemBuiltins.PlaySound();
 						return null;
 					case "Vibrate":
 						if (args.Length >= 1 && args[0] is int vibDur)
-							HypnoBuiltins.Vibrate(vibDur);
+							SystemBuiltins.Vibrate(vibDur);
 						else
-							HypnoBuiltins.Vibrate();
+							SystemBuiltins.Vibrate();
 						return null;
 
 					// Erweiterte Debugging-Funktionen
@@ -640,152 +641,152 @@ namespace HypnoScript.Compiler.Interpreter
 					// Array-Funktionen
 					case "ArrayLength":
 						if (args.Length >= 1 && args[0] is object[] arrLen)
-							return HypnoBuiltins.ArrayLength(arrLen);
+							return ArrayBuiltins.ArrayLength(arrLen);
 						break;
 					case "ArrayGet":
 						if (args.Length >= 2 && args[0] is object[] arrGet && args[1] is int indexGet)
-							return HypnoBuiltins.ArrayGet(arrGet, indexGet);
+							return ArrayBuiltins.ArrayGet(arrGet, indexGet);
 						break;
 					case "ArraySet":
 						if (args.Length >= 3 && args[0] is object[] arrSet && args[1] is int indexSet)
 						{
-							HypnoBuiltins.ArraySet(arrSet, indexSet, args[2]);
+							ArrayBuiltins.ArraySet(arrSet, indexSet, args[2]);
 							return null;
 						}
 						break;
 					case "ArraySlice":
 						if (args.Length >= 3 && args[0] is object[] arrSlice && args[1] is int startSlice && args[2] is int length)
-							return HypnoBuiltins.ArraySlice(arrSlice, startSlice, length);
+							return ArrayBuiltins.ArraySlice(arrSlice, startSlice, length);
 						break;
 					case "ArrayConcat":
 						if (args.Length >= 2 && args[0] is object[] arr1 && args[1] is object[] arr2)
-							return HypnoBuiltins.ArrayConcat(arr1, arr2);
+							return ArrayBuiltins.ArrayConcat(arr1, arr2);
 						break;
 					case "ArrayIndexOf":
 						if (args.Length >= 2 && args[0] is object[] arrIdx)
-							return HypnoBuiltins.ArrayIndexOf(arrIdx, args[1]);
+							return ArrayBuiltins.ArrayIndexOf(arrIdx, args[1]);
 						break;
 					case "ArrayContains":
 						if (args.Length >= 2 && args[0] is object[] arrCont)
-							return HypnoBuiltins.ArrayContains(arrCont, args[1]);
+							return ArrayBuiltins.ArrayContains(arrCont, args[1]);
 						break;
 					case "ArrayMap":
 						if (args.Length >= 1 && args[0] is object[] arrMap)
-							return HypnoBuiltins.ArrayMap(arrMap, item => item); // Einfache Implementierung
+							return ArrayBuiltins.ArrayMap(arrMap, item => item); // Einfache Implementierung
 						break;
 					case "ArrayReduce":
 						if (args.Length >= 2 && args[0] is object[] arrRed)
-							return HypnoBuiltins.ArrayReduce(arrRed, (acc, item) => item, args[1] ?? new object());
+							return ArrayBuiltins.ArrayReduce(arrRed, (acc, item) => item, args[1] ?? new object());
 						break;
 					case "ArrayFlatten":
 						if (args.Length >= 1 && args[0] is object[] arrFlat)
-							return HypnoBuiltins.ArrayFlatten(arrFlat);
+							return ArrayBuiltins.ArrayFlatten(arrFlat);
 						break;
 
 					// Mathematische Funktionen
 					case "Abs":
 						if (args.Length >= 1 && args[0] is double absVal)
-							return HypnoBuiltins.Abs(absVal);
+							return MathBuiltins.Abs(absVal);
 						break;
 					case "Sin":
 						if (args.Length >= 1 && args[0] is double sinVal)
-							return HypnoBuiltins.Sin(sinVal);
+							return MathBuiltins.Sin(sinVal);
 						break;
 					case "Cos":
 						if (args.Length >= 1 && args[0] is double cosVal)
-							return HypnoBuiltins.Cos(cosVal);
+							return MathBuiltins.Cos(cosVal);
 						break;
 					case "Tan":
 						if (args.Length >= 1 && args[0] is double tanVal)
-							return HypnoBuiltins.Tan(tanVal);
+							return MathBuiltins.Tan(tanVal);
 						break;
 					case "Sqrt":
 						if (args.Length >= 1 && args[0] is double sqrtVal)
-							return HypnoBuiltins.Sqrt(sqrtVal);
+							return MathBuiltins.Sqrt(sqrtVal);
 						break;
 					case "Pow":
 						if (args.Length >= 2 && args[0] is double powX && args[1] is double powY)
-							return HypnoBuiltins.Pow(powX, powY);
+							return MathBuiltins.Pow(powX, powY);
 						break;
 					case "Floor":
 						if (args.Length >= 1 && args[0] is double floorVal)
-							return HypnoBuiltins.Floor(floorVal);
+							return MathBuiltins.Floor(floorVal);
 						break;
 					case "Ceiling":
 						if (args.Length >= 1 && args[0] is double ceilVal)
-							return HypnoBuiltins.Ceiling(ceilVal);
+							return MathBuiltins.Ceiling(ceilVal);
 						break;
 					case "Round":
 						if (args.Length >= 1 && args[0] is double roundVal)
-							return HypnoBuiltins.Round(roundVal);
+							return MathBuiltins.Round(roundVal);
 						break;
 					case "Log":
 						if (args.Length >= 1 && args[0] is double logVal)
-							return HypnoBuiltins.Log(logVal);
+							return MathBuiltins.Log(logVal);
 						break;
 					case "Log10":
 						if (args.Length >= 1 && args[0] is double log10Val)
-							return HypnoBuiltins.Log10(log10Val);
+							return MathBuiltins.Log10(log10Val);
 						break;
 					case "Exp":
 						if (args.Length >= 1 && args[0] is double expVal)
-							return HypnoBuiltins.Exp(expVal);
+							return MathBuiltins.Exp(expVal);
 						break;
 					case "Max":
 						if (args.Length >= 2 && args[0] is double maxX && args[1] is double maxY)
-							return HypnoBuiltins.Max(maxX, maxY);
+							return MathBuiltins.Max(maxX, maxY);
 						break;
 					case "Min":
 						if (args.Length >= 2 && args[0] is double minX && args[1] is double minY)
-							return HypnoBuiltins.Min(minX, minY);
+							return MathBuiltins.Min(minX, minY);
 						break;
 					case "Random":
-						return HypnoBuiltins.Random();
+						return MathBuiltins.Random();
 					case "RandomInt":
 						if (args.Length >= 2 && args[0] is int randMin && args[1] is int randMax)
-							return HypnoBuiltins.RandomInt(randMin, randMax);
+							return MathBuiltins.RandomInt(randMin, randMax);
 						break;
 
 					// String-Funktionen
 					case "Length":
 						if (args.Length >= 1 && args[0] is string lenStr)
-							return HypnoBuiltins.Length(lenStr);
+							return StringBuiltins.Length(lenStr);
 						break;
 					case "Substring":
 						if (args.Length >= 3 && args[0] is string subStr && args[1] is int subStart && args[2] is int subLen)
-							return HypnoBuiltins.Substring(subStr, subStart, subLen);
+							return StringBuiltins.Substring(subStr, subStart, subLen);
 						break;
 					case "ToUpper":
 						if (args.Length >= 1 && args[0] is string upperStr)
-							return HypnoBuiltins.ToUpper(upperStr);
+							return StringBuiltins.ToUpper(upperStr);
 						break;
 					case "ToLower":
 						if (args.Length >= 1 && args[0] is string lowerStr)
-							return HypnoBuiltins.ToLower(lowerStr);
+							return StringBuiltins.ToLower(lowerStr);
 						break;
 					case "Contains":
 						if (args.Length >= 2 && args[0] is string contStr && args[1] is string contSub)
-							return HypnoBuiltins.Contains(contStr, contSub);
+							return StringBuiltins.Contains(contStr, contSub);
 						break;
 					case "Replace":
 						if (args.Length >= 3 && args[0] is string repStrReplace && args[1] is string repOld && args[2] is string repNew)
-							return HypnoBuiltins.Replace(repStrReplace, repOld, repNew);
+							return StringBuiltins.Replace(repStrReplace, repOld, repNew);
 						break;
 					case "Trim":
 						if (args.Length >= 1 && args[0] is string trimStr)
-							return HypnoBuiltins.Trim(trimStr);
+							return StringBuiltins.Trim(trimStr);
 						break;
 					case "IndexOf":
 						if (args.Length >= 2 && args[0] is string idxStr && args[1] is string idxSub)
-							return HypnoBuiltins.IndexOf(idxStr, idxSub);
+							return StringBuiltins.IndexOf(idxStr, idxSub);
 						break;
 					case "Split":
 						if (args.Length >= 2 && args[0] is string splitStr && args[1] is string splitSep)
-							return HypnoBuiltins.Split(splitStr, splitSep);
+							return StringBuiltins.Split(splitStr, splitSep);
 						break;
 					case "Join":
 						if (args.Length >= 2 && args[0] is string[] joinArr && args[1] is string joinSep)
-							return HypnoBuiltins.Join(joinArr, joinSep);
+							return StringBuiltins.Join(joinArr, joinSep);
 						break;
 
 					// Konvertierungsfunktionen
@@ -818,27 +819,27 @@ namespace HypnoScript.Compiler.Interpreter
 
 					// System-Funktionen
 					case "ClearScreen":
-						HypnoBuiltins.ClearScreen();
+						SystemBuiltins.ClearScreen();
 						return null;
 					case "Beep":
 						if (args.Length >= 2 && args[0] is int beepFreq && args[1] is int beepDur)
-							HypnoBuiltins.Beep(beepFreq, beepDur);
+							SystemBuiltins.Beep(beepFreq, beepDur);
 						else
-							HypnoBuiltins.Beep();
+							SystemBuiltins.Beep();
 						return null;
 					case "GetEnvironmentVariable":
 						if (args.Length >= 1 && args[0] is string envVar)
-							return HypnoBuiltins.GetEnvironmentVariable(envVar);
+							return SystemBuiltins.GetEnvironmentVariable(envVar);
 						break;
 
 					// Utility-Funktionen
 					case "IsValidEmail":
 						if (args.Length >= 1 && args[0] is string email)
-							return HypnoBuiltins.IsValidEmail(email);
+							return NetworkBuiltins.IsValidEmail(email);
 						break;
 					case "IsValidUrl":
 						if (args.Length >= 1 && args[0] is string url)
-							return HypnoBuiltins.IsValidUrl(url);
+							return NetworkBuiltins.IsValidUrl(url);
 						break;
 					case "IsValidJson":
 						if (args.Length >= 1 && args[0] is string json)
@@ -864,11 +865,11 @@ namespace HypnoScript.Compiler.Interpreter
 					// HTTP-Funktionen
 					case "HttpGet":
 						if (args.Length >= 1 && args[0] is string httpUrl)
-							return HypnoBuiltins.HttpGet(httpUrl);
+							return NetworkBuiltins.HttpGet(httpUrl);
 						break;
 					case "HttpPost":
 						if (args.Length >= 2 && args[0] is string postUrl && args[1] is string postData)
-							return HypnoBuiltins.HttpPost(postUrl, postData);
+							return NetworkBuiltins.HttpPost(postUrl, postData);
 						break;
 
 					// Statistik-Funktionen
@@ -1146,57 +1147,57 @@ namespace HypnoScript.Compiler.Interpreter
 					// Erweiterte String-Utilities
 					case "StartsWith":
 						if (args.Length >= 2 && args[0] is string strStart && args[1] is string prefix)
-							return HypnoBuiltins.StartsWith(strStart, prefix);
+							return StringBuiltins.StartsWith(strStart, prefix);
 						break;
 					case "EndsWith":
 						if (args.Length >= 2 && args[0] is string strEnd && args[1] is string suffix)
-							return HypnoBuiltins.EndsWith(strEnd, suffix);
+							return StringBuiltins.EndsWith(strEnd, suffix);
 						break;
 					case "PadLeft":
 						if (args.Length >= 2 && args[0] is string strPadL && args[1] is int widthL)
 						{
 							var charL = args.Length >= 3 && args[2] is char cL ? cL : ' ';
-							return HypnoBuiltins.PadLeft(strPadL, widthL, charL);
+							return StringBuiltins.PadLeft(strPadL, widthL, charL);
 						}
 						break;
 					case "PadRight":
 						if (args.Length >= 2 && args[0] is string strPadR && args[1] is int widthR)
 						{
 							var charR = args.Length >= 3 && args[2] is char cR ? cR : ' ';
-							return HypnoBuiltins.PadRight(strPadR, widthR, charR);
+							return StringBuiltins.PadRight(strPadR, widthR, charR);
 						}
 						break;
 					case "Insert":
 						if (args.Length >= 3 && args[0] is string strIns && args[1] is int indexIns && args[2] is string valueIns)
-							return HypnoBuiltins.Insert(strIns, indexIns, valueIns);
+							return StringBuiltins.Insert(strIns, indexIns, valueIns);
 						break;
 					case "Remove":
 						if (args.Length >= 3 && args[0] is string strRem && args[1] is int startRem && args[2] is int countRem)
-							return HypnoBuiltins.Remove(strRem, startRem, countRem);
+							return StringBuiltins.Remove(strRem, startRem, countRem);
 						break;
 					case "Compare":
 						if (args.Length >= 2 && args[0] is string str1 && args[1] is string str2)
-							return HypnoBuiltins.Compare(str1, str2);
+							return StringBuiltins.Compare(str1, str2);
 						break;
 					case "EqualsIgnoreCase":
 						if (args.Length >= 2 && args[0] is string strEq1 && args[1] is string strEq2)
-							return HypnoBuiltins.EqualsIgnoreCase(strEq1, strEq2);
+							return StringBuiltins.EqualsIgnoreCase(strEq1, strEq2);
 						break;
 					case "IsPalindrome":
 						if (args.Length >= 1 && args[0] is string strPal)
-							return HypnoBuiltins.IsPalindrome(strPal);
+							return StringBuiltins.IsPalindrome(strPal);
 						break;
 					case "CountWords":
 						if (args.Length >= 1 && args[0] is string strWords)
-							return HypnoBuiltins.CountWords(strWords);
+							return StringBuiltins.CountWords(strWords);
 						break;
 					case "ExtractNumbers":
 						if (args.Length >= 1 && args[0] is string strNum)
-							return HypnoBuiltins.ExtractNumbers(strNum);
+							return StringBuiltins.ExtractNumbers(strNum);
 						break;
 					case "ExtractLetters":
 						if (args.Length >= 1 && args[0] is string strLet)
-							return HypnoBuiltins.ExtractLetters(strLet);
+							return StringBuiltins.ExtractLetters(strLet);
 						break;
 				}
 			}

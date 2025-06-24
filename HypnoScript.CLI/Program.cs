@@ -35,102 +35,74 @@ namespace HypnoScript.CLI
                 switch (command)
                 {
                     case "run":
-                        if (args.Length < 2)
-                        {
-                            Console.WriteLine("Error: File path required for 'run' command");
-                            return 1;
-                        }
+                        if (!CliArgumentValidator.RequireArgs(args, 2, "run", out var err) ||
+                            !CliArgumentValidator.RequireFileExists(args[1], out err))
+                            return err;
                         return RunFile(args[1], debug, verbose);
                     case "compile":
-                        if (args.Length < 2)
-                        {
-                            Console.WriteLine("Error: File path required for 'compile' command");
-                            return 1;
-                        }
+                        if (!CliArgumentValidator.RequireArgs(args, 2, "compile", out err) ||
+                            !CliArgumentValidator.RequireFileExists(args[1], out err))
+                            return err;
                         return CompileFile(args[1], debug, verbose);
                     case "analyze":
-                        if (args.Length < 2)
-                        {
-                            Console.WriteLine("Error: File path required for 'analyze' command");
-                            return 1;
-                        }
+                        if (!CliArgumentValidator.RequireArgs(args, 2, "analyze", out err) ||
+                            !CliArgumentValidator.RequireFileExists(args[1], out err))
+                            return err;
                         return AnalyzeFile(args[1], debug, verbose);
                     case "info":
-                        if (args.Length < 2)
-                        {
-                            Console.WriteLine("Error: File path required for 'info' command");
-                            return 1;
-                        }
+                        if (!CliArgumentValidator.RequireArgs(args, 2, "info", out err) ||
+                            !CliArgumentValidator.RequireFileExists(args[1], out err))
+                            return err;
                         return ShowFileInfo(args[1], debug, verbose);
                     case "validate":
-                        if (args.Length < 2)
-                        {
-                            Console.WriteLine("Error: File path required for 'validate' command");
-                            return 1;
-                        }
+                        if (!CliArgumentValidator.RequireArgs(args, 2, "validate", out err) ||
+                            !CliArgumentValidator.RequireFileExists(args[1], out err))
+                            return err;
                         return ValidateFile(args[1], debug, verbose);
                     case "format":
-                        if (args.Length < 2)
-                        {
-                            Console.WriteLine("Error: File path required for 'format' command");
-                            return 1;
-                        }
+                        if (!CliArgumentValidator.RequireArgs(args, 2, "format", out err) ||
+                            !CliArgumentValidator.RequireFileExists(args[1], out err))
+                            return err;
                         return FormatFile(args[1], debug, verbose);
                     case "benchmark":
-                        if (args.Length < 2)
-                        {
-                            Console.WriteLine("Error: File path required for 'benchmark' command");
-                            return 1;
-                        }
+                        if (!CliArgumentValidator.RequireArgs(args, 2, "benchmark", out err) ||
+                            !CliArgumentValidator.RequireFileExists(args[1], out err))
+                            return err;
                         return BenchmarkFile(args[1], debug, verbose);
                     case "profile":
-                        if (args.Length < 2)
-                        {
-                            Console.WriteLine("Error: File path required for 'profile' command");
-                            return 1;
-                        }
+                        if (!CliArgumentValidator.RequireArgs(args, 2, "profile", out err) ||
+                            !CliArgumentValidator.RequireFileExists(args[1], out err))
+                            return err;
                         return ProfileFile(args[1], debug, verbose);
                     case "lint":
-                        if (args.Length < 2)
-                        {
-                            Console.WriteLine("Error: File path required for 'lint' command");
-                            return 1;
-                        }
+                        if (!CliArgumentValidator.RequireArgs(args, 2, "lint", out err) ||
+                            !CliArgumentValidator.RequireFileExists(args[1], out err))
+                            return err;
                         return LintFile(args[1], debug, verbose);
                     case "optimize":
-                        if (args.Length < 2)
-                        {
-                            Console.WriteLine("Error: File path required for 'optimize' command");
-                            return 1;
-                        }
+                        if (!CliArgumentValidator.RequireArgs(args, 2, "optimize", out err) ||
+                            !CliArgumentValidator.RequireFileExists(args[1], out err))
+                            return err;
                         return OptimizeFile(args[1], debug, verbose);
                     case "web":
-                        if (args.Length < 2)
-                        {
-                            Console.WriteLine("Error: File path required for 'web' command");
-                            return 1;
-                        }
+                        if (!CliArgumentValidator.RequireArgs(args, 2, "web", out err) ||
+                            !CliArgumentValidator.RequireFileExists(args[1], out err))
+                            return err;
                         return StartWebServer(args[1], debug, verbose);
                     case "api":
-                        if (args.Length < 2)
-                        {
-                            Console.WriteLine("Error: File path required for 'api' command");
-                            return 1;
-                        }
+                        if (!CliArgumentValidator.RequireArgs(args, 2, "api", out err) ||
+                            !CliArgumentValidator.RequireFileExists(args[1], out err))
+                            return err;
                         return StartApiServer(args[1], debug, verbose);
                     case "deploy":
-                        if (args.Length < 2)
-                        {
-                            Console.WriteLine("Error: File path required for 'deploy' command");
-                            return 1;
-                        }
+                        if (!CliArgumentValidator.RequireArgs(args, 2, "deploy", out err) ||
+                            !CliArgumentValidator.RequireFileExists(args[1], out err))
+                            return err;
                         return DeployApplication(args[1], debug, verbose);
                     case "monitor":
-                        if (args.Length < 2)
-                        {
-                            Console.WriteLine("Error: File path required for 'monitor' command");
-                            return 1;
-                        }
+                        if (!CliArgumentValidator.RequireArgs(args, 2, "monitor", out err) ||
+                            !CliArgumentValidator.RequireFileExists(args[1], out err))
+                            return err;
                         return MonitorApplication(args[1], debug, verbose);
                     case "test":
                         if (args.Length < 2)
@@ -141,11 +113,9 @@ namespace HypnoScript.CLI
                         // Mit Dateipfad: Nur diese Datei testen
                         return RunTests(args[1], debug, verbose);
                     case "docs":
-                        if (args.Length < 2)
-                        {
-                            Console.WriteLine("Error: File path required for 'docs' command");
-                            return 1;
-                        }
+                        if (!CliArgumentValidator.RequireArgs(args, 2, "docs", out err) ||
+                            !CliArgumentValidator.RequireFileExists(args[1], out err))
+                            return err;
                         return GenerateDocs(args[1], debug, verbose);
                     case "version":
                         ShowVersion();
@@ -839,6 +809,32 @@ namespace HypnoScript.CLI
                 Console.Error.WriteLine($"[ERROR] Documentation generation failed: {ex.Message}");
                 if (debug) Console.Error.WriteLine(ex.StackTrace);
                 return 1;
+            }
+        }
+
+        public static class CliArgumentValidator
+        {
+            public static bool RequireArgs(string[] args, int minCount, string command, out int errorCode)
+            {
+                if (args.Length < minCount)
+                {
+                    Console.WriteLine($"Error: File path required for '{command}' command");
+                    errorCode = 1;
+                    return false;
+                }
+                errorCode = 0;
+                return true;
+            }
+            public static bool RequireFileExists(string filePath, out int errorCode)
+            {
+                if (!File.Exists(filePath))
+                {
+                    Console.Error.WriteLine($"[ERROR] File not found: {filePath}");
+                    errorCode = 2;
+                    return false;
+                }
+                errorCode = 0;
+                return true;
             }
         }
     }
