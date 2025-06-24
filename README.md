@@ -169,7 +169,7 @@ Siehe [Doku-Beispiele](HypnoScript.Dokumentation/docs/examples/basic-examples.md
 ## 🔗 Weiterführende Links
 
 - **Doku:** [HypnoScript.Dokumentation/README.md](HypnoScript.Dokumentation/README.md)
-- **Online-Doku:** <https://hypnoscript.github.io/hyp-runtime/>
+- **Online-Doku:** <https://Kink-Development-Group.github.io/hyp-runtime/>
 - **CLI-Details:** [CLI_README.md](CLI_README.md)
 - **Build/Paketierung:** [scripts/README.md](scripts/README.md)
 - **Lizenz:** MIT ([LICENSE](LICENSE))

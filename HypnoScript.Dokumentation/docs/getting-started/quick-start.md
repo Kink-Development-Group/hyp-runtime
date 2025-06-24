@@ -24,7 +24,7 @@ Get up and running with HypnoScript in minutes! This guide will walk you through
    ```
 
 2. **Manual Installation**:
-   - Download the latest release from [GitHub Releases](https://github.com/HypnoScript/hyp-runtime/releases)
+   - Download the latest release from [GitHub Releases](https://github.com/Kink-Development-Group/hyp-runtime/releases)
    - Extract the ZIP file to a directory of your choice
    - Add the directory to your system PATH
 
@@ -43,7 +43,7 @@ Get up and running with HypnoScript in minutes! This guide will walk you through
 2. **Manual Installation**:
    ```bash
    # Download and install
-   curl -L https://github.com/HypnoScript/hyp-runtime/releases/latest/download/hypnoscript-linux-x64.tar.gz | tar -xz
+   curl -L https://github.com/Kink-Development-Group/hyp-runtime/releases/latest/download/hypnoscript-linux-x64.tar.gz | tar -xz
    sudo mv hypnoscript /usr/local/bin/
    ```
 
@@ -311,8 +311,8 @@ hyp --version
 ### Getting Help
 
 - **Documentation**: Visit the [HypnoScript Documentation](https://hypnoscript.dev)
-- **GitHub Issues**: Report bugs at [GitHub Issues](https://github.com/HypnoScript/hyp-runtime/issues)
-- **Community**: Join discussions on [GitHub Discussions](https://github.com/HypnoScript/hyp-runtime/discussions)
+- **GitHub Issues**: Report bugs at [GitHub Issues](https://github.com/Kink-Development-Group/hyp-runtime/issues)
+- **Community**: Join discussions on [GitHub Discussions](https://github.com/Kink-Development-Group/hyp-runtime/discussions)
 
 ## What's Next?
 

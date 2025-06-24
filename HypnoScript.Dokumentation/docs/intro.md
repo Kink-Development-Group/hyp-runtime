@@ -85,7 +85,7 @@ dotnet run --project HypnoScript.CLI -- run example.hyp
 
 ## Community
 
-- **GitHub**: [hypnoscript/hyp-runtime](https://github.com/Kink-Development-Group/hyp-runtime)
+- **GitHub**: [Kink-Development-Group/hyp-runtime](https://github.com/Kink-Development-Group/hyp-runtime)
 - **Issues**: [GitHub Issues](https://github.com/Kink-Development-Group/hyp-runtime/issues)
 - **Discussions**: [GitHub Discussions](https://github.com/Kink-Development-Group/hyp-runtime/discussions)
 

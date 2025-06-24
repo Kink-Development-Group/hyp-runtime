@@ -81,7 +81,7 @@ Die Dokumentation wird automatisch zu GitHub Pages deployed über GitHub Actions
 
 - **Trigger**: Push zu `main` Branch mit Änderungen in `HypnoScript.Dokumentation/`
 - **Workflow**: `.github/workflows/deploy-docs.yml`
-- **URL**: https://hypnoscript.github.io/hyp-runtime/
+- **URL**: https://Kink-Development-Group.github.io/hyp-runtime/
 
 ### Manuelles Deployment
 
@@ -219,7 +219,7 @@ MIT License - siehe [LICENSE](../../LICENSE) für Details.
 
 ## 🔗 Links
 
-- **Live-Dokumentation**: https://hypnoscript.github.io/hyp-runtime/
+- **Live-Dokumentation**: https://Kink-Development-Group.github.io/hyp-runtime/
 - **GitHub Repository**: https://github.com/Kink-Development-Group/hyp-runtime
 - **Docusaurus**: https://docusaurus.io/
 - **Issues**: https://github.com/Kink-Development-Group/hyp-runtime/issues

@@ -11,14 +11,14 @@ const config = {
   favicon: 'img/favicon.ico',
 
   // Set the production url of your site here
-  url: 'https://hypnoscript.github.io',
+  url: 'https://Kink-Development-Group.github.io',
   // Set the /<baseUrl>/ pathname under which your site is served
   // For GitHub pages deployment, it is often '/<projectName>/'
   baseUrl: '/hyp-runtime/',
 
   // GitHub pages deployment config.
   // If you aren't using GitHub pages, you don't need these.
-  organizationName: 'hypnoscript', // Usually your GitHub org/user name.
+  organizationName: 'Kink-Development-Group', // Usually your GitHub org/user name.
   projectName: 'hyp-runtime', // Usually your repo name.
 
   onBrokenLinks: 'throw',
