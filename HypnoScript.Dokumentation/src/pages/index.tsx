@@ -47,12 +47,18 @@ export default function Home(): ReactNode {
               starte deine hypnotische Programmierreise.
             </p>
             <div className={styles.buttons}>
-              <Link
+              {/* <Link
                 className="button button--primary button--lg margin-horiz--sm"
                 to="/downloads/HypnoScript.Runtime.exe"
                 download
               >
                 Windows (x64)
+              </Link> */}
+              <Link
+                className="button button--secondary button--lg margin-horiz--sm"
+                to="#"
+              >
+                Windows (x64) (Download demnächst)
               </Link>
               <Link
                 className="button button--secondary button--lg margin-horiz--sm"
