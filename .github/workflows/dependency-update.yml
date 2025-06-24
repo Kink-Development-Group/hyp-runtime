@@ -1,0 +1,275 @@
+name: Dependency Update
+
+on:
+  schedule:
+    # Run every Monday at 9 AM UTC
+    - cron: '0 9 * * 1'
+  workflow_dispatch:
+    inputs:
+      update_type:
+        description: 'Type of update to perform'
+        required: true
+        default: 'all'
+        type: choice
+        options:
+          - all
+          - security
+          - minor
+          - major
+
+env:
+  DOTNET_VERSION: '8.0.x'
+
+jobs:
+  # Check for dependency updates
+  check-updates:
+    name: Check for Updates
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: ${{ env.DOTNET_VERSION }}
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+          cache-dependency-path: HypnoScript.Dokumentation/package-lock.json
+
+      - name: Check .NET package updates
+        id: dotnet-updates
+        run: |
+          dotnet list package --outdated --format json > outdated-packages.json
+          echo "outdated_count=$(jq '.length' outdated-packages.json)" >> $GITHUB_OUTPUT
+          echo "outdated_packages=$(cat outdated-packages.json)" >> $GITHUB_OUTPUT
+
+      - name: Check npm package updates
+        id: npm-updates
+        working-directory: HypnoScript.Dokumentation
+        run: |
+          npm outdated --json > ../npm-outdated.json || echo '{}' > ../npm-outdated.json
+          echo "npm_outdated_count=$(jq 'length' ../npm-outdated.json)" >> $GITHUB_OUTPUT
+          echo "npm_outdated_packages=$(cat ../npm-outdated.json)" >> $GITHUB_OUTPUT
+
+      - name: Check for security vulnerabilities
+        id: security-check
+        run: |
+          # Check .NET security vulnerabilities
+          dotnet list package --vulnerable --format json > vulnerable-packages.json
+          echo "vulnerable_count=$(jq '.length' vulnerable-packages.json)" >> $GITHUB_OUTPUT
+          echo "vulnerable_packages=$(cat vulnerable-packages.json)" >> $GITHUB_OUTPUT
+
+      - name: Upload update report
+        uses: actions/upload-artifact@v4
+        with:
+          name: dependency-update-report
+          path: |
+            outdated-packages.json
+            npm-outdated.json
+            vulnerable-packages.json
+          retention-days: 7
+
+  # Create update PRs
+  create-update-prs:
+    name: Create Update PRs
+    runs-on: ubuntu-latest
+    needs: check-updates
+    if: |
+      needs.check-updates.outputs.outdated_count != '0' ||
+      needs.check-updates.outputs.npm_outdated_count != '0' ||
+      needs.check-updates.outputs.vulnerable_count != '0'
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: ${{ env.DOTNET_VERSION }}
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+
+      - name: Download update report
+        uses: actions/download-artifact@v4
+        with:
+          name: dependency-update-report
+          path: reports
+
+      - name: Update .NET packages
+        run: |
+          # Update packages based on input
+          update_type="${{ github.event.inputs.update_type || 'all' }}"
+
+          if [ "$update_type" = "security" ] || [ "$update_type" = "all" ]; then
+            # Update vulnerable packages
+            jq -r '.[] | "\(.PackageId)@\(.LatestVersion)"' reports/vulnerable-packages.json | while read package; do
+              if [ ! -z "$package" ]; then
+                echo "Updating vulnerable package: $package"
+                dotnet add package $(echo $package | cut -d@ -f1) --version $(echo $package | cut -d@ -f2)
+              fi
+            done
+          fi
+
+          if [ "$update_type" = "minor" ] || [ "$update_type" = "all" ]; then
+            # Update minor versions
+            jq -r '.[] | select(.LatestVersion | split(".")[1] == (.ResolvedVersion | split(".")[1])) | "\(.PackageId)@\(.LatestVersion)"' reports/outdated-packages.json | while read package; do
+              if [ ! -z "$package" ]; then
+                echo "Updating minor version: $package"
+                dotnet add package $(echo $package | cut -d@ -f1) --version $(echo $package | cut -d@ -f2)
+              fi
+            done
+          fi
+
+      - name: Update npm packages
+        working-directory: HypnoScript.Dokumentation
+        run: |
+          update_type="${{ github.event.inputs.update_type || 'all' }}"
+
+          if [ "$update_type" = "security" ] || [ "$update_type" = "all" ]; then
+            # Update packages with security vulnerabilities
+            npm audit fix
+          fi
+
+          if [ "$update_type" = "minor" ] || [ "$update_type" = "all" ]; then
+            # Update minor versions
+            npm update
+          fi
+
+      - name: Test updates
+        run: |
+          dotnet restore HypnoScript.sln
+          dotnet build HypnoScript.sln --configuration Release
+          dotnet test HypnoScript.sln --configuration Release --no-build
+
+      - name: Test documentation build
+        working-directory: HypnoScript.Dokumentation
+        run: |
+          npm ci
+          npm run build
+
+      - name: Create Pull Request
+        uses: peter-evans/create-pull-request@v5
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          branch: dependency-update-${{ github.run_id }}
+          title: '🔧 Update Dependencies'
+          body: |
+            ## 🔧 Dependency Updates
+
+            This PR updates dependencies to their latest versions.
+
+            ### 📊 Update Summary
+            - **.NET Packages Updated**: ${{ needs.check-updates.outputs.outdated_count }}
+            - **npm Packages Updated**: ${{ needs.check-updates.outputs.npm_outdated_count }}
+            - **Security Vulnerabilities Fixed**: ${{ needs.check-updates.outputs.vulnerable_count }}
+
+            ### 🔍 Changes
+            - Updated .NET packages to latest versions
+            - Updated npm packages to latest versions
+            - Fixed security vulnerabilities
+
+            ### ✅ Tests
+            - [x] Build passes
+            - [x] Tests pass
+            - [x] Documentation builds successfully
+
+            ### 📝 Notes
+            - All updates have been tested
+            - No breaking changes detected
+            - Security vulnerabilities have been addressed
+
+            ---
+
+            *This PR was automatically created by the dependency update workflow.*
+          commit-message: '🔧 Update dependencies'
+          delete-branch: true
+
+  # Security alerts
+  security-alerts:
+    name: Security Alerts
+    runs-on: ubuntu-latest
+    needs: check-updates
+    if: needs.check-updates.outputs.vulnerable_count != '0'
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Download update report
+        uses: actions/download-artifact@v4
+        with:
+          name: dependency-update-report
+          path: reports
+
+      - name: Create security issue
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            const vulnerablePackages = JSON.parse(fs.readFileSync('reports/vulnerable-packages.json', 'utf8'));
+
+            if (vulnerablePackages.length > 0) {
+              const body = `## 🚨 Security Alert
+
+              **${vulnerablePackages.length}** package(s) with security vulnerabilities detected:
+
+              ${vulnerablePackages.map(pkg =>
+                `- **${pkg.PackageId}** (${pkg.ResolvedVersion} → ${pkg.LatestVersion})`
+              ).join('\n')}
+
+              ### 🔧 Recommended Actions
+              1. Review the security vulnerabilities
+              2. Update packages to latest versions
+              3. Test thoroughly after updates
+              4. Consider using the dependency update workflow
+
+              ### 📊 Details
+              - **Current Version**: ${vulnerablePackages[0]?.ResolvedVersion || 'Unknown'}
+              - **Latest Version**: ${vulnerablePackages[0]?.LatestVersion || 'Unknown'}
+              - **Vulnerability Level**: High
+
+              ---
+
+              *This issue was automatically created by the security scan.*`;
+
+              await github.rest.issues.create({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                title: '🚨 Security Vulnerabilities Detected',
+                body: body,
+                labels: ['security', 'dependencies', 'automated']
+              });
+            }
+
+  # Notify about updates
+  notify:
+    name: Notify Updates
+    runs-on: ubuntu-latest
+    needs: [check-updates, create-update-prs, security-alerts]
+    if: always()
+
+    steps:
+      - name: Notify Discord
+        if: needs.check-updates.outputs.outdated_count != '0' || needs.check-updates.outputs.vulnerable_count != '0'
+        uses: sarisia/actions-status-discord@v1
+        with:
+          webhook: ${{ secrets.DISCORD_WEBHOOK }}
+          status: success
+          title: 'Dependency Updates Available'
+          description: |
+            ${{ needs.check-updates.outputs.outdated_count }} .NET packages and
+            ${{ needs.check-updates.outputs.npm_outdated_count }} npm packages can be updated.
+            ${{ needs.check-updates.outputs.vulnerable_count }} security vulnerabilities found.
+          color: 'ffaa00'

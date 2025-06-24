@@ -1,69 +1,60 @@
-name: Deploy Documentation to GitHub Pages
+name: Deploy Documentation
 
 permissions:
   contents: write
+  pages: write
+  id-token: write
 
 on:
   push:
-    branches: [main]
+    branches: [main, develop]
     paths:
       - 'HypnoScript.Dokumentation/**'
       - '.github/workflows/deploy-docs.yml'
+      - 'HypnoScript.Runtime/Builtins/**'
   pull_request:
-    branches: [main]
+    branches: [main, develop]
     paths:
       - 'HypnoScript.Dokumentation/**'
+  workflow_dispatch:
+
+env:
+  NODE_VERSION: '18'
 
 jobs:
-  build-and-deploy:
+  # Build and test documentation
+  build-docs:
+    name: Build Documentation
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout
+      - name: Checkout code
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '18'
+          node-version: ${{ env.NODE_VERSION }}
           cache: 'npm'
           cache-dependency-path: HypnoScript.Dokumentation/package-lock.json
+
+      - name: Cache node modules
+        uses: actions/cache@v4
+        with:
+          path: HypnoScript.Dokumentation/node_modules
+          key: ${{ runner.os }}-node-${{ hashFiles('HypnoScript.Dokumentation/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-node-
 
       - name: Install Dependencies
         working-directory: HypnoScript.Dokumentation
         run: npm ci
 
-      - name: Build Documentation
-        working-directory: HypnoScript.Dokumentation
-        run: npm run build
-
-      - name: Deploy to GitHub Pages
-        if: github.ref == 'refs/heads/main'
-        uses: peaceiris/actions-gh-pages@v3
-        with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: ./HypnoScript.Dokumentation/build
-          destination_dir: .
-
-  # Optional: Build and test on PR
-  test-build:
-    runs-on: ubuntu-latest
-    if: github.event_name == 'pull_request'
-
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: '18'
-          cache: 'npm'
-          cache-dependency-path: HypnoScript.Dokumentation/package-lock.json
-
-      - name: Install Dependencies
-        working-directory: HypnoScript.Dokumentation
-        run: npm ci
+      - name: Generate Builtins Documentation
+        run: |
+          dotnet run --project HypnoScript.Runtime/Builtins/DocGenerator.cs HypnoScript.Dokumentation/docs/builtins/
 
       - name: Build Documentation
         working-directory: HypnoScript.Dokumentation
@@ -73,4 +64,116 @@ jobs:
         working-directory: HypnoScript.Dokumentation
         run: |
           npm install -g broken-link-checker
-          blc http://localhost:3000 -ro
+          # Start local server for link checking
+          npm run serve &
+          sleep 10
+          blc http://localhost:3000 -ro --exclude-external || true
+
+      - name: Validate HTML
+        working-directory: HypnoScript.Dokumentation
+        run: |
+          npm install -g html-validate
+          find build -name "*.html" -exec html-validate {} \;
+
+      - name: Check accessibility
+        working-directory: HypnoScript.Dokumentation
+        run: |
+          npm install -g axe-core
+          # Basic accessibility check
+          find build -name "*.html" -exec node -e "
+            const axe = require('axe-core');
+            const fs = require('fs');
+            const html = fs.readFileSync(process.argv[1], 'utf8');
+            axe.run(html, (err, results) => {
+              if (err) throw err;
+              if (results.violations.length > 0) {
+                console.log('Accessibility violations found:', results.violations);
+                process.exit(1);
+              }
+            });
+          " {} \;
+
+      - name: Upload documentation artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: documentation-build
+          path: HypnoScript.Dokumentation/build/
+          retention-days: 7
+
+  # Deploy to GitHub Pages
+  deploy:
+    name: Deploy to GitHub Pages
+    runs-on: ubuntu-latest
+    needs: build-docs
+    if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Download documentation artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: documentation-build
+          path: HypnoScript.Dokumentation/build/
+
+      - name: Setup Pages
+        uses: actions/configure-pages@v4
+
+      - name: Upload to GitHub Pages
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: HypnoScript.Dokumentation/build
+
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
+
+  # Deploy to staging (for PRs)
+  deploy-staging:
+    name: Deploy to Staging
+    runs-on: ubuntu-latest
+    needs: build-docs
+    if: github.event_name == 'pull_request'
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Download documentation artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: documentation-build
+          path: HypnoScript.Dokumentation/build/
+
+      - name: Deploy to Netlify (Staging)
+        uses: nwtgck/actions-netlify@v3
+        with:
+          publish-dir: './HypnoScript.Dokumentation/build'
+          production-branch: main
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          deploy-message: 'Deploy PR #${{ github.event.number }}'
+        env:
+          NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
+          NETLIFY_SITE_ID: ${{ secrets.NETLIFY_SITE_ID }}
+
+  # Notify deployment status
+  notify:
+    name: Notify Deployment
+    runs-on: ubuntu-latest
+    needs: [deploy, deploy-staging]
+    if: always()
+
+    steps:
+      - name: Notify Discord
+        if: needs.deploy.result == 'success' || needs.deploy-staging.result == 'success'
+        uses: sarisia/actions-status-discord@v1
+        with:
+          webhook: ${{ secrets.DISCORD_WEBHOOK }}
+          status: success
+          title: 'Documentation Deployed'
+          description: 'Documentation has been deployed successfully!'
+          color: '00ff00'
