@@ -242,7 +242,7 @@ jobs:
           echo "EOF" >> $GITHUB_OUTPUT
 
       - name: Create GitHub Release
-        uses: softprops/action-gh-release@v1
+        uses: softprops/action-gh-release@v2
         with:
           tag_name: v${{ steps.version.outputs.version }}
           name: HypnoScript v${{ steps.version.outputs.version }}
@@ -253,6 +253,8 @@ jobs:
             packages/*/*.zip
             packages/*/*.deb
             packages/*/*.sha256
+          generate_release_notes: true
+          fail_on_unmatched_files: false
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
@@ -278,11 +280,17 @@ jobs:
         run: echo "version=${GITHUB_REF#refs/tags/}" >> $GITHUB_OUTPUT
 
       - name: Calculate SHA256 for winget
+        id: sha256
         run: |
           version="${{ steps.version.outputs.version }}"
           package_file="packages/HypnoScript-windows-x64-$version.zip"
-          sha256=$(sha256sum "$package_file" | awk '{print $1}')
-          echo "sha256=$sha256" >> $GITHUB_OUTPUT
+          if [ -f "$package_file" ]; then
+            sha256=$(sha256sum "$package_file" | awk '{print $1}')
+            echo "sha256=$sha256" >> $GITHUB_OUTPUT
+          else
+            echo "Package file not found: $package_file" >&2
+            exit 1
+          fi
 
       - name: Update winget manifest
         run: |
@@ -334,3 +342,4 @@ jobs:
           title: 'HypnoScript Release Successful'
           description: 'Version ${{ github.ref_name }} has been released successfully!'
           color: '00ff00'
+        continue-on-error: true

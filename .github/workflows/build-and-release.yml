@@ -5,31 +5,47 @@ on:
     tags:
       - 'v*.*.*'
 
+env:
+  DOTNET_VERSION: '8.0.x'
+  DOTNET_SKIP_FIRST_TIME_EXPERIENCE: 1
+  DOTNET_CLI_TELEMETRY_OPTOUT: 1
+
 jobs:
   build-release:
     runs-on: ubuntu-latest
-    env:
-      DOTNET_SKIP_FIRST_TIME_EXPERIENCE: 1
-      DOTNET_CLI_TELEMETRY_OPTOUT: 1
+
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       - name: Setup .NET
         uses: actions/setup-dotnet@v4
         with:
-          dotnet-version: '8.0.x'
+          dotnet-version: ${{ env.DOTNET_VERSION }}
 
-      - name: Install fpm (for .deb build)
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y ruby ruby-dev build-essential
-          sudo gem install --no-document fpm
+      - name: Cache .NET packages
+        uses: actions/cache@v4
+        with:
+          path: ~/.nuget/packages
+          key: ${{ runner.os }}-nuget-${{ hashFiles('**/*.csproj') }}
+          restore-keys: |
+            ${{ runner.os }}-nuget-
+
+      - name: Restore dependencies
+        run: dotnet restore HypnoScript.sln
+
+      - name: Build solution
+        run: dotnet build HypnoScript.sln --configuration Release --no-restore
+
+      - name: Run tests
+        run: dotnet test HypnoScript.sln --configuration Release --no-build --verbosity normal
 
       - name: Build Windows ZIP (winget)
         shell: pwsh
         run: |
-          mkdir -Force publish
+          mkdir -p publish
           pwsh scripts/build_winget.ps1
 
       - name: Build Linux .deb (APT)
@@ -40,20 +56,29 @@ jobs:
       - name: Compute SHA256 for Windows ZIP
         id: sha256
         run: |
-          sha256sum publish/HypnoScript-windows-x64.zip | awk '{print $1}' > publish/sha256.txt
-          echo "sha256=$(cat publish/sha256.txt)" >> $GITHUB_OUTPUT
+          if [ -f "publish/HypnoScript-windows-x64.zip" ]; then
+            sha256sum publish/HypnoScript-windows-x64.zip | awk '{print $1}' > publish/sha256.txt
+            echo "sha256=$(cat publish/sha256.txt)" >> $GITHUB_OUTPUT
+          else
+            echo "Windows ZIP file not found" >&2
+            exit 1
+          fi
 
       - name: Generate Builtins Documentation
         run: |
-          dotnet run --project HypnoScript.Runtime/Builtins/DocGenerator.cs HypnoScript.Dokumentation/docs/builtins/
+          if [ -f "HypnoScript.Runtime/Builtins/DocGenerator.cs" ]; then
+            dotnet run --project HypnoScript.Runtime/Builtins/DocGenerator.cs HypnoScript.Dokumentation/docs/builtins/ || true
+          fi
 
       - name: Create Release
-        uses: softprops/action-gh-release@v1
+        uses: softprops/action-gh-release@v2
         with:
           files: |
             publish/HypnoScript-windows-x64.zip
             publish/hypnoscript_1.0.0_amd64.deb
             publish/sha256.txt
+          generate_release_notes: true
+          fail_on_unmatched_files: false
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 

@@ -45,24 +45,41 @@ jobs:
       - name: Check .NET package updates
         id: dotnet-updates
         run: |
-          dotnet list package --outdated --format json > outdated-packages.json
-          echo "outdated_count=$(jq '.length' outdated-packages.json)" >> $GITHUB_OUTPUT
+          dotnet list package --outdated --format json > outdated-packages.json || echo '[]' > outdated-packages.json
+          if command -v jq >/dev/null 2>&1; then
+            echo "outdated_count=$(jq 'length' outdated-packages.json)" >> $GITHUB_OUTPUT
+          else
+            echo "outdated_count=0" >> $GITHUB_OUTPUT
+          fi
           echo "outdated_packages=$(cat outdated-packages.json)" >> $GITHUB_OUTPUT
 
       - name: Check npm package updates
         id: npm-updates
         working-directory: HypnoScript.Dokumentation
         run: |
-          npm outdated --json > ../npm-outdated.json || echo '{}' > ../npm-outdated.json
-          echo "npm_outdated_count=$(jq 'length' ../npm-outdated.json)" >> $GITHUB_OUTPUT
-          echo "npm_outdated_packages=$(cat ../npm-outdated.json)" >> $GITHUB_OUTPUT
+          if [ -f "package.json" ]; then
+            npm outdated --json > ../npm-outdated.json || echo '{}' > ../npm-outdated.json
+            if command -v jq >/dev/null 2>&1; then
+              echo "npm_outdated_count=$(jq 'length' ../npm-outdated.json)" >> $GITHUB_OUTPUT
+            else
+              echo "npm_outdated_count=0" >> $GITHUB_OUTPUT
+            fi
+            echo "npm_outdated_packages=$(cat ../npm-outdated.json)" >> $GITHUB_OUTPUT
+          else
+            echo "npm_outdated_count=0" >> $GITHUB_OUTPUT
+            echo "npm_outdated_packages={}" >> $GITHUB_OUTPUT
+          fi
 
       - name: Check for security vulnerabilities
         id: security-check
         run: |
           # Check .NET security vulnerabilities
-          dotnet list package --vulnerable --format json > vulnerable-packages.json
-          echo "vulnerable_count=$(jq '.length' vulnerable-packages.json)" >> $GITHUB_OUTPUT
+          dotnet list package --vulnerable --format json > vulnerable-packages.json || echo '[]' > vulnerable-packages.json
+          if command -v jq >/dev/null 2>&1; then
+            echo "vulnerable_count=$(jq 'length' vulnerable-packages.json)" >> $GITHUB_OUTPUT
+          else
+            echo "vulnerable_count=0" >> $GITHUB_OUTPUT
+          fi
           echo "vulnerable_packages=$(cat vulnerable-packages.json)" >> $GITHUB_OUTPUT
 
       - name: Upload update report

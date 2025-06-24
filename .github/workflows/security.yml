@@ -1,0 +1,183 @@
+name: Security Analysis
+
+on:
+  schedule:
+    - cron: '0 6 * * *' # Daily at 6 AM UTC
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main, develop]
+  workflow_dispatch:
+
+env:
+  DOTNET_VERSION: '8.0.x'
+
+jobs:
+  # Static Application Security Testing
+  sast:
+    name: SAST Analysis
+    runs-on: ubuntu-latest
+
+    permissions:
+      security-events: write
+      contents: read
+      actions: read
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: ${{ env.DOTNET_VERSION }}
+
+      - name: Initialize CodeQL
+        uses: github/codeql-action/init@v3
+        with:
+          languages: csharp
+          queries: security-extended,security-and-quality
+
+      - name: Build for CodeQL
+        run: |
+          dotnet restore HypnoScript.sln
+          dotnet build HypnoScript.sln --configuration Release --no-restore
+
+      - name: Perform CodeQL Analysis
+        uses: github/codeql-action/analyze@v3
+
+      - name: Run Semgrep
+        uses: returntocorp/semgrep-action@v1
+        with:
+          config: >-
+            p/security-audit
+            p/secrets
+            p/owasp-top-ten
+        continue-on-error: true
+
+  # Dependency Vulnerability Scanning
+  dependency-scan:
+    name: Dependency Scan
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: ${{ env.DOTNET_VERSION }}
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+
+      - name: Install jq for JSON parsing
+        run: sudo apt-get update && sudo apt-get install -y jq
+
+      - name: Check .NET vulnerabilities
+        run: |
+          dotnet list package --vulnerable --format json > vulnerable-packages.json || echo '[]' > vulnerable-packages.json
+          vulnerable_count=$(jq 'length' vulnerable-packages.json)
+          echo "Found $vulnerable_count vulnerable .NET packages"
+
+          if [ "$vulnerable_count" -gt 0 ]; then
+            echo "::warning::Found $vulnerable_count vulnerable .NET packages"
+            cat vulnerable-packages.json
+          fi
+
+      - name: Check npm vulnerabilities
+        working-directory: HypnoScript.Dokumentation
+        run: |
+          if [ -f "package.json" ]; then
+            npm audit --audit-level=high --json > ../npm-audit.json || echo '{}' > ../npm-audit.json
+            if [ -s "../npm-audit.json" ]; then
+              echo "::warning::npm audit found vulnerabilities"
+              cat ../npm-audit.json
+            fi
+          fi
+        continue-on-error: true
+
+      - name: Upload vulnerability reports
+        uses: actions/upload-artifact@v4
+        with:
+          name: vulnerability-reports
+          path: |
+            vulnerable-packages.json
+            npm-audit.json
+          retention-days: 30
+
+  # Secret Scanning
+  secret-scan:
+    name: Secret Scan
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Run TruffleHog
+        uses: trufflesecurity/trufflehog@main
+        with:
+          path: ./
+          base: main
+          head: HEAD
+          extra_args: --debug --only-verified
+        continue-on-error: true
+
+      - name: Check for common secrets patterns
+        run: |
+          # Check for common secret patterns
+          patterns=(
+            "password\s*[:=]\s*['\"][^'\"]{8,}['\"]"
+            "api[_-]?key\s*[:=]\s*['\"][^'\"]{16,}['\"]"
+            "secret\s*[:=]\s*['\"][^'\"]{16,}['\"]"
+            "token\s*[:=]\s*['\"][^'\"]{16,}['\"]"
+          )
+
+          found_secrets=false
+          for pattern in "${patterns[@]}"; do
+            if grep -rE "$pattern" --include="*.cs" --include="*.json" --include="*.yml" --include="*.yaml" . | grep -v "test\|example\|sample"; then
+              echo "::warning::Potential secret found matching pattern: $pattern"
+              found_secrets=true
+            fi
+          done
+
+          if [ "$found_secrets" = true ]; then
+            echo "::warning::Potential hardcoded secrets detected. Please review."
+          fi
+        continue-on-error: true
+
+  # Security Summary
+  security-summary:
+    name: Security Summary
+    runs-on: ubuntu-latest
+    needs: [sast, dependency-scan, secret-scan]
+    if: always()
+
+    steps:
+      - name: Generate security summary
+        run: |
+          echo "## 🔒 Security Analysis Summary" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "| Analysis Type | Status |" >> $GITHUB_STEP_SUMMARY
+          echo "|---------------|--------|" >> $GITHUB_STEP_SUMMARY
+          echo "| SAST | ${{ needs.sast.result }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Dependency Scan | ${{ needs.dependency-scan.result }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Secret Scan | ${{ needs.secret-scan.result }} |" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+
+          if [[ "${{ needs.sast.result }}" == "success" && "${{ needs.dependency-scan.result }}" == "success" && "${{ needs.secret-scan.result }}" == "success" ]]; then
+            echo "✅ **All security checks passed!**" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "⚠️ **Some security checks need attention. Please review the results.**" >> $GITHUB_STEP_SUMMARY
+          fi
+
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### Recommendations:" >> $GITHUB_STEP_SUMMARY
+          echo "- Review any detected vulnerabilities" >> $GITHUB_STEP_SUMMARY
+          echo "- Update dependencies with known security issues" >> $GITHUB_STEP_SUMMARY
+          echo "- Remove any hardcoded secrets" >> $GITHUB_STEP_SUMMARY
+          echo "- Use GitHub Secrets for sensitive configuration" >> $GITHUB_STEP_SUMMARY
