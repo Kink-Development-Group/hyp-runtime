@@ -41,37 +41,35 @@ export default function Home(): ReactNode {
       <main>
         <div className="container margin-vert--xl">
           <div className="text--center">
-            <Heading as="h2">🚀 Download</Heading>
+            <Heading as="h2">🚀 Installation</Heading>
             <p className="text--lg">
-              Lade die neueste Version der HypnoScript-Runtime herunter und
-              starte deine hypnotische Programmierreise.
+              Installiere HypnoScript plattformübergreifend mit den offiziellen
+              Paketmanagern oder lade die Pakete direkt von GitHub Releases
+              herunter.
             </p>
             <div className={styles.buttons}>
-              {/* <Link
-                className="button button--primary button--lg margin-horiz--sm"
-                to="/downloads/HypnoScript.Runtime.exe"
-                download
-              >
-                Windows (x64)
-              </Link> */}
-              <Link
-                className="button button--secondary button--lg margin-horiz--sm"
-                to="#"
-              >
-                Windows (x64) (Download demnächst)
-              </Link>
-              <Link
-                className="button button--secondary button--lg margin-horiz--sm"
-                to="#"
-              >
-                Linux (x64)
-              </Link>
-              <Link
-                className="button button--secondary button--lg margin-horiz--sm"
-                to="#"
-              >
-                macOS (x64)
-              </Link>
+              <div style={{ marginBottom: '1em' }}>
+                <b>Windows (winget):</b>
+                <pre style={{ display: 'inline-block', margin: 0 }}>
+                  <code>winget install HypnoScript.HypnoScript</code>
+                </pre>
+              </div>
+              <div style={{ marginBottom: '1em' }}>
+                <b>Linux (APT):</b>
+                <pre style={{ display: 'inline-block', margin: 0 }}>
+                  <code>sudo apt update{`\n`}sudo apt install hypnoscript</code>
+                </pre>
+              </div>
+              <div style={{ marginBottom: '1em' }}>
+                <b>Alle Pakete & manuelle Downloads:</b>
+                <Link
+                  className="button button--primary button--lg margin-horiz--sm"
+                  to="https://github.com/Kink-Development-Group/hyp-runtime/releases"
+                  target="_blank"
+                >
+                  GitHub Releases
+                </Link>
+              </div>
             </div>
           </div>
         </div>

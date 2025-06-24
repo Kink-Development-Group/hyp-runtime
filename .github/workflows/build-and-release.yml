@@ -1,0 +1,62 @@
+name: Build & Release HypnoScript
+
+on:
+  push:
+    tags:
+      - 'v*.*.*'
+
+jobs:
+  build-release:
+    runs-on: ubuntu-latest
+    env:
+      DOTNET_SKIP_FIRST_TIME_EXPERIENCE: 1
+      DOTNET_CLI_TELEMETRY_OPTOUT: 1
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8.0.x'
+
+      - name: Install fpm (for .deb build)
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y ruby ruby-dev build-essential
+          sudo gem install --no-document fpm
+
+      - name: Build Windows ZIP (winget)
+        shell: pwsh
+        run: |
+          mkdir -Force publish
+          pwsh scripts/build_winget.ps1
+
+      - name: Build Linux .deb (APT)
+        run: |
+          mkdir -p publish
+          bash scripts/build_deb.sh
+
+      - name: Compute SHA256 for Windows ZIP
+        id: sha256
+        run: |
+          sha256sum publish/HypnoScript-windows-x64.zip | awk '{print $1}' > publish/sha256.txt
+          echo "sha256=$(cat publish/sha256.txt)" >> $GITHUB_OUTPUT
+
+      - name: Create Release
+        uses: softprops/action-gh-release@v1
+        with:
+          files: |
+            publish/HypnoScript-windows-x64.zip
+            publish/hypnoscript_1.0.0_amd64.deb
+            publish/sha256.txt
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Print SHA256 for winget manifest
+        run: |
+          echo "SHA256 for winget-manifest.yaml: ${{ steps.sha256.outputs.sha256 }}"
+
+      - name: Hinweis für winget-Update
+        run: |
+          echo 'Bitte SHA256 in scripts/winget-manifest.yaml aktualisieren und PR an winget-pkgs stellen.'

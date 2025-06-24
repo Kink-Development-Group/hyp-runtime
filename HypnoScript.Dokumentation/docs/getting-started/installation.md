@@ -236,23 +236,34 @@ Bei Problemen:
 
 **Installation erfolgreich? Dann lass uns mit dem [Schnellstart-Guide](./quick-start) beginnen!** 🚀
 
-## Installation via Paketmanager
+## Automatisierte Releases & Paketmanager
+
+Bei jedem neuen Release werden automatisch folgende Pakete gebaut und als Release-Artefakte auf GitHub bereitgestellt:
+
+- **Windows ZIP**: Für die Installation via winget oder manuell
+- **Linux .deb**: Für die Installation via APT oder manuell
+- **SHA256-Hash**: Für das winget-Manifest
+
+Die jeweils aktuellen Pakete findest du unter [GitHub Releases](https://github.com/Kink-Development-Group/hyp-runtime/releases).
 
 ### Windows (winget)
-
-Mit dem Windows Package Manager (ab Windows 10):
 
 ```powershell
 winget install HypnoScript.HypnoScript
 ```
 
-### Linux (APT)
+Das winget-Manifest wird nach jedem Release aktualisiert. Die SHA256-Prüfsumme findest du im Release oder im Workflow-Log.
 
-Für Debian/Ubuntu-basierte Systeme:
+### Linux (APT)
 
 ```bash
 sudo apt update
 sudo apt install hypnoscript
 ```
 
-Die Pakete installieren die CLI und Runtime global und machen den Befehl `hypnoscript` überall verfügbar.
+Alternativ kann das .deb-Paket direkt aus dem Release heruntergeladen und installiert werden:
+
+```bash
+sudo dpkg -i hypnoscript_1.0.0_amd64.deb
+sudo apt-get install -f  # fehlende Abhängigkeiten ggf. nachinstallieren
+```

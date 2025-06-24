@@ -35,6 +35,25 @@ sudo apt update
 sudo apt install hypnoscript
 ```
 
+## Automatisierte Releases & Paketmanager
+
+Die aktuellen Installationspakete (ZIP für Windows/winget, .deb für Linux/APT) werden bei jedem Release automatisch gebaut und als Artefakte auf GitHub bereitgestellt:
+
+- [GitHub Releases](https://github.com/Kink-Development-Group/hyp-runtime/releases)
+
+### Installation mit winget (Windows)
+
+```powershell
+winget install HypnoScript.HypnoScript
+```
+
+### Installation mit APT (Linux)
+
+```bash
+sudo apt update
+sudo apt install hypnoscript
+```
+
 ## Grundlegende Verwendung
 
 ```bash
