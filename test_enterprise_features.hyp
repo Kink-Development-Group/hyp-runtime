@@ -1,6 +1,6 @@
 Focus {
     entrance {
-        observe "🚀 === HypnoScript Enterprise Edition - Advanced Features Demo ===";
+        observe "🚀 === HypnoScript Runtime Edition - Advanced Features Demo ===";
         drift(1000);
         observe "Welcome to the most advanced HypnoScript experience!";
         drift(500);
@@ -25,7 +25,7 @@ Focus {
     observe "=== File and Directory Operations ===";
 
     // Testdatei erstellen
-    induce testContent: string = "This is a test file created by HypnoScript Enterprise Edition!\nLine 2: Advanced features working perfectly.\nLine 3: File operations are amazing!";
+    induce testContent: string = "This is a test file created by HypnoScript Runtime Edition!\nLine 2: Advanced features working perfectly.\nLine 3: File operations are amazing!";
     WriteFile("test_output.txt", testContent);
 
     // Datei lesen und analysieren
@@ -101,7 +101,7 @@ Focus {
     // ===== ERWEITERTE STRING-FUNKTIONEN =====
     observe "=== Advanced String Functions ===";
 
-    induce sampleText: string = "  HypnoScript Enterprise Edition is INCREDIBLE!  ";
+    induce sampleText: string = "  HypnoScript Runtime Edition is INCREDIBLE!  ";
     observe "Original text: '" + sampleText + "'";
 
     observe "Advanced String Operations:";
@@ -166,9 +166,9 @@ Focus {
     // ===== ERWEITERTE DEBUGGING-FUNKTIONEN =====
     observe "=== Advanced Debugging Functions ===";
 
-    DebugPrint("This is a debug message from HypnoScript Enterprise");
+    DebugPrint("This is a debug message from HypnoScript Runtime");
     DebugPrintType(42);
-    DebugPrintType("Hello Enterprise World");
+    DebugPrintType("Hello Runtime World");
     DebugPrintType(true);
     DebugPrintType(3.14159);
     DebugPrintMemory();
@@ -305,7 +305,7 @@ Focus {
 
     observe "Advanced Person Operations:";
     observe "  " + advancedPerson.getInfo();
-    advancedPerson.addSkill("Enterprise Development");
+    advancedPerson.addSkill("Runtime Development");
     observe "  After adding skill: " + advancedPerson.getInfo();
     observe "  Has 'AI Programming' skill: " + advancedPerson.hasSkill("AI Programming");
     advancedPerson.celebrateBirthday();
@@ -313,9 +313,9 @@ Focus {
     // ===== FINALE DEMONSTRATION =====
     observe "=== Final Demonstration ===";
 
-    observe "🎉 All Enterprise Features Successfully Demonstrated!";
+    observe "🎉 All Runtime Features Successfully Demonstrated!";
     drift(1000);
-    observe "HypnoScript Enterprise Edition is ready for production use!";
+    observe "HypnoScript Runtime Edition is ready for production use!";
     drift(500);
     observe "Thank you for experiencing the future of programming! 🚀";
 

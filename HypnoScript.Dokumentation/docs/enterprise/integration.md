@@ -1,7 +1,7 @@
 ---
-title: Enterprise Integration
+title: Runtime Integration
 ---
 
-# Enterprise Integration
+# Runtime Integration
 
 This page will document enterprise integration features. Content coming soon.

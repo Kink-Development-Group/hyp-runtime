@@ -214,7 +214,7 @@ namespace HypnoScript.Runtime
 			Console.WriteLine($"[DEBUG] Type: {value?.GetType().Name ?? "null"}");
 		}
 
-		// ===== ERWEITERTE HYPNOTISCHE FUNKTIONEN (Enterprise) =====
+		// ===== ERWEITERTE HYPNOTISCHE FUNKTIONEN (Runtime) =====
 		public static void HypnoticBreathing(int cycles = 5)
 		{
 			Observe("Let's practice hypnotic breathing...");

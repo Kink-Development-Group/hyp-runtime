@@ -1,0 +1,5 @@
+#!/bin/bash
+set -e
+
+# prerm: Entfernt Symlinks vor der Deinstallation
+rm -f /usr/bin/hypnoscript || true

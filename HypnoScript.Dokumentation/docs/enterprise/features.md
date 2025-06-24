@@ -2,9 +2,9 @@
 sidebar_position: 1
 ---
 
-# Enterprise-Features
+# Runtime-Features
 
-HypnoScript bietet umfassende Enterprise-Features für professionelle Anwendungen in Unternehmensumgebungen.
+HypnoScript bietet umfassende Runtime-Features für professionelle Anwendungen in Unternehmensumgebungen.
 
 ## Sicherheit
 
@@ -556,9 +556,9 @@ Focus {
 } Relax;
 ```
 
-## Enterprise-Konfiguration
+## Runtime-Konfiguration
 
-### Enterprise-Konfigurationsdatei
+### Runtime-Konfigurationsdatei
 
 ```json
 {
@@ -673,11 +673,11 @@ Focus {
 
 ## Nächste Schritte
 
-- [Enterprise-Architektur](./architecture) - Enterprise-Architektur-Patterns
-- [Enterprise-Sicherheit](./security) - Erweiterte Sicherheitsfeatures
-- [Enterprise-Monitoring](./monitoring) - Monitoring und Alerting
-- [Enterprise-Integration](./integration) - Integration mit Enterprise-Systemen
+- [Runtime-Architektur](./architecture) - Runtime-Architektur-Patterns
+- [Runtime-Sicherheit](./security) - Erweiterte Sicherheitsfeatures
+- [Runtime-Monitoring](./monitoring) - Monitoring und Alerting
+- [Runtime-Integration](./integration) - Integration mit Runtime-Systemen
 
 ---
 
-**Enterprise-Features gemeistert? Dann lerne [Enterprise-Architektur](./architecture) kennen!** 🏢
+**Runtime-Features gemeistert? Dann lerne [Runtime-Architektur](./architecture) kennen!** 🏢

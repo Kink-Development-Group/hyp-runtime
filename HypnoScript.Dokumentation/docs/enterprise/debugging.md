@@ -1,10 +1,10 @@
 ---
-title: Enterprise Debugging
+title: Runtime Debugging
 ---
 
-# Enterprise Debugging
+# Runtime Debugging
 
-Die Enterprise-Edition von HypnoScript bietet erweiterte Debugging- und Monitoring-Funktionen für große Projekte und Teams.
+Die Runtime-Edition von HypnoScript bietet erweiterte Debugging- und Monitoring-Funktionen für große Projekte und Teams.
 
 ## Web- und API-Server
 

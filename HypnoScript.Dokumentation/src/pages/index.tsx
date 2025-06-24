@@ -205,7 +205,7 @@ export default function Home(): ReactNode {
                       Funktionen, Sessions
                     </li>
                     <li>
-                      <strong>Enterprise-Ready:</strong> CLI, Tests, Debugging,
+                      <strong>Runtime-Ready:</strong> CLI, Tests, Debugging,
                       Deployment
                     </li>
                     <li>

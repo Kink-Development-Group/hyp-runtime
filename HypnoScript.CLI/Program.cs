@@ -17,8 +17,8 @@ namespace HypnoScript.CLI
     {
         public static int Main(string[] args)
         {
-            Console.WriteLine("=== HypnoScript CLI - Enterprise Edition v3.0.0 ===");
-            Console.WriteLine($"Version: 3.0.0 | Args: {string.Join(" ", args)}");
+            Console.WriteLine("=== HypnoScript CLI - Runtime Edition v1.0.0 ===");
+            Console.WriteLine($"Version: 1.0.0 | Args: {string.Join(" ", args)}");
 
             if (args.Length < 1)
             {
@@ -169,7 +169,7 @@ namespace HypnoScript.CLI
 
         private static void ShowUsage()
         {
-            Console.WriteLine("HypnoScript CLI - Enterprise Edition v3.0.0");
+            Console.WriteLine("HypnoScript CLI - Runtime Edition v1.0.0");
             Console.WriteLine("Usage:");
             Console.WriteLine("  dotnet run -- run <file.hyp> [--debug] [--verbose]     - Execute HypnoScript code");
             Console.WriteLine("  dotnet run -- compile <file.hyp> [--debug] [--verbose] - Compile to WASM (.wat)");
@@ -190,7 +190,7 @@ namespace HypnoScript.CLI
             Console.WriteLine("  dotnet run -- version                                 - Show version");
             Console.WriteLine("  dotnet run -- help                                    - Show this help");
             Console.WriteLine();
-            Console.WriteLine("Enterprise Features:");
+            Console.WriteLine("Runtime Features:");
             Console.WriteLine("  - Web Server with real-time compilation");
             Console.WriteLine("  - REST API Server with automatic routing");
             Console.WriteLine("  - Cloud deployment (AWS, Azure, GCP)");
@@ -205,11 +205,11 @@ namespace HypnoScript.CLI
 
         private static void ShowVersion()
         {
-            Console.WriteLine("HypnoScript CLI v3.0.0");
-            Console.WriteLine("Enterprise Edition with Advanced Features");
+            Console.WriteLine("HypnoScript CLI v1.0.0");
+            Console.WriteLine("Runtime Edition with Advanced Features");
             Console.WriteLine("Built with .NET 8.0");
             Console.WriteLine("Features: Lexer, Parser, TypeChecker, Interpreter, WASM CodeGen");
-            Console.WriteLine("Enterprise: Web Server, API Server, Cloud Deployment, Monitoring");
+            Console.WriteLine("Runtime: Web Server, API Server, Cloud Deployment, Monitoring");
         }
 
         private static int RunFile(string filePath, bool debug, bool verbose)
@@ -556,7 +556,7 @@ namespace HypnoScript.CLI
                 Console.WriteLine("🔧 API Docs: http://localhost:8080/api/docs");
 
                 Console.WriteLine("\n⚠️  Web server is not yet fully implemented.");
-                Console.WriteLine("   This is a placeholder for the Enterprise Edition feature.");
+                Console.WriteLine("   This is a placeholder for the Runtime Edition feature.");
 
                 return 0;
             }
@@ -597,7 +597,7 @@ namespace HypnoScript.CLI
                 Console.WriteLine("📊 Metrics: http://localhost:5000/metrics");
 
                 Console.WriteLine("\n⚠️  API server is not yet fully implemented.");
-                Console.WriteLine("   This is a placeholder for the Enterprise Edition feature.");
+                Console.WriteLine("   This is a placeholder for the Runtime Edition feature.");
 
                 return 0;
             }
@@ -640,7 +640,7 @@ namespace HypnoScript.CLI
                 Console.WriteLine("  - Kubernetes clusters");
 
                 Console.WriteLine("\n⚠️  Deployment is not yet fully implemented.");
-                Console.WriteLine("   This is a placeholder for the Enterprise Edition feature.");
+                Console.WriteLine("   This is a placeholder for the Runtime Edition feature.");
 
                 return 0;
             }
@@ -684,7 +684,7 @@ namespace HypnoScript.CLI
                 Console.WriteLine("  - System resource utilization");
 
                 Console.WriteLine("\n⚠️  Monitoring is not yet fully implemented.");
-                Console.WriteLine("   This is a placeholder for the Enterprise Edition feature.");
+                Console.WriteLine("   This is a placeholder for the Runtime Edition feature.");
 
                 return 0;
             }
@@ -830,7 +830,7 @@ namespace HypnoScript.CLI
                 Console.WriteLine("  - Swagger/OpenAPI specs");
 
                 Console.WriteLine("\n⚠️  Documentation generation is not yet fully implemented.");
-                Console.WriteLine("   This is a placeholder for the Enterprise Edition feature.");
+                Console.WriteLine("   This is a placeholder for the Runtime Edition feature.");
 
                 return 0;
             }

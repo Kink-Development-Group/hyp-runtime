@@ -135,7 +135,7 @@ npm run deploy
 - Konfiguration
 - Testing
 - Debugging
-- Enterprise-Features
+- Runtime-Features
 
 ### Beispiele
 

@@ -404,7 +404,7 @@ echo "Workflow completed successfully!"
 
 - [CLI-Befehle Referenz](../cli/commands) - Vollständige CLI-Referenz
 - [Konfiguration](../cli/configuration) - Erweiterte Konfiguration
-- [Enterprise-Features](../enterprise/features) - Enterprise-Funktionen
+- [Runtime-Features](../enterprise/features) - Runtime-Funktionen
 
 ---
 

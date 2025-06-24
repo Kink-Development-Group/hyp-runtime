@@ -1,4 +1,4 @@
-# HypnoScript CLI - Enterprise Edition
+# HypnoScript CLI - Runtime Edition
 
 Eine vollständige Command-Line-Interface für die HypnoScript-Programmiersprache mit drei Hauptmodi: Run, Compile und Analyze.
 
@@ -243,5 +243,5 @@ Neue Befehle können einfach hinzugefügt werden:
 
 ## Lizenz
 
-HypnoScript CLI - Enterprise Edition
+HypnoScript CLI - Runtime Edition
 Copyright (c) 2024 HypnoScript Team

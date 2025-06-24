@@ -1,6 +1,6 @@
 Focus {
     entrance {
-        observe "HypnoScript Enterprise v3.0.0 - Medium Test";
+        observe "HypnoScript Runtime v1.0.0 - Medium Test";
         drift(100);
     }
 
@@ -13,7 +13,7 @@ Focus {
 
     // ===== STRING OPERATIONS =====
     observe "=== String Operations ===";
-    induce text = "Hello HypnoScript Enterprise";
+    induce text = "Hello HypnoScript Runtime";
     induce length = StringLength(text);
     observe "Text length: " + length;
     induce upper = StringToUpper(text);
@@ -49,14 +49,14 @@ Focus {
 
     // ===== FILE OPERATIONS =====
     observe "=== File Operations ===";
-    induce content = "Test file created by HypnoScript Enterprise v3.0.0";
+    induce content = "Test file created by HypnoScript Runtime v1.0.0";
     WriteFile("medium_test_output.txt", content);
     induce readContent = ReadFile("medium_test_output.txt");
     observe "File content: " + readContent;
 
     // ===== JSON OPERATIONS =====
     observe "=== JSON Operations ===";
-    induce data = CreateRecord(["name", "version"], ["HypnoScript", "3.0.0"]);
+    induce data = CreateRecord(["name", "version"], ["HypnoScript", "1.0.0"]);
     induce jsonString = ToJson(data);
     observe "JSON: " + jsonString;
 

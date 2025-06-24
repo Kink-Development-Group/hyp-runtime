@@ -4,7 +4,7 @@ using System.Linq;
 
 namespace HypnoScript.Core.Symbols
 {
-	// Enterprise-Level: Erweiterte SymbolTable mit Debugging und Scope-Analyse
+	// Runtime-Level: Erweiterte SymbolTable mit Debugging und Scope-Analyse
 	public class SymbolTable
 	{
 		private readonly SymbolTable? _enclosing;
@@ -62,7 +62,7 @@ namespace HypnoScript.Core.Symbols
 			return true;
 		}
 
-		// Enterprise-Level: Methode, um den aktuellen Scope-Stack als String auszugeben
+		// Runtime-Level: Methode, um den aktuellen Scope-Stack als String auszugeben
 		public string DebugScope()
 		{
 			var result = $"Scope '{ScopeName}' (Level {ScopeLevel}):\n";
@@ -81,7 +81,7 @@ namespace HypnoScript.Core.Symbols
 			return result;
 		}
 
-		// Neue Enterprise-Features
+		// Neue Runtime-Features
 		public IEnumerable<Symbol> GetAllSymbols()
 		{
 			return _symbols.Values.OrderBy(s => s.Name);

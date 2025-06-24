@@ -1,6 +1,6 @@
-# Enterprise API Management
+# Runtime API Management
 
-HypnoScript bietet umfassende API-Management-Funktionen für Enterprise-Umgebungen, einschließlich API-Design, Versionierung, Rate Limiting, Authentifizierung und umfassende Dokumentation.
+HypnoScript bietet umfassende API-Management-Funktionen für Runtime-Umgebungen, einschließlich API-Design, Versionierung, Rate Limiting, Authentifizierung und umfassende Dokumentation.
 
 ## API-Design
 
@@ -747,7 +747,7 @@ rate_limiting {
             requests_per_day: 50000
         }
 
-        // Enterprise-Benutzer
+        // Runtime-Benutzer
         enterprise: {
             requests_per_minute: 1000
             requests_per_hour: 10000
@@ -808,7 +808,7 @@ openapi {
     info: {
         title: "HypnoScript API"
         version: "1.0.0"
-        description: "Enterprise API für HypnoScript-Scripting und -Ausführung"
+        description: "Runtime API für HypnoScript-Scripting und -Ausführung"
         contact: {
             name: "HypnoScript Support"
             email: "api-support@example.com"
@@ -1331,4 +1331,4 @@ api_monitoring {
 - [ ] Security-Tests durchgeführt
 - [ ] Performance-Tests durchgeführt
 
-Diese API-Management-Funktionen stellen sicher, dass HypnoScript in Enterprise-Umgebungen sichere, skalierbare und gut dokumentierte APIs bereitstellt.
+Diese API-Management-Funktionen stellen sicher, dass HypnoScript in Runtime-Umgebungen sichere, skalierbare und gut dokumentierte APIs bereitstellt.

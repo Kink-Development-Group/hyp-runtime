@@ -432,7 +432,7 @@ dotnet run --project HypnoScript.CLI -- debug script.hyp --step
 - [Konfiguration](./configuration) - Erweiterte Konfiguration
 - [Testing](./testing) - Test-Framework
 - [Debugging](./debugging) - Debugging-Tools
-- [Enterprise-Features](./enterprise-features) - Enterprise-Features
+- [Runtime-Features](./enterprise-features) - Runtime-Features
 
 ---
 

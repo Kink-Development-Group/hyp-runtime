@@ -4,7 +4,7 @@ using System.Reflection.Emit;
 
 namespace HypnoScript.Compiler.CodeGen
 {
-	// Enterprise-Level: Definition einer einfachen Intermediate Representation (IR) für IL-Anweisungen.
+	// Runtime-Level: Definition einer einfachen Intermediate Representation (IR) für IL-Anweisungen.
 	public class IlInstruction
 	{
 		public OpCode Opcode { get; set; }
@@ -23,7 +23,7 @@ namespace HypnoScript.Compiler.CodeGen
 
 	public static class ILCodeOptimizer
 	{
-		// Enterprise-Level: Optimiert den IL-Code, indem überflüssige Box/Unbox-Aufrufe entfernt werden.
+		// Runtime-Level: Optimiert den IL-Code, indem überflüssige Box/Unbox-Aufrufe entfernt werden.
 		// Diese Methode arbeitet anhand einer Liste von IlInstruction und gibt eine optimierte Liste zurück.
 		public static List<IlInstruction> Optimize(List<IlInstruction> instructions)
 		{

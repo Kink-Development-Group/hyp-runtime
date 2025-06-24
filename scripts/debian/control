@@ -1,0 +1,8 @@
+Package: hypnoscript
+Version: 1.0.0
+Section: utils
+Priority: optional
+Architecture: amd64
+Maintainer: HypnoScript Project <info@hypnoscript.org>
+Description: HypnoScript CLI & Runtime
+ HypnoScript ist eine moderne, hypnotische Programmiersprache mit CLI und Runtime.

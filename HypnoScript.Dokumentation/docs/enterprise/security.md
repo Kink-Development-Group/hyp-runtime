@@ -1,6 +1,6 @@
-# Enterprise Security
+# Runtime Security
 
-HypnoScript bietet umfassende Sicherheitsfunktionen für Enterprise-Umgebungen, einschließlich Authentifizierung, Autorisierung, Verschlüsselung und Audit-Logging.
+HypnoScript bietet umfassende Sicherheitsfunktionen für Runtime-Umgebungen, einschließlich Authentifizierung, Autorisierung, Verschlüsselung und Audit-Logging.
 
 ## Authentifizierung
 
@@ -29,7 +29,7 @@ auth.oauth2 {
 // Multi-Faktor-Authentifizierung
 auth.mfa {
     provider: "totp"
-    issuer: "HypnoScript Enterprise"
+    issuer: "HypnoScript Runtime"
     algorithm: "sha1"
     digits: 6
     period: 30
@@ -460,4 +460,4 @@ incident_response {
 - [ ] Compliance-Berichte konfiguriert
 - [ ] Sicherheitsrichtlinien dokumentiert
 
-Diese Sicherheitsfunktionen stellen sicher, dass HypnoScript in Enterprise-Umgebungen den höchsten Sicherheitsstandards entspricht und alle relevanten Compliance-Anforderungen erfüllt.
+Diese Sicherheitsfunktionen stellen sicher, dass HypnoScript in Runtime-Umgebungen den höchsten Sicherheitsstandards entspricht und alle relevanten Compliance-Anforderungen erfüllt.

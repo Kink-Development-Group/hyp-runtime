@@ -490,7 +490,7 @@ Focus {
 - [Debugging-Best-Practices](./best-practices) - Erweiterte Debugging-Techniken
 - [Performance-Debugging](./performance) - Performance-Optimierung
 - [Error-Handling](../error-handling/overview) - Fehlerbehandlung
-- [Enterprise-Debugging](../enterprise/debugging) - Enterprise-Debugging-Tools
+- [Runtime-Debugging](../enterprise/debugging) - Runtime-Debugging-Tools
 
 ---
 

@@ -21,10 +21,6 @@
 - **Globale Variablen**: `sharedTrance`
 - **Labels und Goto**: `label:`, `sinkTo label`
 
-### 🚀 **Enterprise Edition Features (v3.0.0)**
-
-#### **Neue v3.0.0 Features:**
-
 - **Machine Learning Funktionen**: `LinearRegression`, `CalculateMean`, `CalculateStandardDeviation`
 - **Netzwerk-Funktionen**: `HttpGet`, `HttpPost` für HTTP-Requests
 - **Datenbank-ähnliche Funktionen**: `CreateRecord`, `GetRecordValue`, `SetRecordValue`
@@ -35,7 +31,7 @@
 - **Erweiterte Array-Operationen**: `ArrayMap`, `ArrayReduce`, `ArrayFlatten`
 - **Erweiterte String-Operationen**: `StringSplitByLength`, `StringRotate`, `StringShuffle`
 
-#### **Bestehende Enterprise-Features:**
+#### **Bestehende Runtime-Features:**
 
 - **Erweiterte hypnotische Funktionen**: `HypnoticBreathing`, `HypnoticAnchoring`, `HypnoticRegression`, `HypnoticFutureProgression`
 - **Datei- und Verzeichnisoperationen**: `ReadFile`, `WriteFile`, `CreateDirectory`, `GetFiles`, etc.
@@ -73,20 +69,20 @@
   - `HypnoticAnchoring(anchor)`
   - `HypnoticRegression(age)`
   - `HypnoticFutureProgression(years)`
-  - **v3.0.0**: `HypnoticPatternMatching(pattern)`
-  - **v3.0.0**: `HypnoticTimeDilation(factor)`
-  - **v3.0.0**: `HypnoticMemoryEnhancement()`
-  - **v3.0.0**: `HypnoticCreativityBoost()`
+  - **v1.0.0**: `HypnoticPatternMatching(pattern)`
+  - **v1.0.0**: `HypnoticTimeDilation(factor)`
+  - **v1.0.0**: `HypnoticMemoryEnhancement()`
+  - **v1.0.0**: `HypnoticCreativityBoost()`
 
 ## 🏗️ Architektur
 
 Die Implementierung besteht aus mehreren .NET-Projekten:
 
-- **HypnoScript.Core**: Grundlegende Typen und Symbol-Tabellen (erweitert mit v3.0.0)
+- **HypnoScript.Core**: Grundlegende Typen und Symbol-Tabellen (erweitert mit v1.0.0)
 - **HypnoScript.LexerParser**: Lexer, Parser und AST
 - **HypnoScript.Compiler**: TypeChecker, Interpreter und WASM-Codegenerator
-- **HypnoScript.Runtime**: Umfassende Builtin-Funktionen (150+ Funktionen in v3.0.0)
-- **HypnoScript.CLI**: Erweiterte Kommandozeilen-Interface (18 Befehle in v3.0.0)
+- **HypnoScript.Runtime**: Umfassende Builtin-Funktionen (150+ Funktionen in v1.0.0)
+- **HypnoScript.CLI**: Erweiterte Kommandozeilen-Interface (18 Befehle in v1.0.0)
 
 ## 🚀 Verwendung
 
@@ -150,7 +146,7 @@ dotnet run -- version
 dotnet run -- help
 ```
 
-### **Enterprise v3.0.0 Befehle:**
+### **Runtime v1.0.0 Befehle:**
 
 ```bash
 # Web-Server starten
@@ -196,12 +192,10 @@ Focus {
 } Relax
 ```
 
-### Enterprise v3.0.0 Features Demonstration
-
 ```hypnoscript
 Focus {
     entrance {
-        observe "🚀 HypnoScript Enterprise Edition v3.0.0 Demo";
+        observe "🚀 HypnoScript Runtime Edition v1.0.0 Demo";
     }
 
     // Machine Learning
@@ -342,7 +336,7 @@ Focus {
     HypnoticRegression(10);
     HypnoticFutureProgression(5);
 
-    // v3.0.0 Features
+    // v1.0.0 Features
     HypnoticPatternMatching("success");
     HypnoticTimeDilation(2.0);
     HypnoticMemoryEnhancement();
@@ -382,11 +376,11 @@ Focus {
 - **Rundungsfunktionen**: `Floor(x)`, `Ceiling(x)`, `Round(x)`
 - **Vergleichsfunktionen**: `Max(x, y)`, `Min(x, y)`
 - **Zufallsfunktionen**: `Random()`, `RandomInt(min, max)`
-- **Enterprise-Funktionen**: `Factorial(n)`, `GCD(a, b)`, `LCM(a, b)`
+- **Runtime-Funktionen**: `Factorial(n)`, `GCD(a, b)`, `LCM(a, b)`
 - **Trigonometrische Funktionen**: `Asin(x)`, `Acos(x)`, `Atan(x)`, `Atan2(y, x)`
 - **Winkelkonvertierung**: `DegreesToRadians(degrees)`, `RadiansToDegrees(radians)`
 
-### **v3.0.0 Machine Learning Funktionen:**
+### **v1.0.0 Machine Learning Funktionen:**
 
 - **Statistische Funktionen**: `LinearRegression(x, y)`, `CalculateMean(values)`, `CalculateStandardDeviation(values)`
 
@@ -399,9 +393,9 @@ Focus {
 - **Manipulationsfunktionen**: `Substring(str, start, length)`, `Replace(str, old, new)`
 - **Formatierungsfunktionen**: `PadLeft(str, width, char)`, `PadRight(str, width, char)`
 - **Array-Funktionen**: `Split(str, separator)`, `Join(array, separator)`
-- **Enterprise-Funktionen**: `Reverse(str)`, `Capitalize(str)`, `TitleCase(str)`, `CountOccurrences(str, substring)`, `RemoveWhitespace(str)`
+- **Runtime-Funktionen**: `Reverse(str)`, `Capitalize(str)`, `TitleCase(str)`, `CountOccurrences(str, substring)`, `RemoveWhitespace(str)`
 
-### **v3.0.0 Erweiterte String-Funktionen:**
+### **v1.0.0 Erweiterte String-Funktionen:**
 
 - **String-Manipulation**: `StringSplitByLength(str, maxLength)`, `StringRotate(str, positions)`, `StringShuffle(str)`
 
@@ -410,9 +404,9 @@ Focus {
 - **Grundfunktionen**: `ArrayLength(arr)`, `ArrayGet(arr, index)`, `ArraySet(arr, index, value)`
 - **Erweiterte Funktionen**: `ArraySlice(arr, start, length)`, `ArrayConcat(arr1, arr2)`
 - **Suchfunktionen**: `ArrayIndexOf(arr, value)`, `ArrayContains(arr, value)`
-- **Enterprise-Funktionen**: `ArrayReverse(arr)`, `ArraySort(arr)`, `ArrayUnique(arr)`, `ArrayFilter(arr, predicate)`
+- **Runtime-Funktionen**: `ArrayReverse(arr)`, `ArraySort(arr)`, `ArrayUnique(arr)`, `ArrayFilter(arr, predicate)`
 
-### **v3.0.0 Erweiterte Array-Funktionen:**
+### **v1.0.0 Erweiterte Array-Funktionen:**
 
 - **Funktionale Programmierung**: `ArrayMap(arr, mapper)`, `ArrayReduce(arr, reducer, initial)`, `ArrayFlatten(arr)`
 
@@ -426,9 +420,9 @@ Focus {
 - **Induktion**: `TranceInduction(subjectName)`, `HypnoticSuggestion(suggestion)`
 - **Visualisierung**: `HypnoticVisualization(scene)`
 - **Entspannung**: `ProgressiveRelaxation(steps)`, `HypnoticCountdown(from)`
-- **Enterprise-Funktionen**: `HypnoticBreathing(cycles)`, `HypnoticAnchoring(anchor)`, `HypnoticRegression(age)`, `HypnoticFutureProgression(years)`
+- **Runtime-Funktionen**: `HypnoticBreathing(cycles)`, `HypnoticAnchoring(anchor)`, `HypnoticRegression(age)`, `HypnoticFutureProgression(years)`
 
-### **v3.0.0 Erweiterte hypnotische Funktionen:**
+### **v1.0.0 Erweiterte hypnotische Funktionen:**
 
 - **Erweiterte Induktion**: `HypnoticPatternMatching(pattern)`, `HypnoticTimeDilation(factor)`
 - **Kognitive Enhancement**: `HypnoticMemoryEnhancement()`, `HypnoticCreativityBoost()`
@@ -436,16 +430,16 @@ Focus {
 ### Zeit- und Datumsfunktionen
 
 - **Zeitstempel**: `GetCurrentTime()`, `GetCurrentDate()`, `GetCurrentTimeString()`, `GetCurrentDateTime()`
-- **Enterprise-Funktionen**: `FormatDateTime(format)`, `GetDayOfWeek()`, `GetDayOfYear()`, `IsLeapYear(year)`, `GetDaysInMonth(year, month)`
+- **Runtime-Funktionen**: `FormatDateTime(format)`, `GetDayOfWeek()`, `GetDayOfYear()`, `IsLeapYear(year)`, `GetDaysInMonth(year, month)`
 
 ### System-Funktionen
 
 - **System-Info**: `GetEnvironmentVariable(name)`, `ClearScreen()`, `Beep(frequency, duration)`
 - **Debugging**: `DebugPrint(value)`, `DebugPrintType(value)`
 - **Programm-Kontrolle**: `Exit(code)`
-- **Enterprise-Funktionen**: `GetCurrentDirectory()`, `GetMachineName()`, `GetUserName()`, `GetOSVersion()`, `GetProcessorCount()`, `GetWorkingSet()`, `PlaySound(frequency, duration)`, `Vibrate(duration)`, `DebugPrintMemory()`, `DebugPrintStackTrace()`, `DebugPrintEnvironment()`
+- **Runtime-Funktionen**: `GetCurrentDirectory()`, `GetMachineName()`, `GetUserName()`, `GetOSVersion()`, `GetProcessorCount()`, `GetWorkingSet()`, `PlaySound(frequency, duration)`, `Vibrate(duration)`, `DebugPrintMemory()`, `DebugPrintStackTrace()`, `DebugPrintEnvironment()`
 
-### **v3.0.0 Performance-Monitoring:**
+### **v1.0.0 Performance-Monitoring:**
 
 - **Performance-Metriken**: `GetPerformanceMetrics()` - Liefert detaillierte Performance-Daten
 
@@ -459,19 +453,19 @@ Focus {
 - **JSON-Verarbeitung**: `ToJson(obj)`, `FromJson(json)`
 - **Kryptologische Funktionen**: `HashMD5(input)`, `HashSHA256(input)`, `Base64Encode(input)`, `Base64Decode(input)`
 
-### **v3.0.0 Netzwerk-Funktionen:**
+### **v1.0.0 Netzwerk-Funktionen:**
 
 - **HTTP-Requests**: `HttpGet(url)`, `HttpPost(url, data)`
 
-### **v3.0.0 Datenbank-ähnliche Funktionen:**
+### **v1.0.0 Datenbank-ähnliche Funktionen:**
 
 - **Record-Management**: `CreateRecord(keys, values)`, `GetRecordValue(record, key)`, `SetRecordValue(record, key, value)`
 
-### **v3.0.0 Validierungsfunktionen:**
+### **v1.0.0 Validierungsfunktionen:**
 
 - **Input-Validierung**: `IsValidEmail(email)`, `IsValidUrl(url)`, `IsValidJson(json)`
 
-### **v3.0.0 Formatierungsfunktionen:**
+### **v1.0.0 Formatierungsfunktionen:**
 
 - **Formatierung**: `FormatNumber(number, decimals)`, `FormatCurrency(amount, currency)`, `FormatPercentage(value)`
 
@@ -484,7 +478,7 @@ HypnoScript kombiniert:
 - **Moderne Sprachfeatures** für praktische Nutzbarkeit
 - **Turing-Vollständigkeit** für universelle Berechnungsfähigkeit
 - **Umfassende Standardbibliothek** für produktive Entwicklung
-- **Enterprise-Features** für professionelle Anwendungen
+- **Runtime-Features** für professionelle Anwendungen
 - **Machine Learning Integration** für KI-gestützte Entwicklung
 - **Netzwerk- und Datenbank-Funktionen** für moderne Anwendungen
 
@@ -498,8 +492,8 @@ HypnoScript kombiniert:
 - ✅ **Builtins**: Umfassend implementiert (150+ Funktionen)
 - ✅ **CLI**: Erweitert mit 18 Befehlen
 - ✅ **WASM-Codegenerator**: Erweitert implementiert
-- ✅ **Enterprise-Features**: Vollständig implementiert
-- ✅ **v3.0.0 Features**: Vollständig implementiert
+- ✅ **Runtime-Features**: Vollständig implementiert
+- ✅ **v1.0.0 Features**: Vollständig implementiert
 - 🔄 **Performance-Optimierungen**: Implementiert
 
 ## 🎯 Nächste Schritte
@@ -517,10 +511,10 @@ HypnoScript kombiniert:
 
 - `test_basic.hyp` - Grundlegende Funktionalität
 - `test_extended_features.hyp` - Erweiterte Builtin-Funktionen
-- `test_enterprise_features.hyp` - Vollständige Enterprise-Demonstration
-- `test_enterprise_v3.hyp` - **NEU**: Enterprise v3.0.0 Features
+- `test_enterprise_features.hyp` - Vollständige Runtime-Demonstration
+- `test_enterprise_v3.hyp` - **NEU**: Runtime v1.0.0 Features
 - `test_all_enterprise_features.ps1` - Umfassendes Test-Skript
-- `test_enterprise_v3.ps1` - **NEU**: Enterprise v3.0.0 Test-Suite
+- `test_enterprise_v3.ps1` - **NEU**: Runtime v1.0.0 Test-Suite
 
 ## 🚀 Quick Start
 
@@ -532,22 +526,14 @@ cd hyp-runtime
 # Projekt kompilieren
 dotnet build
 
-# Enterprise v3.0.0 Demo ausführen
+# v1.0.0 Demo ausführen
 dotnet run --project HypnoScript.CLI -- run test_enterprise_v3.hyp
 
 # Umfassende Tests ausführen
 ./test_enterprise_v3.ps1
 ```
 
----
-
-**HypnoScript Enterprise Edition v3.0.0** - Where programming meets hypnosis! 🧠✨
-
-_Version 3.0.0 - Enterprise Edition with Advanced Features including Machine Learning, Networking, and Enhanced Hypnotic Functions_
-
-**Features**: 150+ Builtin Functions | 18 CLI Commands | File Operations | JSON Processing | Cryptographic Functions | Advanced Mathematics | Performance Optimizations | WebAssembly Support | Machine Learning Integration | Networking Functions | Database-like Operations | Enhanced Hypnotic Functions | Performance Monitoring | Input Validation | Formatting Functions | Advanced Array Operations | Advanced String Operations
-
-# HypnoScript Builtin-Standardbibliothek
+## HypnoScript Builtin-Standardbibliothek
 
 Die HypnoScript-Standardbibliothek bietet zahlreiche eingebaute Funktionen (Builtins) für Arrays, Strings, Mathematik, Utilities, System, Zeit/Datum, Statistik, Hashing/Encoding und hypnotische Spezialfunktionen.
 
@@ -729,3 +715,62 @@ Die HypnoScript-Standardbibliothek bietet zahlreiche eingebaute Funktionen (Buil
 - Viele Funktionen sind überladen und akzeptieren verschiedene Typen.
 
 Für Details siehe die Implementierung in `HypnoScript.Runtime/HypnoBuiltins.cs`.
+
+## 🌐 Plattformübergreifende Installation
+
+### Windows (winget)
+
+Installiere HypnoScript mit dem Windows Package Manager:
+
+```powershell
+winget install HypnoScript.HypnoScript
+```
+
+### Linux (APT)
+
+Installiere HypnoScript auf Debian/Ubuntu:
+
+```bash
+sudo apt update
+sudo apt install hypnoscript
+```
+
+Weitere Details und manuelle Installationsoptionen findest du im Verzeichnis `scripts/` und in der Dokumentation.
+
+## 🔧 Build- und Installationsskripte
+
+Im Verzeichnis `scripts/` befinden sich:
+
+- Build-Skripte für Windows (winget) und Linux (APT)
+- Beispiel-Installer und Paketvorlagen
+- Hilfsskripte für Entwickler und Distributoren
+
+## 🚀 Build & Release für Paketmanager
+
+### Windows (self-contained Binary für winget)
+
+```powershell
+dotnet publish HypnoScript.CLI -c Release -r win-x64 --self-contained true -p:PublishSingleFile=true -o ./publish/win
+```
+
+### Linux (self-contained Binary für APT)
+
+```bash
+dotnet publish HypnoScript.CLI -c Release -r linux-x64 --self-contained true -p:PublishSingleFile=true -o ./publish/linux
+```
+
+Die resultierenden Binaries werden für die jeweiligen Pakete verwendet.
+
+## 📦 Paketbau & Distribution
+
+- Für Windows: Siehe `scripts/build_winget.ps1` und `scripts/winget-manifest.yaml`
+- Für Linux: Siehe `scripts/build_deb.sh` und `scripts/debian/`
+
+Die Skripte automatisieren den Paketbau und die Veröffentlichung.
+
+## scripts/-Verzeichnis
+
+- `build_winget.ps1`: Erstellt das Windows-Binary und bereitet das winget-Paket vor
+- `winget-manifest.yaml`: Beispiel für das winget-Manifest
+- `build_deb.sh`: Erstellt das Linux-Binary und das .deb-Paket
+- `debian/`: Beispielstruktur für das Debian-Paket

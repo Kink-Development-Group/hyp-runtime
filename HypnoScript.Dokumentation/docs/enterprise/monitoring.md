@@ -1,6 +1,6 @@
-# Enterprise Monitoring & Observability
+# Runtime Monitoring & Observability
 
-HypnoScript bietet umfassende Monitoring- und Observability-Funktionen für Enterprise-Umgebungen, einschließlich Metriken, Logging, Distributed Tracing und proaktive Alerting-Systeme.
+HypnoScript bietet umfassende Monitoring- und Observability-Funktionen für Runtime-Umgebungen, einschließlich Metriken, Logging, Distributed Tracing und proaktive Alerting-Systeme.
 
 ## Monitoring-Architektur
 
@@ -748,4 +748,4 @@ apm {
 - [ ] Monitoring-Dokumentation erstellt
 - [ ] Team-Schulungen durchgeführt
 
-Diese Monitoring- und Observability-Funktionen stellen sicher, dass HypnoScript in Enterprise-Umgebungen vollständig überwacht und proaktiv auf Probleme reagiert werden kann.
+Diese Monitoring- und Observability-Funktionen stellen sicher, dass HypnoScript in Runtime-Umgebungen vollständig überwacht und proaktiv auf Probleme reagiert werden kann.

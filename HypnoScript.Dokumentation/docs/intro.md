@@ -13,7 +13,7 @@ HypnoScript ist eine interpretierte Programmiersprache, die in C# entwickelt wur
 - **Hypnotische Syntax**: Verwendet hypnotische Begriffe wie `Focus`, `Trance`, `Induce`, `Observe`
 - **Umfangreiche Standardbibliothek**: Über 200+ Builtin-Funktionen für alle Anwendungsfälle
 - **Moderne Features**: Arrays, Records, Funktionen, Sessions, Assertions
-- **Enterprise-Ready**: CLI-Tools, Test-Framework, Debugging-Unterstützung
+- **Runtime-Ready**: CLI-Tools, Test-Framework, Debugging-Unterstützung
 - **Plattformübergreifend**: Läuft auf Windows, macOS und Linux
 
 ## Schnellstart
@@ -60,7 +60,7 @@ HypnoScript bietet eine umfassende Standardbibliothek mit über 200 Funktionen:
 - **CLI-Interface**: Vollständige Kommandozeilen-Schnittstelle
 - **Test-Framework**: Automatisierte Tests mit Assertions
 - **Debugging**: Umfassende Debugging-Unterstützung
-- **Enterprise-Features**: Webserver, API, Dokumentation
+- **Runtime-Features**: Webserver, API, Dokumentation
 
 ## Installation
 

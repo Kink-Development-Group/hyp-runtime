@@ -1,6 +1,6 @@
-# Enterprise Backup & Recovery
+# Runtime Backup & Recovery
 
-HypnoScript bietet umfassende Backup- und Recovery-Funktionen für Enterprise-Umgebungen, einschließlich automatischer Backups, Disaster Recovery, Business Continuity und Datenwiederherstellung.
+HypnoScript bietet umfassende Backup- und Recovery-Funktionen für Runtime-Umgebungen, einschließlich automatischer Backups, Disaster Recovery, Business Continuity und Datenwiederherstellung.
 
 ## Backup-Strategien
 
@@ -1028,4 +1028,4 @@ backup_monitoring {
 - [ ] Dokumentation erstellt
 - [ ] Compliance geprüft
 
-Diese Backup- und Recovery-Funktionen stellen sicher, dass HypnoScript in Enterprise-Umgebungen robuste Datensicherheit und Business Continuity bietet.
+Diese Backup- und Recovery-Funktionen stellen sicher, dass HypnoScript in Runtime-Umgebungen robuste Datensicherheit und Business Continuity bietet.

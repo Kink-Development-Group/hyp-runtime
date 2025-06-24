@@ -20,6 +20,21 @@ dotnet build
 dotnet run --project HypnoScript.CLI -- --help
 ```
 
+## Installation via Paketmanager
+
+### Windows (winget)
+
+```powershell
+winget install HypnoScript.HypnoScript
+```
+
+### Linux (APT)
+
+```bash
+sudo apt update
+sudo apt install hypnoscript
+```
+
 ## Grundlegende Verwendung
 
 ```bash

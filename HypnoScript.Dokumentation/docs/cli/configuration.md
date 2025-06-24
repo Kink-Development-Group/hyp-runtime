@@ -493,7 +493,7 @@ project/
 
 - [Testing](../testing/overview) - Test-Framework-Konfiguration
 - [Debugging](../debugging/tools) - Debugging-Tools
-- [Enterprise-Features](../enterprise/features) - Enterprise-Konfiguration
+- [Runtime-Features](../enterprise/features) - Runtime-Konfiguration
 
 ---
 

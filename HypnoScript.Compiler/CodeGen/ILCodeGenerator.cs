@@ -102,7 +102,7 @@ namespace HypnoScript.Compiler.CodeGen
 			}
 		}
 
-		// Enterprise-level extension: handling If statements
+		// Runtime-level extension: handling If statements
 		private void EmitIfStatement(IfStatementNode ifStmt)
 		{
 			// Evaluate the condition
@@ -134,7 +134,7 @@ namespace HypnoScript.Compiler.CodeGen
 			_il.MarkLabel(endLabel);
 		}
 
-		// Enterprise-level extension: handling While loops
+		// Runtime-level extension: handling While loops
 		private void EmitWhileStatement(WhileStatementNode whileStmt)
 		{
 			Label loopStart = _il.DefineLabel();
@@ -347,7 +347,7 @@ namespace HypnoScript.Compiler.CodeGen
 						break;
 
 					default:
-						// Enterprise-Level: Dynamische Funktionsaufrufe unterstützen
+						// Runtime-Level: Dynamische Funktionsaufrufe unterstützen
 						// Suche nach einer statischen Methode in HypnoBuiltins mit dem Namen der Funktion
 						var candidates = typeof(HypnoBuiltins).GetMethods()
 							.Where(m => m.Name == id.Name && m.IsStatic)
@@ -365,7 +365,7 @@ namespace HypnoScript.Compiler.CodeGen
 						{
 							EmitExpression(call.Arguments[i]);
 
-							// Enterprise-Level: Falls der Parameter nicht vom Typ object ist, erfolgt eine Unboxing-Konvertierung
+							// Runtime-Level: Falls der Parameter nicht vom Typ object ist, erfolgt eine Unboxing-Konvertierung
 							if (parameters[i].ParameterType != typeof(object))
 							{
 								var paramType = parameters[i].ParameterType;
@@ -413,7 +413,7 @@ namespace HypnoScript.Compiler.CodeGen
 			// ...implementierung...
 		}
 
-		// Enterprise-level extension: handling Loop statements
+		// Runtime-level extension: handling Loop statements
 		private void EmitLoopStatement(LoopStatementNode loopStmt)
 		{
 			Label loopStart = _il.DefineLabel();

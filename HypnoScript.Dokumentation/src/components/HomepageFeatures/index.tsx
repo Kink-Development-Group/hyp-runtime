@@ -30,7 +30,7 @@ const FeatureList: FeatureItem[] = [
     ),
   },
   {
-    title: '🛠️ Enterprise-Ready',
+    title: '🛠️ Runtime-Ready',
     description: (
       <>
         Vollständige CLI-Tools, Test-Framework mit Assertions,

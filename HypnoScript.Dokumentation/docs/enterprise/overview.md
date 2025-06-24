@@ -1,20 +1,20 @@
-# Enterprise-Dokumentation Übersicht
+# Runtime-Dokumentation Übersicht
 
-Diese Übersicht bietet einen vollständigen Überblick über die Enterprise-Dokumentation von HypnoScript, einschließlich aller verfügbaren Funktionen, Best Practices und Implementierungsrichtlinien.
+Diese Übersicht bietet einen vollständigen Überblick über die Runtime-Dokumentation von HypnoScript, einschließlich aller verfügbaren Funktionen, Best Practices und Implementierungsrichtlinien.
 
 ## Dokumentationsstruktur
 
-### 📋 Enterprise Features
+### 📋 Runtime Features
 
 **Datei:** `features.md`
 
-- Umfassende Enterprise-Funktionen
+- Umfassende Runtime-Funktionen
 - Skalierbarkeit und Performance
 - Hochverfügbarkeit
 - Multi-Tenant-Support
-- Enterprise-Integrationen
+- Runtime-Integrationen
 
-### 🏗️ Enterprise Architecture
+### 🏗️ Runtime Architecture
 
 **Datei:** `architecture.md`
 
@@ -26,7 +26,7 @@ Diese Übersicht bietet einen vollständigen Überblick über die Enterprise-Dok
 - Observability
 - Security & Compliance
 
-### 🔒 Enterprise Security
+### 🔒 Runtime Security
 
 **Datei:** `security.md`
 
@@ -38,7 +38,7 @@ Diese Übersicht bietet einen vollständigen Überblick über die Enterprise-Dok
 - Netzwerksicherheit
 - Incident Response
 
-### 📊 Enterprise Monitoring
+### 📊 Runtime Monitoring
 
 **Datei:** `monitoring.md`
 
@@ -50,7 +50,7 @@ Diese Übersicht bietet einen vollständigen Überblick über die Enterprise-Dok
 - Performance-Monitoring (APM)
 - Business-Metriken
 
-### 🗄️ Enterprise Database
+### 🗄️ Runtime Database
 
 **Datei:** `database.md`
 
@@ -62,7 +62,7 @@ Diese Übersicht bietet einen vollständigen Überblick über die Enterprise-Dok
 - Performance-Optimierung
 - Backup-Strategien
 
-### 📨 Enterprise Messaging
+### 📨 Runtime Messaging
 
 **Datei:** `messaging.md`
 
@@ -72,7 +72,7 @@ Diese Übersicht bietet einen vollständigen Überblick über die Enterprise-Dok
 - Message Reliability (At-Least-Once, Exactly-Once)
 - Message-Monitoring und Tracing
 
-### 🔌 Enterprise API Management
+### 🔌 Runtime API Management
 
 **Datei:** `api-management.md`
 
@@ -83,7 +83,7 @@ Diese Übersicht bietet einen vollständigen Überblick über die Enterprise-Dok
 - OpenAPI-Dokumentation
 - API-Monitoring und Metriken
 
-### 💾 Enterprise Backup & Recovery
+### 💾 Runtime Backup & Recovery
 
 **Datei:** `backup-recovery.md`
 
@@ -93,7 +93,7 @@ Diese Übersicht bietet einen vollständigen Überblick über die Enterprise-Dok
 - DR-Sites (Hot, Warm, Cold)
 - Backup-Monitoring und Validierung
 
-## Enterprise-Funktionen im Detail
+## Runtime-Funktionen im Detail
 
 ### 🔐 Sicherheit & Compliance
 
@@ -163,9 +163,9 @@ Diese Übersicht bietet einen vollständigen Überblick über die Enterprise-Dok
 #### Multi-Database-Support
 
 - **PostgreSQL:** Vollständige Unterstützung
-- **MySQL:** Enterprise-Features
+- **MySQL:** Runtime-Features
 - **SQL Server:** Windows-Integration
-- **Oracle:** Enterprise-Datenbanken
+- **Oracle:** Runtime-Datenbanken
 
 #### Backup-Strategien
 
@@ -345,7 +345,7 @@ Diese Übersicht bietet einen vollständigen Überblick über die Enterprise-Dok
 
 ## Fazit
 
-Die Enterprise-Dokumentation von HypnoScript bietet eine umfassende Anleitung für die Implementierung und den Betrieb von HypnoScript in Enterprise-Umgebungen. Sie deckt alle wichtigen Aspekte ab:
+Die Runtime-Dokumentation von HypnoScript bietet eine umfassende Anleitung für die Implementierung und den Betrieb von HypnoScript in Runtime-Umgebungen. Sie deckt alle wichtigen Aspekte ab:
 
 - **Sicherheit & Compliance:** Umfassende Sicherheitsfunktionen und Compliance-Frameworks
 - **Skalierbarkeit & Performance:** Optimierte Architektur für hohe Lasten
@@ -354,4 +354,4 @@ Die Enterprise-Dokumentation von HypnoScript bietet eine umfassende Anleitung f�
 - **API-Management:** Sichere und skalierbare APIs
 - **Backup & Recovery:** Zuverlässige Datensicherung und Wiederherstellung
 
-Diese Dokumentation stellt sicher, dass HypnoScript in Enterprise-Umgebungen den höchsten Standards für Sicherheit, Performance, Zuverlässigkeit und Compliance entspricht.
+Diese Dokumentation stellt sicher, dass HypnoScript in Runtime-Umgebungen den höchsten Standards für Sicherheit, Performance, Zuverlässigkeit und Compliance entspricht.

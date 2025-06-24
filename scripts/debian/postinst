@@ -1,0 +1,5 @@
+#!/bin/bash
+set -e
+
+# postinst: Setzt Symlinks nach der Installation
+ln -sf /usr/local/bin/hypnoscript /usr/bin/hypnoscript || true

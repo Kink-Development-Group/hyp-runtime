@@ -4,7 +4,7 @@ namespace HypnoScript.Compiler.Error
 {
     public static class ErrorReporter
     {
-        // Enterprise-Level: Verwende Fehlercodes und farbliche Logausgaben (z.B. über Console.ForegroundColor)
+        // Runtime-Level: Verwende Fehlercodes und farbliche Logausgaben (z.B. über Console.ForegroundColor)
         public static void Report(string message, int line, int column, string errorCode = "E001")
         {
             var prevColor = Console.ForegroundColor;

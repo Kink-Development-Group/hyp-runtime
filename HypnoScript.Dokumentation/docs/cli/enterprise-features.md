@@ -1,7 +1,7 @@
 ---
-title: CLI Enterprise Features
+title: CLI Runtime Features
 ---
 
-# CLI Enterprise Features
+# CLI Runtime Features
 
 This page will document CLI enterprise features. Content coming soon.

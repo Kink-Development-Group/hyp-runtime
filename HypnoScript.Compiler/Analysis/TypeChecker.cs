@@ -14,7 +14,7 @@ namespace HypnoScript.Compiler.Analysis
         private readonly SymbolTable _globals = new();
         private HashSet<string> _labelsInScope = new();
 
-        // Enterprise-Level: Neben der reinen Traversierung werden Typ-Inkonsistenzen protokolliert.
+        // Runtime-Level: Neben der reinen Traversierung werden Typ-Inkonsistenzen protokolliert.
         public void Check(ProgramNode program)
         {
             // Sammle alle Sessions und tranceify-Definitionen

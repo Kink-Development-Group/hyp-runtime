@@ -1,6 +1,6 @@
-# Enterprise Messaging & Queuing
+# Runtime Messaging & Queuing
 
-HypnoScript bietet umfassende Messaging- und Queuing-Funktionen für Enterprise-Umgebungen, einschließlich Message Brokers, Event-Driven Architecture, Message Patterns und zuverlässige Nachrichtenverarbeitung.
+HypnoScript bietet umfassende Messaging- und Queuing-Funktionen für Runtime-Umgebungen, einschließlich Message Brokers, Event-Driven Architecture, Message Patterns und zuverlässige Nachrichtenverarbeitung.
 
 ## Message Broker Integration
 
@@ -935,4 +935,4 @@ message_monitoring {
 - [ ] Error-Handling definiert
 - [ ] Dokumentation erstellt
 
-Diese Messaging- und Queuing-Funktionen stellen sicher, dass HypnoScript in Enterprise-Umgebungen skalierbare, zuverlässige und event-driven Architekturen unterstützt.
+Diese Messaging- und Queuing-Funktionen stellen sicher, dass HypnoScript in Runtime-Umgebungen skalierbare, zuverlässige und event-driven Architekturen unterstützt.

@@ -2,7 +2,7 @@
 sidebar_position: 2
 ---
 
-# Enterprise-Architektur
+# Runtime-Architektur
 
 Diese Seite beschreibt Architektur-Patterns, Skalierungsstrategien und Best Practices für große HypnoScript-Projekte in Unternehmen.
 
@@ -166,10 +166,10 @@ graph TD
 
 ## Nächste Schritte
 
-- [Enterprise-Sicherheit](./security) – Sicherheitsarchitektur
-- [Enterprise-Monitoring](./monitoring) – Monitoring & Alerting
-- [Enterprise-Integration](./integration) – Schnittstellen & Integration
+- [Runtime-Sicherheit](./security) – Sicherheitsarchitektur
+- [Runtime-Monitoring](./monitoring) – Monitoring & Alerting
+- [Runtime-Integration](./integration) – Schnittstellen & Integration
 
 ---
 
-**Architektur gemeistert? Dann lerne [Enterprise-Sicherheit](./security) kennen!** 🏛️
+**Architektur gemeistert? Dann lerne [Runtime-Sicherheit](./security) kennen!** 🏛️

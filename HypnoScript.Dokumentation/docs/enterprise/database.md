@@ -1,6 +1,6 @@
-# Enterprise Database Integration
+# Runtime Database Integration
 
-HypnoScript bietet umfassende Datenbankintegrationsfunktionen für Enterprise-Umgebungen, einschließlich Multi-Database-Support, Connection Pooling, Transaktionsmanagement und automatische Migrationen.
+HypnoScript bietet umfassende Datenbankintegrationsfunktionen für Runtime-Umgebungen, einschließlich Multi-Database-Support, Connection Pooling, Transaktionsmanagement und automatische Migrationen.
 
 ## Datenbankverbindungen
 
@@ -1002,4 +1002,4 @@ database_optimization {
 - [ ] Monitoring konfiguriert
 - [ ] Sicherheitsrichtlinien umgesetzt
 
-Diese Datenbankintegrationsfunktionen stellen sicher, dass HypnoScript in Enterprise-Umgebungen effizient und sicher mit verschiedenen Datenbanksystemen arbeitet.
+Diese Datenbankintegrationsfunktionen stellen sicher, dass HypnoScript in Runtime-Umgebungen effizient und sicher mit verschiedenen Datenbanksystemen arbeitet.

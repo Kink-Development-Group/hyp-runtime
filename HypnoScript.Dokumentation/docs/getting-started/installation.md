@@ -235,3 +235,24 @@ Bei Problemen:
 ---
 
 **Installation erfolgreich? Dann lass uns mit dem [Schnellstart-Guide](./quick-start) beginnen!** 🚀
+
+## Installation via Paketmanager
+
+### Windows (winget)
+
+Mit dem Windows Package Manager (ab Windows 10):
+
+```powershell
+winget install HypnoScript.HypnoScript
+```
+
+### Linux (APT)
+
+Für Debian/Ubuntu-basierte Systeme:
+
+```bash
+sudo apt update
+sudo apt install hypnoscript
+```
+
+Die Pakete installieren die CLI und Runtime global und machen den Befehl `hypnoscript` überall verfügbar.

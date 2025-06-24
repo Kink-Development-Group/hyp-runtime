@@ -1,15 +1,14 @@
 Focus {
     entrance {
-        observe "🚀 === HypnoScript Enterprise Edition v3.0.0 - Ultimate Demo ===";
+        observe "🚀 === HypnoScript Runtime v1.0.0 - Ultimate Demo ===";
         drift(1000);
         observe "Welcome to the most advanced HypnoScript experience ever created!";
         drift(500);
-        observe "This demo showcases ALL enterprise-level features including NEW v3.0.0 capabilities...";
+        observe "This demo showcases ALL features including NEW v1.0.0 capabilities...";
         drift(500);
     }
 
-    // ===== NEUE ENTERPRISE-FEATURES v3.0.0 =====
-    observe "=== NEW Enterprise Features v3.0.0 ===";
+    observe "=== NEW Features v1.0.0 ===";
 
     // Machine Learning Funktionen
     observe "--- Machine Learning Functions ---";
@@ -43,7 +42,7 @@ Focus {
     observe "Updated age: " + newAge;
 
     // Erweiterte hypnotische Funktionen
-    observe "--- Advanced Hypnotic Functions v3.0.0 ---";
+    observe "--- Advanced Hypnotic Functions v1.0.0 ---";
     HypnoticPatternMatching("success");
     HypnoticTimeDilation(1.5);
     HypnoticMemoryEnhancement();
@@ -117,7 +116,7 @@ Focus {
     observe "=== File and Directory Operations ===";
 
     // Testdatei erstellen
-    induce testContent: string = "This is a test file created by HypnoScript Enterprise Edition v3.0.0!\nLine 2: Advanced features working perfectly.\nLine 3: File operations are amazing!\nLine 4: New v3.0.0 features are incredible!";
+    induce testContent: string = "This is a test file created by HypnoScript Runtime Edition v1.0.0!\nLine 2: Advanced features working perfectly.\nLine 3: File operations are amazing!\nLine 4: New v1.0.0 features are incredible!";
     WriteFile("test_output_v3.txt", testContent);
 
     // Datei lesen und analysieren
@@ -163,7 +162,7 @@ Focus {
             this.age = personAge;
             this.skills = personSkills;
             this.isActive = active;
-            this.metadata = CreateRecord(["created", "version"], [GetCurrentDateTime(), "3.0.0"]);
+            this.metadata = CreateRecord(["created", "version"], [GetCurrentDateTime(), "1.0.0"]);
         }
     }
 
@@ -195,7 +194,7 @@ Focus {
     // ===== ERWEITERTE STRING-FUNKTIONEN =====
     observe "=== Advanced String Functions ===";
 
-    induce sampleText: string = "  HypnoScript Enterprise Edition v3.0.0 is INCREDIBLE!  ";
+    induce sampleText: string = "  HypnoScript Edition v1.0.0 is INCREDIBLE!  ";
     observe "Original text: '" + sampleText + "'";
 
     observe "Advanced String Operations:";
@@ -223,7 +222,7 @@ Focus {
     // ===== KRYPTOLOGISCHE FUNKTIONEN =====
     observe "=== Cryptographic Functions ===";
 
-    induce secretMessage: string = "HypnoScript Enterprise Edition v3.0.0 is the best programming language ever!";
+    induce secretMessage: string = "HypnoScript Edition v1.0.0 is the best programming language ever!";
     induce md5Hash: string = HashMD5(secretMessage);
     induce sha256Hash: string = HashSHA256(secretMessage);
     induce base64Encoded: string = Base64Encode(secretMessage);
@@ -260,9 +259,9 @@ Focus {
     // ===== ERWEITERTE DEBUGGING-FUNKTIONEN =====
     observe "=== Advanced Debugging Functions ===";
 
-    DebugPrint("This is a debug message from HypnoScript Enterprise v3.0.0");
+    DebugPrint("This is a debug message from HypnoScript v1.0.0");
     DebugPrintType(42);
-    DebugPrintType("Hello Enterprise World v3.0.0");
+    DebugPrintType("Hello World v1.0.0");
     DebugPrintType(true);
     DebugPrintType(3.14159);
     DebugPrintMemory();
@@ -278,7 +277,7 @@ Focus {
 
         suggestion constructor(wizardName: string) {
             this.name = wizardName;
-            this.version = "3.0.0";
+            this.version = "1.0.0";
         }
 
         suggestion fibonacci(n: number): number {
@@ -308,7 +307,7 @@ Focus {
         }
     }
 
-    induce wizard = MathWizard("Enterprise Math Wizard v3.0.0");
+    induce wizard = MathWizard("Math Wizard v1.0.0");
     observe "Wizard created: " + wizard.name + " v" + wizard.version;
 
     observe "Fibonacci(10) = " + wizard.fibonacci(10);
@@ -321,7 +320,7 @@ Focus {
     // ===== ERWEITERTE OBJEKTORIENTIERUNG =====
     observe "=== Advanced Object-Oriented Programming ===";
 
-    session EnterprisePerson {
+    session RuntimePerson {
         expose name: string;
         expose age: number;
         expose skills: array;
@@ -335,7 +334,7 @@ Focus {
             this.secretId = RandomInt(1000, 9999);
             this.metadata = CreateRecord(
                 ["created", "version", "id"],
-                [GetCurrentDateTime(), "3.0.0", this.secretId]
+                [GetCurrentDateTime(), "1.0.0", this.secretId]
             );
         }
 
@@ -355,7 +354,7 @@ Focus {
         }
     }
 
-    induce enterprisePerson = EnterprisePerson("Enterprise Developer", 35, ["HypnoScript", "C#", "JavaScript"]);
+    induce enterprisePerson = RuntimePerson("Runtime Developer", 35, ["HypnoScript", "C#", "JavaScript"]);
     enterprisePerson.greet();
     enterprisePerson.addSkill("Machine Learning");
     induce metadata = enterprisePerson.getMetadata();
@@ -364,7 +363,7 @@ Focus {
     // ===== ERWEITERTE STRUKTUREN =====
     observe "=== Advanced Structures ===";
 
-    tranceify EnterpriseConfig {
+    tranceify RuntimeConfig {
         name: string;
         version: string;
         features: array;
@@ -372,20 +371,20 @@ Focus {
         enabled: boolean;
     }
 
-    induce config = EnterpriseConfig {
-        name: "HypnoScript Enterprise",
-        version: "3.0.0",
+    induce config = RuntimeConfig {
+        name: "HypnoScript Runtime",
+        version: "1.0.0",
         features: ["ML", "Networking", "Database", "Monitoring"],
         settings: CreateRecord(["debug", "verbose"], [true, false]),
         enabled: true
     };
 
-    observe "Enterprise Config: " + config;
+    observe "Runtime Config: " + config;
 
     // ===== FINALE DEMONSTRATION =====
-    observe "=== Final Enterprise v3.0.0 Demonstration ===";
+    observe "=== Final Runtime v1.0.0 Demonstration ===";
 
-    observe "🎉 Congratulations! You have successfully experienced HypnoScript Enterprise Edition v3.0.0!";
+    observe "🎉 Congratulations! You have successfully experienced HypnoScript Runtime Edition v1.0.0!";
     observe "🚀 This version includes:";
     observe "   - Machine Learning capabilities";
     observe "   - Network functions";
@@ -398,6 +397,6 @@ Focus {
     observe "   - Advanced string manipulation";
     observe "   - And much more!";
 
-    observe "🌟 HypnoScript Enterprise Edition v3.0.0 - Where programming meets hypnosis! 🌟";
+    observe "🌟 HypnoScript Runtime Edition v1.0.0 - Where programming meets hypnosis! 🌟";
 
 } Relax

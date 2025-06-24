@@ -597,7 +597,7 @@ if (isValidPath(userInput)) {
 
 - [Beispiele](../examples/system-examples) - Praktische System-Beispiele
 - [CLI-Erweiterungen](../cli/advanced-commands) - Erweiterte CLI-Features
-- [Enterprise-Features](../enterprise/features) - Enterprise-Funktionen
+- [Runtime-Features](../enterprise/features) - Runtime-Funktionen
 
 ---
 
