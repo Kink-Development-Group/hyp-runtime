@@ -1,5 +1,9 @@
 name: Performance Monitoring
 
+permissions:
+  contents: read
+  actions: read
+
 on:
   schedule:
     # Run every day at 2 AM UTC
@@ -11,17 +15,6 @@ on:
       - 'HypnoScript.Compiler/**'
       - 'test_*.hyp'
   workflow_dispatch:
-    inputs:
-      benchmark_type:
-        description: 'Type of benchmark to run'
-        required: true
-        default: 'all'
-        type: choice
-        options:
-          - all
-          - basic
-          - advanced
-          - enterprise
 
 env:
   DOTNET_VERSION: '8.0.x'

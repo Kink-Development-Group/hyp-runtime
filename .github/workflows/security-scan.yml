@@ -1,5 +1,10 @@
 name: Security Scan
 
+permissions:
+  contents: read
+  security-events: write
+  actions: read
+
 on:
   schedule:
     # Run every day at 6 AM UTC
@@ -34,8 +39,13 @@ jobs:
           languages: csharp
           queries: security-extended,security-and-quality
 
+      - name: Restore dependencies
+        run: dotnet restore HypnoScript.sln
+        working-directory: ${{ github.workspace }}
+
       - name: Build for CodeQL
-        run: dotnet build HypnoScript.sln --configuration Release
+        run: dotnet build HypnoScript.sln --configuration Release --no-restore
+        working-directory: ${{ github.workspace }}
 
       - name: Perform CodeQL Analysis
         uses: github/codeql-action/analyze@v3
@@ -122,29 +132,87 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
+      - name: Check if base and head are different
+        id: commit-check
+        run: |
+          BASE="${{ github.event.pull_request.base.sha || format('{0}~1', github.sha) }}"
+          HEAD="${{ github.event.pull_request.head.sha || github.sha }}"
+
+          echo "BASE=$BASE" >> $GITHUB_OUTPUT
+          echo "HEAD=$HEAD" >> $GITHUB_OUTPUT
+
+          if [ "$BASE" == "$HEAD" ]; then
+            echo "same_commits=true" >> $GITHUB_OUTPUT
+            echo "Base and head commits are identical ($BASE), skipping TruffleHog scan."
+          else
+            echo "same_commits=false" >> $GITHUB_OUTPUT
+            echo "Base: $BASE, Head: $HEAD - proceeding with TruffleHog scan."
+          fi
+
       - name: Run TruffleHog
+        if: steps.commit-check.outputs.same_commits == 'false'
         uses: trufflesecurity/trufflehog@main
         with:
           path: .
-          base: HEAD~1
-          head: HEAD
+          base: ${{ steps.commit-check.outputs.BASE }}
+          head: ${{ steps.commit-check.outputs.HEAD }}
           extra_args: --only-verified
 
-      - name: Check for hardcoded secrets
+      - name: Skip TruffleHog (identical commits)
+        if: steps.commit-check.outputs.same_commits == 'true'
         run: |
-          # Check for common secret patterns
-          if grep -r -i "password\|secret\|key\|token\|api_key\|private_key" --include="*.cs" --include="*.json" --include="*.yml" --include="*.yaml" . | grep -v "//\|///\|TODO\|FIXME\|example\|test"; then
-            echo "::warning::Potential hardcoded secrets found"
+          echo "::notice::TruffleHog scan skipped - base and head commits are identical"
+
+      - name: Check for hardcoded secrets (refined)
+        run: |
+          # Check for actual hardcoded secrets with more specific patterns
+          # Look for assignment patterns with string literals containing potential secrets
+          echo "Scanning for potential hardcoded secrets..."
+
+          SECRET_FOUND=false
+
+          # Check for password assignments
+          if grep -r -E 'password\s*[:=]\s*["'"'"'][a-zA-Z0-9!@#$%^&*()_+{}|:<>?~`\-=\[\]\\;'"'"'",./]{8,}["'"'"']' --include="*.cs" --include="*.json" --include="*.config" --include="*.xml" . | grep -v -E '(test|example|sample|demo|placeholder|xxx|password123|default|template)'; then
+            echo "::warning::Potential hardcoded password found"
+            SECRET_FOUND=true
+          fi
+
+          # Check for API key assignments
+          if grep -r -E 'api[_-]?key\s*[:=]\s*["'"'"'][a-zA-Z0-9!@#$%^&*()_+{}|:<>?~`\-=\[\]\\;'"'"'",./]{16,}["'"'"']' --include="*.cs" --include="*.json" --include="*.config" --include="*.xml" . | grep -v -E '(test|example|sample|demo|placeholder|your-api-key|api-key-here)'; then
+            echo "::warning::Potential hardcoded API key found"
+            SECRET_FOUND=true
+          fi
+
+          # Check for secret assignments
+          if grep -r -E 'secret\s*[:=]\s*["'"'"'][a-zA-Z0-9!@#$%^&*()_+{}|:<>?~`\-=\[\]\\;'"'"'",./]{16,}["'"'"']' --include="*.cs" --include="*.json" --include="*.config" --include="*.xml" . | grep -v -E '(test|example|sample|demo|placeholder|client-secret-here|your-secret)'; then
+            echo "::warning::Potential hardcoded secret found"
+            SECRET_FOUND=true
+          fi
+
+          # Check for token assignments
+          if grep -r -E 'token\s*[:=]\s*["'"'"'][a-zA-Z0-9!@#$%^&*()_+{}|:<>?~`\-=\[\]\\;'"'"'",./]{20,}["'"'"']' --include="*.cs" --include="*.json" --include="*.config" --include="*.xml" . | grep -v -E '(test|example|sample|demo|placeholder|your-token|access-token-here)'; then
+            echo "::warning::Potential hardcoded token found"
+            SECRET_FOUND=true
+          fi
+
+          if [ "$SECRET_FOUND" == "true" ]; then
+            echo "::error::Potential hardcoded secrets detected. Please review the findings above."
+            exit 1
+          else
+            echo "::notice::No hardcoded secrets detected"
+          fi
+
+      - name: Check for exposed credentials in connection strings
+        run: |
+          # Check for connection strings with embedded credentials
+          echo "Scanning for connection strings with embedded credentials..."
+
+          if grep -r -i 'connectionstring.*password\s*=\s*[^;]*[a-zA-Z0-9]{6,}' --include="*.cs" --include="*.json" --include="*.config" --include="*.xml" . | grep -v -E '(test|example|sample|demo|placeholder|\$\{|\%\{|@)'; then
+            echo "::warning::Connection string with embedded password found"
             exit 1
           fi
 
-      - name: Check for exposed credentials
-        run: |
-          # Check for exposed credentials in logs or output
-          if grep -r -i "password.*=.*[a-zA-Z0-9]\{8,\}\|secret.*=.*[a-zA-Z0-9]\{8,\}\|token.*=.*[a-zA-Z0-9]\{8,\}" --include="*.cs" --include="*.log" .; then
-            echo "::warning::Exposed credentials found"
-            exit 1
-          fi
+          echo "::notice::No exposed connection string credentials detected"
 
   # Container security (if applicable)
   container-security:

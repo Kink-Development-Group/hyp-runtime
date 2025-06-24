@@ -1,21 +1,15 @@
 name: Dependency Update
 
+permissions:
+  contents: write
+  pull-requests: write
+  actions: read
+
 on:
   schedule:
     # Run every Monday at 9 AM UTC
     - cron: '0 9 * * 1'
   workflow_dispatch:
-    inputs:
-      update_type:
-        description: 'Type of update to perform'
-        required: true
-        default: 'all'
-        type: choice
-        options:
-          - all
-          - security
-          - minor
-          - major
 
 env:
   DOTNET_VERSION: '8.0.x'
@@ -126,8 +120,8 @@ jobs:
 
       - name: Update .NET packages
         run: |
-          # Update packages based on input
-          update_type="${{ github.event.inputs.update_type || 'all' }}"
+          # Update all packages (removed user input for security)
+          update_type="all"
 
           if [ "$update_type" = "security" ] || [ "$update_type" = "all" ]; then
             # Update vulnerable packages
@@ -152,7 +146,7 @@ jobs:
       - name: Update npm packages
         working-directory: HypnoScript.Dokumentation
         run: |
-          update_type="${{ github.event.inputs.update_type || 'all' }}"
+          update_type="all"
 
           if [ "$update_type" = "security" ] || [ "$update_type" = "all" ]; then
             # Update packages with security vulnerabilities

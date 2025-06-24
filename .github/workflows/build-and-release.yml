@@ -1,5 +1,9 @@
 name: Build & Release HypnoScript
 
+permissions:
+  contents: write
+  actions: read
+
 on:
   push:
     tags:
