@@ -409,7 +409,17 @@ namespace HypnoScript.LexerParser.Parser
 			List<IStatement>? elseBlock = null;
 			if (Match(TokenType.Else))
 			{
-				elseBlock = ParseBlockStatements();
+				if (Check(TokenType.If))
+				{
+					Advance(); // consume 'if'
+					var elseIfNode = ParseIfStatement();
+					// else-if als Block mit einem IfStatementNode
+					elseBlock = new List<IStatement> { elseIfNode };
+				}
+				else
+				{
+					elseBlock = ParseBlockStatements();
+				}
 			}
 
 			return new IfStatementNode(condition, thenBlock, elseBlock);

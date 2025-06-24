@@ -21,6 +21,12 @@ namespace HypnoScript.Compiler.Interpreter
 			public SinkToLabelException(string labelName) { LabelName = labelName; }
 		}
 
+		private class ReturnFromFunctionException : Exception
+		{
+			public object? Value { get; }
+			public ReturnFromFunctionException(object? value) { Value = value; }
+		}
+
 		public void ExecuteProgram(ProgramNode program)
 		{
 			// Führe entrance-Block (falls vorhanden) zuerst aus
@@ -73,9 +79,10 @@ namespace HypnoScript.Compiler.Interpreter
 						throw new Exception("drift() expects a number");
 					break;
 				case ReturnStatementNode ret:
-					// In einem vollwertigen System -> return from function
-					// Hier ignorieren wir's (kein function context)
-					break;
+					if (ret.Expression != null)
+						throw new ReturnFromFunctionException(EvaluateExpression(ret.Expression));
+					else
+						throw new ReturnFromFunctionException(null);
 				case ExpressionStatementNode exprStmt:
 					EvaluateExpression(exprStmt.Expression);
 					break;
@@ -577,11 +584,6 @@ namespace HypnoScript.Compiler.Interpreter
 						break;
 
 					// Erweiterte Zeit-Funktionen
-					case "FormatDateTime":
-						if (args.Length >= 1 && args[0] is string dtFormat)
-							return HypnoBuiltins.FormatDateTime(dtFormat);
-						else
-							return HypnoBuiltins.FormatDateTime();
 					case "GetDayOfWeek":
 						return HypnoBuiltins.GetDayOfWeek();
 					case "GetDayOfYear":
@@ -596,8 +598,6 @@ namespace HypnoScript.Compiler.Interpreter
 						break;
 
 					// Erweiterte System-Funktionen
-					case "GetCurrentDirectory":
-						return HypnoBuiltins.GetCurrentDirectory();
 					case "GetMachineName":
 						return HypnoBuiltins.GetMachineName();
 					case "GetUserName":
@@ -636,9 +636,6 @@ namespace HypnoScript.Compiler.Interpreter
 					case "DebugPrintStackTrace":
 						HypnoBuiltins.DebugPrintStackTrace();
 						return null;
-					case "DebugPrintEnvironment":
-						HypnoBuiltins.DebugPrintEnvironment();
-						return null;
 
 					// Array-Funktionen
 					case "ArrayLength":
@@ -646,19 +643,19 @@ namespace HypnoScript.Compiler.Interpreter
 							return HypnoBuiltins.ArrayLength(arrLen);
 						break;
 					case "ArrayGet":
-						if (args.Length >= 2 && args[0] is object[] arrGet && args[1] is int index)
-							return HypnoBuiltins.ArrayGet(arrGet, index);
+						if (args.Length >= 2 && args[0] is object[] arrGet && args[1] is int indexGet)
+							return HypnoBuiltins.ArrayGet(arrGet, indexGet);
 						break;
 					case "ArraySet":
-						if (args.Length >= 3 && args[0] is object[] arrSet && args[1] is int index)
+						if (args.Length >= 3 && args[0] is object[] arrSet && args[1] is int indexSet)
 						{
-							HypnoBuiltins.ArraySet(arrSet, index, args[2]);
+							HypnoBuiltins.ArraySet(arrSet, indexSet, args[2]);
 							return null;
 						}
 						break;
 					case "ArraySlice":
-						if (args.Length >= 3 && args[0] is object[] arrSlice && args[1] is int start && args[2] is int length)
-							return HypnoBuiltins.ArraySlice(arrSlice, start, length);
+						if (args.Length >= 3 && args[0] is object[] arrSlice && args[1] is int startSlice && args[2] is int length)
+							return HypnoBuiltins.ArraySlice(arrSlice, startSlice, length);
 						break;
 					case "ArrayConcat":
 						if (args.Length >= 2 && args[0] is object[] arr1 && args[1] is object[] arr2)
@@ -771,8 +768,8 @@ namespace HypnoScript.Compiler.Interpreter
 							return HypnoBuiltins.Contains(contStr, contSub);
 						break;
 					case "Replace":
-						if (args.Length >= 3 && args[0] is string repStr && args[1] is string repOld && args[2] is string repNew)
-							return HypnoBuiltins.Replace(repStr, repOld, repNew);
+						if (args.Length >= 3 && args[0] is string repStrReplace && args[1] is string repOld && args[2] is string repNew)
+							return HypnoBuiltins.Replace(repStrReplace, repOld, repNew);
 						break;
 					case "Trim":
 						if (args.Length >= 1 && args[0] is string trimStr)
@@ -818,23 +815,6 @@ namespace HypnoScript.Compiler.Interpreter
 						return HypnoBuiltins.GetCurrentTimeString();
 					case "GetCurrentDateTime":
 						return HypnoBuiltins.GetCurrentDateTime();
-					case "FormatDateTime":
-						if (args.Length >= 1 && args[0] is string format)
-							return HypnoBuiltins.FormatDateTime(format);
-						else
-							return HypnoBuiltins.FormatDateTime();
-					case "GetDayOfWeek":
-						return HypnoBuiltins.GetDayOfWeek();
-					case "GetDayOfYear":
-						return HypnoBuiltins.GetDayOfYear();
-					case "IsLeapYear":
-						if (args.Length >= 1 && args[0] is int leapYear)
-							return HypnoBuiltins.IsLeapYear(leapYear);
-						break;
-					case "GetDaysInMonth":
-						if (args.Length >= 2 && args[0] is int daysYear && args[1] is int daysMonth)
-							return HypnoBuiltins.GetDaysInMonth(daysYear, daysMonth);
-						break;
 
 					// System-Funktionen
 					case "ClearScreen":
@@ -850,18 +830,6 @@ namespace HypnoScript.Compiler.Interpreter
 						if (args.Length >= 1 && args[0] is string envVar)
 							return HypnoBuiltins.GetEnvironmentVariable(envVar);
 						break;
-					case "GetCurrentDirectory":
-						return HypnoBuiltins.GetCurrentDirectory();
-					case "GetMachineName":
-						return HypnoBuiltins.GetMachineName();
-					case "GetUserName":
-						return HypnoBuiltins.GetUserName();
-					case "GetOSVersion":
-						return HypnoBuiltins.GetOSVersion();
-					case "GetProcessorCount":
-						return HypnoBuiltins.GetProcessorCount();
-					case "GetWorkingSet":
-						return HypnoBuiltins.GetWorkingSet();
 
 					// Utility-Funktionen
 					case "IsValidEmail":
@@ -902,43 +870,6 @@ namespace HypnoScript.Compiler.Interpreter
 						if (args.Length >= 2 && args[0] is string postUrl && args[1] is string postData)
 							return HypnoBuiltins.HttpPost(postUrl, postData);
 						break;
-
-					// Hash- und Encoding-Funktionen
-					case "HashMD5":
-						if (args.Length >= 1 && args[0] is string md5Input)
-							return HypnoBuiltins.HashMD5(md5Input);
-						break;
-					case "HashSHA256":
-						if (args.Length >= 1 && args[0] is string shaInput)
-							return HypnoBuiltins.HashSHA256(shaInput);
-						break;
-					case "Base64Encode":
-						if (args.Length >= 1 && args[0] is string base64Input)
-							return HypnoBuiltins.Base64Encode(base64Input);
-						break;
-					case "Base64Decode":
-						if (args.Length >= 1 && args[0] is string base64Decode)
-							return HypnoBuiltins.Base64Decode(base64Decode);
-						break;
-
-					// Debug-Funktionen
-					case "DebugPrint":
-						if (args.Length >= 1)
-							HypnoBuiltins.DebugPrint(args[0]);
-						return null;
-					case "DebugPrintType":
-						if (args.Length >= 1)
-							HypnoBuiltins.DebugPrintType(args[0]);
-						return null;
-					case "DebugPrintMemory":
-						HypnoBuiltins.DebugPrintMemory();
-						return null;
-					case "DebugPrintStackTrace":
-						HypnoBuiltins.DebugPrintStackTrace();
-						return null;
-					case "DebugPrintEnvironment":
-						HypnoBuiltins.DebugPrintEnvironment();
-						return null;
 
 					// Statistik-Funktionen
 					case "CalculateMean":
@@ -1046,8 +977,8 @@ namespace HypnoScript.Compiler.Interpreter
 							return HypnoBuiltins.AverageArray(arrAvg);
 						break;
 					case "Range":
-						if (args.Length >= 2 && args[0] is int start && args[1] is int count)
-							return HypnoBuiltins.Range(start, count);
+						if (args.Length >= 2 && args[0] is int startRange && args[1] is int count)
+							return HypnoBuiltins.Range(startRange, count);
 						break;
 					case "Repeat":
 						if (args.Length >= 2 && args[1] is int repCount)
@@ -1093,8 +1024,8 @@ namespace HypnoScript.Compiler.Interpreter
 							return HypnoBuiltins.IsNullOrEmpty(args[0]?.ToString());
 						break;
 					case "RepeatString":
-						if (args.Length >= 2 && args[0] is string repStr && args[1] is int repN)
-							return HypnoBuiltins.RepeatString(repStr, repN);
+						if (args.Length >= 2 && args[0] is string repStrRepeat && args[1] is int repN)
+							return HypnoBuiltins.RepeatString(repStrRepeat, repN);
 						break;
 					case "ReverseWords":
 						if (args.Length >= 1 && args[0] is string revWords)
@@ -1277,7 +1208,33 @@ namespace HypnoScript.Compiler.Interpreter
 				throw new Exception($"Cannot call non-function: {callee}");
 			}
 
-			// Funktionsaufruf-Logik...
+			// Funktionsaufruf-Logik mit Rückgabewert
+			var localScope = new SymbolTable(_globals);
+			for (int i = 0; i < func.Parameters.Count; i++)
+			{
+				var param = func.Parameters[i];
+				var argValue = i < call.Arguments.Count ? EvaluateExpression(call.Arguments[i]) : null;
+				localScope.Define(new Symbol(param.Name, param.TypeName, argValue));
+			}
+
+			try
+			{
+				foreach (var stmt in func.Body)
+				{
+					if (stmt is ReturnStatementNode ret)
+					{
+						if (ret.Expression != null)
+							return EvaluateExpression(ret.Expression);
+						else
+							return null;
+					}
+					ExecuteStatement(stmt);
+				}
+			}
+			catch (ReturnFromFunctionException ex)
+			{
+				return ex.Value;
+			}
 			return null;
 		}
 
