@@ -7,7 +7,7 @@ License: MIT
 Installers:
   - Architecture: x64
     InstallerType: zip
-    InstallerUrl: https://github.com/hypnoscript/hyp-runtime/releases/download/v1.0.0/HypnoScript-windows-x64.zip
+    InstallerUrl: https://github.com/Kink-Development-Group/hyp-runtime/releases/download/v1.0.0/HypnoScript-windows-x64.zip
     InstallerSha256: <SHA256>
     Scope: machine
     NestedInstallerType: exe

@@ -66,7 +66,7 @@ HypnoScript bietet eine umfassende Standardbibliothek mit über 200 Funktionen:
 
 ```bash
 # Repository klonen
-git clone https://github.com/hypnoscript/hyp-runtime.git
+git clone https://github.com/Kink-Development-Group/hyp-runtime.git
 cd hyp-runtime
 
 # Projekt bauen
@@ -85,13 +85,13 @@ dotnet run --project HypnoScript.CLI -- run example.hyp
 
 ## Community
 
-- **GitHub**: [hypnoscript/hyp-runtime](https://github.com/hypnoscript/hyp-runtime)
-- **Issues**: [GitHub Issues](https://github.com/hypnoscript/hyp-runtime/issues)
-- **Discussions**: [GitHub Discussions](https://github.com/hypnoscript/hyp-runtime/discussions)
+- **GitHub**: [hypnoscript/hyp-runtime](https://github.com/Kink-Development-Group/hyp-runtime)
+- **Issues**: [GitHub Issues](https://github.com/Kink-Development-Group/hyp-runtime/issues)
+- **Discussions**: [GitHub Discussions](https://github.com/Kink-Development-Group/hyp-runtime/discussions)
 
 ## Lizenz
 
-HypnoScript ist unter der MIT-Lizenz veröffentlicht. Siehe [LICENSE](https://github.com/hypnoscript/hyp-runtime/blob/main/LICENSE) für Details.
+HypnoScript ist unter der MIT-Lizenz veröffentlicht. Siehe [LICENSE](https://github.com/Kink-Development-Group/hyp-runtime/blob/main/LICENSE) für Details.
 
 ---
 

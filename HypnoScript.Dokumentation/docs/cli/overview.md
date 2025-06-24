@@ -10,7 +10,7 @@ Die HypnoScript Command Line Interface (CLI) bietet eine vollständige Entwicklu
 
 ```bash
 # Repository klonen
-git clone https://github.com/hypnoscript/hyp-runtime.git
+git clone https://github.com/Kink-Development-Group/hyp-runtime.git
 cd hyp-runtime
 
 # Projekt bauen

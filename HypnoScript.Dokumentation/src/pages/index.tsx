@@ -232,19 +232,19 @@ export default function Home(): ReactNode {
                 <div className="margin-vert--md">
                   <Link
                     className="button button--secondary margin-horiz--sm"
-                    to="https://github.com/hypnoscript/hyp-runtime"
+                    to="https://github.com/Kink-Development-Group/hyp-runtime"
                   >
                     GitHub Repository
                   </Link>
                   <Link
                     className="button button--secondary margin-horiz--sm"
-                    to="https://github.com/hypnoscript/hyp-runtime/issues"
+                    to="https://github.com/Kink-Development-Group/hyp-runtime/issues"
                   >
                     Issues melden
                   </Link>
                   <Link
                     className="button button--secondary margin-horiz--sm"
-                    to="https://github.com/hypnoscript/hyp-runtime/discussions"
+                    to="https://github.com/Kink-Development-Group/hyp-runtime/discussions"
                   >
                     Diskussionen
                   </Link>

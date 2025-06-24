@@ -220,9 +220,9 @@ MIT License - siehe [LICENSE](../../LICENSE) für Details.
 ## 🔗 Links
 
 - **Live-Dokumentation**: https://hypnoscript.github.io/hyp-runtime/
-- **GitHub Repository**: https://github.com/hypnoscript/hyp-runtime
+- **GitHub Repository**: https://github.com/Kink-Development-Group/hyp-runtime
 - **Docusaurus**: https://docusaurus.io/
-- **Issues**: https://github.com/hypnoscript/hyp-runtime/issues
+- **Issues**: https://github.com/Kink-Development-Group/hyp-runtime/issues
 
 ---
 

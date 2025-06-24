@@ -57,7 +57,7 @@ sudo apt-get install -y dotnet-sdk-8.0
 
 ```bash
 # Repository klonen
-git clone https://github.com/hypnoscript/hyp-runtime.git
+git clone https://github.com/Kink-Development-Group/hyp-runtime.git
 cd hyp-runtime
 
 # Projekt bauen
@@ -69,7 +69,7 @@ dotnet run --project HypnoScript.CLI -- --help
 
 ### Option 2: Release-Download
 
-1. Gehe zu [GitHub Releases](https://github.com/hypnoscript/hyp-runtime/releases)
+1. Gehe zu [GitHub Releases](https://github.com/Kink-Development-Group/hyp-runtime/releases)
 2. Lade die neueste Version für dein Betriebssystem herunter
 3. Entpacke das Archiv
 4. Führe die ausführbare Datei aus
@@ -78,7 +78,7 @@ dotnet run --project HypnoScript.CLI -- --help
 
 ```bash
 # Repository klonen
-git clone https://github.com/hypnoscript/hyp-runtime.git
+git clone https://github.com/Kink-Development-Group/hyp-runtime.git
 cd hyp-runtime
 
 # Globale Installation
@@ -221,8 +221,8 @@ ls -la
 
 Bei Problemen:
 
-1. **GitHub Issues**: [Issues erstellen](https://github.com/hypnoscript/hyp-runtime/issues)
-2. **Discussions**: [Community-Diskussionen](https://github.com/hypnoscript/hyp-runtime/discussions)
+1. **GitHub Issues**: [Issues erstellen](https://github.com/Kink-Development-Group/hyp-runtime/issues)
+2. **Discussions**: [Community-Diskussionen](https://github.com/Kink-Development-Group/hyp-runtime/discussions)
 3. **Dokumentation**: Siehe [Troubleshooting Guide](../development/debugging)
 
 ## Nächste Schritte
