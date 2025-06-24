@@ -49,8 +49,8 @@ jobs:
             **/test-results.xml
 
       - name: Build documentation
+        working-directory: HypnoScript.Dokumentation
         run: |
-          cd HypnoScript.Dokumentation
           npm install
           npm run build
 
