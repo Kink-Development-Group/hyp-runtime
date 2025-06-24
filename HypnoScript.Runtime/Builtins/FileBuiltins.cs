@@ -6,7 +6,7 @@ using System.Collections.Generic;
 namespace HypnoScript.Runtime.Builtins
 {
     /// <summary>
-    /// File/Directory Builtins für HypnoScript (ausgelagert aus HypnoBuiltins)
+    /// Stellt Datei- und Verzeichnisfunktionen für HypnoScript bereit.
     /// </summary>
     public static class FileBuiltins
     {
@@ -87,5 +87,141 @@ namespace HypnoScript.Runtime.Builtins
             try { return Directory.GetDirectories(path); }
             catch (Exception ex) { HypnoBuiltins.Observe($"[Directory Error] {ex.Message}"); return Array.Empty<string>(); }
         }
+
+        /// <summary>
+        /// Copies a file
+        /// </summary>
+        public static void FileCopy(string source, string dest)
+        {
+            try
+            {
+                File.Copy(source, dest, true);
+            }
+            catch (Exception ex)
+            {
+                throw new InvalidOperationException($"Failed to copy file: {ex.Message}");
+            }
+        }
+
+        /// <summary>
+        /// Moves a file
+        /// </summary>
+        public static void FileMove(string source, string dest)
+        {
+            try
+            {
+                File.Move(source, dest);
+            }
+            catch (Exception ex)
+            {
+                throw new InvalidOperationException($"Failed to move file: {ex.Message}");
+            }
+        }
+
+        /// <summary>
+        /// Deletes a file
+        /// </summary>
+        public static void FileDelete(string path)
+        {
+            try
+            {
+                if (File.Exists(path))
+                {
+                    File.Delete(path);
+                }
+            }
+            catch (Exception ex)
+            {
+                throw new InvalidOperationException($"Failed to delete file: {ex.Message}");
+            }
+        }
+
+        /// <summary>
+        /// Gets file information
+        /// </summary>
+        public static Dictionary<string, object> GetFileInfo(string path)
+        {
+            try
+            {
+                var fileInfo = new FileInfo(path);
+                return new Dictionary<string, object>
+                {
+                    ["name"] = fileInfo.Name,
+                    ["fullName"] = fileInfo.FullName,
+                    ["size"] = fileInfo.Length,
+                    ["creationTime"] = fileInfo.CreationTime.ToString("yyyy-MM-dd HH:mm:ss"),
+                    ["lastWriteTime"] = fileInfo.LastWriteTime.ToString("yyyy-MM-dd HH:mm:ss"),
+                    ["extension"] = fileInfo.Extension,
+                    ["exists"] = fileInfo.Exists
+                };
+            }
+            catch
+            {
+                return new Dictionary<string, object>
+                {
+                    ["exists"] = false
+                };
+            }
+        }
+
+        /// <summary>
+        /// Checks if file is read-only
+        /// </summary>
+        public static bool IsFileReadOnly(string path) => (File.GetAttributes(path) & FileAttributes.ReadOnly) != 0;
+
+        /// <summary>
+        /// Sets file read-only attribute
+        /// </summary>
+        public static void SetFileReadOnly(string path, bool readOnly)
+        {
+            try
+            {
+                var attributes = File.GetAttributes(path);
+                if (readOnly)
+                    attributes |= FileAttributes.ReadOnly;
+                else
+                    attributes &= ~FileAttributes.ReadOnly;
+                File.SetAttributes(path, attributes);
+            }
+            catch (Exception ex)
+            {
+                throw new InvalidOperationException($"Failed to set file attributes: {ex.Message}");
+            }
+        }
+
+        /// <summary>
+        /// Gets file creation time
+        /// </summary>
+        public static string GetFileCreationTime(string path) => File.GetCreationTime(path).ToString("yyyy-MM-dd HH:mm:ss");
+
+        /// <summary>
+        /// Gets file last write time
+        /// </summary>
+        public static string GetFileLastWriteTime(string path) => File.GetLastWriteTime(path).ToString("yyyy-MM-dd HH:mm:ss");
+
+        /// <summary>
+        /// Gets file size in MB
+        /// </summary>
+        public static double GetFileSizeMB(string path) => new FileInfo(path).Length / (1024.0 * 1024.0);
+
+        /// <summary>
+        /// Gets file name without extension
+        /// </summary>
+        public static string GetFileNameWithoutExtension(string path) => Path.GetFileNameWithoutExtension(path);
+
+        /// <summary>
+        /// Combines path components
+        /// </summary>
+        public static string CombinePath(string path1, string path2) => Path.Combine(path1, path2);
+
+        /// <summary>
+        /// Gets current directory
+        /// </summary>
+        public static string GetCurrentDirectory() => Environment.CurrentDirectory;
+
+        /// <summary>
+        /// Gets temporary path
+        /// </summary>
+        public static string GetTempPath() => Path.GetTempPath();
     }
 }

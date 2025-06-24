@@ -3,64 +3,69 @@ using System.Net.Http;
 using System.Threading.Tasks;
 using System.Threading;
 using System.Web;
+using System.Text.Json;
 
 namespace HypnoScript.Runtime.Builtins
 {
     /// <summary>
-    /// Network Builtins für HypnoScript (ausgelagert aus HypnoBuiltins)
+    /// Stellt Netzwerk- und HTTP-Funktionen für HypnoScript bereit.
     /// </summary>
     public static class NetworkBuiltins
     {
-        /// <summary>Führt einen asynchronen HTTP-GET-Request aus.</summary>
-        public static async Task<string> HttpGetAsync(string url, CancellationToken cancellationToken = default)
+        private static readonly HttpClient _httpClient = new HttpClient();
+
+        /// <summary>
+        /// Makes an HTTP GET request
+        /// </summary>
+        public static async Task<string> HttpGet(string url)
         {
             try
             {
-                using (var client = new HttpClient())
-                {
-                    client.Timeout = TimeSpan.FromSeconds(10);
-                    var response = await client.GetAsync(url, cancellationToken);
-                    return await response.Content.ReadAsStringAsync();
-                }
+                var response = await _httpClient.GetAsync(url);
+                response.EnsureSuccessStatusCode();
+                return await response.Content.ReadAsStringAsync();
             }
             catch (Exception ex)
             {
-                HypnoBuiltins.Observe($"HTTP GET error: {ex.Message}");
-                return string.Empty;
+                throw new InvalidOperationException($"HTTP GET failed: {ex.Message}");
             }
         }
-        /// <summary>Führt einen asynchronen HTTP-POST-Request aus.</summary>
-        public static async Task<string> HttpPostAsync(string url, string data, CancellationToken cancellationToken = default)
+
+        /// <summary>
+        /// Makes an HTTP POST request
+        /// </summary>
+        public static async Task<string> HttpPost(string url, string content)
         {
             try
             {
-                using (var client = new HttpClient())
-                {
-                    client.Timeout = TimeSpan.FromSeconds(10);
-                    var content = new StringContent(data, System.Text.Encoding.UTF8, "application/json");
-                    var response = await client.PostAsync(url, content, cancellationToken);
-                    return await response.Content.ReadAsStringAsync();
-                }
+                var httpContent = new StringContent(content);
+                var response = await _httpClient.PostAsync(url, httpContent);
+                response.EnsureSuccessStatusCode();
+                return await response.Content.ReadAsStringAsync();
             }
             catch (Exception ex)
             {
-                HypnoBuiltins.Observe($"HTTP POST error: {ex.Message}");
-                return string.Empty;
+                throw new InvalidOperationException($"HTTP POST failed: {ex.Message}");
             }
         }
-        /// <summary>Führt einen synchronen HTTP-GET-Request aus.</summary>
-        public static string HttpGet(string url) => HttpGetAsync(url).GetAwaiter().GetResult();
-        /// <summary>Führt einen synchronen HTTP-POST-Request aus.</summary>
-        public static string HttpPost(string url, string data) => HttpPostAsync(url, data).GetAwaiter().GetResult();
-        /// <summary>Prüft, ob eine E-Mail-Adresse gültig ist.</summary>
-        public static bool IsValidEmail(string email)
+
+        /// <summary>
+        /// Makes an HTTP POST request with JSON content
+        /// </summary>
+        public static async Task<string> HttpPostJson(string url, object data)
         {
             try
             {
-                var addr = new System.Net.Mail.MailAddress(email);
-                return addr.Address == email;
+                var json = JsonSerializer.Serialize(data);
+                var httpContent = new StringContent(json, System.Text.Encoding.UTF8, "application/json");
+                var response = await _httpClient.PostAsync(url, httpContent);
+                response.EnsureSuccessStatusCode();
+                return await response.Content.ReadAsStringAsync();
             }
-            catch { return false; }
+            catch (Exception ex)
+            {
+                throw new InvalidOperationException($"HTTP POST JSON failed: {ex.Message}");
+            }
         }
         /// <summary>Prüft, ob eine URL gültig ist.</summary>
         public static bool IsValidUrl(string url) => Uri.TryCreate(url, UriKind.Absolute, out _);
@@ -90,6 +95,24 @@ namespace HypnoScript.Runtime.Builtins
         public static bool IsLocalhost(string url)
         {
             try { var uri = new Uri(url); return uri.Host == "localhost" || uri.Host == "127.0.0.1"; } catch { return false; }
+        }
+
+        /// <summary>
+        /// Validates email format
+        /// </summary>
+        public static bool IsValidEmail(string email)
+        {
+            if (string.IsNullOrEmpty(email)) return false;
+
+            try
+            {
+                var regex = new System.Text.RegularExpressions.Regex(@"^[^@\s]+@[^@\s]+\.[^@\s]+$");
+                return regex.IsMatch(email);
+            }
+            catch
+            {
+                return false;
+            }
         }
     }
 }

@@ -9,6 +9,7 @@ namespace HypnoScript.Compiler.CodeGen
 	{
 		public required ILGenerator _il;
 		private readonly Dictionary<string, LocalBuilder> _locals = new();
+		private readonly Stack<(Label start, Label end)> _loopContext = new();
 
 		public Action Generate(ProgramNode program)
 		{
@@ -47,7 +48,7 @@ namespace HypnoScript.Compiler.CodeGen
 					break;
 				case ExpressionStatementNode exprStmt:
 					EmitExpression(exprStmt.Expression);
-					// Discard the result to maintain stack integrity
+					// Pop the result since we don't need it
 					_il.Emit(OpCodes.Pop);
 					break;
 				case IfStatementNode ifStmt:
@@ -61,11 +62,27 @@ namespace HypnoScript.Compiler.CodeGen
 					break;
 				case SnapStatementNode:
 					// Break - jump to end of current loop
-					// TODO: Implement proper break handling with loop labels
+					if (_loopContext.Count > 0)
+					{
+						var (_, endLabel) = _loopContext.Peek();
+						_il.Emit(OpCodes.Br, endLabel);
+					}
+					else
+					{
+						throw new InvalidOperationException("Break statement outside of loop context");
+					}
 					break;
 				case SinkStatementNode:
 					// Continue - jump to start of current loop
-					// TODO: Implement proper continue handling with loop labels
+					if (_loopContext.Count > 0)
+					{
+						var (startLabel, _) = _loopContext.Peek();
+						_il.Emit(OpCodes.Br, startLabel);
+					}
+					else
+					{
+						throw new InvalidOperationException("Continue statement outside of loop context");
+					}
 					break;
 				case BlockStatementNode block:
 					// Process each statement in the block
@@ -140,6 +157,9 @@ namespace HypnoScript.Compiler.CodeGen
 			Label loopStart = _il.DefineLabel();
 			Label loopEnd = _il.DefineLabel();
 
+			// Push loop context for break/continue support
+			_loopContext.Push((loopStart, loopEnd));
+
 			_il.MarkLabel(loopStart);
 			EmitExpression(whileStmt.Condition);
 			_il.Emit(OpCodes.Call, typeof(ILCodeGenerator).GetMethod(nameof(UnboxToBool), BindingFlags.Static | BindingFlags.NonPublic)!);
@@ -151,6 +171,9 @@ namespace HypnoScript.Compiler.CodeGen
 			}
 			_il.Emit(OpCodes.Br, loopStart);
 			_il.MarkLabel(loopEnd);
+
+			// Pop loop context
+			_loopContext.Pop();
 		}
 
 		// Helper method to unbox an object to a boolean value
@@ -419,6 +442,9 @@ namespace HypnoScript.Compiler.CodeGen
 			Label loopStart = _il.DefineLabel();
 			Label loopEnd = _il.DefineLabel();
 
+			// Push loop context for break/continue support
+			_loopContext.Push((loopStart, loopEnd));
+
 			// Emit initializer
 			if (loopStmt.Initializer != null)
 			{
@@ -446,6 +472,9 @@ namespace HypnoScript.Compiler.CodeGen
 
 			_il.Emit(OpCodes.Br, loopStart);
 			_il.MarkLabel(loopEnd);
+
+			// Pop loop context
+			_loopContext.Pop();
 		}
 
 		private void EmitSessionDeclaration(SessionDeclNode sessionDecl)

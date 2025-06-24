@@ -4,6 +4,10 @@ using HypnoScript.Core.Types;
 using HypnoScript.Compiler.Error;
 using System.Collections.Generic;
 using HypnoScript.Core.Symbols;
+using HypnoScript.LexerParser.Lexer;
+using HypnoScript.LexerParser.Parser;
+using System.IO;
+using System.Linq;
 
 namespace HypnoScript.Compiler.Analysis
 {
@@ -13,6 +17,8 @@ namespace HypnoScript.Compiler.Analysis
         private readonly Dictionary<string, TranceifyDeclNode> _tranceifies = new();
         private readonly SymbolTable _globals = new();
         private HashSet<string> _labelsInScope = new();
+        private readonly Dictionary<string, string?> _typeCache = new();
+        private readonly List<string> _importedFiles = new();
 
         // Runtime-Level: Neben der reinen Traversierung werden Typ-Inkonsistenzen protokolliert.
         public void Check(ProgramNode program)
@@ -37,40 +43,19 @@ namespace HypnoScript.Compiler.Analysis
             switch (stmt)
             {
                 case VarDeclNode varDecl:
-                    var initType = InferExpressionType(varDecl.Initializer);
-                    if (varDecl.TypeName != null && initType != null && varDecl.TypeName != initType)
-                    {
-                        ErrorReporter.Report($"Type mismatch: Variable '{varDecl.Identifier}' declared as '{varDecl.TypeName}' but initializer is '{initType}'", 0, 0, "TYPE002");
-                    }
-                    if (!_globals.Define(new HypnoScript.Core.Symbols.Symbol(varDecl.Identifier, varDecl.TypeName)))
-                    {
-                        ErrorReporter.Report($"Variable '{varDecl.Identifier}' already defined", 0, 0, "TYPE003");
-                    }
+                    CheckVarDeclaration(varDecl);
                     break;
                 case FunctionDeclNode funcDecl:
-                    // Funktionssymbol anlegen
-                    _globals.Define(new HypnoScript.Core.Symbols.Symbol(funcDecl.Name, funcDecl.ReturnType));
-                    foreach (var s in funcDecl.Body)
-                    {
-                        CheckStatement(s);
-                    }
+                    CheckFunctionDeclaration(funcDecl);
                     break;
                 case SessionDeclNode session:
-                    // Felder und Methoden prüfen
-                    foreach (var member in session.Members)
-                    {
-                        CheckSessionMember(member);
-                    }
+                    CheckSessionDeclaration(session);
                     break;
                 case SessionMemberNode sessionMember:
                     CheckSessionMember(sessionMember);
                     break;
                 case TranceifyDeclNode trance:
-                    // Felder prüfen
-                    foreach (var member in trance.Members)
-                    {
-                        CheckStatement(member);
-                    }
+                    CheckTranceifyDeclaration(trance);
                     break;
                 case ExpressionStatementNode exprStmt:
                     CheckExpression(exprStmt.Expression);
@@ -79,82 +64,334 @@ namespace HypnoScript.Compiler.Analysis
                     CheckExpression(obs.Expression);
                     break;
                 case DriftStatementNode drift:
-                    var driftType = InferExpressionType(drift.Milliseconds);
-                    if (driftType != "number")
-                    {
-                        ErrorReporter.Report($"drift() expects number, got '{driftType}'", 0, 0, "TYPE004");
-                    }
+                    CheckDriftStatement(drift);
                     break;
                 case ReturnStatementNode ret:
-                    CheckExpression(ret.Expression);
+                    CheckReturnStatement(ret);
                     break;
                 case IfStatementNode ifStmt:
-                    var conditionType = InferExpressionType(ifStmt.Condition);
-                    if (conditionType != "boolean")
-                    {
-                        ErrorReporter.Report($"if condition must be boolean, got '{conditionType}'", 0, 0, "TYPE005");
-                    }
-                    foreach (var s in ifStmt.ThenBranch)
-                        CheckStatement(s);
-                    if (ifStmt.ElseBranch != null)
-                        foreach (var s in ifStmt.ElseBranch)
-                            CheckStatement(s);
+                    CheckIfStatement(ifStmt);
                     break;
                 case WhileStatementNode whileStmt:
-                    var whileConditionType = InferExpressionType(whileStmt.Condition);
-                    if (whileConditionType != "boolean")
-                    {
-                        ErrorReporter.Report($"while condition must be boolean, got '{whileConditionType}'", 0, 0, "TYPE006");
-                    }
-                    foreach (var s in whileStmt.Body)
-                        CheckStatement(s);
+                    CheckWhileStatement(whileStmt);
                     break;
                 case LoopStatementNode loopStmt:
-                    var loopConditionType = InferExpressionType(loopStmt.Condition);
-                    if (loopConditionType != "boolean")
-                    {
-                        ErrorReporter.Report($"loop condition must be boolean, got '{loopConditionType}'", 0, 0, "TYPE007");
-                    }
-                    if (loopStmt.Initializer != null)
-                        CheckStatement(loopStmt.Initializer);
-                    if (loopStmt.Iteration != null)
-                        CheckStatement(loopStmt.Iteration);
-                    foreach (var s in loopStmt.Body)
-                        CheckStatement(s);
+                    CheckLoopStatement(loopStmt);
                     break;
                 case SnapStatementNode:
                 case SinkStatementNode:
                     // Keine spezielle Typprüfung nötig
                     break;
                 case MindLinkNode mindLink:
-                    // TODO: Später importierte Symbole in _sessions, _tranceifies, _globals übernehmen
+                    CheckMindLink(mindLink);
                     break;
                 case SharedTranceVarDeclNode shared:
-                    var sharedType = InferExpressionType(shared.Initializer);
-                    if (shared.TypeName != null && sharedType != null && shared.TypeName != sharedType)
-                    {
-                        ErrorReporter.Report($"Type mismatch: sharedTrance variable '{shared.Identifier}' declared as '{shared.TypeName}' but initializer is '{sharedType}'", 0, 0, "TYPE020");
-                    }
-                    if (!_globals.Define(new HypnoScript.Core.Symbols.Symbol(shared.Identifier, shared.TypeName)))
-                    {
-                        ErrorReporter.Report($"sharedTrance variable '{shared.Identifier}' already defined", 0, 0, "TYPE021");
-                    }
+                    CheckSharedTranceVarDeclaration(shared);
                     break;
                 case LabelNode label:
-                    _labelsInScope.Add(label.Name);
+                    CheckLabelDeclaration(label);
                     break;
                 case SinkToNode sinkTo:
-                    if (!_labelsInScope.Contains(sinkTo.LabelName))
-                    {
-                        ErrorReporter.Report($"sinkTo label '{sinkTo.LabelName}' not found in scope", 0, 0, "TYPE030");
-                    }
+                    CheckSinkToStatement(sinkTo);
                     break;
                 case EntranceBlockNode entrance:
-                    foreach (var s in entrance.Statements)
-                        CheckStatement(s);
+                    CheckEntranceBlock(entrance);
+                    break;
+                case AssertStatementNode assertStmt:
+                    CheckAssertStatement(assertStmt);
                     break;
                 default:
+                    ErrorReporter.ReportWarning($"Unsupported statement type: {stmt.GetType().Name}", 0, 0, "TYPE999");
                     break;
+            }
+        }
+
+        private void CheckVarDeclaration(VarDeclNode varDecl)
+        {
+            var initType = InferExpressionType(varDecl.Initializer);
+
+            // Strengere Typprüfung
+            if (varDecl.TypeName != null)
+            {
+                if (!IsValidType(varDecl.TypeName))
+                {
+                    ErrorReporter.Report($"Invalid type '{varDecl.TypeName}' for variable '{varDecl.Identifier}'", 0, 0, "TYPE001");
+                    return;
+                }
+
+                if (initType != null && varDecl.TypeName != initType && !IsTypeCompatible(varDecl.TypeName, initType))
+                {
+                    ErrorReporter.Report($"Type mismatch: Variable '{varDecl.Identifier}' declared as '{varDecl.TypeName}' but initializer is '{initType}'", 0, 0, "TYPE002");
+                }
+            }
+            else if (initType == null || initType == "unknown")
+            {
+                ErrorReporter.Report($"Type of variable '{varDecl.Identifier}' could not be inferred (unknown type)", 0, 0, "TYPE910");
+            }
+
+            if (!_globals.Define(new Symbol(varDecl.Identifier, varDecl.TypeName ?? initType)))
+            {
+                ErrorReporter.Report($"Variable '{varDecl.Identifier}' already defined", 0, 0, "TYPE003");
+            }
+        }
+
+        private void CheckFunctionDeclaration(FunctionDeclNode funcDecl)
+        {
+            // Prüfe Parameter-Typen
+            foreach (var param in funcDecl.Parameters)
+            {
+                if (!IsValidType(param.TypeName))
+                {
+                    ErrorReporter.Report($"Invalid parameter type '{param.TypeName}' in function '{funcDecl.Name}'", 0, 0, "TYPE004");
+                }
+            }
+
+            // Prüfe Return-Typ
+            if (funcDecl.ReturnType != null && !IsValidType(funcDecl.ReturnType))
+            {
+                ErrorReporter.Report($"Invalid return type '{funcDecl.ReturnType}' for function '{funcDecl.Name}'", 0, 0, "TYPE005");
+            }
+
+            // Funktionssymbol anlegen
+            _globals.Define(new Symbol(funcDecl.Name, funcDecl.ReturnType ?? "unknown"));
+
+            // Prüfe Funktionskörper
+            foreach (var stmt in funcDecl.Body)
+            {
+                CheckStatement(stmt);
+            }
+        }
+
+        private void CheckSessionDeclaration(SessionDeclNode session)
+        {
+            if (_sessions.ContainsKey(session.Name))
+            {
+                ErrorReporter.Report($"Session '{session.Name}' already defined", 0, 0, "TYPE006");
+                return;
+            }
+
+            // Felder und Methoden prüfen
+            foreach (var member in session.Members)
+            {
+                CheckSessionMember(member);
+            }
+
+            ValidateSession(session);
+        }
+
+        private void CheckTranceifyDeclaration(TranceifyDeclNode trance)
+        {
+            if (_tranceifies.ContainsKey(trance.Name))
+            {
+                ErrorReporter.Report($"Tranceify '{trance.Name}' already defined", 0, 0, "TYPE007");
+                return;
+            }
+
+            // Felder prüfen
+            foreach (var member in trance.Members)
+            {
+                CheckStatement(member);
+            }
+
+            ValidateTranceify(trance);
+        }
+
+        private void CheckDriftStatement(DriftStatementNode drift)
+        {
+            var driftType = InferExpressionType(drift.Milliseconds);
+            if (driftType != "number" && driftType != "int")
+            {
+                ErrorReporter.Report($"drift() expects number, got '{driftType}'", 0, 0, "TYPE008");
+            }
+        }
+
+        private void CheckReturnStatement(ReturnStatementNode ret)
+        {
+            if (ret.Expression != null)
+            {
+                var returnType = InferExpressionType(ret.Expression);
+                // TODO: Prüfe gegen aktuellen Funktions-Return-Typ
+            }
+            CheckExpression(ret.Expression);
+        }
+
+        private void CheckIfStatement(IfStatementNode ifStmt)
+        {
+            var conditionType = InferExpressionType(ifStmt.Condition);
+            if (conditionType != "boolean")
+            {
+                ErrorReporter.Report($"if condition must be boolean, got '{conditionType}'", 0, 0, "TYPE009");
+            }
+            foreach (var s in ifStmt.ThenBranch)
+                CheckStatement(s);
+            if (ifStmt.ElseBranch != null)
+                foreach (var s in ifStmt.ElseBranch)
+                    CheckStatement(s);
+        }
+
+        private void CheckWhileStatement(WhileStatementNode whileStmt)
+        {
+            var whileConditionType = InferExpressionType(whileStmt.Condition);
+            if (whileConditionType != "boolean")
+            {
+                ErrorReporter.Report($"while condition must be boolean, got '{whileConditionType}'", 0, 0, "TYPE010");
+            }
+            foreach (var s in whileStmt.Body)
+                CheckStatement(s);
+        }
+
+        private void CheckLoopStatement(LoopStatementNode loopStmt)
+        {
+            var loopConditionType = InferExpressionType(loopStmt.Condition);
+            if (loopConditionType != "boolean")
+            {
+                ErrorReporter.Report($"loop condition must be boolean, got '{loopConditionType}'", 0, 0, "TYPE011");
+            }
+            if (loopStmt.Initializer != null)
+                CheckStatement(loopStmt.Initializer);
+            if (loopStmt.Iteration != null)
+                CheckStatement(loopStmt.Iteration);
+            foreach (var s in loopStmt.Body)
+                CheckStatement(s);
+        }
+
+        private void CheckMindLink(MindLinkNode mindLink)
+        {
+            // Vollständige Symbolübernahme bei MindLink
+            if (_importedFiles.Contains(mindLink.FileName))
+            {
+                ErrorReporter.ReportWarning($"File '{mindLink.FileName}' already imported", 0, 0, "TYPE012");
+                return;
+            }
+
+            try
+            {
+                if (!File.Exists(mindLink.FileName))
+                {
+                    ErrorReporter.Report($"Import file '{mindLink.FileName}' not found", 0, 0, "TYPE013");
+                    return;
+                }
+
+                var code = File.ReadAllText(mindLink.FileName);
+                var lexer = new HypnoLexer(code);
+                var tokens = lexer.Lex();
+                var parser = new HypnoParser(tokens);
+                var importedProgram = parser.ParseProgram();
+
+                // Übernehme Sessions
+                foreach (var stmt in importedProgram.Statements)
+                {
+                    if (stmt is SessionDeclNode session)
+                    {
+                        if (!_sessions.ContainsKey(session.Name))
+                        {
+                            _sessions[session.Name] = session;
+                        }
+                        else
+                        {
+                            ErrorReporter.ReportWarning($"Session '{session.Name}' from '{mindLink.FileName}' conflicts with existing definition", 0, 0, "TYPE014");
+                        }
+                    }
+                }
+
+                // Übernehme Tranceifies
+                foreach (var stmt in importedProgram.Statements)
+                {
+                    if (stmt is TranceifyDeclNode trance)
+                    {
+                        if (!_tranceifies.ContainsKey(trance.Name))
+                        {
+                            _tranceifies[trance.Name] = trance;
+                        }
+                        else
+                        {
+                            ErrorReporter.ReportWarning($"Tranceify '{trance.Name}' from '{mindLink.FileName}' conflicts with existing definition", 0, 0, "TYPE015");
+                        }
+                    }
+                }
+
+                // Übernehme Funktionen
+                foreach (var stmt in importedProgram.Statements)
+                {
+                    if (stmt is FunctionDeclNode func)
+                    {
+                        if (_globals.Resolve(func.Name) == null)
+                        {
+                            _globals.Define(new Symbol(func.Name, func.ReturnType ?? "unknown"));
+                        }
+                        else
+                        {
+                            ErrorReporter.ReportWarning($"Function '{func.Name}' from '{mindLink.FileName}' conflicts with existing definition", 0, 0, "TYPE016");
+                        }
+                    }
+                }
+
+                // Übernehme globale Variablen
+                foreach (var stmt in importedProgram.Statements)
+                {
+                    if (stmt is VarDeclNode varDecl)
+                    {
+                        if (_globals.Resolve(varDecl.Identifier) == null)
+                        {
+                            _globals.Define(new Symbol(varDecl.Identifier, varDecl.TypeName ?? "unknown"));
+                        }
+                        else
+                        {
+                            ErrorReporter.ReportWarning($"Variable '{varDecl.Identifier}' from '{mindLink.FileName}' conflicts with existing definition", 0, 0, "TYPE017");
+                        }
+                    }
+                }
+
+                _importedFiles.Add(mindLink.FileName);
+            }
+            catch (Exception ex)
+            {
+                ErrorReporter.Report($"Failed to import '{mindLink.FileName}': {ex.Message}", 0, 0, "TYPE018");
+            }
+        }
+
+        private void CheckSharedTranceVarDeclaration(SharedTranceVarDeclNode shared)
+        {
+            var sharedType = InferExpressionType(shared.Initializer);
+            if (shared.TypeName != null && sharedType != null && shared.TypeName != sharedType && !IsTypeCompatible(shared.TypeName, sharedType))
+            {
+                ErrorReporter.Report($"Type mismatch: sharedTrance variable '{shared.Identifier}' declared as '{shared.TypeName}' but initializer is '{sharedType}'", 0, 0, "TYPE020");
+            }
+            if (!_globals.Define(new Symbol(shared.Identifier, shared.TypeName ?? sharedType)))
+            {
+                ErrorReporter.Report($"sharedTrance variable '{shared.Identifier}' already defined", 0, 0, "TYPE021");
+            }
+        }
+
+        private void CheckLabelDeclaration(LabelNode label)
+        {
+            if (_labelsInScope.Contains(label.Name))
+            {
+                ErrorReporter.Report($"Label '{label.Name}' already defined in scope", 0, 0, "TYPE022");
+            }
+            _labelsInScope.Add(label.Name);
+        }
+
+        private void CheckSinkToStatement(SinkToNode sinkTo)
+        {
+            if (!_labelsInScope.Contains(sinkTo.LabelName))
+            {
+                ErrorReporter.Report($"sinkTo label '{sinkTo.LabelName}' not found in scope", 0, 0, "TYPE030");
+            }
+        }
+
+        private void CheckEntranceBlock(EntranceBlockNode entrance)
+        {
+            foreach (var s in entrance.Statements)
+                CheckStatement(s);
+        }
+
+        private void CheckAssertStatement(AssertStatementNode assertStmt)
+        {
+            var conditionType = InferExpressionType(assertStmt.Condition);
+            if (conditionType != "boolean")
+            {
+                ErrorReporter.Report($"Assert condition must be boolean, got '{conditionType}'", 0, 0, "TYPE031");
             }
         }
 
@@ -170,102 +407,293 @@ namespace HypnoScript.Compiler.Analysis
             switch (expr)
             {
                 case LiteralExpressionNode lit:
-                    if(lit.LiteralType == "number" && !double.TryParse(lit.Value, out _))
-                    {
-                        ErrorReporter.Report("Invalid numeric literal", 0, 0, "TYPE001");
-                    }
+                    CheckLiteralExpression(lit);
                     break;
                 case BinaryExpressionNode bin:
-                    CheckExpression(bin.Left);
-                    CheckExpression(bin.Right);
+                    CheckBinaryExpression(bin);
                     break;
                 case UnaryExpressionNode unary:
-                    CheckExpression(unary.Operand);
+                    CheckUnaryExpression(unary);
                     break;
                 case ParenthesizedExpressionNode paren:
                     CheckExpression(paren.Expression);
                     break;
                 case AssignmentExpressionNode assign:
-                    CheckExpression(assign.Value);
-                    break;
-                case IdentifierExpressionNode id:
-                    var sym = _globals.Resolve(id.Name);
-                    if (sym == null)
-                    {
-                        ErrorReporter.Report($"Variable '{id.Name}' not defined", 0, 0, "TYPE008");
-                    }
+                    CheckAssignmentExpression(assign);
                     break;
                 case CallExpressionNode call:
-                    CheckExpression(call.Callee);
-                    foreach (var arg in call.Arguments)
-                        CheckExpression(arg);
+                    CheckCallExpression(call);
                     break;
-                case MethodCallExpressionNode methodCall:
-                    CheckExpression(methodCall.Target);
-                    foreach (var arg in methodCall.Arguments)
-                        CheckExpression(arg);
-                    break;
-                case SessionInstantiationNode sessionInst:
-                    if (!_sessions.ContainsKey(sessionInst.SessionName))
-                    {
-                        ErrorReporter.Report($"Session '{sessionInst.SessionName}' not defined", 0, 0, "TYPE009");
-                    }
-                    foreach (var arg in sessionInst.Arguments)
-                        CheckExpression(arg);
-                    break;
-                case RecordLiteralExpressionNode rec:
-                    // Prüfe, ob tranceify-Typ existiert
-                    if (!_tranceifies.TryGetValue(rec.TypeName, out var tranceDef))
-                    {
-                        ErrorReporter.Report($"tranceify type '{rec.TypeName}' not defined", 0, 0, "TYPE010");
-                        break;
-                    }
-                    // Prüfe Felder
-                    var tranceFields = new HashSet<string>(tranceDef.Members.ConvertAll(f => f.Identifier));
-                    foreach (var kv in rec.Fields)
-                    {
-                        if (!tranceFields.Contains(kv.Key))
-                        {
-                            ErrorReporter.Report($"Field '{kv.Key}' not in tranceify '{rec.TypeName}'", 0, 0, "TYPE011");
-                        }
-                        CheckExpression(kv.Value);
-                    }
-                    break;
-                case FieldAccessExpressionNode field:
-                    // Prüfe Typ des Targets
-                    var targetType = InferExpressionType(field.Target);
-                    if (targetType == null)
-                        break;
-                    // Prüfe tranceify-Feld
-                    if (_tranceifies.TryGetValue(targetType, out var tranceType))
-                    {
-                        var found = tranceType.Members.Exists(f => f.Identifier == field.FieldName);
-                        if (!found)
-                        {
-                            ErrorReporter.Report($"Field '{field.FieldName}' not found in tranceify '{targetType}'", 0, 0, "TYPE012");
-                        }
-                    }
-                    // Prüfe Session-Feld
-                    if (_sessions.TryGetValue(targetType, out var sessionType))
-                    {
-                        var found = sessionType.Members.Exists(f => f.Declaration is VarDeclNode v && v.Identifier == field.FieldName);
-                        if (!found)
-                        {
-                            ErrorReporter.Report($"Field '{field.FieldName}' not found in session '{targetType}'", 0, 0, "TYPE013");
-                        }
-                    }
+                case IdentifierExpressionNode id:
+                    CheckIdentifierExpression(id);
                     break;
                 case ArrayAccessExpressionNode arrayAccess:
-                    CheckExpression(arrayAccess.Array);
-                    CheckExpression(arrayAccess.Index);
+                    CheckArrayAccessExpression(arrayAccess);
                     break;
                 case ArrayLiteralExpressionNode arrayLit:
-                    foreach (var element in arrayLit.Elements)
-                        CheckExpression(element);
+                    CheckArrayLiteralExpression(arrayLit);
+                    break;
+                case FieldAccessExpressionNode fieldAccess:
+                    CheckFieldAccessExpression(fieldAccess);
+                    break;
+                case RecordLiteralExpressionNode recordLit:
+                    CheckRecordLiteralExpression(recordLit);
+                    break;
+                case SessionInstantiationNode sessionInst:
+                    CheckSessionInstantiation(sessionInst);
+                    break;
+                case MethodCallExpressionNode methodCall:
+                    CheckMethodCallExpression(methodCall);
                     break;
                 default:
+                    ErrorReporter.ReportWarning($"Unsupported expression type: {expr.GetType().Name}", 0, 0, "TYPE999");
                     break;
             }
+        }
+
+        private void CheckLiteralExpression(LiteralExpressionNode lit)
+        {
+            switch (lit.LiteralType)
+            {
+                case "number":
+                    if (!double.TryParse(lit.Value, out _))
+                    {
+                        ErrorReporter.Report($"Invalid numeric literal: {lit.Value}", 0, 0, "TYPE032");
+                    }
+                    break;
+                case "string":
+                    // String-Literale sind immer gültig
+                    break;
+                case "boolean":
+                    if (lit.Value != "true" && lit.Value != "false")
+                    {
+                        ErrorReporter.Report($"Invalid boolean literal: {lit.Value}", 0, 0, "TYPE033");
+                    }
+                    break;
+                default:
+                    ErrorReporter.Report($"Unknown literal type: {lit.LiteralType}", 0, 0, "TYPE034");
+                    break;
+            }
+        }
+
+        private void CheckBinaryExpression(BinaryExpressionNode bin)
+        {
+            CheckExpression(bin.Left);
+            CheckExpression(bin.Right);
+
+            var leftType = InferExpressionType(bin.Left);
+            var rightType = InferExpressionType(bin.Right);
+
+            // Prüfe Operator-Kompatibilität
+            if (!IsOperatorCompatible(bin.Operator, leftType, rightType))
+            {
+                ErrorReporter.Report($"Operator '{bin.Operator}' not compatible with types '{leftType}' and '{rightType}'", 0, 0, "TYPE035");
+            }
+        }
+
+        private void CheckUnaryExpression(UnaryExpressionNode unary)
+        {
+            CheckExpression(unary.Operand);
+
+            var operandType = InferExpressionType(unary.Operand);
+            if (!IsUnaryOperatorCompatible(unary.Operator, operandType))
+            {
+                ErrorReporter.Report($"Unary operator '{unary.Operator}' not compatible with type '{operandType}'", 0, 0, "TYPE036");
+            }
+        }
+
+        private void CheckAssignmentExpression(AssignmentExpressionNode assign)
+        {
+            CheckExpression(assign.Value);
+
+            // Prüfe ob Variable existiert
+            var symbol = _globals.Resolve(assign.Identifier);
+            if (symbol == null)
+            {
+                ErrorReporter.Report($"Cannot assign to undefined variable '{assign.Identifier}'", 0, 0, "TYPE037");
+                return;
+            }
+
+            var valueType = InferExpressionType(assign.Value);
+            var symbolTypeName = symbol.Type?.ToString() ?? symbol.TypeName;
+
+            if (symbolTypeName != null && valueType != null && symbolTypeName != valueType && !IsTypeCompatible(symbolTypeName, valueType))
+            {
+                ErrorReporter.Report($"Cannot assign value of type '{valueType}' to variable '{assign.Identifier}' of type '{symbolTypeName}'", 0, 0, "TYPE038");
+            }
+        }
+
+        private void CheckCallExpression(CallExpressionNode call)
+        {
+            CheckExpression(call.Callee);
+
+            foreach (var arg in call.Arguments)
+            {
+                CheckExpression(arg);
+            }
+
+            // Prüfe Builtin-Funktionen
+            if (call.Callee is IdentifierExpressionNode id)
+            {
+                var returnType = InferBuiltinReturnType(id.Name);
+                if (returnType == null)
+                {
+                    ErrorReporter.ReportWarning($"Unknown function '{id.Name}'", 0, 0, "TYPE039");
+                }
+            }
+        }
+
+        private void CheckIdentifierExpression(IdentifierExpressionNode id)
+        {
+            var symbol = _globals.Resolve(id.Name);
+            if (symbol == null)
+            {
+                ErrorReporter.Report($"Undefined variable '{id.Name}'", 0, 0, "TYPE040");
+            }
+        }
+
+        private void CheckArrayAccessExpression(ArrayAccessExpressionNode arrayAccess)
+        {
+            CheckExpression(arrayAccess.Array);
+            CheckExpression(arrayAccess.Index);
+
+            var arrayType = InferExpressionType(arrayAccess.Array);
+            var indexType = InferExpressionType(arrayAccess.Index);
+
+            if (arrayType != "array")
+            {
+                ErrorReporter.Report($"Cannot access index on non-array type '{arrayType}'", 0, 0, "TYPE041");
+            }
+
+            if (indexType != "number" && indexType != "int")
+            {
+                ErrorReporter.Report($"Array index must be number, got '{indexType}'", 0, 0, "TYPE042");
+            }
+        }
+
+        private void CheckArrayLiteralExpression(ArrayLiteralExpressionNode arrayLit)
+        {
+            foreach (var element in arrayLit.Elements)
+            {
+                CheckExpression(element);
+            }
+        }
+
+        private void CheckFieldAccessExpression(FieldAccessExpressionNode fieldAccess)
+        {
+            CheckExpression(fieldAccess.Target);
+
+            var targetType = InferExpressionType(fieldAccess.Target);
+            if (targetType != "record" && targetType != "session")
+            {
+                ErrorReporter.Report($"Cannot access field on non-record/session type '{targetType}'", 0, 0, "TYPE043");
+            }
+        }
+
+        private void CheckRecordLiteralExpression(RecordLiteralExpressionNode recordLit)
+        {
+            foreach (var field in recordLit.Fields)
+            {
+                CheckExpression(field.Value);
+            }
+        }
+
+        private void CheckSessionInstantiation(SessionInstantiationNode sessionInst)
+        {
+            if (!_sessions.ContainsKey(sessionInst.SessionName))
+            {
+                ErrorReporter.Report($"Undefined session '{sessionInst.SessionName}'", 0, 0, "TYPE044");
+            }
+        }
+
+        private void CheckMethodCallExpression(MethodCallExpressionNode methodCall)
+        {
+            CheckExpression(methodCall.Target);
+
+            foreach (var arg in methodCall.Arguments)
+            {
+                CheckExpression(arg);
+            }
+        }
+
+        // Hilfsmethoden für Typprüfung
+        private bool IsValidType(string? type)
+        {
+            if (string.IsNullOrEmpty(type)) return true; // null bedeutet "infer"
+
+            return type switch
+            {
+                "string" => true,
+                "number" => true,
+                "int" => true,
+                "boolean" => true,
+                "array" => true,
+                "record" => true,
+                "session" => true,
+                "tranceify" => true,
+                "unknown" => true,
+                _ => false
+            };
+        }
+
+        private bool IsTypeCompatible(string targetType, string sourceType)
+        {
+            if (targetType == sourceType) return true;
+
+            // Numerische Kompatibilität
+            if ((targetType == "number" && sourceType == "int") ||
+                (targetType == "int" && sourceType == "number"))
+            {
+                return true;
+            }
+
+            // Array-Kompatibilität
+            if (targetType == "array" && sourceType == "array")
+            {
+                return true;
+            }
+
+            return false;
+        }
+
+        private bool IsOperatorCompatible(string op, string? leftType, string? rightType)
+        {
+            return op switch
+            {
+                "+" => IsNumericOrString(leftType) && IsNumericOrString(rightType),
+                "-" => IsNumeric(leftType) && IsNumeric(rightType),
+                "*" => IsNumeric(leftType) && IsNumeric(rightType),
+                "/" => IsNumeric(leftType) && IsNumeric(rightType),
+                "==" => true, // Alle Typen können verglichen werden
+                "!=" => true,
+                ">" => IsNumeric(leftType) && IsNumeric(rightType),
+                "<" => IsNumeric(leftType) && IsNumeric(rightType),
+                ">=" => IsNumeric(leftType) && IsNumeric(rightType),
+                "<=" => IsNumeric(leftType) && IsNumeric(rightType),
+                "&&" => leftType == "boolean" && rightType == "boolean",
+                "||" => leftType == "boolean" && rightType == "boolean",
+                _ => false
+            };
+        }
+
+        private bool IsUnaryOperatorCompatible(string op, string? operandType)
+        {
+            return op switch
+            {
+                "-" => IsNumeric(operandType),
+                "!" => operandType == "boolean",
+                _ => false
+            };
+        }
+
+        private bool IsNumeric(string? type)
+        {
+            return type == "number" || type == "int";
+        }
+
+        private bool IsNumericOrString(string? type)
+        {
+            return IsNumeric(type) || type == "string";
         }
 
         // Einfache Typinferenz für Literale, Record-Literale, Identifier
@@ -279,26 +707,44 @@ namespace HypnoScript.Compiler.Analysis
                 case BinaryExpressionNode bin:
                     var leftType = InferExpressionType(bin.Left);
                     var rightType = InferExpressionType(bin.Right);
-                    return InferBinaryType(bin.Operator, leftType, rightType);
+                    var binType = InferBinaryType(bin.Operator, leftType, rightType);
+                    if (binType == "unknown")
+                        ErrorReporter.Report($"Type of binary expression could not be inferred (unknown type)", 0, 0, "TYPE900");
+                    return binType;
                 case UnaryExpressionNode unary:
                     var operandType = InferExpressionType(unary.Operand);
-                    return InferUnaryType(unary.Operator, operandType);
+                    var unaryType = InferUnaryType(unary.Operator, operandType);
+                    if (unaryType == "unknown")
+                        ErrorReporter.Report($"Type of unary expression could not be inferred (unknown type)", 0, 0, "TYPE901");
+                    return unaryType;
                 case ParenthesizedExpressionNode paren:
                     return InferExpressionType(paren.Expression);
                 case AssignmentExpressionNode assign:
                     return InferExpressionType(assign.Value);
                 case IdentifierExpressionNode id:
                     var sym = _globals.Resolve(id.Name);
+                    if (sym?.TypeName == "unknown")
+                        ErrorReporter.Report($"Type of variable '{id.Name}' is unknown", 0, 0, "TYPE902");
                     return sym?.TypeName;
                 case CallExpressionNode call:
-                    return InferCallType(call);
+                    var callType = InferCallType(call);
+                    if (callType == "unknown")
+                        ErrorReporter.Report($"Type of function call could not be inferred (unknown type)", 0, 0, "TYPE903");
+                    return callType;
                 case ArrayLiteralExpressionNode arrayLit:
                     return "array";
                 case ArrayAccessExpressionNode arrayAccess:
-                    return InferArrayAccessType(arrayAccess);
+                    var arrType = InferArrayAccessType(arrayAccess);
+                    if (arrType == "unknown")
+                        ErrorReporter.Report($"Type of array access could not be inferred (unknown type)", 0, 0, "TYPE904");
+                    return arrType;
                 case FieldAccessExpressionNode fieldAccess:
-                    return InferFieldAccessType(fieldAccess);
+                    var fieldType = InferFieldAccessType(fieldAccess);
+                    if (fieldType == "unknown")
+                        ErrorReporter.Report($"Type of field access could not be inferred (unknown type)", 0, 0, "TYPE905");
+                    return fieldType;
                 default:
+                    ErrorReporter.Report($"Type could not be inferred (unknown type)", 0, 0, "TYPE999");
                     return "unknown";
             }
         }
@@ -611,9 +1057,6 @@ namespace HypnoScript.Compiler.Analysis
                 }
             }
         }
-
-        // Performance-Optimierung: Caching für wiederholte Typüberprüfungen
-        private readonly Dictionary<string, string?> _typeCache = new();
 
         private string? GetCachedType(string key)
         {

@@ -11,29 +11,43 @@ using HypnoScript.Runtime.Builtins;
 
 namespace HypnoScript.Runtime
 {
+	/// <summary>
+	/// Stellt zentrale Builtins für HypnoScript bereit (z.B. IO, Hypnose, System, Debug).
+	/// </summary>
 	public static class HypnoBuiltins
 	{
-		// Thread-safe static Random instance for all non-crypto random operations
+		/// <summary>
+		/// Thread-sicherer Zufallsgenerator für nicht-kryptografische Zwecke.
+		/// </summary>
 		internal static readonly Random _random = new Random();
 		// For cryptographic randomness, use System.Security.Cryptography.RandomNumberGenerator
 
-		// Flexible Input/Output für Interpreter
+		/// <summary>
+		/// Eingabe-Provider für den Interpreter (kann überschrieben werden).
+		/// </summary>
 		public static Func<string, string> InputProvider = prompt => {
 			Console.Write(prompt);
 			return Console.ReadLine() ?? "";
 		};
+		/// <summary>
+		/// Ausgabe-Consumer für den Interpreter (kann überschrieben werden).
+		/// </summary>
 		public static Action<object?> OutputConsumer = val => Console.WriteLine(val);
 
+		/// <summary>
+		/// Gibt einen Wert an den OutputConsumer aus.
+		/// </summary>
 		public static void Observe(object? value)
 		{
 			OutputConsumer(value);
 		}
 
+		/// <summary>
+		/// Wartet synchron für die angegebene Zeit in Millisekunden.
+		/// </summary>
 		public static void Drift(int ms)
 		{
-			// Synchrone Variante:
 			System.Threading.Thread.Sleep(ms);
-			// Oder asynchron -> bräuchte async-Methoden
 		}
 
 		// ===== MATHEMATISCHE FUNKTIONEN =====

@@ -1,46 +1,141 @@
 using System;
-using Microsoft.Extensions.Logging;
-using Microsoft.ApplicationInsights;
-using Microsoft.ApplicationInsights.Extensibility;
+using System.Collections.Generic;
+using System.Diagnostics;
+using System.Linq;
 
 namespace HypnoScript.Runtime.Builtins
 {
     /// <summary>
-    /// System Builtins für HypnoScript (ausgelagert aus HypnoBuiltins)
+    /// Stellt System- und Umgebungsfunktionen für HypnoScript bereit.
     /// </summary>
     public static class SystemBuiltins
     {
-        private static readonly ILogger Logger = LoggerFactory.Create(builder => builder.AddConsole()).CreateLogger("SystemBuiltins");
-        private static readonly TelemetryClient Telemetry = new TelemetryClient(new TelemetryConfiguration("<YOUR_INSTRUMENTATION_KEY_HERE>"));
+        /// <summary>
+        /// Clears the console screen
+        /// </summary>
+        public static void ClearScreen()
+        {
+            Console.Clear();
+        }
 
-        /// <summary>Leert die Konsole.</summary>
-        public static void ClearScreen() => Console.Clear();
-        /// <summary>Gibt einen Beep-Ton aus (nur Windows, sonst Sleep).</summary>
+        /// <summary>
+        /// Plays a system beep
+        /// </summary>
         public static void Beep(int frequency = 800, int duration = 200)
         {
 #if WINDOWS
             Console.Beep(frequency, duration);
 #else
+            // Fallback für nicht-Windows Plattformen
             System.Threading.Thread.Sleep(duration);
 #endif
         }
-        /// <summary>Gibt eine Umgebungsvariable zurück.</summary>
-        public static string GetEnvironmentVariable(string name) => Environment.GetEnvironmentVariable(name) ?? string.Empty;
-        /// <summary>Beendet das Programm mit Exit-Code.</summary>
-        public static void Exit(int code = 0) => Environment.Exit(code);
-        /// <summary>Aktuelles Arbeitsverzeichnis.</summary>
-        public static string GetCurrentDirectory() => Environment.CurrentDirectory;
-        /// <summary>Maschinenname.</summary>
+
+        /// <summary>
+        /// Gets environment variable
+        /// </summary>
+        public static string GetEnvironmentVariable(string name)
+        {
+            return Environment.GetEnvironmentVariable(name) ?? "";
+        }
+
+        /// <summary>
+        /// Exits the application
+        /// </summary>
+        public static void Exit(int code = 0)
+        {
+            Environment.Exit(code);
+        }
+
+        /// <summary>
+        /// Gets machine name
+        /// </summary>
         public static string GetMachineName() => Environment.MachineName;
-        /// <summary>Benutzername.</summary>
+
+        /// <summary>
+        /// Gets user name
+        /// </summary>
         public static string GetUserName() => Environment.UserName;
-        /// <summary>Betriebssystem-Version.</summary>
+
+        /// <summary>
+        /// Gets OS version
+        /// </summary>
         public static string GetOSVersion() => Environment.OSVersion.ToString();
-        /// <summary>Anzahl Prozessoren.</summary>
+
+        /// <summary>
+        /// Gets processor count
+        /// </summary>
         public static int GetProcessorCount() => Environment.ProcessorCount;
-        /// <summary>Arbeitsspeicherverbrauch (Working Set).</summary>
+
+        /// <summary>
+        /// Gets working set memory
+        /// </summary>
         public static long GetWorkingSet() => Environment.WorkingSet;
-        /// <summary>Spielt einen Sound (wie Beep).</summary>
+
+        /// <summary>
+        /// Gets memory usage
+        /// </summary>
+        public static long GetMemoryUsage() => GC.GetTotalMemory(false);
+
+        /// <summary>
+        /// Gets CPU usage (approximate)
+        /// </summary>
+        public static double GetCPUUsage()
+        {
+            // Simple CPU usage approximation
+            return Environment.ProcessorCount * 100.0;
+        }
+
+        /// <summary>
+        /// Gets process information
+        /// </summary>
+        public static Dictionary<string, object> GetProcessInfo()
+        {
+            var process = Process.GetCurrentProcess();
+            return new Dictionary<string, object>
+            {
+                ["id"] = process.Id,
+                ["name"] = process.ProcessName,
+                ["memory"] = process.WorkingSet64,
+                ["cpuTime"] = process.TotalProcessorTime.TotalSeconds,
+                ["startTime"] = process.StartTime.ToString("yyyy-MM-dd HH:mm:ss")
+            };
+        }
+
+        /// <summary>
+        /// Gets system information
+        /// </summary>
+        public static Dictionary<string, object> GetSystemInfo()
+        {
+            return new Dictionary<string, object>
+            {
+                ["os"] = Environment.OSVersion.ToString(),
+                ["machineName"] = Environment.MachineName,
+                ["processorCount"] = Environment.ProcessorCount,
+                ["workingSet"] = Environment.WorkingSet,
+                ["userName"] = Environment.UserName,
+                ["currentDirectory"] = Environment.CurrentDirectory
+            };
+        }
+
+        /// <summary>
+        /// Gets all environment variables
+        /// </summary>
+        public static Dictionary<string, string> GetEnvVars() => Environment.GetEnvironmentVariables().Cast<System.Collections.DictionaryEntry>().ToDictionary(e => (string)e.Key, e => e.Value as string ?? "");
+
+        /// <summary>
+        /// Gets tick count
+        /// </summary>
+        public static long GetTickCount() => Environment.TickCount64;
+
+        /// <summary>
+        /// Sleeps for specified milliseconds
+        /// </summary>
+        public static void Sleep(int ms) => System.Threading.Thread.Sleep(ms);
+
+        /// <summary>
+        /// Plays a sound
+        /// </summary>
         public static void PlaySound(int frequency = 800, int duration = 200)
         {
 #if WINDOWS
@@ -49,30 +144,92 @@ namespace HypnoScript.Runtime.Builtins
             System.Threading.Thread.Sleep(duration);
 #endif
         }
-        /// <summary>Simuliert Vibration durch Beep/Sleep.</summary>
+
+        /// <summary>
+        /// Simulates vibration (platform dependent)
+        /// </summary>
         public static void Vibrate(int duration = 1000)
         {
-            var startTime = DateTime.Now;
-            while ((DateTime.Now - startTime).TotalMilliseconds < duration)
+            // Platform-specific vibration would go here
+            // For now, just sleep
+            System.Threading.Thread.Sleep(duration);
+        }
+
+        /// <summary>
+        /// Debug print memory information
+        /// </summary>
+        public static void DebugPrintMemory()
+        {
+            var memory = GC.GetTotalMemory(false);
+            Console.WriteLine($"[DEBUG] Memory Usage: {memory / 1024 / 1024} MB");
+        }
+
+        /// <summary>
+        /// Debug print stack trace
+        /// </summary>
+        public static void DebugPrintStackTrace()
+        {
+            Console.WriteLine($"[DEBUG] Stack Trace: {Environment.StackTrace}");
+        }
+
+        /// <summary>
+        /// Debug print environment information
+        /// </summary>
+        public static void DebugPrintEnvironment()
+        {
+            Console.WriteLine($"[DEBUG] OS: {Environment.OSVersion}");
+            Console.WriteLine($"[DEBUG] Machine: {Environment.MachineName}");
+            Console.WriteLine($"[DEBUG] Processors: {Environment.ProcessorCount}");
+            Console.WriteLine($"[DEBUG] Memory: {Environment.WorkingSet / 1024 / 1024} MB");
+        }
+
+        /// <summary>
+        /// Benchmarks a function
+        /// </summary>
+        public static double Benchmark(Func<object> func, int iterations)
+        {
+            var stopwatch = Stopwatch.StartNew();
+            for (int i = 0; i < iterations; i++)
             {
-#if WINDOWS
-                Console.Beep(200, 50);
-#else
-                System.Threading.Thread.Sleep(50);
-#endif
-                System.Threading.Thread.Sleep(50);
+                func();
             }
+            stopwatch.Stop();
+            return stopwatch.ElapsedMilliseconds / (double)iterations;
         }
-        /// <summary>Loggt eine Info-Nachricht (Konsole & Telemetrie).</summary>
-        public static void LogInfo(string message)
+
+        /// <summary>
+        /// Gets call stack
+        /// </summary>
+        public static string[] GetCallStack()
         {
-            Logger.LogInformation(message);
-            Telemetry.TrackTrace(message);
+            return Environment.StackTrace.Split('\n', StringSplitOptions.RemoveEmptyEntries);
         }
-        /// <summary>Sendet ein Event an Application Insights.</summary>
-        public static void TrackEvent(string eventName)
+
+        /// <summary>
+        /// Gets exception information
+        /// </summary>
+        public static Dictionary<string, object> GetExceptionInfo(Exception ex)
         {
-            Telemetry.TrackEvent(eventName);
+            return new Dictionary<string, object>
+            {
+                ["message"] = ex.Message,
+                ["type"] = ex.GetType().Name,
+                ["stackTrace"] = ex.StackTrace ?? "",
+                ["source"] = ex.Source ?? ""
+            };
         }
+
+        /// <summary>
+        /// Logs a message
+        /// </summary>
+        public static void Log(string message, string level = "INFO")
+        {
+            Console.WriteLine($"[{level}] {message}");
+        }
+
+        /// <summary>
+        /// Traces a message
+        /// </summary>
+        public static void Trace(string message) => Log(message, "TRACE");
     }
 }

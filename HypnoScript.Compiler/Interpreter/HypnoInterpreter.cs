@@ -650,7 +650,7 @@ namespace HypnoScript.Compiler.Interpreter
 					case "ArraySet":
 						if (args.Length >= 3 && args[0] is object[] arrSet && args[1] is int indexSet)
 						{
-							ArrayBuiltins.ArraySet(arrSet, indexSet, args[2]);
+							ArrayBuiltins.ArraySet(arrSet, indexSet, args[2] ?? new object());
 							return null;
 						}
 						break;
@@ -664,11 +664,11 @@ namespace HypnoScript.Compiler.Interpreter
 						break;
 					case "ArrayIndexOf":
 						if (args.Length >= 2 && args[0] is object[] arrIdx)
-							return ArrayBuiltins.ArrayIndexOf(arrIdx, args[1]);
+							return ArrayBuiltins.ArrayIndexOf(arrIdx, args[1] ?? new object());
 						break;
 					case "ArrayContains":
 						if (args.Length >= 2 && args[0] is object[] arrCont)
-							return ArrayBuiltins.ArrayContains(arrCont, args[1]);
+							return ArrayBuiltins.ArrayContains(arrCont, args[1] ?? new object());
 						break;
 					case "ArrayMap":
 						if (args.Length >= 1 && args[0] is object[] arrMap)
