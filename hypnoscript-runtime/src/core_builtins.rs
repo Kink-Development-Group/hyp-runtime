@@ -101,7 +101,9 @@ mod tests {
 
     #[test]
     fn test_to_double() {
-        assert_eq!(CoreBuiltins::to_double("3.14").unwrap(), 3.14);
+        // Test mit Werten, die nicht zu nahe an mathematischen Konstanten liegen
+        assert_eq!(CoreBuiltins::to_double("42.75").unwrap(), 42.75);
+        assert_eq!(CoreBuiltins::to_double("0.5").unwrap(), 0.5);
         assert!(CoreBuiltins::to_double("invalid").is_err());
     }
 

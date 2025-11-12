@@ -1333,7 +1333,8 @@ impl Interpreter {
         self.execution_context
             .iter()
             .rev()
-            .find_map(|frame| frame.session_name.as_deref()) == Some(session_name)
+            .find_map(|frame| frame.session_name.as_deref())
+            == Some(session_name)
     }
 
     fn call_builtin(
