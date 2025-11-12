@@ -94,7 +94,8 @@ impl Parser {
         // Variable declaration - induce, implant, freeze
         if self.match_token(&TokenType::Induce)
             || self.match_token(&TokenType::Implant)
-            || self.match_token(&TokenType::Freeze) {
+            || self.match_token(&TokenType::Freeze)
+        {
             return self.parse_var_declaration();
         }
 

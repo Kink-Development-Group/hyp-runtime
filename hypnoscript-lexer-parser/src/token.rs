@@ -9,26 +9,26 @@ pub enum TokenType {
     Focus,
     Relax,
     Entrance,
-    Finale,       // Destructor/cleanup block
-    DeepFocus,    // Deep focus block modifier
+    Finale,    // Destructor/cleanup block
+    DeepFocus, // Deep focus block modifier
 
     // Variables and declarations
-    Induce,       // Variable declaration (standard)
-    Implant,      // Variable declaration (alternative)
-    Freeze,       // Constant declaration
+    Induce,  // Variable declaration (standard)
+    Implant, // Variable declaration (alternative)
+    Freeze,  // Constant declaration
     From,
     External,
-    Anchor,       // Save state/create snapshot
+    Anchor, // Save state/create snapshot
 
     // Control structures
     If,
     Else,
     While,
     Loop,
-    Snap,       // break
-    Sink,       // continue
-    SinkTo,     // goto
-    Oscillate,  // toggle boolean
+    Snap,      // break
+    Sink,      // continue
+    SinkTo,    // goto
+    Oscillate, // toggle boolean
 
     // Functions
     Suggestion,           // Standard function
@@ -49,10 +49,10 @@ pub enum TokenType {
     Tranceify,
 
     // I/O
-    Observe,      // Standard output with newline
-    Whisper,      // Output without newline
-    Command,      // Imperative output
-    Drift,        // Sleep/delay
+    Observe, // Standard output with newline
+    Whisper, // Output without newline
+    Command, // Imperative output
+    Drift,   // Sleep/delay
 
     // Hypnotic operators
     YouAreFeelingVerySleepy, // ==

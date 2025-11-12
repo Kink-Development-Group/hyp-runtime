@@ -1098,10 +1098,8 @@ impl TypeChecker {
                         ));
                     }
                 } else if *is_constant {
-                    self.errors.push(format!(
-                        "Constant variable '{}' must be initialized",
-                        name
-                    ));
+                    self.errors
+                        .push(format!("Constant variable '{}' must be initialized", name));
                 }
 
                 self.type_env.insert(name.clone(), expected_type);
@@ -1316,11 +1314,9 @@ impl TypeChecker {
                         }
                         HypnoType::number()
                     }
-                    "=="
-                    | "!="
-                    | "youarefeelingverysleepy"
-                    | "youcannotresist"
-                    | "notsodeep" => HypnoType::boolean(),
+                    "==" | "!=" | "youarefeelingverysleepy" | "youcannotresist" | "notsodeep" => {
+                        HypnoType::boolean()
+                    }
                     ">"
                     | "<"
                     | ">="
@@ -1578,14 +1574,11 @@ Focus {
         let mut checker = TypeChecker::new();
         let errors = checker.check_program(&ast);
         assert!(
-            errors
-                .iter()
-                .any(|msg| msg.contains("lookAtTheWatch")),
+            errors.iter().any(|msg| msg.contains("lookAtTheWatch")),
             "Expected comparison diagnostic mentioning operator, got {:?}",
             errors
         );
     }
-
 
     #[test]
     fn test_type_check_private_session_member_access() {

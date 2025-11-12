@@ -20,15 +20,15 @@ pub enum AstNode {
     // Program structure
     Program(Vec<AstNode>),
     FocusBlock(Vec<AstNode>),
-    EntranceBlock(Vec<AstNode>),  // Constructor/setup block
-    FinaleBlock(Vec<AstNode>),    // Destructor/cleanup block
+    EntranceBlock(Vec<AstNode>), // Constructor/setup block
+    FinaleBlock(Vec<AstNode>),   // Destructor/cleanup block
 
     // Declarations
     VariableDeclaration {
         name: String,
         type_annotation: Option<String>,
         initializer: Option<Box<AstNode>>,
-        is_constant: bool,  // true for 'freeze', false for 'induce'/'implant'
+        is_constant: bool, // true for 'freeze', false for 'induce'/'implant'
     },
 
     /// Anchor statement: saves the current value of a variable for later restoration

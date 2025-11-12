@@ -14,7 +14,6 @@
 /// - `repeatUntil`/`repeatWhile`: Advanced loop constructs
 /// - `tryOrAwaken`: Error handling
 /// - `ensureAwakening`: Cleanup guarantee
-
 use std::thread;
 use std::time::Duration;
 
@@ -281,8 +280,10 @@ mod tests {
         use std::cell::RefCell;
         let count = RefCell::new(0);
         DeepMindBuiltins::repeat_until(
-            || { *count.borrow_mut() += 1; },
-            || *count.borrow() >= 5
+            || {
+                *count.borrow_mut() += 1;
+            },
+            || *count.borrow() >= 5,
         );
         assert_eq!(*count.borrow(), 5);
     }
@@ -293,7 +294,9 @@ mod tests {
         let n = RefCell::new(3);
         DeepMindBuiltins::repeat_while(
             || *n.borrow() > 0,
-            || { *n.borrow_mut() -= 1; }
+            || {
+                *n.borrow_mut() -= 1;
+            },
         );
         assert_eq!(*n.borrow(), 0);
     }
@@ -303,7 +306,9 @@ mod tests {
         let mut cleanup_called = false;
         DeepMindBuiltins::ensure_awakening(
             || { /* main action */ },
-            || { cleanup_called = true; }
+            || {
+                cleanup_called = true;
+            },
         );
         assert!(cleanup_called);
     }
