@@ -5,9 +5,24 @@ use std::time::Duration;
 pub struct CoreBuiltins;
 
 impl CoreBuiltins {
-    /// Output a value (observe)
+    /// Output a value with newline (observe)
+    /// Standard output function in HypnoScript
     pub fn observe(value: &str) {
         println!("{}", value);
+    }
+
+    /// Output a value without newline (whisper)
+    /// Used for continuous output without line breaks
+    pub fn whisper(value: &str) {
+        print!("{}", value);
+        use std::io::{self, Write};
+        let _ = io::stdout().flush();
+    }
+
+    /// Output a value in imperative/command style (command)
+    /// Typically outputs in uppercase or emphasized format
+    pub fn command(value: &str) {
+        println!("{}", value.to_uppercase());
     }
 
     /// Wait for specified milliseconds (drift)

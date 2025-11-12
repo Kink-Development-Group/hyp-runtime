@@ -9,27 +9,33 @@ pub enum TokenType {
     Focus,
     Relax,
     Entrance,
-    DeepFocus,
+    Finale,       // Destructor/cleanup block
+    DeepFocus,    // Deep focus block modifier
 
     // Variables and declarations
-    Induce,
+    Induce,       // Variable declaration (standard)
+    Implant,      // Variable declaration (alternative)
+    Freeze,       // Constant declaration
     From,
     External,
+    Anchor,       // Save state/create snapshot
 
     // Control structures
     If,
     Else,
     While,
     Loop,
-    Snap,   // break
-    Sink,   // continue
-    SinkTo, // goto
+    Snap,       // break
+    Sink,       // continue
+    SinkTo,     // goto
+    Oscillate,  // toggle boolean
 
     // Functions
-    Suggestion,
-    ImperativeSuggestion,
-    DominantSuggestion,
-    Awaken, // return
+    Suggestion,           // Standard function
+    Trigger,              // Event handler/callback function
+    ImperativeSuggestion, // Imperative function modifier
+    DominantSuggestion,   // Static function modifier
+    Awaken,               // return
     Call,
 
     // Object-oriented programming
@@ -43,8 +49,10 @@ pub enum TokenType {
     Tranceify,
 
     // I/O
-    Observe,
-    Drift,
+    Observe,      // Standard output with newline
+    Whisper,      // Output without newline
+    Command,      // Imperative output
+    Drift,        // Sleep/delay
 
     // Hypnotic operators
     YouAreFeelingVerySleepy, // ==
@@ -154,6 +162,13 @@ static KEYWORD_DEFINITIONS: Lazy<HashMap<&'static str, KeywordDefinition>> = Laz
         },
     );
     map.insert(
+        "finale",
+        KeywordDefinition {
+            token: Finale,
+            canonical_lexeme: "finale",
+        },
+    );
+    map.insert(
         "deepfocus",
         KeywordDefinition {
             token: DeepFocus,
@@ -170,10 +185,24 @@ static KEYWORD_DEFINITIONS: Lazy<HashMap<&'static str, KeywordDefinition>> = Laz
         },
     );
     map.insert(
+        "implant",
+        KeywordDefinition {
+            token: Implant,
+            canonical_lexeme: "implant",
+        },
+    );
+    map.insert(
         "freeze",
         KeywordDefinition {
-            token: Induce,
-            canonical_lexeme: "induce",
+            token: Freeze,
+            canonical_lexeme: "freeze",
+        },
+    );
+    map.insert(
+        "anchor",
+        KeywordDefinition {
+            token: Anchor,
+            canonical_lexeme: "anchor",
         },
     );
     map.insert(
@@ -255,6 +284,13 @@ static KEYWORD_DEFINITIONS: Lazy<HashMap<&'static str, KeywordDefinition>> = Laz
             canonical_lexeme: "sinkTo",
         },
     );
+    map.insert(
+        "oscillate",
+        KeywordDefinition {
+            token: Oscillate,
+            canonical_lexeme: "oscillate",
+        },
+    );
 
     // Functions
     map.insert(
@@ -262,6 +298,13 @@ static KEYWORD_DEFINITIONS: Lazy<HashMap<&'static str, KeywordDefinition>> = Laz
         KeywordDefinition {
             token: Suggestion,
             canonical_lexeme: "suggestion",
+        },
+    );
+    map.insert(
+        "trigger",
+        KeywordDefinition {
+            token: Trigger,
+            canonical_lexeme: "trigger",
         },
     );
     map.insert(
@@ -355,8 +398,15 @@ static KEYWORD_DEFINITIONS: Lazy<HashMap<&'static str, KeywordDefinition>> = Laz
     map.insert(
         "whisper",
         KeywordDefinition {
-            token: Observe,
-            canonical_lexeme: "observe",
+            token: Whisper,
+            canonical_lexeme: "whisper",
+        },
+    );
+    map.insert(
+        "command",
+        KeywordDefinition {
+            token: Command,
+            canonical_lexeme: "command",
         },
     );
     map.insert(
@@ -536,8 +586,12 @@ impl TokenType {
             TokenType::Focus
                 | TokenType::Relax
                 | TokenType::Entrance
+                | TokenType::Finale
                 | TokenType::DeepFocus
                 | TokenType::Induce
+                | TokenType::Implant
+                | TokenType::Freeze
+                | TokenType::Anchor
                 | TokenType::From
                 | TokenType::External
                 | TokenType::If
@@ -547,7 +601,9 @@ impl TokenType {
                 | TokenType::Snap
                 | TokenType::Sink
                 | TokenType::SinkTo
+                | TokenType::Oscillate
                 | TokenType::Suggestion
+                | TokenType::Trigger
                 | TokenType::ImperativeSuggestion
                 | TokenType::DominantSuggestion
                 | TokenType::Awaken
@@ -559,6 +615,8 @@ impl TokenType {
                 | TokenType::Dominant
                 | TokenType::Tranceify
                 | TokenType::Observe
+                | TokenType::Whisper
+                | TokenType::Command
                 | TokenType::Drift
                 | TokenType::MindLink
                 | TokenType::SharedTrance

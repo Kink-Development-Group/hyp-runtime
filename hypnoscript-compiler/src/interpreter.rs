@@ -461,12 +461,20 @@ impl Interpreter {
                 name,
                 type_annotation: _,
                 initializer,
+                is_constant: _,
             } => {
                 let value = if let Some(init) = initializer {
                     self.evaluate_expression(init)?
                 } else {
                     Value::Null
                 };
+                self.set_variable(name.clone(), value);
+                Ok(())
+            }
+
+            AstNode::AnchorDeclaration { name, source } => {
+                // Anchor saves the current value of a variable
+                let value = self.evaluate_expression(source)?;
                 self.set_variable(name.clone(), value);
                 Ok(())
             }
@@ -483,6 +491,19 @@ impl Interpreter {
                 Ok(())
             }
 
+            AstNode::TriggerDeclaration {
+                name,
+                parameters,
+                return_type: _,
+                body,
+            } => {
+                // Triggers are handled like functions
+                let param_names: Vec<String> = parameters.iter().map(|p| p.name.clone()).collect();
+                let func = FunctionValue::new_global(name.clone(), param_names, body.clone());
+                self.set_variable(name.clone(), Value::Function(func));
+                Ok(())
+            }
+
             AstNode::SessionDeclaration { name, members } => {
                 let session = self.build_session_definition(name, members)?;
                 self.set_variable(name.clone(), Value::Session(session.clone()));
@@ -490,10 +511,52 @@ impl Interpreter {
                 Ok(())
             }
 
+            AstNode::EntranceBlock(statements) | AstNode::FinaleBlock(statements) => {
+                for stmt in statements {
+                    self.execute_statement(stmt)?;
+                }
+                Ok(())
+            }
+
             AstNode::ObserveStatement(expr) => {
                 let value = self.evaluate_expression(expr)?;
                 CoreBuiltins::observe(&value.to_string());
                 Ok(())
+            }
+
+            AstNode::WhisperStatement(expr) => {
+                let value = self.evaluate_expression(expr)?;
+                CoreBuiltins::whisper(&value.to_string());
+                Ok(())
+            }
+
+            AstNode::CommandStatement(expr) => {
+                let value = self.evaluate_expression(expr)?;
+                CoreBuiltins::command(&value.to_string());
+                Ok(())
+            }
+
+            AstNode::OscillateStatement { target } => {
+                // Toggle a boolean variable
+                if let AstNode::Identifier(name) = target.as_ref() {
+                    match self.get_variable(name) {
+                        Ok(value) => match value {
+                            Value::Boolean(b) => {
+                                self.set_variable(name.clone(), Value::Boolean(!b));
+                                Ok(())
+                            }
+                            _ => Err(InterpreterError::Runtime(format!(
+                                "Oscillate target '{}' must be boolean, got {:?}",
+                                name, value
+                            ))),
+                        },
+                        Err(e) => Err(e),
+                    }
+                } else {
+                    Err(InterpreterError::Runtime(
+                        "Oscillate requires a variable identifier".to_string(),
+                    ))
+                }
             }
 
             AstNode::IfStatement {
@@ -508,6 +571,17 @@ impl Interpreter {
                     }
                 } else if let Some(else_stmts) = else_branch {
                     for stmt in else_stmts {
+                        self.execute_statement(stmt)?;
+                    }
+                }
+                Ok(())
+            }
+
+            AstNode::DeepFocusStatement { condition, body } => {
+                // DeepFocus is like if but with deeper scope/emphasis
+                let cond_value = self.evaluate_expression(condition)?;
+                if cond_value.is_truthy() {
+                    for stmt in body {
                         self.execute_statement(stmt)?;
                     }
                 }

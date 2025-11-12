@@ -1,20 +1,53 @@
 use serde::{Deserialize, Serialize};
 
 /// AST node types for HypnoScript
+///
+/// This enum represents all possible Abstract Syntax Tree nodes in the HypnoScript language.
+/// HypnoScript is an esoteric, TypeScript-inspired language with hypnotic-themed keywords.
+///
+/// # Language Concepts
+///
+/// - **Focus/Relax**: Program boundaries (main block)
+/// - **induce/implant/freeze**: Variable declarations (var/let/const equivalents)
+/// - **suggestion/trigger**: Function declarations
+/// - **session**: Class declarations
+/// - **entrance/finale**: Constructor/destructor blocks
+/// - **observe/whisper/command**: Output statements
+/// - **anchor**: State snapshot/variable backup
+/// - **oscillate**: Boolean toggle operation
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub enum AstNode {
     // Program structure
     Program(Vec<AstNode>),
     FocusBlock(Vec<AstNode>),
+    EntranceBlock(Vec<AstNode>),  // Constructor/setup block
+    FinaleBlock(Vec<AstNode>),    // Destructor/cleanup block
 
     // Declarations
     VariableDeclaration {
         name: String,
         type_annotation: Option<String>,
         initializer: Option<Box<AstNode>>,
+        is_constant: bool,  // true for 'freeze', false for 'induce'/'implant'
+    },
+
+    /// Anchor statement: saves the current value of a variable for later restoration
+    /// Example: anchor savedValue = currentValue;
+    AnchorDeclaration {
+        name: String,
+        source: Box<AstNode>,
     },
 
     FunctionDeclaration {
+        name: String,
+        parameters: Vec<Parameter>,
+        return_type: Option<String>,
+        body: Vec<AstNode>,
+    },
+
+    /// Trigger declaration: event handler or callback function
+    /// Similar to function but specifically for event handling
+    TriggerDeclaration {
         name: String,
         parameters: Vec<Parameter>,
         return_type: Option<String>,
@@ -28,12 +61,28 @@ pub enum AstNode {
 
     // Statements
     ExpressionStatement(Box<AstNode>),
+
+    /// observe: Output with newline (like console.log)
     ObserveStatement(Box<AstNode>),
+
+    /// whisper: Output without newline
+    WhisperStatement(Box<AstNode>),
+
+    /// command: Imperative output (usually uppercase/emphasized)
+    CommandStatement(Box<AstNode>),
+
     IfStatement {
         condition: Box<AstNode>,
         then_branch: Vec<AstNode>,
         else_branch: Option<Vec<AstNode>>,
     },
+
+    /// deepFocus: Enhanced if-statement with deeper scope
+    DeepFocusStatement {
+        condition: Box<AstNode>,
+        body: Vec<AstNode>,
+    },
+
     WhileStatement {
         condition: Box<AstNode>,
         body: Vec<AstNode>,
@@ -44,6 +93,12 @@ pub enum AstNode {
     ReturnStatement(Option<Box<AstNode>>),
     BreakStatement,
     ContinueStatement,
+
+    /// oscillate: Toggle a boolean variable
+    /// Example: oscillate myFlag;
+    OscillateStatement {
+        target: Box<AstNode>,
+    },
 
     // Expressions
     NumberLiteral(f64),
@@ -126,12 +181,16 @@ impl AstNode {
             self,
             AstNode::ExpressionStatement(_)
                 | AstNode::ObserveStatement(_)
+                | AstNode::WhisperStatement(_)
+                | AstNode::CommandStatement(_)
                 | AstNode::IfStatement { .. }
+                | AstNode::DeepFocusStatement { .. }
                 | AstNode::WhileStatement { .. }
                 | AstNode::LoopStatement { .. }
                 | AstNode::ReturnStatement(_)
                 | AstNode::BreakStatement
                 | AstNode::ContinueStatement
+                | AstNode::OscillateStatement { .. }
         )
     }
 
@@ -140,7 +199,9 @@ impl AstNode {
         matches!(
             self,
             AstNode::VariableDeclaration { .. }
+                | AstNode::AnchorDeclaration { .. }
                 | AstNode::FunctionDeclaration { .. }
+                | AstNode::TriggerDeclaration { .. }
                 | AstNode::SessionDeclaration { .. }
         )
     }

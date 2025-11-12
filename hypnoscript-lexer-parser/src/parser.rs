@@ -51,17 +51,35 @@ impl Parser {
 
         while !self.is_at_end() && !self.check(&TokenType::RBrace) && !self.check(&TokenType::Relax)
         {
-            // Skip entrance blocks
+            // entrance block (constructor/setup)
             if self.match_token(&TokenType::Entrance) {
                 if !self.match_token(&TokenType::LBrace) {
                     return Err("Expected '{' after 'entrance'".to_string());
                 }
+                let mut entrance_statements = Vec::new();
                 while !self.is_at_end() && !self.check(&TokenType::RBrace) {
-                    statements.push(self.parse_statement()?);
+                    entrance_statements.push(self.parse_statement()?);
                 }
                 if !self.match_token(&TokenType::RBrace) {
                     return Err("Expected '}' after entrance block".to_string());
                 }
+                statements.push(AstNode::EntranceBlock(entrance_statements));
+                continue;
+            }
+
+            // finale block (destructor/cleanup)
+            if self.match_token(&TokenType::Finale) {
+                if !self.match_token(&TokenType::LBrace) {
+                    return Err("Expected '{' after 'finale'".to_string());
+                }
+                let mut finale_statements = Vec::new();
+                while !self.is_at_end() && !self.check(&TokenType::RBrace) {
+                    finale_statements.push(self.parse_statement()?);
+                }
+                if !self.match_token(&TokenType::RBrace) {
+                    return Err("Expected '}' after finale block".to_string());
+                }
+                statements.push(AstNode::FinaleBlock(finale_statements));
                 continue;
             }
 
@@ -73,9 +91,16 @@ impl Parser {
 
     /// Parse a single statement
     fn parse_statement(&mut self) -> Result<AstNode, String> {
-        // Variable declaration
-        if self.match_token(&TokenType::Induce) {
+        // Variable declaration - induce, implant, freeze
+        if self.match_token(&TokenType::Induce)
+            || self.match_token(&TokenType::Implant)
+            || self.match_token(&TokenType::Freeze) {
             return self.parse_var_declaration();
+        }
+
+        // Anchor declaration - saves variable state
+        if self.match_token(&TokenType::Anchor) {
+            return self.parse_anchor_declaration();
         }
 
         // If statement
@@ -98,14 +123,27 @@ impl Parser {
             return self.parse_function_declaration();
         }
 
+        // Trigger declaration (event handler/callback)
+        if self.match_token(&TokenType::Trigger) {
+            return self.parse_trigger_declaration();
+        }
+
         // Session declaration
         if self.match_token(&TokenType::Session) {
             return self.parse_session_declaration();
         }
 
-        // Observe statement
+        // Output statements
         if self.match_token(&TokenType::Observe) {
             return self.parse_observe_statement();
+        }
+
+        if self.match_token(&TokenType::Whisper) {
+            return self.parse_whisper_statement();
+        }
+
+        if self.match_token(&TokenType::Command) {
+            return self.parse_command_statement();
         }
 
         // Return statement
@@ -125,14 +163,25 @@ impl Parser {
             return Ok(AstNode::ContinueStatement);
         }
 
+        // Oscillate statement (toggle boolean)
+        if self.match_token(&TokenType::Oscillate) {
+            return self.parse_oscillate_statement();
+        }
+
         // Expression statement
         let expr = self.parse_expression()?;
         self.consume(&TokenType::Semicolon, "Expected ';' after expression")?;
         Ok(AstNode::ExpressionStatement(Box::new(expr)))
     }
 
-    /// Parse variable declaration
+    /// Parse variable declaration (induce/implant/freeze)
+    /// - induce: standard variable (like let/var)
+    /// - implant: alternative variable declaration
+    /// - freeze: constant (like const)
     fn parse_var_declaration(&mut self) -> Result<AstNode, String> {
+        // Determine if this is a constant (freeze) or variable (induce/implant)
+        let is_constant = self.previous().token_type == TokenType::Freeze;
+
         let name = self
             .consume(&TokenType::Identifier, "Expected variable name")?
             .lexeme
@@ -160,6 +209,113 @@ impl Parser {
             name,
             type_annotation,
             initializer,
+            is_constant,
+        })
+    }
+
+    /// Parse anchor declaration (saves variable state)
+    /// Example: anchor savedValue = currentValue;
+    fn parse_anchor_declaration(&mut self) -> Result<AstNode, String> {
+        let name = self
+            .consume(&TokenType::Identifier, "Expected anchor name")?
+            .lexeme
+            .clone();
+
+        self.consume(&TokenType::Equals, "Expected '=' after anchor name")?;
+
+        let source = Box::new(self.parse_expression()?);
+
+        self.consume(
+            &TokenType::Semicolon,
+            "Expected ';' after anchor declaration",
+        )?;
+
+        Ok(AstNode::AnchorDeclaration { name, source })
+    }
+
+    /// Parse oscillate statement (toggle boolean)
+    /// Example: oscillate myFlag;
+    fn parse_oscillate_statement(&mut self) -> Result<AstNode, String> {
+        let target = Box::new(self.parse_primary()?);
+
+        self.consume(
+            &TokenType::Semicolon,
+            "Expected ';' after oscillate statement",
+        )?;
+
+        Ok(AstNode::OscillateStatement { target })
+    }
+
+    /// Parse whisper statement (output without newline)
+    fn parse_whisper_statement(&mut self) -> Result<AstNode, String> {
+        let expr = self.parse_expression()?;
+        self.consume(&TokenType::Semicolon, "Expected ';' after whisper")?;
+        Ok(AstNode::WhisperStatement(Box::new(expr)))
+    }
+
+    /// Parse command statement (imperative output)
+    fn parse_command_statement(&mut self) -> Result<AstNode, String> {
+        let expr = self.parse_expression()?;
+        self.consume(&TokenType::Semicolon, "Expected ';' after command")?;
+        Ok(AstNode::CommandStatement(Box::new(expr)))
+    }
+
+    /// Parse trigger declaration (event handler/callback)
+    fn parse_trigger_declaration(&mut self) -> Result<AstNode, String> {
+        let name = self
+            .consume(&TokenType::Identifier, "Expected trigger name")?
+            .lexeme
+            .clone();
+
+        self.consume(&TokenType::Equals, "Expected '=' after trigger name")?;
+
+        // Expect 'suggestion' keyword for the function body
+        self.consume(&TokenType::Suggestion, "Expected 'suggestion' after '='")?;
+
+        self.consume(&TokenType::LParen, "Expected '(' after 'suggestion'")?;
+
+        // Parse parameters (inline to avoid duplication)
+        let mut parameters = Vec::new();
+        if !self.check(&TokenType::RParen) {
+            loop {
+                let param_name = self
+                    .consume(&TokenType::Identifier, "Expected parameter name")?
+                    .lexeme
+                    .clone();
+                let type_annotation = if self.match_token(&TokenType::Colon) {
+                    let type_token = self.advance();
+                    Some(type_token.lexeme.clone())
+                } else {
+                    None
+                };
+                parameters.push(Parameter::new(param_name, type_annotation));
+
+                if !self.match_token(&TokenType::Comma) {
+                    break;
+                }
+            }
+        }
+
+        self.consume(&TokenType::RParen, "Expected ')' after parameters")?;
+
+        // Optional return type
+        let return_type = if self.match_token(&TokenType::Colon) {
+            let type_token = self.advance();
+            Some(type_token.lexeme.clone())
+        } else {
+            None
+        };
+
+        // Parse body
+        self.consume(&TokenType::LBrace, "Expected '{' before trigger body")?;
+        let body = self.parse_block_statements()?;
+        self.consume(&TokenType::RBrace, "Expected '}' after trigger body")?;
+
+        Ok(AstNode::TriggerDeclaration {
+            name,
+            parameters,
+            return_type,
+            body,
         })
     }
 

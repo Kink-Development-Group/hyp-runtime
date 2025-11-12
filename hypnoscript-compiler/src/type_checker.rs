@@ -475,24 +475,32 @@ impl TypeChecker {
         self.errors.clone()
     }
 
-    /// Collect function signatures
+    /// Collect function signatures (including triggers)
     fn collect_function_signature(&mut self, stmt: &AstNode) {
-        if let AstNode::FunctionDeclaration {
-            name,
-            parameters,
-            return_type,
-            ..
-        } = stmt
-        {
-            let param_types: Vec<HypnoType> = parameters
-                .iter()
-                .map(|p| self.parse_type_annotation(p.type_annotation.as_deref()))
-                .collect();
+        match stmt {
+            AstNode::FunctionDeclaration {
+                name,
+                parameters,
+                return_type,
+                ..
+            }
+            | AstNode::TriggerDeclaration {
+                name,
+                parameters,
+                return_type,
+                ..
+            } => {
+                let param_types: Vec<HypnoType> = parameters
+                    .iter()
+                    .map(|p| self.parse_type_annotation(p.type_annotation.as_deref()))
+                    .collect();
 
-            let ret_type = self.parse_type_annotation(return_type.as_deref());
+                let ret_type = self.parse_type_annotation(return_type.as_deref());
 
-            self.function_types
-                .insert(name.clone(), (param_types, ret_type));
+                self.function_types
+                    .insert(name.clone(), (param_types, ret_type));
+            }
+            _ => {}
         }
     }
 
@@ -1076,6 +1084,7 @@ impl TypeChecker {
                 name,
                 type_annotation,
                 initializer,
+                is_constant,
             } => {
                 let expected_type = self.parse_type_annotation(type_annotation.as_deref());
 
@@ -1088,9 +1097,19 @@ impl TypeChecker {
                             name, expected_type, actual_type
                         ));
                     }
+                } else if *is_constant {
+                    self.errors.push(format!(
+                        "Constant variable '{}' must be initialized",
+                        name
+                    ));
                 }
 
                 self.type_env.insert(name.clone(), expected_type);
+            }
+
+            AstNode::AnchorDeclaration { name, source } => {
+                let source_type = self.infer_type(source);
+                self.type_env.insert(name.clone(), source_type);
             }
 
             AstNode::FunctionDeclaration {
@@ -1116,6 +1135,36 @@ impl TypeChecker {
                 self.current_function_return_type = None;
             }
 
+            AstNode::TriggerDeclaration {
+                parameters,
+                return_type,
+                body,
+                ..
+            } => {
+                // Triggers are handled like functions
+                let old_env = self.type_env.clone();
+                let ret_type = self.parse_type_annotation(return_type.as_deref());
+                self.current_function_return_type = Some(ret_type);
+
+                for param in parameters {
+                    let param_type = self.parse_type_annotation(param.type_annotation.as_deref());
+                    self.type_env.insert(param.name.clone(), param_type);
+                }
+
+                for stmt in body {
+                    self.check_statement(stmt);
+                }
+
+                self.type_env = old_env;
+                self.current_function_return_type = None;
+            }
+
+            AstNode::EntranceBlock(statements) | AstNode::FinaleBlock(statements) => {
+                for stmt in statements {
+                    self.check_statement(stmt);
+                }
+            }
+
             AstNode::IfStatement {
                 condition,
                 then_branch,
@@ -1138,6 +1187,20 @@ impl TypeChecker {
                 }
             }
 
+            AstNode::DeepFocusStatement { condition, body } => {
+                let cond_type = self.infer_type(condition);
+                if cond_type.base_type != HypnoBaseType::Boolean {
+                    self.errors.push(format!(
+                        "DeepFocus condition must be boolean, got {}",
+                        cond_type
+                    ));
+                }
+
+                for stmt in body {
+                    self.check_statement(stmt);
+                }
+            }
+
             AstNode::WhileStatement { condition, body } => {
                 let cond_type = self.infer_type(condition);
                 if cond_type.base_type != HypnoBaseType::Boolean {
@@ -1155,6 +1218,16 @@ impl TypeChecker {
             AstNode::LoopStatement { body } => {
                 for stmt in body {
                     self.check_statement(stmt);
+                }
+            }
+
+            AstNode::OscillateStatement { target } => {
+                let target_type = self.infer_type(target);
+                if target_type.base_type != HypnoBaseType::Boolean {
+                    self.errors.push(format!(
+                        "Oscillate target must be boolean, got {}",
+                        target_type
+                    ));
                 }
             }
 
@@ -1191,7 +1264,10 @@ impl TypeChecker {
                 }
             }
 
-            AstNode::ExpressionStatement(expr) | AstNode::ObserveStatement(expr) => {
+            AstNode::ExpressionStatement(expr)
+            | AstNode::ObserveStatement(expr)
+            | AstNode::WhisperStatement(expr)
+            | AstNode::CommandStatement(expr) => {
                 self.infer_type(expr);
             }
 
