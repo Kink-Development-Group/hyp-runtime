@@ -19,23 +19,23 @@ pub enum TokenType {
     Else,
     While,
     Loop,
-    Snap,      // break
-    Sink,      // continue
-    SinkTo,    // goto
+    Snap,   // break
+    Sink,   // continue
+    SinkTo, // goto
 
     // Functions
     Suggestion,
     ImperativeSuggestion,
     DominantSuggestion,
-    Awaken,    // return
+    Awaken, // return
     Call,
 
     // Object-oriented programming
     Session,
     Constructor,
-    Expose,    // public
-    Conceal,   // private
-    Dominant,  // static
+    Expose,   // public
+    Conceal,  // private
+    Dominant, // static
 
     // Structures
     Tranceify,
@@ -45,12 +45,12 @@ pub enum TokenType {
     Drift,
 
     // Hypnotic operators
-    YouAreFeelingVerySleepy,  // ==
-    LookAtTheWatch,           // >
-    FallUnderMySpell,         // <
-    NotSoDeep,                // !=
-    DeeplyGreater,            // >=
-    DeeplyLess,               // <=
+    YouAreFeelingVerySleepy, // ==
+    LookAtTheWatch,          // >
+    FallUnderMySpell,        // <
+    NotSoDeep,               // !=
+    DeeplyGreater,           // >=
+    DeeplyLess,              // <=
 
     // Modules and globals
     MindLink,     // import
@@ -60,20 +60,20 @@ pub enum TokenType {
     Label,
 
     // Standard operators
-    DoubleEquals,     // ==
-    NotEquals,        // !=
+    DoubleEquals, // ==
+    NotEquals,    // !=
     Greater,
-    GreaterEqual,     // >=
+    GreaterEqual, // >=
     Less,
-    LessEqual,        // <=
+    LessEqual, // <=
     Plus,
     Minus,
     Asterisk,
     Slash,
     Percent,
-    Bang,             // !
-    AmpAmp,           // &&
-    PipePipe,         // ||
+    Bang,     // !
+    AmpAmp,   // &&
+    PipePipe, // ||
 
     // Literals and identifiers
     Identifier,
@@ -92,17 +92,17 @@ pub enum TokenType {
     False,
 
     // Delimiters and brackets
-    LParen,     // (
-    RParen,     // )
-    LBrace,     // {
-    RBrace,     // }
-    LBracket,   // [
-    RBracket,   // ]
+    LParen,   // (
+    RParen,   // )
+    LBrace,   // {
+    RBrace,   // }
+    LBracket, // [
+    RBracket, // ]
     Comma,
-    Colon,      // :
-    Semicolon,  // ;
-    Dot,        // .
-    Equals,     // =
+    Colon,     // :
+    Semicolon, // ;
+    Dot,       // .
+    Equals,    // =
 
     // End of file
     Eof,

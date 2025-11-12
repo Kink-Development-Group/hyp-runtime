@@ -38,80 +38,225 @@ impl Lexer {
                 tokens.push(Token::new(token_type, ident, self.line, start_column));
             } else if c.is_numeric() {
                 let number = self.read_number(c);
-                tokens.push(Token::new(TokenType::NumberLiteral, number, self.line, start_column));
+                tokens.push(Token::new(
+                    TokenType::NumberLiteral,
+                    number,
+                    self.line,
+                    start_column,
+                ));
             } else {
                 match c {
                     '=' => {
                         if self.match_char('=') {
-                            tokens.push(Token::new(TokenType::DoubleEquals, "==".to_string(), self.line, start_column));
+                            tokens.push(Token::new(
+                                TokenType::DoubleEquals,
+                                "==".to_string(),
+                                self.line,
+                                start_column,
+                            ));
                         } else {
-                            tokens.push(Token::new(TokenType::Equals, "=".to_string(), self.line, start_column));
+                            tokens.push(Token::new(
+                                TokenType::Equals,
+                                "=".to_string(),
+                                self.line,
+                                start_column,
+                            ));
                         }
                     }
-                    '+' => tokens.push(Token::new(TokenType::Plus, "+".to_string(), self.line, start_column)),
-                    '-' => tokens.push(Token::new(TokenType::Minus, "-".to_string(), self.line, start_column)),
-                    '*' => tokens.push(Token::new(TokenType::Asterisk, "*".to_string(), self.line, start_column)),
+                    '+' => tokens.push(Token::new(
+                        TokenType::Plus,
+                        "+".to_string(),
+                        self.line,
+                        start_column,
+                    )),
+                    '-' => tokens.push(Token::new(
+                        TokenType::Minus,
+                        "-".to_string(),
+                        self.line,
+                        start_column,
+                    )),
+                    '*' => tokens.push(Token::new(
+                        TokenType::Asterisk,
+                        "*".to_string(),
+                        self.line,
+                        start_column,
+                    )),
                     '/' => {
                         if self.match_char('/') {
                             self.skip_line_comment();
                         } else if self.match_char('*') {
                             self.skip_block_comment();
                         } else {
-                            tokens.push(Token::new(TokenType::Slash, "/".to_string(), self.line, start_column));
+                            tokens.push(Token::new(
+                                TokenType::Slash,
+                                "/".to_string(),
+                                self.line,
+                                start_column,
+                            ));
                         }
                     }
-                    '%' => tokens.push(Token::new(TokenType::Percent, "%".to_string(), self.line, start_column)),
+                    '%' => tokens.push(Token::new(
+                        TokenType::Percent,
+                        "%".to_string(),
+                        self.line,
+                        start_column,
+                    )),
                     '>' => {
                         if self.match_char('=') {
-                            tokens.push(Token::new(TokenType::GreaterEqual, ">=".to_string(), self.line, start_column));
+                            tokens.push(Token::new(
+                                TokenType::GreaterEqual,
+                                ">=".to_string(),
+                                self.line,
+                                start_column,
+                            ));
                         } else {
-                            tokens.push(Token::new(TokenType::Greater, ">".to_string(), self.line, start_column));
+                            tokens.push(Token::new(
+                                TokenType::Greater,
+                                ">".to_string(),
+                                self.line,
+                                start_column,
+                            ));
                         }
                     }
                     '<' => {
                         if self.match_char('=') {
-                            tokens.push(Token::new(TokenType::LessEqual, "<=".to_string(), self.line, start_column));
+                            tokens.push(Token::new(
+                                TokenType::LessEqual,
+                                "<=".to_string(),
+                                self.line,
+                                start_column,
+                            ));
                         } else {
-                            tokens.push(Token::new(TokenType::Less, "<".to_string(), self.line, start_column));
+                            tokens.push(Token::new(
+                                TokenType::Less,
+                                "<".to_string(),
+                                self.line,
+                                start_column,
+                            ));
                         }
                     }
                     '!' => {
                         if self.match_char('=') {
-                            tokens.push(Token::new(TokenType::NotEquals, "!=".to_string(), self.line, start_column));
+                            tokens.push(Token::new(
+                                TokenType::NotEquals,
+                                "!=".to_string(),
+                                self.line,
+                                start_column,
+                            ));
                         } else {
-                            tokens.push(Token::new(TokenType::Bang, "!".to_string(), self.line, start_column));
+                            tokens.push(Token::new(
+                                TokenType::Bang,
+                                "!".to_string(),
+                                self.line,
+                                start_column,
+                            ));
                         }
                     }
                     '&' => {
                         if self.match_char('&') {
-                            tokens.push(Token::new(TokenType::AmpAmp, "&&".to_string(), self.line, start_column));
+                            tokens.push(Token::new(
+                                TokenType::AmpAmp,
+                                "&&".to_string(),
+                                self.line,
+                                start_column,
+                            ));
                         }
                     }
                     '|' => {
                         if self.match_char('|') {
-                            tokens.push(Token::new(TokenType::PipePipe, "||".to_string(), self.line, start_column));
+                            tokens.push(Token::new(
+                                TokenType::PipePipe,
+                                "||".to_string(),
+                                self.line,
+                                start_column,
+                            ));
                         }
                     }
-                    ';' => tokens.push(Token::new(TokenType::Semicolon, ";".to_string(), self.line, start_column)),
-                    ',' => tokens.push(Token::new(TokenType::Comma, ",".to_string(), self.line, start_column)),
-                    '(' => tokens.push(Token::new(TokenType::LParen, "(".to_string(), self.line, start_column)),
-                    ')' => tokens.push(Token::new(TokenType::RParen, ")".to_string(), self.line, start_column)),
-                    '{' => tokens.push(Token::new(TokenType::LBrace, "{".to_string(), self.line, start_column)),
-                    '}' => tokens.push(Token::new(TokenType::RBrace, "}".to_string(), self.line, start_column)),
-                    '[' => tokens.push(Token::new(TokenType::LBracket, "[".to_string(), self.line, start_column)),
-                    ']' => tokens.push(Token::new(TokenType::RBracket, "]".to_string(), self.line, start_column)),
-                    ':' => tokens.push(Token::new(TokenType::Colon, ":".to_string(), self.line, start_column)),
-                    '.' => tokens.push(Token::new(TokenType::Dot, ".".to_string(), self.line, start_column)),
+                    ';' => tokens.push(Token::new(
+                        TokenType::Semicolon,
+                        ";".to_string(),
+                        self.line,
+                        start_column,
+                    )),
+                    ',' => tokens.push(Token::new(
+                        TokenType::Comma,
+                        ",".to_string(),
+                        self.line,
+                        start_column,
+                    )),
+                    '(' => tokens.push(Token::new(
+                        TokenType::LParen,
+                        "(".to_string(),
+                        self.line,
+                        start_column,
+                    )),
+                    ')' => tokens.push(Token::new(
+                        TokenType::RParen,
+                        ")".to_string(),
+                        self.line,
+                        start_column,
+                    )),
+                    '{' => tokens.push(Token::new(
+                        TokenType::LBrace,
+                        "{".to_string(),
+                        self.line,
+                        start_column,
+                    )),
+                    '}' => tokens.push(Token::new(
+                        TokenType::RBrace,
+                        "}".to_string(),
+                        self.line,
+                        start_column,
+                    )),
+                    '[' => tokens.push(Token::new(
+                        TokenType::LBracket,
+                        "[".to_string(),
+                        self.line,
+                        start_column,
+                    )),
+                    ']' => tokens.push(Token::new(
+                        TokenType::RBracket,
+                        "]".to_string(),
+                        self.line,
+                        start_column,
+                    )),
+                    ':' => tokens.push(Token::new(
+                        TokenType::Colon,
+                        ":".to_string(),
+                        self.line,
+                        start_column,
+                    )),
+                    '.' => tokens.push(Token::new(
+                        TokenType::Dot,
+                        ".".to_string(),
+                        self.line,
+                        start_column,
+                    )),
                     '"' => {
                         let string_val = self.read_string()?;
-                        tokens.push(Token::new(TokenType::StringLiteral, string_val, self.line, start_column));
+                        tokens.push(Token::new(
+                            TokenType::StringLiteral,
+                            string_val,
+                            self.line,
+                            start_column,
+                        ));
                     }
-                    _ => return Err(format!("Unexpected character '{}' at line {}, column {}", c, self.line, self.column)),
+                    _ => {
+                        return Err(format!(
+                            "Unexpected character '{}' at line {}, column {}",
+                            c, self.line, self.column
+                        ))
+                    }
                 }
             }
         }
 
-        tokens.push(Token::new(TokenType::Eof, "".to_string(), self.line, self.column));
+        tokens.push(Token::new(
+            TokenType::Eof,
+            "".to_string(),
+            self.line,
+            self.column,
+        ));
         Ok(tokens)
     }
 

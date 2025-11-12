@@ -6,26 +6,26 @@ pub enum AstNode {
     // Program structure
     Program(Vec<AstNode>),
     FocusBlock(Vec<AstNode>),
-    
+
     // Declarations
     VariableDeclaration {
         name: String,
         type_annotation: Option<String>,
         initializer: Option<Box<AstNode>>,
     },
-    
+
     FunctionDeclaration {
         name: String,
         parameters: Vec<Parameter>,
         return_type: Option<String>,
         body: Vec<AstNode>,
     },
-    
+
     SessionDeclaration {
         name: String,
         members: Vec<AstNode>,
     },
-    
+
     // Statements
     ExpressionStatement(Box<AstNode>),
     ObserveStatement(Box<AstNode>),
@@ -44,41 +44,41 @@ pub enum AstNode {
     ReturnStatement(Option<Box<AstNode>>),
     BreakStatement,
     ContinueStatement,
-    
+
     // Expressions
     NumberLiteral(f64),
     StringLiteral(String),
     BooleanLiteral(bool),
     Identifier(String),
-    
+
     BinaryExpression {
         left: Box<AstNode>,
         operator: String,
         right: Box<AstNode>,
     },
-    
+
     UnaryExpression {
         operator: String,
         operand: Box<AstNode>,
     },
-    
+
     CallExpression {
         callee: Box<AstNode>,
         arguments: Vec<AstNode>,
     },
-    
+
     MemberExpression {
         object: Box<AstNode>,
         property: String,
     },
-    
+
     ArrayLiteral(Vec<AstNode>),
-    
+
     IndexExpression {
         object: Box<AstNode>,
         index: Box<AstNode>,
     },
-    
+
     AssignmentExpression {
         target: Box<AstNode>,
         value: Box<AstNode>,

@@ -109,27 +109,27 @@ mod tests {
     #[test]
     fn test_file_operations() {
         let test_file = "/tmp/test_hypnoscript.txt";
-        
+
         // Write file
         assert!(FileBuiltins::write_file(test_file, "Hello, World!").is_ok());
-        
+
         // Check exists
         assert!(FileBuiltins::file_exists(test_file));
         assert!(FileBuiltins::is_file(test_file));
-        
+
         // Read file
         let content = FileBuiltins::read_file(test_file).unwrap();
         assert_eq!(content, "Hello, World!");
-        
+
         // Append
         assert!(FileBuiltins::append_file(test_file, " More text.").is_ok());
         let content = FileBuiltins::read_file(test_file).unwrap();
         assert_eq!(content, "Hello, World! More text.");
-        
+
         // Get size
         let size = FileBuiltins::get_file_size(test_file).unwrap();
         assert!(size > 0);
-        
+
         // Delete
         assert!(FileBuiltins::delete_file(test_file).is_ok());
         assert!(!FileBuiltins::file_exists(test_file));
@@ -137,8 +137,14 @@ mod tests {
 
     #[test]
     fn test_path_operations() {
-        assert_eq!(FileBuiltins::get_file_extension("test.txt"), Some("txt".to_string()));
-        assert_eq!(FileBuiltins::get_file_name("test.txt"), Some("test".to_string()));
+        assert_eq!(
+            FileBuiltins::get_file_extension("test.txt"),
+            Some("txt".to_string())
+        );
+        assert_eq!(
+            FileBuiltins::get_file_name("test.txt"),
+            Some("test".to_string())
+        );
         assert_eq!(FileBuiltins::get_file_extension("test"), None);
     }
 }

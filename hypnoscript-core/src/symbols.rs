@@ -65,7 +65,11 @@ impl Symbol {
     }
 
     /// Factory method for creating a function
-    pub fn create_function(name: String, return_type: String, documentation: Option<String>) -> Self {
+    pub fn create_function(
+        name: String,
+        return_type: String,
+        documentation: Option<String>,
+    ) -> Self {
         let mut sym = Self::new(name, Some(return_type), SymbolKind::Function);
         sym.documentation = documentation;
         sym
@@ -86,7 +90,11 @@ impl Symbol {
     }
 
     /// Factory method for creating a builtin
-    pub fn create_builtin(name: String, return_type: String, documentation: Option<String>) -> Self {
+    pub fn create_builtin(
+        name: String,
+        return_type: String,
+        documentation: Option<String>,
+    ) -> Self {
         let mut sym = Self::new(name, Some(return_type), SymbolKind::Builtin);
         sym.documentation = documentation;
         sym
@@ -115,7 +123,7 @@ impl Symbol {
     /// Get full description of the symbol
     pub fn get_full_description(&self) -> String {
         let mut result = format!("{:?} '{}'", self.kind, self.name);
-        
+
         if let Some(ref t) = self.hypno_type {
             result.push_str(&format!(" of type {}", t));
         } else if let Some(ref tn) = self.type_name {
@@ -138,7 +146,9 @@ impl Symbol {
 
 impl std::fmt::Display for Symbol {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        let type_info = self.hypno_type.as_ref()
+        let type_info = self
+            .hypno_type
+            .as_ref()
             .map(|t| t.to_string())
             .or_else(|| self.type_name.clone())
             .unwrap_or_else(|| "unknown".to_string());

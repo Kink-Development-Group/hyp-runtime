@@ -33,7 +33,10 @@ impl CoreBuiltins {
 
     /// Trance induction
     pub fn trance_induction(subject_name: &str) {
-        Self::observe(&format!("Welcome {}, you are about to enter a deep trance...", subject_name));
+        Self::observe(&format!(
+            "Welcome {}, you are about to enter a deep trance...",
+            subject_name
+        ));
         Self::drift(2000);
         Self::observe("Take a deep breath and relax...");
         Self::drift(1500);

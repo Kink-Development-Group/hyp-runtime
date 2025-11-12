@@ -49,24 +49,29 @@ impl Value {
     pub fn to_number(&self) -> Result<f64, InterpreterError> {
         match self {
             Value::Number(n) => Ok(*n),
-            Value::String(s) => s.parse::<f64>()
-                .map_err(|_| InterpreterError::TypeError(format!("Cannot convert '{}' to number", s))),
+            Value::String(s) => s.parse::<f64>().map_err(|_| {
+                InterpreterError::TypeError(format!("Cannot convert '{}' to number", s))
+            }),
             Value::Boolean(b) => Ok(if *b { 1.0 } else { 0.0 }),
-            _ => Err(InterpreterError::TypeError("Cannot convert to number".to_string())),
+            _ => Err(InterpreterError::TypeError(
+                "Cannot convert to number".to_string(),
+            )),
         }
     }
+}
 
-    pub fn to_string(&self) -> String {
+impl std::fmt::Display for Value {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
-            Value::Number(n) => n.to_string(),
-            Value::String(s) => s.clone(),
-            Value::Boolean(b) => b.to_string(),
-            Value::Null => "null".to_string(),
+            Value::Number(n) => write!(f, "{}", n),
+            Value::String(s) => write!(f, "{}", s),
+            Value::Boolean(b) => write!(f, "{}", b),
+            Value::Null => write!(f, "null"),
             Value::Array(arr) => {
                 let elements: Vec<String> = arr.iter().map(|v| v.to_string()).collect();
-                format!("[{}]", elements.join(", "))
+                write!(f, "[{}]", elements.join(", "))
             }
-            Value::Function { name, .. } => format!("<function {}>", name),
+            Value::Function { name, .. } => write!(f, "<function {}>", name),
         }
     }
 }
@@ -74,6 +79,12 @@ impl Value {
 pub struct Interpreter {
     globals: HashMap<String, Value>,
     locals: Vec<HashMap<String, Value>>,
+}
+
+impl Default for Interpreter {
+    fn default() -> Self {
+        Self::new()
+    }
 }
 
 impl Interpreter {
@@ -91,13 +102,19 @@ impl Interpreter {
             }
             Ok(())
         } else {
-            Err(InterpreterError::Runtime("Expected program node".to_string()))
+            Err(InterpreterError::Runtime(
+                "Expected program node".to_string(),
+            ))
         }
     }
 
     fn execute_statement(&mut self, stmt: &AstNode) -> Result<(), InterpreterError> {
         match stmt {
-            AstNode::VariableDeclaration { name, type_annotation: _, initializer } => {
+            AstNode::VariableDeclaration {
+                name,
+                type_annotation: _,
+                initializer,
+            } => {
                 let value = if let Some(init) = initializer {
                     self.evaluate_expression(init)?
                 } else {
@@ -107,7 +124,12 @@ impl Interpreter {
                 Ok(())
             }
 
-            AstNode::FunctionDeclaration { name, parameters, return_type: _, body } => {
+            AstNode::FunctionDeclaration {
+                name,
+                parameters,
+                return_type: _,
+                body,
+            } => {
                 let param_names: Vec<String> = parameters.iter().map(|p| p.name.clone()).collect();
                 let func = Value::Function {
                     name: name.clone(),
@@ -118,7 +140,10 @@ impl Interpreter {
                 Ok(())
             }
 
-            AstNode::SessionDeclaration { name: _, members: _ } => {
+            AstNode::SessionDeclaration {
+                name: _,
+                members: _,
+            } => {
                 // Sessions not yet fully implemented
                 Ok(())
             }
@@ -129,7 +154,11 @@ impl Interpreter {
                 Ok(())
             }
 
-            AstNode::IfStatement { condition, then_branch, else_branch } => {
+            AstNode::IfStatement {
+                condition,
+                then_branch,
+                else_branch,
+            } => {
                 let cond_value = self.evaluate_expression(condition)?;
                 if cond_value.is_truthy() {
                     for stmt in then_branch {
@@ -190,7 +219,10 @@ impl Interpreter {
                 Ok(())
             }
 
-            _ => Err(InterpreterError::Runtime(format!("Unsupported statement: {:?}", stmt))),
+            _ => Err(InterpreterError::Runtime(format!(
+                "Unsupported statement: {:?}",
+                stmt
+            ))),
         }
     }
 
@@ -214,9 +246,7 @@ impl Interpreter {
 
             AstNode::BooleanLiteral(b) => Ok(Value::Boolean(*b)),
 
-            AstNode::Identifier(name) => {
-                self.get_variable(name)
-            }
+            AstNode::Identifier(name) => self.get_variable(name),
 
             AstNode::ArrayLiteral(elements) => {
                 let mut values = Vec::new();
@@ -226,7 +256,11 @@ impl Interpreter {
                 Ok(Value::Array(values))
             }
 
-            AstNode::BinaryExpression { left, operator, right } => {
+            AstNode::BinaryExpression {
+                left,
+                operator,
+                right,
+            } => {
                 let left_val = self.evaluate_expression(left)?;
                 let right_val = self.evaluate_expression(right)?;
                 self.evaluate_binary_op(&left_val, operator, &right_val)
@@ -237,13 +271,14 @@ impl Interpreter {
                 match operator.as_str() {
                     "-" => Ok(Value::Number(-operand_val.to_number()?)),
                     "!" => Ok(Value::Boolean(!operand_val.is_truthy())),
-                    _ => Err(InterpreterError::Runtime(format!("Unknown unary operator: {}", operator))),
+                    _ => Err(InterpreterError::Runtime(format!(
+                        "Unknown unary operator: {}",
+                        operator
+                    ))),
                 }
             }
 
-            AstNode::CallExpression { callee, arguments } => {
-                self.evaluate_call(callee, arguments)
-            }
+            AstNode::CallExpression { callee, arguments } => self.evaluate_call(callee, arguments),
 
             AstNode::AssignmentExpression { target, value } => {
                 if let AstNode::Identifier(name) = target.as_ref() {
@@ -251,7 +286,9 @@ impl Interpreter {
                     self.set_variable(name.clone(), val.clone());
                     Ok(val)
                 } else {
-                    Err(InterpreterError::Runtime("Invalid assignment target".to_string()))
+                    Err(InterpreterError::Runtime(
+                        "Invalid assignment target".to_string(),
+                    ))
                 }
             }
 
@@ -261,18 +298,29 @@ impl Interpreter {
 
                 if let Value::Array(arr) = obj {
                     let i = idx.to_number()? as usize;
-                    arr.get(i).cloned()
-                        .ok_or_else(|| InterpreterError::Runtime(format!("Index {} out of bounds", i)))
+                    arr.get(i).cloned().ok_or_else(|| {
+                        InterpreterError::Runtime(format!("Index {} out of bounds", i))
+                    })
                 } else {
-                    Err(InterpreterError::TypeError("Cannot index non-array".to_string()))
+                    Err(InterpreterError::TypeError(
+                        "Cannot index non-array".to_string(),
+                    ))
                 }
             }
 
-            _ => Err(InterpreterError::Runtime(format!("Unsupported expression: {:?}", expr))),
+            _ => Err(InterpreterError::Runtime(format!(
+                "Unsupported expression: {:?}",
+                expr
+            ))),
         }
     }
 
-    fn evaluate_binary_op(&self, left: &Value, op: &str, right: &Value) -> Result<Value, InterpreterError> {
+    fn evaluate_binary_op(
+        &self,
+        left: &Value,
+        op: &str,
+        right: &Value,
+    ) -> Result<Value, InterpreterError> {
         match op {
             "+" => {
                 if let (Value::String(s1), Value::String(s2)) = (left, right) {
@@ -293,7 +341,10 @@ impl Interpreter {
             "<=" | "DeeplyLess" => Ok(Value::Boolean(left.to_number()? <= right.to_number()?)),
             "&&" => Ok(Value::Boolean(left.is_truthy() && right.is_truthy())),
             "||" => Ok(Value::Boolean(left.is_truthy() || right.is_truthy())),
-            _ => Err(InterpreterError::Runtime(format!("Unknown binary operator: {}", op))),
+            _ => Err(InterpreterError::Runtime(format!(
+                "Unknown binary operator: {}",
+                op
+            ))),
         }
     }
 
@@ -307,7 +358,11 @@ impl Interpreter {
         }
     }
 
-    fn evaluate_call(&mut self, callee: &AstNode, arguments: &[AstNode]) -> Result<Value, InterpreterError> {
+    fn evaluate_call(
+        &mut self,
+        callee: &AstNode,
+        arguments: &[AstNode],
+    ) -> Result<Value, InterpreterError> {
         if let AstNode::Identifier(name) = callee {
             // Evaluate arguments
             let mut args = Vec::new();
@@ -321,13 +376,18 @@ impl Interpreter {
             }
 
             // Try user-defined functions
-            if let Ok(Value::Function { parameters, body, .. }) = self.get_variable(name) {
+            if let Ok(Value::Function {
+                parameters, body, ..
+            }) = self.get_variable(name)
+            {
                 return self.call_user_function(&parameters, &body, &args);
             }
 
             Err(InterpreterError::UndefinedVariable(name.clone()))
         } else {
-            Err(InterpreterError::Runtime("Cannot call non-identifier".to_string()))
+            Err(InterpreterError::Runtime(
+                "Cannot call non-identifier".to_string(),
+            ))
         }
     }
 
@@ -337,15 +397,34 @@ impl Interpreter {
             "Sin" => Ok(Some(Value::Number(MathBuiltins::sin(args[0].to_number()?)))),
             "Cos" => Ok(Some(Value::Number(MathBuiltins::cos(args[0].to_number()?)))),
             "Tan" => Ok(Some(Value::Number(MathBuiltins::tan(args[0].to_number()?)))),
-            "Sqrt" => Ok(Some(Value::Number(MathBuiltins::sqrt(args[0].to_number()?)))),
+            "Sqrt" => Ok(Some(Value::Number(MathBuiltins::sqrt(
+                args[0].to_number()?,
+            )))),
             "Abs" => Ok(Some(Value::Number(MathBuiltins::abs(args[0].to_number()?)))),
-            "Floor" => Ok(Some(Value::Number(MathBuiltins::floor(args[0].to_number()?)))),
-            "Ceil" => Ok(Some(Value::Number(MathBuiltins::ceil(args[0].to_number()?)))),
-            "Round" => Ok(Some(Value::Number(MathBuiltins::round(args[0].to_number()?)))),
-            "Min" => Ok(Some(Value::Number(MathBuiltins::min(args[0].to_number()?, args[1].to_number()?)))),
-            "Max" => Ok(Some(Value::Number(MathBuiltins::max(args[0].to_number()?, args[1].to_number()?)))),
-            "Pow" => Ok(Some(Value::Number(MathBuiltins::pow(args[0].to_number()?, args[1].to_number()?)))),
-            "Factorial" => Ok(Some(Value::Number(MathBuiltins::factorial(args[0].to_number()? as i64) as f64))),
+            "Floor" => Ok(Some(Value::Number(MathBuiltins::floor(
+                args[0].to_number()?,
+            )))),
+            "Ceil" => Ok(Some(Value::Number(MathBuiltins::ceil(
+                args[0].to_number()?,
+            )))),
+            "Round" => Ok(Some(Value::Number(MathBuiltins::round(
+                args[0].to_number()?,
+            )))),
+            "Min" => Ok(Some(Value::Number(MathBuiltins::min(
+                args[0].to_number()?,
+                args[1].to_number()?,
+            )))),
+            "Max" => Ok(Some(Value::Number(MathBuiltins::max(
+                args[0].to_number()?,
+                args[1].to_number()?,
+            )))),
+            "Pow" => Ok(Some(Value::Number(MathBuiltins::pow(
+                args[0].to_number()?,
+                args[1].to_number()?,
+            )))),
+            "Factorial" => Ok(Some(Value::Number(
+                MathBuiltins::factorial(args[0].to_number()? as i64) as f64,
+            ))),
 
             // String builtins
             "Length" if args.len() == 1 => {
@@ -378,18 +457,27 @@ impl Interpreter {
             }
 
             // Core builtins
-            "ToInt" => Ok(Some(Value::Number(CoreBuiltins::to_int(args[0].to_number()?) as f64))),
+            "ToInt" => Ok(Some(Value::Number(
+                CoreBuiltins::to_int(args[0].to_number()?) as f64,
+            ))),
             "ToString" => Ok(Some(Value::String(args[0].to_string()))),
 
             _ => Ok(None),
         }
     }
 
-    fn call_user_function(&mut self, parameters: &[String], body: &[AstNode], args: &[Value]) -> Result<Value, InterpreterError> {
+    fn call_user_function(
+        &mut self,
+        parameters: &[String],
+        body: &[AstNode],
+        args: &[Value],
+    ) -> Result<Value, InterpreterError> {
         if parameters.len() != args.len() {
-            return Err(InterpreterError::Runtime(
-                format!("Expected {} arguments, got {}", parameters.len(), args.len())
-            ));
+            return Err(InterpreterError::Runtime(format!(
+                "Expected {} arguments, got {}",
+                parameters.len(),
+                args.len()
+            )));
         }
 
         self.push_scope();
@@ -441,7 +529,8 @@ impl Interpreter {
         }
 
         // Search in global scope
-        self.globals.get(name)
+        self.globals
+            .get(name)
             .cloned()
             .ok_or_else(|| InterpreterError::UndefinedVariable(name.to_string()))
     }

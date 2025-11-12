@@ -67,10 +67,7 @@ impl HashingBuiltins {
 
     /// Reverse words in string
     pub fn reverse_words(s: &str) -> String {
-        s.split_whitespace()
-            .rev()
-            .collect::<Vec<_>>()
-            .join(" ")
+        s.split_whitespace().rev().collect::<Vec<_>>().join(" ")
     }
 
     /// Title case (capitalize first letter of each word)
@@ -97,7 +94,7 @@ mod tests {
         let hash1 = HashingBuiltins::hash_string("hello");
         let hash2 = HashingBuiltins::hash_string("hello");
         let hash3 = HashingBuiltins::hash_string("world");
-        
+
         assert_eq!(hash1, hash2);
         assert_ne!(hash1, hash3);
     }
@@ -112,25 +109,36 @@ mod tests {
     #[test]
     fn test_is_palindrome() {
         assert!(HashingBuiltins::is_palindrome("racecar"));
-        assert!(HashingBuiltins::is_palindrome("A man a plan a canal Panama"));
+        assert!(HashingBuiltins::is_palindrome(
+            "A man a plan a canal Panama"
+        ));
         assert!(!HashingBuiltins::is_palindrome("hello"));
     }
 
     #[test]
     fn test_count_occurrences() {
-        assert_eq!(HashingBuiltins::count_occurrences("hello world hello", "hello"), 2);
+        assert_eq!(
+            HashingBuiltins::count_occurrences("hello world hello", "hello"),
+            2
+        );
         assert_eq!(HashingBuiltins::count_occurrences("abcabc", "abc"), 2);
     }
 
     #[test]
     fn test_reverse_words() {
         assert_eq!(HashingBuiltins::reverse_words("hello world"), "world hello");
-        assert_eq!(HashingBuiltins::reverse_words("one two three"), "three two one");
+        assert_eq!(
+            HashingBuiltins::reverse_words("one two three"),
+            "three two one"
+        );
     }
 
     #[test]
     fn test_title_case() {
         assert_eq!(HashingBuiltins::title_case("hello world"), "Hello World");
-        assert_eq!(HashingBuiltins::title_case("the quick brown fox"), "The Quick Brown Fox");
+        assert_eq!(
+            HashingBuiltins::title_case("the quick brown fox"),
+            "The Quick Brown Fox"
+        );
     }
 }

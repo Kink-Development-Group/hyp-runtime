@@ -1,0 +1,239 @@
+name: Rust Build & Release HypnoScript
+
+on:
+  push:
+    tags:
+      - 'v*.*.*'
+      - 'rust-v*.*.*'
+
+jobs:
+  build-release:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        include:
+          - os: ubuntu-latest
+            target: x86_64-unknown-linux-gnu
+            artifact_name: hypnoscript-cli
+            asset_name: hypnoscript-linux-x64
+          - os: ubuntu-latest
+            target: x86_64-unknown-linux-musl
+            artifact_name: hypnoscript-cli
+            asset_name: hypnoscript-linux-x64-musl
+          - os: windows-latest
+            target: x86_64-pc-windows-msvc
+            artifact_name: hypnoscript-cli.exe
+            asset_name: hypnoscript-windows-x64.exe
+          - os: macos-latest
+            target: x86_64-apple-darwin
+            artifact_name: hypnoscript-cli
+            asset_name: hypnoscript-macos-x64
+          - os: macos-latest
+            target: aarch64-apple-darwin
+            artifact_name: hypnoscript-cli
+            asset_name: hypnoscript-macos-arm64
+
+    env:
+      CARGO_TERM_COLOR: always
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Rust
+        uses: actions-rust-lang/setup-rust-toolchain@v1
+        with:
+          toolchain: stable
+          target: ${{ matrix.target }}
+
+      - name: Install musl-tools (Linux musl only)
+        if: matrix.target == 'x86_64-unknown-linux-musl'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y musl-tools
+
+      - name: Build release binary
+        run: cargo build --release --target ${{ matrix.target }} --package hypnoscript-cli
+
+      - name: Strip binary (Unix)
+        if: runner.os != 'Windows'
+        run: strip target/${{ matrix.target }}/release/${{ matrix.artifact_name }}
+
+      - name: Create archive
+        shell: bash
+        run: |
+          mkdir -p dist
+          if [ "${{ runner.os }}" == "Windows" ]; then
+            cp target/${{ matrix.target }}/release/${{ matrix.artifact_name }} dist/${{ matrix.asset_name }}
+            cd dist
+            7z a ../${{ matrix.asset_name }}.zip ${{ matrix.asset_name }}
+          else
+            cp target/${{ matrix.target }}/release/${{ matrix.artifact_name }} dist/${{ matrix.asset_name }}
+            cd dist
+            tar -czf ../${{ matrix.asset_name }}.tar.gz ${{ matrix.asset_name }}
+          fi
+
+      - name: Compute SHA256
+        shell: bash
+        run: |
+          if [ "${{ runner.os }}" == "Windows" ]; then
+            sha256sum ${{ matrix.asset_name }}.zip > ${{ matrix.asset_name }}.sha256
+          else
+            sha256sum ${{ matrix.asset_name }}.tar.gz > ${{ matrix.asset_name }}.sha256
+          fi
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.asset_name }}
+          path: |
+            ${{ matrix.asset_name }}.*
+
+  build-deb-package:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Rust
+        uses: actions-rust-lang/setup-rust-toolchain@v1
+        with:
+          toolchain: stable
+
+      - name: Install cargo-deb
+        run: cargo install cargo-deb
+
+      - name: Create Cargo.toml metadata for debian package
+        run: |
+          cat >> hypnoscript-cli/Cargo.toml << 'EOF'
+          
+          [package.metadata.deb]
+          maintainer = "HypnoScript Team"
+          copyright = "2024, HypnoScript Team"
+          license-file = ["LICENSE", "0"]
+          extended-description = """\
+          HypnoScript is a programming language designed for hypnotic induction and trance work.
+          This package provides the Rust-based runtime and CLI tools."""
+          section = "devel"
+          priority = "optional"
+          assets = [
+              ["target/release/hypnoscript-cli", "usr/bin/", "755"],
+              ["README.md", "usr/share/doc/hypnoscript/", "644"],
+              ["RUST_README.md", "usr/share/doc/hypnoscript/", "644"],
+          ]
+          EOF
+
+      - name: Build .deb package
+        run: cargo deb --package hypnoscript-cli
+
+      - name: Upload .deb artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: hypnoscript-deb
+          path: target/debian/*.deb
+
+  create-release:
+    needs: [build-release, build-deb-package]
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Download all artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: artifacts
+
+      - name: Display structure of downloaded files
+        run: ls -R artifacts
+
+      - name: Create Release
+        uses: softprops/action-gh-release@v1
+        with:
+          files: |
+            artifacts/**/*
+          body: |
+            # HypnoScript Rust Release
+            
+            This release contains the Rust-based HypnoScript runtime and CLI tools.
+            
+            ## Features
+            - ✅ Complete HypnoScript language implementation
+            - ✅ Full compiler (Lexer, Parser, Type Checker, Interpreter, WASM Codegen)
+            - ✅ 110+ builtin functions
+            - ✅ Cross-platform support (Windows, Linux, macOS)
+            - ✅ Native performance (no GC overhead)
+            - ✅ Memory safe by design
+            
+            ## Downloads
+            Choose the appropriate binary for your platform:
+            - **Linux x64**: hypnoscript-linux-x64.tar.gz
+            - **Linux x64 (musl)**: hypnoscript-linux-x64-musl.tar.gz (static binary)
+            - **Windows x64**: hypnoscript-windows-x64.zip
+            - **macOS x64**: hypnoscript-macos-x64.tar.gz
+            - **macOS ARM64**: hypnoscript-macos-arm64.tar.gz
+            - **Debian/Ubuntu**: hypnoscript_*.deb
+            
+            ## Installation
+            
+            ### Linux/macOS
+            ```bash
+            # Extract the archive
+            tar -xzf hypnoscript-*.tar.gz
+            
+            # Move to PATH
+            sudo mv hypnoscript-* /usr/local/bin/hypnoscript-cli
+            
+            # Test installation
+            hypnoscript-cli version
+            ```
+            
+            ### Windows
+            ```powershell
+            # Extract the zip
+            # Add to PATH or run directly
+            .\hypnoscript-windows-x64.exe version
+            ```
+            
+            ### Debian/Ubuntu
+            ```bash
+            sudo dpkg -i hypnoscript_*.deb
+            hypnoscript-cli version
+            ```
+            
+            ## Checksums
+            SHA256 checksums are provided for all binaries. Verify with:
+            ```bash
+            sha256sum -c hypnoscript-*.sha256
+            ```
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  publish-crates:
+    needs: create-release
+    runs-on: ubuntu-latest
+    if: startsWith(github.ref, 'refs/tags/v')
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Rust
+        uses: actions-rust-lang/setup-rust-toolchain@v1
+        with:
+          toolchain: stable
+
+      - name: Publish to crates.io
+        run: |
+          cargo publish --package hypnoscript-core --token ${{ secrets.CARGO_TOKEN }} || true
+          sleep 10
+          cargo publish --package hypnoscript-lexer-parser --token ${{ secrets.CARGO_TOKEN }} || true
+          sleep 10
+          cargo publish --package hypnoscript-runtime --token ${{ secrets.CARGO_TOKEN }} || true
+          sleep 10
+          cargo publish --package hypnoscript-compiler --token ${{ secrets.CARGO_TOKEN }} || true
+          sleep 10
+          cargo publish --package hypnoscript-cli --token ${{ secrets.CARGO_TOKEN }} || true
+        continue-on-error: true

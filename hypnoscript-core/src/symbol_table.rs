@@ -44,9 +44,9 @@ impl SymbolTable {
 
     /// Resolve a symbol, looking in enclosing scopes if necessary
     pub fn resolve(&self, name: &str) -> Option<&Symbol> {
-        self.symbols.get(name).or_else(|| {
-            self.enclosing.as_ref().and_then(|e| e.resolve(name))
-        })
+        self.symbols
+            .get(name)
+            .or_else(|| self.enclosing.as_ref().and_then(|e| e.resolve(name)))
     }
 
     /// Resolve a symbol only in the current scope
@@ -78,27 +78,21 @@ impl SymbolTable {
 
     /// Get symbols by kind
     pub fn get_symbols_by_kind(&self, kind: SymbolKind) -> Vec<&Symbol> {
-        let mut symbols: Vec<_> = self.symbols.values()
-            .filter(|s| s.kind == kind)
-            .collect();
+        let mut symbols: Vec<_> = self.symbols.values().filter(|s| s.kind == kind).collect();
         symbols.sort_by(|a, b| a.name.cmp(&b.name));
         symbols
     }
 
     /// Get exported symbols
     pub fn get_exported_symbols(&self) -> Vec<&Symbol> {
-        let mut symbols: Vec<_> = self.symbols.values()
-            .filter(|s| s.is_exported)
-            .collect();
+        let mut symbols: Vec<_> = self.symbols.values().filter(|s| s.is_exported).collect();
         symbols.sort_by(|a, b| a.name.cmp(&b.name));
         symbols
     }
 
     /// Get constants
     pub fn get_constants(&self) -> Vec<&Symbol> {
-        let mut symbols: Vec<_> = self.symbols.values()
-            .filter(|s| s.is_constant)
-            .collect();
+        let mut symbols: Vec<_> = self.symbols.values().filter(|s| s.is_constant).collect();
         symbols.sort_by(|a, b| a.name.cmp(&b.name));
         symbols
     }
@@ -152,9 +146,11 @@ impl SymbolTable {
         let stats = self.get_symbol_statistics();
         let mut summary = format!(
             "Scope '{}' (Level {}): {} symbols\n",
-            self.scope_name, self.scope_level, self.symbol_count()
+            self.scope_name,
+            self.scope_level,
+            self.symbol_count()
         );
-        
+
         let mut kinds: Vec<_> = stats.keys().collect();
         kinds.sort();
         for kind in kinds {
@@ -168,10 +164,12 @@ impl SymbolTable {
     /// Search symbols by pattern
     pub fn search_symbols(&self, pattern: &str, kind: Option<SymbolKind>) -> Vec<&Symbol> {
         let pattern_lower = pattern.to_lowercase();
-        let mut symbols: Vec<_> = self.symbols.values()
+        let mut symbols: Vec<_> = self
+            .symbols
+            .values()
             .filter(|s| {
                 let name_match = s.name.to_lowercase().contains(&pattern_lower);
-                let kind_match = kind.map_or(true, |k| s.kind == k);
+                let kind_match = kind.is_none_or(|k| s.kind == k);
                 name_match && kind_match
             })
             .collect();
@@ -185,7 +183,10 @@ impl SymbolTable {
 
         for symbol in self.symbols.values() {
             if symbol.name.trim().is_empty() {
-                errors.push(format!("Symbol has empty name in scope '{}'", self.scope_name));
+                errors.push(format!(
+                    "Symbol has empty name in scope '{}'",
+                    self.scope_name
+                ));
             }
 
             if symbol.kind == SymbolKind::Function && symbol.type_name.is_none() {
@@ -218,14 +219,21 @@ impl SymbolTable {
 
     /// Debug scope information
     pub fn debug_scope(&self) -> String {
-        let mut result = format!("Scope '{}' (Level {}):\n", self.scope_name, self.scope_level);
-        
+        let mut result = format!(
+            "Scope '{}' (Level {}):\n",
+            self.scope_name, self.scope_level
+        );
+
         let mut symbols: Vec<_> = self.symbols.iter().collect();
         symbols.sort_by(|a, b| a.0.cmp(b.0));
-        
+
         for (name, symbol) in symbols {
             let const_info = if symbol.is_constant { " (const)" } else { "" };
-            let export_info = if symbol.is_exported { " (exported)" } else { "" };
+            let export_info = if symbol.is_exported {
+                " (exported)"
+            } else {
+                ""
+            };
             result.push_str(&format!(
                 "  {:?} {}: {:?}{}{}\n",
                 symbol.kind, name, symbol.type_name, const_info, export_info

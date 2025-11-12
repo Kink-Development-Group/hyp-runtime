@@ -9,10 +9,13 @@ on:
     paths:
       - 'HypnoScript.Dokumentation/**'
       - '.github/workflows/deploy-docs.yml'
+      - 'hypnoscript-*/src/**'
+      - 'RUST_README.md'
   pull_request:
     branches: [main]
     paths:
       - 'HypnoScript.Dokumentation/**'
+      - 'hypnoscript-*/src/**'
 
 jobs:
   build-and-deploy:
@@ -21,6 +24,17 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+
+      - name: Setup Rust
+        uses: actions-rust-lang/setup-rust-toolchain@v1
+        with:
+          toolchain: stable
+
+      - name: Build Rust documentation
+        run: |
+          cargo doc --no-deps --workspace --release
+          mkdir -p rust-docs
+          cp -r target/doc/* rust-docs/
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
@@ -36,6 +50,11 @@ jobs:
       - name: Build Documentation
         working-directory: HypnoScript.Dokumentation
         run: npm run build
+
+      - name: Copy Rust docs to build directory
+        run: |
+          mkdir -p HypnoScript.Dokumentation/build/rust-api
+          cp -r rust-docs/* HypnoScript.Dokumentation/build/rust-api/
 
       - name: Deploy to GitHub Pages
         if: github.ref == 'refs/heads/main'
@@ -53,6 +72,14 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+
+      - name: Setup Rust
+        uses: actions-rust-lang/setup-rust-toolchain@v1
+        with:
+          toolchain: stable
+
+      - name: Build Rust documentation
+        run: cargo doc --no-deps --workspace --release
 
       - name: Setup Node.js
         uses: actions/setup-node@v4

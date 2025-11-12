@@ -19,7 +19,10 @@ impl ArrayBuiltins {
 
     /// Find index of element
     pub fn index_of<T: PartialEq>(arr: &[T], element: &T) -> i64 {
-        arr.iter().position(|x| x == element).map(|i| i as i64).unwrap_or(-1)
+        arr.iter()
+            .position(|x| x == element)
+            .map(|i| i as i64)
+            .unwrap_or(-1)
     }
 
     /// Check if array contains element

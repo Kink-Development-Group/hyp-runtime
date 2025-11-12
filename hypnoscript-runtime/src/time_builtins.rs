@@ -1,4 +1,4 @@
-use chrono::{Datelike, Local, Timelike, NaiveDate};
+use chrono::{Datelike, Local, NaiveDate, Timelike};
 
 /// Time and date builtin functions
 pub struct TimeBuiltins;
@@ -46,16 +46,14 @@ impl TimeBuiltins {
 
     /// Get number of days in month
     pub fn get_days_in_month(year: i32, month: u32) -> Option<u32> {
-        NaiveDate::from_ymd_opt(year, month, 1)
-            .and_then(|date| {
-                if month == 12 {
-                    NaiveDate::from_ymd_opt(year + 1, 1, 1)
-                } else {
-                    NaiveDate::from_ymd_opt(year, month + 1, 1)
-                }.map(|next_month| {
-                    (next_month - date).num_days() as u32
-                })
-            })
+        NaiveDate::from_ymd_opt(year, month, 1).and_then(|date| {
+            if month == 12 {
+                NaiveDate::from_ymd_opt(year + 1, 1, 1)
+            } else {
+                NaiveDate::from_ymd_opt(year, month + 1, 1)
+            }
+            .map(|next_month| (next_month - date).num_days() as u32)
+        })
     }
 
     /// Get current year

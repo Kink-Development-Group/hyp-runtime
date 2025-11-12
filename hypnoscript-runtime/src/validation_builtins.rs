@@ -19,17 +19,13 @@ impl ValidationBuiltins {
 
     /// Check if string is valid URL
     pub fn is_valid_url(url: &str) -> bool {
-        let regex = URL_REGEX.get_or_init(|| {
-            Regex::new(r"^https?://[^\s/$.?#].[^\s]*$").unwrap()
-        });
+        let regex = URL_REGEX.get_or_init(|| Regex::new(r"^https?://[^\s/$.?#].[^\s]*$").unwrap());
         regex.is_match(url)
     }
 
     /// Check if string is valid phone number (simple format)
     pub fn is_valid_phone_number(phone: &str) -> bool {
-        let regex = PHONE_REGEX.get_or_init(|| {
-            Regex::new(r"^\+?[1-9]\d{1,14}$").unwrap()
-        });
+        let regex = PHONE_REGEX.get_or_init(|| Regex::new(r"^\+?[1-9]\d{1,14}$").unwrap());
         regex.is_match(&phone.replace(&['-', ' ', '(', ')'][..], ""))
     }
 
@@ -50,12 +46,18 @@ impl ValidationBuiltins {
 
     /// Check if string is lowercase
     pub fn is_lowercase(s: &str) -> bool {
-        !s.is_empty() && s.chars().filter(|c| c.is_alphabetic()).all(|c| c.is_lowercase())
+        !s.is_empty()
+            && s.chars()
+                .filter(|c| c.is_alphabetic())
+                .all(|c| c.is_lowercase())
     }
 
     /// Check if string is uppercase
     pub fn is_uppercase(s: &str) -> bool {
-        !s.is_empty() && s.chars().filter(|c| c.is_alphabetic()).all(|c| c.is_uppercase())
+        !s.is_empty()
+            && s.chars()
+                .filter(|c| c.is_alphabetic())
+                .all(|c| c.is_uppercase())
     }
 
     /// Check if number is in range
@@ -86,7 +88,9 @@ mod tests {
     #[test]
     fn test_is_valid_url() {
         assert!(ValidationBuiltins::is_valid_url("http://example.com"));
-        assert!(ValidationBuiltins::is_valid_url("https://www.example.com/path"));
+        assert!(ValidationBuiltins::is_valid_url(
+            "https://www.example.com/path"
+        ));
         assert!(!ValidationBuiltins::is_valid_url("not a url"));
         assert!(!ValidationBuiltins::is_valid_url("ftp://example.com"));
     }

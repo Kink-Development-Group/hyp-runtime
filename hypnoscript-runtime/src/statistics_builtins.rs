@@ -18,7 +18,7 @@ impl StatisticsBuiltins {
         let mut sorted = numbers.to_vec();
         sorted.sort_by(|a, b| a.partial_cmp(b).unwrap());
         let len = sorted.len();
-        if len % 2 == 0 {
+        if len.is_multiple_of(2) {
             (sorted[len / 2 - 1] + sorted[len / 2]) / 2.0
         } else {
             sorted[len / 2]
@@ -30,14 +30,15 @@ impl StatisticsBuiltins {
         if numbers.is_empty() {
             return 0.0;
         }
-        
+
         use std::collections::HashMap;
         let mut counts = HashMap::new();
         for &n in numbers {
             *counts.entry(n.to_bits()).or_insert(0) += 1;
         }
-        
-        counts.iter()
+
+        counts
+            .iter()
             .max_by_key(|(_, &count)| count)
             .map(|(bits, _)| f64::from_bits(*bits))
             .unwrap_or(0.0)
@@ -49,9 +50,8 @@ impl StatisticsBuiltins {
             return 0.0;
         }
         let mean = Self::calculate_mean(numbers);
-        let variance = numbers.iter()
-            .map(|&x| (x - mean).powi(2))
-            .sum::<f64>() / (numbers.len() - 1) as f64;
+        let variance =
+            numbers.iter().map(|&x| (x - mean).powi(2)).sum::<f64>() / (numbers.len() - 1) as f64;
         variance.sqrt()
     }
 
@@ -61,9 +61,7 @@ impl StatisticsBuiltins {
             return 0.0;
         }
         let mean = Self::calculate_mean(numbers);
-        numbers.iter()
-            .map(|&x| (x - mean).powi(2))
-            .sum::<f64>() / (numbers.len() - 1) as f64
+        numbers.iter().map(|&x| (x - mean).powi(2)).sum::<f64>() / (numbers.len() - 1) as f64
     }
 
     /// Calculate range (max - min)
@@ -78,7 +76,7 @@ impl StatisticsBuiltins {
 
     /// Calculate percentile
     pub fn calculate_percentile(numbers: &[f64], percentile: f64) -> f64 {
-        if numbers.is_empty() || percentile < 0.0 || percentile > 100.0 {
+        if numbers.is_empty() || !(0.0..=100.0).contains(&percentile) {
             return 0.0;
         }
         let mut sorted = numbers.to_vec();
@@ -92,21 +90,23 @@ impl StatisticsBuiltins {
         if x.len() != y.len() || x.is_empty() {
             return 0.0;
         }
-        
+
         let mean_x = Self::calculate_mean(x);
         let mean_y = Self::calculate_mean(y);
-        
-        let numerator: f64 = x.iter().zip(y.iter())
+
+        let numerator: f64 = x
+            .iter()
+            .zip(y.iter())
             .map(|(&xi, &yi)| (xi - mean_x) * (yi - mean_y))
             .sum();
-        
+
         let denom_x: f64 = x.iter().map(|&xi| (xi - mean_x).powi(2)).sum();
         let denom_y: f64 = y.iter().map(|&yi| (yi - mean_y).powi(2)).sum();
-        
+
         if denom_x == 0.0 || denom_y == 0.0 {
             return 0.0;
         }
-        
+
         numerator / (denom_x * denom_y).sqrt()
     }
 
@@ -115,25 +115,25 @@ impl StatisticsBuiltins {
         if x.len() != y.len() || x.is_empty() {
             return (0.0, 0.0);
         }
-        
+
         let mean_x = Self::calculate_mean(x);
         let mean_y = Self::calculate_mean(y);
-        
-        let numerator: f64 = x.iter().zip(y.iter())
+
+        let numerator: f64 = x
+            .iter()
+            .zip(y.iter())
             .map(|(&xi, &yi)| (xi - mean_x) * (yi - mean_y))
             .sum();
-        
-        let denominator: f64 = x.iter()
-            .map(|&xi| (xi - mean_x).powi(2))
-            .sum();
-        
+
+        let denominator: f64 = x.iter().map(|&xi| (xi - mean_x).powi(2)).sum();
+
         if denominator == 0.0 {
             return (0.0, mean_y);
         }
-        
+
         let slope = numerator / denominator;
         let intercept = mean_y - slope * mean_x;
-        
+
         (slope, intercept)
     }
 }
@@ -144,14 +144,26 @@ mod tests {
 
     #[test]
     fn test_calculate_mean() {
-        assert_eq!(StatisticsBuiltins::calculate_mean(&[1.0, 2.0, 3.0, 4.0, 5.0]), 3.0);
-        assert_eq!(StatisticsBuiltins::calculate_mean(&[10.0, 20.0, 30.0]), 20.0);
+        assert_eq!(
+            StatisticsBuiltins::calculate_mean(&[1.0, 2.0, 3.0, 4.0, 5.0]),
+            3.0
+        );
+        assert_eq!(
+            StatisticsBuiltins::calculate_mean(&[10.0, 20.0, 30.0]),
+            20.0
+        );
     }
 
     #[test]
     fn test_calculate_median() {
-        assert_eq!(StatisticsBuiltins::calculate_median(&[1.0, 2.0, 3.0, 4.0, 5.0]), 3.0);
-        assert_eq!(StatisticsBuiltins::calculate_median(&[1.0, 2.0, 3.0, 4.0]), 2.5);
+        assert_eq!(
+            StatisticsBuiltins::calculate_median(&[1.0, 2.0, 3.0, 4.0, 5.0]),
+            3.0
+        );
+        assert_eq!(
+            StatisticsBuiltins::calculate_median(&[1.0, 2.0, 3.0, 4.0]),
+            2.5
+        );
     }
 
     #[test]
@@ -163,7 +175,10 @@ mod tests {
 
     #[test]
     fn test_calculate_range() {
-        assert_eq!(StatisticsBuiltins::calculate_range(&[1.0, 2.0, 3.0, 4.0, 5.0]), 4.0);
+        assert_eq!(
+            StatisticsBuiltins::calculate_range(&[1.0, 2.0, 3.0, 4.0, 5.0]),
+            4.0
+        );
         assert_eq!(StatisticsBuiltins::calculate_range(&[10.0, 100.0]), 90.0);
     }
 }

@@ -47,7 +47,8 @@ impl Parser {
     fn parse_block_statements(&mut self) -> Result<Vec<AstNode>, String> {
         let mut statements = Vec::new();
 
-        while !self.is_at_end() && !self.check(&TokenType::RBrace) && !self.check(&TokenType::Relax) {
+        while !self.is_at_end() && !self.check(&TokenType::RBrace) && !self.check(&TokenType::Relax)
+        {
             // Skip entrance blocks
             if self.match_token(&TokenType::Entrance) {
                 if !self.match_token(&TokenType::LBrace) {
@@ -130,7 +131,10 @@ impl Parser {
 
     /// Parse variable declaration
     fn parse_var_declaration(&mut self) -> Result<AstNode, String> {
-        let name = self.consume(&TokenType::Identifier, "Expected variable name")?.lexeme.clone();
+        let name = self
+            .consume(&TokenType::Identifier, "Expected variable name")?
+            .lexeme
+            .clone();
 
         let type_annotation = if self.match_token(&TokenType::Colon) {
             let type_token = self.advance();
@@ -145,7 +149,10 @@ impl Parser {
             None
         };
 
-        self.consume(&TokenType::Semicolon, "Expected ';' after variable declaration")?;
+        self.consume(
+            &TokenType::Semicolon,
+            "Expected ';' after variable declaration",
+        )?;
 
         Ok(AstNode::VariableDeclaration {
             name,
@@ -212,14 +219,20 @@ impl Parser {
 
     /// Parse function declaration
     fn parse_function_declaration(&mut self) -> Result<AstNode, String> {
-        let name = self.consume(&TokenType::Identifier, "Expected function name")?.lexeme.clone();
+        let name = self
+            .consume(&TokenType::Identifier, "Expected function name")?
+            .lexeme
+            .clone();
 
         self.consume(&TokenType::LParen, "Expected '(' after function name")?;
 
         let mut parameters = Vec::new();
         if !self.check(&TokenType::RParen) {
             loop {
-                let param_name = self.consume(&TokenType::Identifier, "Expected parameter name")?.lexeme.clone();
+                let param_name = self
+                    .consume(&TokenType::Identifier, "Expected parameter name")?
+                    .lexeme
+                    .clone();
                 let type_annotation = if self.match_token(&TokenType::Colon) {
                     let type_token = self.advance();
                     Some(type_token.lexeme.clone())
@@ -257,7 +270,10 @@ impl Parser {
 
     /// Parse session declaration
     fn parse_session_declaration(&mut self) -> Result<AstNode, String> {
-        let name = self.consume(&TokenType::Identifier, "Expected session name")?.lexeme.clone();
+        let name = self
+            .consume(&TokenType::Identifier, "Expected session name")?
+            .lexeme
+            .clone();
 
         self.consume(&TokenType::LBrace, "Expected '{' after session name")?;
         let members = self.parse_block_statements()?;
@@ -269,7 +285,10 @@ impl Parser {
     /// Parse observe statement
     fn parse_observe_statement(&mut self) -> Result<AstNode, String> {
         let expr = Box::new(self.parse_expression()?);
-        self.consume(&TokenType::Semicolon, "Expected ';' after observe statement")?;
+        self.consume(
+            &TokenType::Semicolon,
+            "Expected ';' after observe statement",
+        )?;
         Ok(AstNode::ObserveStatement(expr))
     }
 
@@ -342,8 +361,12 @@ impl Parser {
     fn parse_equality(&mut self) -> Result<AstNode, String> {
         let mut left = self.parse_comparison()?;
 
-        while self.match_tokens(&[TokenType::DoubleEquals, TokenType::NotEquals, 
-                                   TokenType::YouAreFeelingVerySleepy, TokenType::NotSoDeep]) {
+        while self.match_tokens(&[
+            TokenType::DoubleEquals,
+            TokenType::NotEquals,
+            TokenType::YouAreFeelingVerySleepy,
+            TokenType::NotSoDeep,
+        ]) {
             let operator = self.previous().lexeme.clone();
             let right = Box::new(self.parse_comparison()?);
             left = AstNode::BinaryExpression {
@@ -435,7 +458,10 @@ impl Parser {
             if self.match_token(&TokenType::LParen) {
                 expr = self.finish_call(expr)?;
             } else if self.match_token(&TokenType::Dot) {
-                let property = self.consume(&TokenType::Identifier, "Expected property name after '.'")?.lexeme.clone();
+                let property = self
+                    .consume(&TokenType::Identifier, "Expected property name after '.'")?
+                    .lexeme
+                    .clone();
                 expr = AstNode::MemberExpression {
                     object: Box::new(expr),
                     property,
@@ -481,7 +507,9 @@ impl Parser {
         // Number literal
         if self.check(&TokenType::NumberLiteral) {
             let token = self.advance();
-            let value = token.lexeme.parse::<f64>()
+            let value = token
+                .lexeme
+                .parse::<f64>()
                 .map_err(|_| format!("Invalid number: {}", token.lexeme))?;
             return Ok(AstNode::NumberLiteral(value));
         }

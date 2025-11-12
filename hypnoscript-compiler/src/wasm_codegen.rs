@@ -11,6 +11,12 @@ pub struct WasmCodeGenerator {
     indent_level: usize,
 }
 
+impl Default for WasmCodeGenerator {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl WasmCodeGenerator {
     /// Create a new WASM code generator
     pub fn new() -> Self {
@@ -61,7 +67,9 @@ impl WasmCodeGenerator {
         self.emit_line(";; Imports");
         self.emit_line("(import \"env\" \"console_log\" (func $console_log (param i32)))");
         self.emit_line("(import \"env\" \"console_log_f64\" (func $console_log_f64 (param f64)))");
-        self.emit_line("(import \"env\" \"console_log_str\" (func $console_log_str (param i32 i32)))");
+        self.emit_line(
+            "(import \"env\" \"console_log_str\" (func $console_log_str (param i32 i32)))",
+        );
         self.emit_line("(import \"env\" \"drift\" (func $drift (param i32)))");
         self.emit_line("");
     }
@@ -87,7 +95,9 @@ impl WasmCodeGenerator {
     /// Emit a statement
     fn emit_statement(&mut self, stmt: &AstNode) {
         match stmt {
-            AstNode::VariableDeclaration { name, initializer, .. } => {
+            AstNode::VariableDeclaration {
+                name, initializer, ..
+            } => {
                 let var_idx = self.local_counter;
                 self.variable_map.insert(name.clone(), var_idx);
                 self.local_counter += 1;
@@ -117,7 +127,11 @@ impl WasmCodeGenerator {
                 }
             }
 
-            AstNode::IfStatement { condition, then_branch, else_branch } => {
+            AstNode::IfStatement {
+                condition,
+                then_branch,
+                else_branch,
+            } => {
                 self.emit_expression(condition);
                 self.emit_line("if");
                 self.indent_level += 1;
@@ -215,7 +229,11 @@ impl WasmCodeGenerator {
 
             AstNode::StringLiteral(s) => {
                 // For simplicity, emit string length (would need proper string handling)
-                self.emit_line(&format!("i32.const {} ;; string: {}", s.len(), s.escape_default()));
+                self.emit_line(&format!(
+                    "i32.const {} ;; string: {}",
+                    s.len(),
+                    s.escape_default()
+                ));
             }
 
             AstNode::BooleanLiteral(b) => {
@@ -231,7 +249,11 @@ impl WasmCodeGenerator {
                 }
             }
 
-            AstNode::BinaryExpression { left, operator, right } => {
+            AstNode::BinaryExpression {
+                left,
+                operator,
+                right,
+            } => {
                 self.emit_expression(left);
                 self.emit_expression(right);
 

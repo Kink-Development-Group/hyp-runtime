@@ -122,7 +122,9 @@ impl HypnoType {
 
         match self.base_type {
             HypnoBaseType::Array => {
-                if let (Some(ref elem1), Some(ref elem2)) = (&self.element_type, &other.element_type) {
+                if let (Some(ref elem1), Some(ref elem2)) =
+                    (&self.element_type, &other.element_type)
+                {
                     elem1.is_compatible_with(elem2)
                 } else {
                     false
@@ -134,26 +136,32 @@ impl HypnoType {
                         return false;
                     }
                     fields1.iter().all(|(key, value)| {
-                        fields2.get(key).map_or(false, |v| value.is_compatible_with(v))
+                        fields2
+                            .get(key)
+                            .is_some_and(|v| value.is_compatible_with(v))
                     })
                 } else {
                     false
                 }
             }
             HypnoBaseType::Function => {
-                if let (Some(ref params1), Some(ref params2)) = (&self.parameter_types, &other.parameter_types) {
+                if let (Some(ref params1), Some(ref params2)) =
+                    (&self.parameter_types, &other.parameter_types)
+                {
                     if params1.len() != params2.len() {
                         return false;
                     }
-                    let params_match = params1.iter().zip(params2.iter())
+                    let params_match = params1
+                        .iter()
+                        .zip(params2.iter())
                         .all(|(p1, p2)| p1.is_compatible_with(p2));
-                    
+
                     let return_match = match (&self.return_type, &other.return_type) {
                         (Some(ref ret1), Some(ref ret2)) => ret1.is_compatible_with(ret2),
                         (None, None) => true,
                         _ => false,
                     };
-                    
+
                     params_match && return_match
                 } else {
                     false
@@ -182,10 +190,19 @@ impl fmt::Display for HypnoType {
                 }
             }
             HypnoBaseType::Function => {
-                let params = self.parameter_types.as_ref()
-                    .map(|p| p.iter().map(|t| t.to_string()).collect::<Vec<_>>().join(","))
+                let params = self
+                    .parameter_types
+                    .as_ref()
+                    .map(|p| {
+                        p.iter()
+                            .map(|t| t.to_string())
+                            .collect::<Vec<_>>()
+                            .join(",")
+                    })
                     .unwrap_or_default();
-                let ret = self.return_type.as_ref()
+                let ret = self
+                    .return_type
+                    .as_ref()
                     .map(|r| r.to_string())
                     .unwrap_or_else(|| "void".to_string());
                 write!(f, "Function<{} -> {}>", params, ret)
