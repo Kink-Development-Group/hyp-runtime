@@ -182,6 +182,8 @@ jobs:
 
   coverage:
     runs-on: ubuntu-latest
+    env:
+      CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
 
     steps:
       - name: Checkout code
@@ -200,10 +202,17 @@ jobs:
         run: cargo llvm-cov --all-features --workspace --lcov --output-path lcov.info
 
       - name: Upload coverage to Codecov
+        if: env.CODECOV_TOKEN != ''
         uses: codecov/codecov-action@v4
         with:
           files: lcov.info
           fail_ci_if_error: true
+          token: ${{ env.CODECOV_TOKEN }}
+
+      - name: Skip Codecov upload (token missing)
+        if: env.CODECOV_TOKEN == ''
+        run: |
+          echo "::warning::CODECOV_TOKEN secret not set; skipping Codecov upload."
 
   deployment:
     needs: [build-and-test, code-quality, performance]
