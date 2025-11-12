@@ -145,4 +145,11 @@ jobs:
         working-directory: hypnoscript-docs
         run: |
           npm install --no-save linkinator@^3 wait-on@^7
-          npx linkinator docs/.vitepress/dist --recurse --skip "^mailto:"
+          npx vitepress preview docs --host 127.0.0.1 --port 4173 &
+          PREVIEW_PID=$!
+          trap 'kill $PREVIEW_PID 2>/dev/null || true' EXIT
+          npx wait-on http://127.0.0.1:4173/hyp-runtime/
+          npx linkinator http://127.0.0.1:4173/hyp-runtime/ --recurse --skip "^mailto:"
+          kill $PREVIEW_PID 2>/dev/null || true
+          wait $PREVIEW_PID 2>/dev/null || true
+          trap - EXIT
