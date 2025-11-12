@@ -70,14 +70,25 @@ jobs:
       - name: Build CLI binary
         run: cargo build --release --package hypnoscript-cli
 
-      - name: Test CLI functionality
+      - name: Test CLI functionality (Unix)
+        if: runner.os != 'Windows'
         run: |
           ./target/release/hypnoscript-cli version
           ./target/release/hypnoscript-cli builtins
-          ./target/release/hypnoscript-cli lex test_rust_demo.hyp
-          ./target/release/hypnoscript-cli parse test_rust_demo.hyp
-          ./target/release/hypnoscript-cli check test_rust_demo.hyp
-          ./target/release/hypnoscript-cli run test_rust_demo.hyp
+          ./target/release/hypnoscript-cli lex hypnoscript-tests/test_rust_demo.hyp
+          ./target/release/hypnoscript-cli parse hypnoscript-tests/test_rust_demo.hyp
+          ./target/release/hypnoscript-cli check hypnoscript-tests/test_rust_demo.hyp
+          ./target/release/hypnoscript-cli run hypnoscript-tests/test_rust_demo.hyp
+
+      - name: Test CLI functionality (Windows)
+        if: runner.os == 'Windows'
+        run: |
+          .\target\release\hypnoscript-cli.exe version
+          .\target\release\hypnoscript-cli.exe builtins
+          .\target\release\hypnoscript-cli.exe lex hypnoscript-tests\test_rust_demo.hyp
+          .\target\release\hypnoscript-cli.exe parse hypnoscript-tests\test_rust_demo.hyp
+          .\target\release\hypnoscript-cli.exe check hypnoscript-tests\test_rust_demo.hyp
+          .\target\release\hypnoscript-cli.exe run hypnoscript-tests\test_rust_demo.hyp
 
       - name: Upload test results
         uses: actions/upload-artifact@v4

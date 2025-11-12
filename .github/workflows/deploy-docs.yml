@@ -14,14 +14,14 @@ on:
   push:
     branches: [main]
     paths:
-      - "HypnoScript.Dokumentation/**"
+      - "hypnoscript-docs/**"
       - ".github/workflows/deploy-docs.yml"
       - "hypnoscript-*/src/**"
-      - "RUST_README.md"
+      - "README.md"
   pull_request:
     branches: [main]
     paths:
-      - "HypnoScript.Dokumentation/**"
+      - "hypnoscript-docs/**"
       - "hypnoscript-*/src/**"
 
 jobs:
@@ -50,28 +50,28 @@ jobs:
         with:
           node-version: "20"
           cache: "npm"
-          cache-dependency-path: HypnoScript.Dokumentation/package-lock.json
+          cache-dependency-path: hypnoscript-docs/package-lock.json
 
       - name: Setup Pages
         uses: actions/configure-pages@v4
 
       - name: Install Dependencies
-        working-directory: HypnoScript.Dokumentation
+        working-directory: hypnoscript-docs
         run: npm ci
 
       - name: Build VitePress Documentation
-        working-directory: HypnoScript.Dokumentation
+        working-directory: hypnoscript-docs
         run: npm run build
 
       - name: Copy Rust docs to build directory
         run: |
-          mkdir -p HypnoScript.Dokumentation/docs/.vitepress/dist/rust-api
-          cp -r rust-docs/* HypnoScript.Dokumentation/docs/.vitepress/dist/rust-api/
+          mkdir -p hypnoscript-docs/docs/.vitepress/dist/rust-api
+          cp -r rust-docs/* hypnoscript-docs/docs/.vitepress/dist/rust-api/
 
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          path: HypnoScript.Dokumentation/docs/.vitepress/dist
+          path: hypnoscript-docs/docs/.vitepress/dist
 
   deploy:
     environment:
