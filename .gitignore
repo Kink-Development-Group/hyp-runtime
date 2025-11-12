@@ -72,4 +72,5 @@ artifacts/
 .builds
 *.pidb
 *.svclog
-*.scc
+*.scctarget/
+Cargo.lock
