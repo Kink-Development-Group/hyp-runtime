@@ -10,3 +10,4 @@ repository.workspace = true
 hypnoscript-core = { path = "../hypnoscript-core" }
 serde = { workspace = true }
 serde_json = { workspace = true }
+once_cell = "1"

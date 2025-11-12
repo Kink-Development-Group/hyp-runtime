@@ -1,4 +1,6 @@
-use crate::ast::{AstNode, Parameter};
+use crate::ast::{
+    AstNode, Parameter, SessionField, SessionMember, SessionMethod, SessionVisibility,
+};
 use crate::token::{Token, TokenType};
 
 /// Parser for HypnoScript language
@@ -276,10 +278,161 @@ impl Parser {
             .clone();
 
         self.consume(&TokenType::LBrace, "Expected '{' after session name")?;
-        let members = self.parse_block_statements()?;
+
+        let mut members = Vec::new();
+        while !self.check(&TokenType::RBrace) && !self.is_at_end() {
+            members.push(self.parse_session_member()?);
+        }
+
         self.consume(&TokenType::RBrace, "Expected '}' after session body")?;
 
         Ok(AstNode::SessionDeclaration { name, members })
+    }
+
+    /// Parse an individual session member (field or method)
+    fn parse_session_member(&mut self) -> Result<SessionMember, String> {
+        let mut is_static = false;
+        if self.match_token(&TokenType::Dominant) {
+            is_static = true;
+        }
+
+        // Optional visibility modifiers
+        if self.check(&TokenType::Expose) || self.check(&TokenType::Conceal) {
+            let visibility_token = self.advance();
+            let visibility = if visibility_token.token_type == TokenType::Expose {
+                SessionVisibility::Public
+            } else {
+                SessionVisibility::Private
+            };
+
+            if self.check(&TokenType::Suggestion)
+                || self.check(&TokenType::ImperativeSuggestion)
+                || self.check(&TokenType::DominantSuggestion)
+            {
+                return self.parse_session_method(is_static, Some(visibility));
+            } else {
+                return self.parse_session_field(is_static, visibility);
+            }
+        }
+
+        // No explicit visibility modifier => default to public
+        self.parse_session_method(is_static, Some(SessionVisibility::Public))
+    }
+
+    fn parse_session_field(
+        &mut self,
+        is_static: bool,
+        visibility: SessionVisibility,
+    ) -> Result<SessionMember, String> {
+        let name = self
+            .consume(&TokenType::Identifier, "Expected field name in session")?
+            .lexeme
+            .clone();
+
+        let type_annotation = if self.match_token(&TokenType::Colon) {
+            let type_token = self.advance();
+            Some(type_token.lexeme.clone())
+        } else {
+            None
+        };
+
+        let initializer = if self.match_token(&TokenType::Equals) {
+            Some(Box::new(self.parse_expression()?))
+        } else {
+            None
+        };
+
+        self.consume(
+            &TokenType::Semicolon,
+            "Expected ';' after session field declaration",
+        )?;
+
+        Ok(SessionMember::Field(SessionField {
+            name,
+            type_annotation,
+            initializer,
+            visibility,
+            is_static,
+        }))
+    }
+
+    fn parse_session_method(
+        &mut self,
+        mut is_static: bool,
+        visibility: Option<SessionVisibility>,
+    ) -> Result<SessionMember, String> {
+        let visibility = visibility.unwrap_or(SessionVisibility::Public);
+
+        let method_token = if self.match_token(&TokenType::Suggestion) {
+            Some(TokenType::Suggestion)
+        } else if self.match_token(&TokenType::ImperativeSuggestion) {
+            Some(TokenType::ImperativeSuggestion)
+        } else if self.match_token(&TokenType::DominantSuggestion) {
+            is_static = true;
+            Some(TokenType::DominantSuggestion)
+        } else {
+            None
+        };
+
+        if method_token.is_none() {
+            return Err("Expected 'suggestion' inside session".to_string());
+        }
+
+        let mut is_constructor = false;
+        let name = if self.match_token(&TokenType::Constructor) {
+            is_constructor = true;
+            "constructor".to_string()
+        } else {
+            self.consume(&TokenType::Identifier, "Expected method name")?
+                .lexeme
+                .clone()
+        };
+
+        self.consume(&TokenType::LParen, "Expected '(' after method name")?;
+
+        let mut parameters = Vec::new();
+        if !self.check(&TokenType::RParen) {
+            loop {
+                let param_name = self
+                    .consume(&TokenType::Identifier, "Expected parameter name")?
+                    .lexeme
+                    .clone();
+                let type_annotation = if self.match_token(&TokenType::Colon) {
+                    let type_token = self.advance();
+                    Some(type_token.lexeme.clone())
+                } else {
+                    None
+                };
+                parameters.push(Parameter::new(param_name, type_annotation));
+
+                if !self.match_token(&TokenType::Comma) {
+                    break;
+                }
+            }
+        }
+
+        self.consume(&TokenType::RParen, "Expected ')' after parameters")?;
+
+        let return_type = if self.match_token(&TokenType::Colon) {
+            let type_token = self.advance();
+            Some(type_token.lexeme.clone())
+        } else {
+            None
+        };
+
+        self.consume(&TokenType::LBrace, "Expected '{' after method signature")?;
+        let body = self.parse_block_statements()?;
+        self.consume(&TokenType::RBrace, "Expected '}' after method body")?;
+
+        Ok(SessionMember::Method(SessionMethod {
+            name,
+            parameters,
+            return_type,
+            body,
+            visibility,
+            is_static,
+            is_constructor,
+        }))
     }
 
     /// Parse observe statement
@@ -327,7 +480,7 @@ impl Parser {
     fn parse_logical_or(&mut self) -> Result<AstNode, String> {
         let mut left = self.parse_logical_and()?;
 
-        while self.match_token(&TokenType::PipePipe) {
+        while self.match_tokens(&[TokenType::PipePipe, TokenType::ResistanceIsFutile]) {
             let operator = self.previous().lexeme.clone();
             let right = Box::new(self.parse_logical_and()?);
             left = AstNode::BinaryExpression {
@@ -344,7 +497,7 @@ impl Parser {
     fn parse_logical_and(&mut self) -> Result<AstNode, String> {
         let mut left = self.parse_equality()?;
 
-        while self.match_token(&TokenType::AmpAmp) {
+        while self.match_tokens(&[TokenType::AmpAmp, TokenType::UnderMyControl]) {
             let operator = self.previous().lexeme.clone();
             let right = Box::new(self.parse_equality()?);
             left = AstNode::BinaryExpression {
@@ -365,6 +518,7 @@ impl Parser {
             TokenType::DoubleEquals,
             TokenType::NotEquals,
             TokenType::YouAreFeelingVerySleepy,
+            TokenType::YouCannotResist,
             TokenType::NotSoDeep,
         ]) {
             let operator = self.previous().lexeme.clone();
@@ -390,6 +544,8 @@ impl Parser {
             TokenType::LessEqual,
             TokenType::LookAtTheWatch,
             TokenType::FallUnderMySpell,
+            TokenType::YourEyesAreGettingHeavy,
+            TokenType::GoingDeeper,
             TokenType::DeeplyGreater,
             TokenType::DeeplyLess,
         ]) {
@@ -642,6 +798,23 @@ Focus {
     induce x: number = 10;
     if (x > 5) deepFocus {
         observe "Greater";
+    }
+} Relax
+"#;
+        let mut lexer = Lexer::new(source);
+        let tokens = lexer.lex().unwrap();
+        let mut parser = Parser::new(tokens);
+        let ast = parser.parse_program();
+        assert!(ast.is_ok());
+    }
+
+    #[test]
+    fn test_parse_hypnotic_operator_synonyms() {
+        let source = r#"
+Focus {
+    induce x: number = 10;
+    if (x youAreFeelingVerySleepy 10 resistanceIsFutile x youCannotResist 5) deepFocus {
+        observe "Synonym branch";
     }
 } Relax
 "#;

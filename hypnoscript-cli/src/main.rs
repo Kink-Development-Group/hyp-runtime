@@ -4,6 +4,10 @@ use hypnoscript_compiler::{Interpreter, TypeChecker, WasmCodeGenerator};
 use hypnoscript_lexer_parser::{Lexer, Parser as HypnoParser};
 use std::fs;
 
+fn into_anyhow<E: std::fmt::Display>(error: E) -> anyhow::Error {
+    anyhow::Error::msg(error.to_string())
+}
+
 #[derive(Parser)]
 #[command(name = "hypnoscript")]
 #[command(about = "HypnoScript - The Hypnotic Programming Language (Rust Edition)", long_about = None)]
@@ -86,7 +90,7 @@ fn main() -> Result<()> {
 
             // Lex
             let mut lexer = Lexer::new(&source);
-            let tokens = lexer.lex().map_err(|e| anyhow::anyhow!(e))?;
+            let tokens = lexer.lex().map_err(into_anyhow)?;
 
             if debug {
                 println!("Tokens: {}", tokens.len());
@@ -94,7 +98,7 @@ fn main() -> Result<()> {
 
             // Parse
             let mut parser = HypnoParser::new(tokens);
-            let ast = parser.parse_program().map_err(|e| anyhow::anyhow!(e))?;
+            let ast = parser.parse_program().map_err(into_anyhow)?;
 
             if debug {
                 println!("\n--- Type Checking ---");
@@ -119,9 +123,7 @@ fn main() -> Result<()> {
 
             // Execute
             let mut interpreter = Interpreter::new();
-            interpreter
-                .execute_program(ast)
-                .map_err(|e| anyhow::anyhow!(e))?;
+            interpreter.execute_program(ast).map_err(into_anyhow)?;
 
             if verbose {
                 println!("\n✅ Program executed successfully!");
@@ -131,7 +133,7 @@ fn main() -> Result<()> {
         Commands::Lex { file } => {
             let source = fs::read_to_string(&file)?;
             let mut lexer = Lexer::new(&source);
-            let tokens = lexer.lex().map_err(|e| anyhow::anyhow!(e))?;
+            let tokens = lexer.lex().map_err(into_anyhow)?;
 
             println!("=== Tokens ===");
             for (i, token) in tokens.iter().enumerate() {
@@ -143,9 +145,9 @@ fn main() -> Result<()> {
         Commands::Parse { file } => {
             let source = fs::read_to_string(&file)?;
             let mut lexer = Lexer::new(&source);
-            let tokens = lexer.lex().map_err(|e| anyhow::anyhow!(e))?;
+            let tokens = lexer.lex().map_err(into_anyhow)?;
             let mut parser = HypnoParser::new(tokens);
-            let ast = parser.parse_program().map_err(|e| anyhow::anyhow!(e))?;
+            let ast = parser.parse_program().map_err(into_anyhow)?;
 
             println!("=== AST ===");
             println!("{:#?}", ast);
@@ -154,9 +156,9 @@ fn main() -> Result<()> {
         Commands::Check { file } => {
             let source = fs::read_to_string(&file)?;
             let mut lexer = Lexer::new(&source);
-            let tokens = lexer.lex().map_err(|e| anyhow::anyhow!(e))?;
+            let tokens = lexer.lex().map_err(into_anyhow)?;
             let mut parser = HypnoParser::new(tokens);
-            let ast = parser.parse_program().map_err(|e| anyhow::anyhow!(e))?;
+            let ast = parser.parse_program().map_err(into_anyhow)?;
 
             let mut type_checker = TypeChecker::new();
             let errors = type_checker.check_program(&ast);
@@ -174,9 +176,9 @@ fn main() -> Result<()> {
         Commands::CompileWasm { input, output } => {
             let source = fs::read_to_string(&input)?;
             let mut lexer = Lexer::new(&source);
-            let tokens = lexer.lex().map_err(|e| anyhow::anyhow!(e))?;
+            let tokens = lexer.lex().map_err(into_anyhow)?;
             let mut parser = HypnoParser::new(tokens);
-            let ast = parser.parse_program().map_err(|e| anyhow::anyhow!(e))?;
+            let ast = parser.parse_program().map_err(into_anyhow)?;
 
             let mut generator = WasmCodeGenerator::new();
             let wasm_code = generator.generate(&ast);

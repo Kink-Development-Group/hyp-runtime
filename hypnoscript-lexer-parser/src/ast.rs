@@ -23,7 +23,7 @@ pub enum AstNode {
 
     SessionDeclaration {
         name: String,
-        members: Vec<AstNode>,
+        members: Vec<SessionMember>,
     },
 
     // Statements
@@ -144,4 +144,40 @@ impl AstNode {
                 | AstNode::SessionDeclaration { .. }
         )
     }
+}
+
+/// Visibility for session members
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
+pub enum SessionVisibility {
+    Public,
+    Private,
+}
+
+/// Members that may appear inside a session declaration
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+pub enum SessionMember {
+    Field(SessionField),
+    Method(SessionMethod),
+}
+
+/// Session field definition within the AST
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+pub struct SessionField {
+    pub name: String,
+    pub type_annotation: Option<String>,
+    pub initializer: Option<Box<AstNode>>,
+    pub visibility: SessionVisibility,
+    pub is_static: bool,
+}
+
+/// Session method definition within the AST
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+pub struct SessionMethod {
+    pub name: String,
+    pub parameters: Vec<Parameter>,
+    pub return_type: Option<String>,
+    pub body: Vec<AstNode>,
+    pub visibility: SessionVisibility,
+    pub is_static: bool,
+    pub is_constructor: bool,
 }

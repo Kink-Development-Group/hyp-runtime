@@ -34,8 +34,8 @@ impl Lexer {
 
             if c.is_alphabetic() || c == '_' {
                 let ident = self.read_identifier(c);
-                let token_type = self.keyword_or_identifier(&ident);
-                tokens.push(Token::new(token_type, ident, self.line, start_column));
+                let (token_type, lexeme) = self.keyword_or_identifier(&ident);
+                tokens.push(Token::new(token_type, lexeme, self.line, start_column));
             } else if c.is_numeric() {
                 let number = self.read_number(c);
                 tokens.push(Token::new(
@@ -395,8 +395,12 @@ impl Lexer {
         Err(format!("Unterminated string at line {}", self.line))
     }
 
-    fn keyword_or_identifier(&self, s: &str) -> TokenType {
-        TokenType::from_keyword(s).unwrap_or(TokenType::Identifier)
+    fn keyword_or_identifier(&self, s: &str) -> (TokenType, String) {
+        if let Some(definition) = TokenType::keyword_definition(s) {
+            (definition.token, definition.canonical_lexeme.to_string())
+        } else {
+            (TokenType::Identifier, s.to_string())
+        }
     }
 }
 
@@ -418,5 +422,16 @@ mod tests {
         let tokens = lexer.lex().unwrap();
         assert_eq!(tokens[0].token_type, TokenType::StringLiteral);
         assert_eq!(tokens[0].lexeme, "Hello, World!");
+    }
+
+    #[test]
+    fn test_operator_synonym_tokenization() {
+        let mut lexer = Lexer::new("if (a youAreFeelingVerySleepy b) { }");
+        let tokens = lexer.lex().unwrap();
+        let synonym = tokens
+            .iter()
+            .find(|token| token.token_type == TokenType::YouAreFeelingVerySleepy)
+            .expect("synonym token not found");
+        assert_eq!(synonym.lexeme, "youAreFeelingVerySleepy");
     }
 }

@@ -1,9 +1,13 @@
-use hypnoscript_lexer_parser::ast::AstNode;
+use hypnoscript_lexer_parser::ast::{
+    AstNode, SessionField, SessionMember, SessionMethod, SessionVisibility,
+};
 use hypnoscript_runtime::{
     ArrayBuiltins, CoreBuiltins, FileBuiltins, HashingBuiltins, MathBuiltins, StatisticsBuiltins,
     StringBuiltins, SystemBuiltins, TimeBuiltins, ValidationBuiltins,
 };
+use std::cell::RefCell;
 use std::collections::HashMap;
+use std::rc::Rc;
 use thiserror::Error;
 
 #[derive(Error, Debug)]
@@ -22,20 +26,353 @@ pub enum InterpreterError {
     TypeError(String),
 }
 
+/// Provide a simple locale-aware message while we prepare full i18n plumbing.
+fn localized(en: &str, de: &str) -> String {
+    format!("{} (DE: {})", en, de)
+}
+
+/// Represents a callable suggestion within the interpreter.
+#[derive(Debug, Clone)]
+pub struct FunctionValue {
+    name: String,
+    parameters: Vec<String>,
+    body: Vec<AstNode>,
+    this_binding: Option<Rc<RefCell<SessionInstance>>>,
+    session_name: Option<String>,
+    is_static: bool,
+    is_constructor: bool,
+}
+
+impl FunctionValue {
+    fn new_global(name: String, parameters: Vec<String>, body: Vec<AstNode>) -> Self {
+        Self {
+            name,
+            parameters,
+            body,
+            this_binding: None,
+            session_name: None,
+            is_static: false,
+            is_constructor: false,
+        }
+    }
+
+    fn new_session_member(
+        session_name: String,
+        method: &SessionMethodDefinition,
+        this_binding: Option<Rc<RefCell<SessionInstance>>>,
+    ) -> Self {
+        Self {
+            name: format!("{}::{}", session_name, method.name),
+            parameters: method.parameters.clone(),
+            body: method.body.clone(),
+            this_binding,
+            session_name: Some(session_name),
+            is_static: method.is_static,
+            is_constructor: method.is_constructor,
+        }
+    }
+
+    fn this_binding(&self) -> Option<Rc<RefCell<SessionInstance>>> {
+        self.this_binding.as_ref().map(Rc::clone)
+    }
+
+    fn session_name(&self) -> Option<&str> {
+        self.session_name.as_deref()
+    }
+}
+
+impl PartialEq for FunctionValue {
+    fn eq(&self, other: &Self) -> bool {
+        self.name == other.name
+            && self.parameters == other.parameters
+            && self.body == other.body
+            && self.session_name == other.session_name
+            && self.is_static == other.is_static
+            && self.is_constructor == other.is_constructor
+    }
+}
+
+impl Eq for FunctionValue {}
+
+/// Definition of a session field (instance scope).
+#[derive(Debug, Clone)]
+struct SessionFieldDefinition {
+    name: String,
+    #[allow(dead_code)]
+    type_annotation: Option<String>,
+    visibility: SessionVisibility,
+    initializer: Option<AstNode>,
+}
+
+/// Definition of a session method.
+#[derive(Debug, Clone)]
+struct SessionMethodDefinition {
+    name: String,
+    parameters: Vec<String>,
+    body: Vec<AstNode>,
+    visibility: SessionVisibility,
+    is_static: bool,
+    is_constructor: bool,
+}
+
+/// Runtime data for a static field, including its initializer AST.
+#[derive(Debug, Clone)]
+struct SessionStaticField {
+    definition: SessionFieldDefinition,
+    initializer: Option<AstNode>,
+    value: Value,
+}
+
+/// Stores metadata and static members for a session (class-like construct).
+#[derive(Debug)]
+pub struct SessionDefinition {
+    name: String,
+    fields: HashMap<String, SessionFieldDefinition>,
+    field_order: Vec<String>,
+    methods: HashMap<String, SessionMethodDefinition>,
+    static_methods: HashMap<String, SessionMethodDefinition>,
+    static_fields: RefCell<HashMap<String, SessionStaticField>>,
+    static_field_order: Vec<String>,
+    constructor: Option<SessionMethodDefinition>,
+}
+
+impl SessionDefinition {
+    fn new(name: String) -> Self {
+        Self {
+            name,
+            fields: HashMap::new(),
+            field_order: Vec::new(),
+            methods: HashMap::new(),
+            static_methods: HashMap::new(),
+            static_fields: RefCell::new(HashMap::new()),
+            static_field_order: Vec::new(),
+            constructor: None,
+        }
+    }
+
+    fn name(&self) -> &str {
+        &self.name
+    }
+
+    fn push_field(&mut self, field: SessionFieldDefinition) -> Result<(), InterpreterError> {
+        if self.fields.contains_key(&field.name)
+            || self.static_fields.borrow().contains_key(&field.name)
+        {
+            return Err(InterpreterError::Runtime(localized(
+                &format!(
+                    "Duplicate session field '{}' in session '{}'",
+                    field.name, self.name
+                ),
+                &format!("Doppeltes Feld '{}' in Session '{}'", field.name, self.name),
+            )));
+        }
+        self.field_order.push(field.name.clone());
+        self.fields.insert(field.name.clone(), field);
+        Ok(())
+    }
+
+    fn push_static_field(
+        &mut self,
+        field: SessionFieldDefinition,
+        initializer: Option<AstNode>,
+    ) -> Result<(), InterpreterError> {
+        if self.fields.contains_key(&field.name)
+            || self.static_fields.borrow().contains_key(&field.name)
+        {
+            return Err(InterpreterError::Runtime(localized(
+                &format!(
+                    "Duplicate session field '{}' in session '{}'",
+                    field.name, self.name
+                ),
+                &format!("Doppeltes Feld '{}' in Session '{}'", field.name, self.name),
+            )));
+        }
+        self.static_field_order.push(field.name.clone());
+        self.static_fields.borrow_mut().insert(
+            field.name.clone(),
+            SessionStaticField {
+                definition: field,
+                initializer,
+                value: Value::Null,
+            },
+        );
+        Ok(())
+    }
+
+    fn push_method(&mut self, method: SessionMethodDefinition) -> Result<(), InterpreterError> {
+        if method.is_constructor {
+            if self.constructor.is_some() {
+                return Err(InterpreterError::Runtime(localized(
+                    &format!("Multiple constructors declared in session '{}'", self.name),
+                    &format!(
+                        "Mehrere Konstruktoren in Session '{}' deklariert",
+                        self.name
+                    ),
+                )));
+            }
+            self.constructor = Some(method);
+            return Ok(());
+        }
+
+        if method.is_static {
+            if self.static_methods.contains_key(&method.name) {
+                return Err(InterpreterError::Runtime(localized(
+                    &format!(
+                        "Duplicate static method '{}' in session '{}'",
+                        method.name, self.name
+                    ),
+                    &format!(
+                        "Doppelte statische Methode '{}' in Session '{}'",
+                        method.name, self.name
+                    ),
+                )));
+            }
+            self.static_methods.insert(method.name.clone(), method);
+        } else {
+            if self.methods.contains_key(&method.name) {
+                return Err(InterpreterError::Runtime(localized(
+                    &format!(
+                        "Duplicate method '{}' in session '{}'",
+                        method.name, self.name
+                    ),
+                    &format!(
+                        "Doppelte Methode '{}' in Session '{}'",
+                        method.name, self.name
+                    ),
+                )));
+            }
+            self.methods.insert(method.name.clone(), method);
+        }
+        Ok(())
+    }
+
+    fn get_field_definition(&self, name: &str) -> Option<&SessionFieldDefinition> {
+        self.fields.get(name)
+    }
+
+    fn get_method_definition(&self, name: &str) -> Option<&SessionMethodDefinition> {
+        self.methods.get(name)
+    }
+
+    fn get_static_method_definition(&self, name: &str) -> Option<&SessionMethodDefinition> {
+        self.static_methods.get(name)
+    }
+
+    fn get_static_field_snapshot(&self, name: &str) -> Option<SessionStaticField> {
+        self.static_fields.borrow().get(name).cloned()
+    }
+
+    fn set_static_field_value(&self, name: &str, value: Value) -> Result<(), InterpreterError> {
+        let mut fields = self.static_fields.borrow_mut();
+        match fields.get_mut(name) {
+            Some(field) => {
+                field.value = value;
+                Ok(())
+            }
+            None => Err(InterpreterError::Runtime(localized(
+                &format!(
+                    "Static field '{}' not found on session '{}'",
+                    name, self.name
+                ),
+                &format!(
+                    "Statisches Feld '{}' nicht in Session '{}' gefunden",
+                    name, self.name
+                ),
+            ))),
+        }
+    }
+
+    fn take_static_field_initializer(&self, name: &str) -> Option<AstNode> {
+        self.static_fields
+            .borrow()
+            .get(name)
+            .and_then(|field| field.initializer.clone())
+    }
+
+    fn field_order(&self) -> &[String] {
+        &self.field_order
+    }
+
+    fn static_field_order(&self) -> &[String] {
+        &self.static_field_order
+    }
+
+    fn constructor(&self) -> Option<&SessionMethodDefinition> {
+        self.constructor.as_ref()
+    }
+}
+
+/// Runtime representation of a session instance.
+#[derive(Debug)]
+pub struct SessionInstance {
+    definition: Rc<SessionDefinition>,
+    field_values: HashMap<String, Value>,
+}
+
+impl SessionInstance {
+    fn new(definition: Rc<SessionDefinition>) -> Self {
+        let mut field_values = HashMap::new();
+        for name in definition.field_order() {
+            field_values.insert(name.clone(), Value::Null);
+        }
+        Self {
+            definition,
+            field_values,
+        }
+    }
+
+    fn definition(&self) -> Rc<SessionDefinition> {
+        Rc::clone(&self.definition)
+    }
+
+    fn definition_name(&self) -> &str {
+        self.definition.name()
+    }
+
+    fn get_field(&self, name: &str) -> Option<Value> {
+        self.field_values.get(name).cloned()
+    }
+
+    fn set_field(&mut self, name: &str, value: Value) {
+        self.field_values.insert(name.to_string(), value);
+    }
+}
+
+#[derive(Debug, Clone)]
+struct ExecutionContextFrame {
+    session_name: Option<String>,
+}
+
 /// Runtime value in HypnoScript
-#[derive(Debug, Clone, PartialEq)]
+#[derive(Debug, Clone)]
 pub enum Value {
     Number(f64),
     String(String),
     Boolean(bool),
     Array(Vec<Value>),
-    Function {
-        name: String,
-        parameters: Vec<String>,
-        body: Vec<AstNode>,
-    },
+    Function(FunctionValue),
+    Session(Rc<SessionDefinition>),
+    Instance(Rc<RefCell<SessionInstance>>),
     Null,
 }
+
+impl PartialEq for Value {
+    fn eq(&self, other: &Self) -> bool {
+        match (self, other) {
+            (Value::Number(a), Value::Number(b)) => (a - b).abs() < f64::EPSILON,
+            (Value::String(a), Value::String(b)) => a == b,
+            (Value::Boolean(a), Value::Boolean(b)) => a == b,
+            (Value::Null, Value::Null) => true,
+            (Value::Array(a), Value::Array(b)) => a == b,
+            (Value::Function(fa), Value::Function(fb)) => fa == fb,
+            (Value::Session(sa), Value::Session(sb)) => Rc::ptr_eq(sa, sb),
+            (Value::Instance(ia), Value::Instance(ib)) => Rc::ptr_eq(ia, ib),
+            _ => false,
+        }
+    }
+}
+
+impl Eq for Value {}
 
 impl Value {
     pub fn is_truthy(&self) -> bool {
@@ -45,7 +382,7 @@ impl Value {
             Value::Number(n) => *n != 0.0,
             Value::String(s) => !s.is_empty(),
             Value::Array(a) => !a.is_empty(),
-            _ => true,
+            Value::Function(_) | Value::Session(_) | Value::Instance(_) => true,
         }
     }
 
@@ -74,7 +411,12 @@ impl std::fmt::Display for Value {
                 let elements: Vec<String> = arr.iter().map(|v| v.to_string()).collect();
                 write!(f, "[{}]", elements.join(", "))
             }
-            Value::Function { name, .. } => write!(f, "<function {}>", name),
+            Value::Function(func) => write!(f, "<function {}>", func.name),
+            Value::Session(session) => write!(f, "<session {}>", session.name()),
+            Value::Instance(instance) => {
+                let name = instance.borrow().definition_name().to_string();
+                write!(f, "<session-instance {}>", name)
+            }
         }
     }
 }
@@ -82,6 +424,7 @@ impl std::fmt::Display for Value {
 pub struct Interpreter {
     globals: HashMap<String, Value>,
     locals: Vec<HashMap<String, Value>>,
+    execution_context: Vec<ExecutionContextFrame>,
 }
 
 impl Default for Interpreter {
@@ -95,6 +438,7 @@ impl Interpreter {
         Self {
             globals: HashMap::new(),
             locals: Vec::new(),
+            execution_context: Vec::new(),
         }
     }
 
@@ -134,20 +478,15 @@ impl Interpreter {
                 body,
             } => {
                 let param_names: Vec<String> = parameters.iter().map(|p| p.name.clone()).collect();
-                let func = Value::Function {
-                    name: name.clone(),
-                    parameters: param_names,
-                    body: body.clone(),
-                };
-                self.set_variable(name.clone(), func);
+                let func = FunctionValue::new_global(name.clone(), param_names, body.clone());
+                self.set_variable(name.clone(), Value::Function(func));
                 Ok(())
             }
 
-            AstNode::SessionDeclaration {
-                name: _,
-                members: _,
-            } => {
-                // Sessions not yet fully implemented
+            AstNode::SessionDeclaration { name, members } => {
+                let session = self.build_session_definition(name, members)?;
+                self.set_variable(name.clone(), Value::Session(session.clone()));
+                self.initialize_static_fields(session)?;
                 Ok(())
             }
 
@@ -283,17 +622,28 @@ impl Interpreter {
 
             AstNode::CallExpression { callee, arguments } => self.evaluate_call(callee, arguments),
 
-            AstNode::AssignmentExpression { target, value } => {
-                if let AstNode::Identifier(name) = target.as_ref() {
+            AstNode::MemberExpression { object, property } => {
+                let owner = self.evaluate_expression(object)?;
+                self.resolve_member_value(owner, property)
+            }
+
+            AstNode::AssignmentExpression { target, value } => match target.as_ref() {
+                AstNode::Identifier(name) => {
                     let val = self.evaluate_expression(value)?;
                     self.set_variable(name.clone(), val.clone());
                     Ok(val)
-                } else {
-                    Err(InterpreterError::Runtime(
-                        "Invalid assignment target".to_string(),
-                    ))
                 }
-            }
+                AstNode::MemberExpression { object, property } => {
+                    let owner = self.evaluate_expression(object)?;
+                    let val = self.evaluate_expression(value)?;
+                    self.assign_member_value(owner, property, val.clone())?;
+                    Ok(val)
+                }
+                _ => Err(InterpreterError::Runtime(localized(
+                    "Invalid assignment target",
+                    "Ungültiges Zuweisungsziel",
+                ))),
+            },
 
             AstNode::IndexExpression { object, index } => {
                 let obj = self.evaluate_expression(object)?;
@@ -324,7 +674,9 @@ impl Interpreter {
         op: &str,
         right: &Value,
     ) -> Result<Value, InterpreterError> {
-        match op {
+        let normalized = op.to_ascii_lowercase();
+
+        match normalized.as_str() {
             "+" => {
                 if let (Value::String(s1), Value::String(s2)) = (left, right) {
                     Ok(Value::String(format!("{}{}", s1, s2)))
@@ -336,14 +688,22 @@ impl Interpreter {
             "*" => Ok(Value::Number(left.to_number()? * right.to_number()?)),
             "/" => Ok(Value::Number(left.to_number()? / right.to_number()?)),
             "%" => Ok(Value::Number(left.to_number()? % right.to_number()?)),
-            "==" | "YouAreFeelingVerySleepy" => Ok(Value::Boolean(self.values_equal(left, right))),
-            "!=" | "NotSoDeep" => Ok(Value::Boolean(!self.values_equal(left, right))),
-            ">" | "LookAtTheWatch" => Ok(Value::Boolean(left.to_number()? > right.to_number()?)),
-            "<" | "FallUnderMySpell" => Ok(Value::Boolean(left.to_number()? < right.to_number()?)),
-            ">=" | "DeeplyGreater" => Ok(Value::Boolean(left.to_number()? >= right.to_number()?)),
-            "<=" | "DeeplyLess" => Ok(Value::Boolean(left.to_number()? <= right.to_number()?)),
-            "&&" => Ok(Value::Boolean(left.is_truthy() && right.is_truthy())),
-            "||" => Ok(Value::Boolean(left.is_truthy() || right.is_truthy())),
+            "==" | "youarefeelingverysleepy" => Ok(Value::Boolean(self.values_equal(left, right))),
+            "!=" | "youcannotresist" | "notsodeep" => {
+                Ok(Value::Boolean(!self.values_equal(left, right)))
+            }
+            ">" | "lookatthewatch" => Ok(Value::Boolean(left.to_number()? > right.to_number()?)),
+            "<" | "fallundermyspell" => Ok(Value::Boolean(left.to_number()? < right.to_number()?)),
+            ">=" | "deeplygreater" | "youreyesaregettingheavy" => {
+                Ok(Value::Boolean(left.to_number()? >= right.to_number()?))
+            }
+            "<=" | "deeplyless" | "goingdeeper" => {
+                Ok(Value::Boolean(left.to_number()? <= right.to_number()?))
+            }
+            "&&" | "undermycontrol" => Ok(Value::Boolean(left.is_truthy() && right.is_truthy())),
+            "||" | "resistanceisfutile" => {
+                Ok(Value::Boolean(left.is_truthy() || right.is_truthy()))
+            }
             _ => Err(InterpreterError::Runtime(format!(
                 "Unknown binary operator: {}",
                 op
@@ -366,32 +726,541 @@ impl Interpreter {
         callee: &AstNode,
         arguments: &[AstNode],
     ) -> Result<Value, InterpreterError> {
-        if let AstNode::Identifier(name) = callee {
-            // Evaluate arguments
-            let mut args = Vec::new();
-            for arg in arguments {
-                args.push(self.evaluate_expression(arg)?);
-            }
+        let args: Vec<Value> = arguments
+            .iter()
+            .map(|arg| self.evaluate_expression(arg))
+            .collect::<Result<_, _>>()?;
 
-            // Try builtin functions first
+        if let AstNode::Identifier(name) = callee {
             if let Some(result) = self.call_builtin(name, &args)? {
                 return Ok(result);
             }
 
-            // Try user-defined functions
-            if let Ok(Value::Function {
-                parameters, body, ..
-            }) = self.get_variable(name)
-            {
-                return self.call_user_function(&parameters, &body, &args);
+            let callee_value = self.get_variable(name)?;
+            return self.invoke_callable(&callee_value, &args);
+        }
+
+        let callee_value = self.evaluate_expression(callee)?;
+        self.invoke_callable(&callee_value, &args)
+    }
+
+    fn invoke_callable(
+        &mut self,
+        callee: &Value,
+        args: &[Value],
+    ) -> Result<Value, InterpreterError> {
+        match callee {
+            Value::Function(func) => self.call_function(func, args),
+            Value::Session(session) => self.instantiate_session(session.clone(), args),
+            Value::Null => Err(InterpreterError::Runtime(localized(
+                "Cannot call null value",
+                "Null-Wert kann nicht aufgerufen werden",
+            ))),
+            _ => Err(InterpreterError::Runtime(localized(
+                "Value is not callable",
+                "Wert ist nicht aufrufbar",
+            ))),
+        }
+    }
+
+    fn call_function(
+        &mut self,
+        function: &FunctionValue,
+        args: &[Value],
+    ) -> Result<Value, InterpreterError> {
+        if function.parameters.len() != args.len() {
+            return Err(InterpreterError::Runtime(localized(
+                &format!(
+                    "Expected {} arguments, received {}",
+                    function.parameters.len(),
+                    args.len()
+                ),
+                &format!(
+                    "Erwartet {} Argumente, erhalten {}",
+                    function.parameters.len(),
+                    args.len()
+                ),
+            )));
+        }
+
+        let session_name = function.session_name().map(|name| name.to_string());
+        if session_name.is_some() {
+            self.execution_context.push(ExecutionContextFrame {
+                session_name: session_name.clone(),
+            });
+        }
+
+        self.push_scope();
+
+        if let Some(instance) = function.this_binding() {
+            self.set_variable("this".to_string(), Value::Instance(instance));
+        }
+
+        for (param, arg) in function.parameters.iter().zip(args.iter()) {
+            self.set_variable(param.clone(), arg.clone());
+        }
+
+        let result = (|| {
+            for stmt in &function.body {
+                self.execute_statement(stmt)?;
+            }
+            Ok(Value::Null)
+        })();
+
+        self.pop_scope();
+
+        if session_name.is_some() {
+            self.execution_context.pop();
+        }
+
+        match result {
+            Err(InterpreterError::Return(val)) => Ok(val),
+            Err(e) => Err(e),
+            Ok(value) => Ok(value),
+        }
+    }
+
+    fn build_session_definition(
+        &mut self,
+        name: &str,
+        members: &[SessionMember],
+    ) -> Result<Rc<SessionDefinition>, InterpreterError> {
+        let mut definition = SessionDefinition::new(name.to_string());
+
+        for member in members {
+            match member {
+                SessionMember::Field(field) => {
+                    self.register_session_field(&mut definition, field)?
+                }
+                SessionMember::Method(method) => {
+                    self.register_session_method(&mut definition, method)?
+                }
+            }
+        }
+
+        Ok(Rc::new(definition))
+    }
+
+    fn register_session_field(
+        &self,
+        definition: &mut SessionDefinition,
+        field: &SessionField,
+    ) -> Result<(), InterpreterError> {
+        let initializer = field.initializer.as_ref().map(|expr| (**expr).clone());
+        let field_def = SessionFieldDefinition {
+            name: field.name.clone(),
+            type_annotation: field.type_annotation.clone(),
+            visibility: field.visibility,
+            initializer: initializer.clone(),
+        };
+
+        if field.is_static {
+            definition.push_static_field(field_def, initializer)
+        } else {
+            definition.push_field(field_def)
+        }
+    }
+
+    fn register_session_method(
+        &self,
+        definition: &mut SessionDefinition,
+        method: &SessionMethod,
+    ) -> Result<(), InterpreterError> {
+        if method.is_constructor && method.is_static {
+            return Err(InterpreterError::Runtime(localized(
+                &format!(
+                    "Constructor in session '{}' cannot be static",
+                    definition.name()
+                ),
+                &format!(
+                    "Konstruktor in Session '{}' darf nicht statisch sein",
+                    definition.name()
+                ),
+            )));
+        }
+
+        let parameters = method.parameters.iter().map(|p| p.name.clone()).collect();
+
+        let method_def = SessionMethodDefinition {
+            name: method.name.clone(),
+            parameters,
+            body: method.body.clone(),
+            visibility: method.visibility,
+            is_static: method.is_static,
+            is_constructor: method.is_constructor,
+        };
+
+        definition.push_method(method_def)
+    }
+
+    fn initialize_static_fields(
+        &mut self,
+        session: Rc<SessionDefinition>,
+    ) -> Result<(), InterpreterError> {
+        if session.static_field_order().is_empty() {
+            return Ok(());
+        }
+
+        self.execution_context.push(ExecutionContextFrame {
+            session_name: Some(session.name().to_string()),
+        });
+
+        let result = (|| {
+            for field_name in session.static_field_order().to_vec() {
+                if let Some(initializer) = session.take_static_field_initializer(&field_name) {
+                    let value = self.evaluate_expression(&initializer)?;
+                    session.set_static_field_value(&field_name, value)?;
+                }
+            }
+            Ok(())
+        })();
+
+        self.execution_context.pop();
+        result
+    }
+
+    fn instantiate_session(
+        &mut self,
+        session: Rc<SessionDefinition>,
+        args: &[Value],
+    ) -> Result<Value, InterpreterError> {
+        let instance = Rc::new(RefCell::new(SessionInstance::new(session.clone())));
+        self.initialize_instance_fields(instance.clone())?;
+
+        if let Some(constructor) = session.constructor() {
+            if constructor.parameters.len() != args.len() {
+                return Err(InterpreterError::Runtime(localized(
+                    &format!(
+                        "Constructor for session '{}' expects {} arguments, received {}",
+                        session.name(),
+                        constructor.parameters.len(),
+                        args.len()
+                    ),
+                    &format!(
+                        "Konstruktor der Session '{}' erwartet {} Argumente, erhalten {}",
+                        session.name(),
+                        constructor.parameters.len(),
+                        args.len()
+                    ),
+                )));
             }
 
-            Err(InterpreterError::UndefinedVariable(name.clone()))
-        } else {
-            Err(InterpreterError::Runtime(
-                "Cannot call non-identifier".to_string(),
-            ))
+            let function = FunctionValue::new_session_member(
+                session.name().to_string(),
+                constructor,
+                Some(instance.clone()),
+            );
+            self.call_function(&function, args)?;
+        } else if !args.is_empty() {
+            return Err(InterpreterError::Runtime(localized(
+                &format!(
+                    "Session '{}' does not define a constructor but arguments were provided",
+                    session.name()
+                ),
+                &format!(
+                    "Session '{}' definiert keinen Konstruktor, dennoch wurden Argumente übergeben",
+                    session.name()
+                ),
+            )));
         }
+
+        Ok(Value::Instance(instance))
+    }
+
+    fn initialize_instance_fields(
+        &mut self,
+        instance: Rc<RefCell<SessionInstance>>,
+    ) -> Result<(), InterpreterError> {
+        let definition = {
+            let borrow = instance.borrow();
+            borrow.definition()
+        };
+
+        if definition.field_order().is_empty() {
+            return Ok(());
+        }
+
+        self.execution_context.push(ExecutionContextFrame {
+            session_name: Some(definition.name().to_string()),
+        });
+        self.push_scope();
+        self.set_variable("this".to_string(), Value::Instance(instance.clone()));
+
+        let result = (|| {
+            for field_name in definition.field_order().to_vec() {
+                if let Some(field_def) = definition.get_field_definition(&field_name) {
+                    if let Some(initializer) = &field_def.initializer {
+                        let value = self.evaluate_expression(initializer)?;
+                        instance.borrow_mut().set_field(&field_name, value);
+                    }
+                }
+            }
+            Ok(())
+        })();
+
+        self.pop_scope();
+        self.execution_context.pop();
+        result
+    }
+
+    fn resolve_member_value(
+        &mut self,
+        target: Value,
+        property: &str,
+    ) -> Result<Value, InterpreterError> {
+        match target {
+            Value::Instance(instance_rc) => {
+                let definition = {
+                    let borrow = instance_rc.borrow();
+                    borrow.definition()
+                };
+
+                if let Some(method_def) = definition.get_method_definition(property) {
+                    self.ensure_visibility(
+                        method_def.visibility,
+                        definition.name(),
+                        "method",
+                        property,
+                    )?;
+                    let function = FunctionValue::new_session_member(
+                        definition.name().to_string(),
+                        method_def,
+                        Some(instance_rc.clone()),
+                    );
+                    return Ok(Value::Function(function));
+                }
+
+                if let Some(field_def) = definition.get_field_definition(property) {
+                    self.ensure_visibility(
+                        field_def.visibility,
+                        definition.name(),
+                        "field",
+                        property,
+                    )?;
+                    return Ok(instance_rc
+                        .borrow()
+                        .get_field(property)
+                        .unwrap_or(Value::Null));
+                }
+
+                if let Some(static_field) = definition.get_static_field_snapshot(property) {
+                    self.ensure_visibility(
+                        static_field.definition.visibility,
+                        definition.name(),
+                        "field",
+                        property,
+                    )?;
+                    return Ok(static_field.value);
+                }
+
+                if let Some(static_method) = definition.get_static_method_definition(property) {
+                    self.ensure_visibility(
+                        static_method.visibility,
+                        definition.name(),
+                        "method",
+                        property,
+                    )?;
+                    let function = FunctionValue::new_session_member(
+                        definition.name().to_string(),
+                        static_method,
+                        None,
+                    );
+                    return Ok(Value::Function(function));
+                }
+
+                Err(InterpreterError::Runtime(localized(
+                    &format!(
+                        "Session instance of '{}' has no member '{}'",
+                        definition.name(),
+                        property
+                    ),
+                    &format!(
+                        "Session-Instanz von '{}' besitzt kein Mitglied '{}'",
+                        definition.name(),
+                        property
+                    ),
+                )))
+            }
+            Value::Session(session_rc) => {
+                if let Some(static_field) = session_rc.get_static_field_snapshot(property) {
+                    self.ensure_visibility(
+                        static_field.definition.visibility,
+                        session_rc.name(),
+                        "field",
+                        property,
+                    )?;
+                    return Ok(static_field.value);
+                }
+
+                if let Some(method_def) = session_rc.get_static_method_definition(property) {
+                    self.ensure_visibility(
+                        method_def.visibility,
+                        session_rc.name(),
+                        "method",
+                        property,
+                    )?;
+                    let function = FunctionValue::new_session_member(
+                        session_rc.name().to_string(),
+                        method_def,
+                        None,
+                    );
+                    return Ok(Value::Function(function));
+                }
+
+                Err(InterpreterError::Runtime(localized(
+                    &format!(
+                        "Session '{}' has no static member '{}'",
+                        session_rc.name(),
+                        property
+                    ),
+                    &format!(
+                        "Session '{}' besitzt kein statisches Mitglied '{}'",
+                        session_rc.name(),
+                        property
+                    ),
+                )))
+            }
+            other => Err(InterpreterError::Runtime(localized(
+                &format!("Cannot access member '{}' on value '{}'", property, other),
+                &format!(
+                    "Mitglied '{}' kann auf Wert '{}' nicht zugegriffen werden",
+                    property, other
+                ),
+            ))),
+        }
+    }
+
+    fn assign_member_value(
+        &mut self,
+        target: Value,
+        property: &str,
+        value: Value,
+    ) -> Result<(), InterpreterError> {
+        match target {
+            Value::Instance(instance_rc) => {
+                let definition = {
+                    let borrow = instance_rc.borrow();
+                    borrow.definition()
+                };
+
+                if let Some(field_def) = definition.get_field_definition(property) {
+                    self.ensure_visibility(
+                        field_def.visibility,
+                        definition.name(),
+                        "field",
+                        property,
+                    )?;
+                    instance_rc.borrow_mut().set_field(property, value);
+                    return Ok(());
+                }
+
+                if definition.get_method_definition(property).is_some()
+                    || definition.get_static_method_definition(property).is_some()
+                {
+                    return Err(InterpreterError::Runtime(localized(
+                        &format!("Cannot assign to method '{}'", property),
+                        &format!("Zuweisung zur Methode '{}' nicht möglich", property),
+                    )));
+                }
+
+                if definition.get_static_field_snapshot(property).is_some() {
+                    return Err(InterpreterError::Runtime(localized(
+                        &format!(
+                            "Assign static field '{}' through session '{}', not an instance",
+                            property,
+                            definition.name()
+                        ),
+                        &format!(
+                            "Statisches Feld '{}' muss über die Session '{}' gesetzt werden",
+                            property,
+                            definition.name()
+                        ),
+                    )));
+                }
+
+                Err(InterpreterError::Runtime(localized(
+                    &format!(
+                        "Session instance of '{}' has no field '{}'",
+                        definition.name(),
+                        property
+                    ),
+                    &format!(
+                        "Session-Instanz von '{}' besitzt kein Feld '{}'",
+                        definition.name(),
+                        property
+                    ),
+                )))
+            }
+            Value::Session(session_rc) => {
+                if let Some(static_field) = session_rc.get_static_field_snapshot(property) {
+                    self.ensure_visibility(
+                        static_field.definition.visibility,
+                        session_rc.name(),
+                        "field",
+                        property,
+                    )?;
+                    session_rc.set_static_field_value(property, value)?;
+                    return Ok(());
+                }
+
+                if session_rc.get_static_method_definition(property).is_some() {
+                    return Err(InterpreterError::Runtime(localized(
+                        &format!("Cannot assign to static method '{}'", property),
+                        &format!(
+                            "Zuweisung zu statischer Methode '{}' nicht möglich",
+                            property
+                        ),
+                    )));
+                }
+
+                Err(InterpreterError::Runtime(localized(
+                    &format!(
+                        "Session '{}' has no static field '{}'",
+                        session_rc.name(),
+                        property
+                    ),
+                    &format!(
+                        "Session '{}' besitzt kein statisches Feld '{}'",
+                        session_rc.name(),
+                        property
+                    ),
+                )))
+            }
+            _ => Err(InterpreterError::Runtime(localized(
+                "Assignment target is not a session member",
+                "Zuweisungsziel ist kein Session-Mitglied",
+            ))),
+        }
+    }
+
+    fn ensure_visibility(
+        &self,
+        visibility: SessionVisibility,
+        session_name: &str,
+        member_kind: &str,
+        member_name: &str,
+    ) -> Result<(), InterpreterError> {
+        if visibility == SessionVisibility::Private && !self.is_access_allowed(session_name) {
+            return Err(InterpreterError::Runtime(localized(
+                &format!(
+                    "Access denied to private {} '{}' of session '{}'",
+                    member_kind, member_name, session_name
+                ),
+                &format!(
+                    "Zugriff auf privates {} '{}' der Session '{}' verweigert",
+                    member_kind, member_name, session_name
+                ),
+            )));
+        }
+        Ok(())
+    }
+
+    fn is_access_allowed(&self, session_name: &str) -> bool {
+        self.execution_context
+            .iter()
+            .rev()
+            .find_map(|frame| frame.session_name.as_deref())
+            .map_or(false, |current| current == session_name)
     }
 
     fn call_builtin(
@@ -1216,44 +2085,6 @@ impl Interpreter {
             .collect()
     }
 
-    fn call_user_function(
-        &mut self,
-        parameters: &[String],
-        body: &[AstNode],
-        args: &[Value],
-    ) -> Result<Value, InterpreterError> {
-        if parameters.len() != args.len() {
-            return Err(InterpreterError::Runtime(format!(
-                "Expected {} arguments, got {}",
-                parameters.len(),
-                args.len()
-            )));
-        }
-
-        self.push_scope();
-
-        // Bind parameters
-        for (param, arg) in parameters.iter().zip(args.iter()) {
-            self.set_variable(param.clone(), arg.clone());
-        }
-
-        // Execute function body
-        let result = (|| {
-            for stmt in body {
-                self.execute_statement(stmt)?;
-            }
-            Ok(Value::Null)
-        })();
-
-        self.pop_scope();
-
-        match result {
-            Err(InterpreterError::Return(val)) => Ok(val),
-            Err(e) => Err(e),
-            Ok(val) => Ok(val),
-        }
-    }
-
     fn push_scope(&mut self) {
         self.locals.push(HashMap::new());
     }
@@ -1328,5 +2159,158 @@ Focus {
         let mut interpreter = Interpreter::new();
         let result = interpreter.execute_program(ast);
         assert!(result.is_ok());
+    }
+
+    #[test]
+    fn test_session_constructor_and_methods() {
+        let source = r#"
+Focus {
+    session Counter {
+        expose value: number;
+
+        suggestion constructor(initial: number) {
+            this.value = initial;
+        }
+
+        suggestion inc() {
+            this.value = this.value + 1;
+        }
+
+        suggestion current(): number {
+            awaken this.value;
+        }
+    }
+
+    induce counter = Counter(5);
+    counter.inc();
+    counter.inc();
+    induce current: number = counter.current();
+} Relax
+"#;
+
+        let mut lexer = Lexer::new(source);
+        let tokens = lexer.lex().unwrap();
+        let mut parser = Parser::new(tokens);
+        let ast = parser.parse_program().unwrap();
+
+        let mut interpreter = Interpreter::new();
+        interpreter.execute_program(ast).unwrap();
+
+        let current = interpreter.get_variable("current").unwrap();
+        assert_eq!(current, Value::Number(7.0));
+    }
+
+    #[test]
+    fn test_hypnotic_operator_synonyms_execution() {
+        let source = r#"
+Focus {
+    induce a: number = 10;
+    induce b: number = 5;
+
+    induce eq: boolean = a youAreFeelingVerySleepy b;
+    induce neq: boolean = a youCannotResist b;
+    induce ge: boolean = a yourEyesAreGettingHeavy 9;
+    induce le: boolean = b goingDeeper 4;
+    induce both: boolean = ge underMyControl neq;
+    induce either: boolean = le resistanceIsFutile eq;
+} Relax
+"#;
+
+        let mut lexer = Lexer::new(source);
+        let tokens = lexer.lex().unwrap();
+        let mut parser = Parser::new(tokens);
+        let ast = parser.parse_program().unwrap();
+
+        let mut interpreter = Interpreter::new();
+        interpreter.execute_program(ast).unwrap();
+
+        assert_eq!(
+            interpreter.get_variable("eq").unwrap(),
+            Value::Boolean(false)
+        );
+        assert_eq!(
+            interpreter.get_variable("neq").unwrap(),
+            Value::Boolean(true)
+        );
+        assert_eq!(
+            interpreter.get_variable("ge").unwrap(),
+            Value::Boolean(true)
+        );
+        assert_eq!(
+            interpreter.get_variable("le").unwrap(),
+            Value::Boolean(false)
+        );
+        assert_eq!(
+            interpreter.get_variable("both").unwrap(),
+            Value::Boolean(true)
+        );
+        assert_eq!(
+            interpreter.get_variable("either").unwrap(),
+            Value::Boolean(false)
+        );
+    }
+
+    #[test]
+    fn test_private_field_access_rejected() {
+        let source = r#"
+Focus {
+    session Account {
+        conceal balance: number;
+
+        suggestion constructor(amount: number) {
+            this.balance = amount;
+        }
+
+        suggestion read(): number {
+            awaken this.balance;
+        }
+    }
+
+    induce account = Account(100);
+    // The following line should fail because balance is private
+    induce leaked = account.balance;
+} Relax
+"#;
+
+        let mut lexer = Lexer::new(source);
+        let tokens = lexer.lex().unwrap();
+        let mut parser = Parser::new(tokens);
+        let ast = parser.parse_program().unwrap();
+
+        let mut interpreter = Interpreter::new();
+        let result = interpreter.execute_program(ast);
+        assert!(matches!(
+            result,
+            Err(InterpreterError::Runtime(message)) if message.contains("Access denied")
+        ));
+    }
+
+    #[test]
+    fn test_static_field_and_method() {
+        let source = r#"
+Focus {
+    session Config {
+        dominant expose version: string = "1.0";
+
+        dominant suggestion setVersion(newVersion: string) {
+            Config.version = newVersion;
+        }
+    }
+
+    Config.setVersion("2.5");
+    induce activeVersion: string = Config.version;
+} Relax
+"#;
+
+        let mut lexer = Lexer::new(source);
+        let tokens = lexer.lex().unwrap();
+        let mut parser = Parser::new(tokens);
+        let ast = parser.parse_program().unwrap();
+
+        let mut interpreter = Interpreter::new();
+        interpreter.execute_program(ast).unwrap();
+
+        let result = interpreter.get_variable("activeVersion").unwrap();
+        assert_eq!(result, Value::String("2.5".to_string()));
     }
 }
