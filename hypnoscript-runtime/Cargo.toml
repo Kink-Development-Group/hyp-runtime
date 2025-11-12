@@ -14,3 +14,5 @@ anyhow = { workspace = true }
 thiserror = { workspace = true }
 chrono = "0.4"
 regex = "1.10"
+num_cpus = "1.16"
+hostname = "0.4"
