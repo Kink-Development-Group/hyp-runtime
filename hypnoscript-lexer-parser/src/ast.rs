@@ -1,5 +1,3 @@
-use crate::token::Token;
-use hypnoscript_core::HypnoType;
 use serde::{Deserialize, Serialize};
 
 /// AST node types for HypnoScript

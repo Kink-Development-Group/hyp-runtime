@@ -7,3 +7,8 @@ license.workspace = true
 repository.workspace = true
 
 [dependencies]
+hypnoscript-core = { path = "../hypnoscript-core" }
+serde = { workspace = true }
+serde_json = { workspace = true }
+anyhow = { workspace = true }
+thiserror = { workspace = true }

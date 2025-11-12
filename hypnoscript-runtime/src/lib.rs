@@ -1,14 +1,14 @@
-pub fn add(left: u64, right: u64) -> u64 {
-    left + right
-}
+//! HypnoScript Runtime Library
+//! 
+//! This module provides the runtime environment and builtin functions for HypnoScript.
 
-#[cfg(test)]
-mod tests {
-    use super::*;
+pub mod core_builtins;
+pub mod math_builtins;
+pub mod string_builtins;
+pub mod array_builtins;
 
-    #[test]
-    fn it_works() {
-        let result = add(2, 2);
-        assert_eq!(result, 4);
-    }
-}
+// Re-export builtin modules
+pub use core_builtins::CoreBuiltins;
+pub use math_builtins::MathBuiltins;
+pub use string_builtins::StringBuiltins;
+pub use array_builtins::ArrayBuiltins;
