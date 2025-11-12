@@ -64,6 +64,76 @@ sudo bash install.sh
 
 ---
 
+### macOS Release
+
+**Script**: `build_macos.ps1`
+**Usage**: `npm run release:macos` or `pwsh scripts/build_macos.ps1`
+
+Creates a macOS release package with multiple distribution formats:
+
+- ✅ Universal Binary (Intel + Apple Silicon)
+- ✅ TAR.GZ archive for distribution
+- ✅ DMG disk image (macOS only)
+- ✅ PKG installer (macOS only)
+- ✅ Installation script
+- ✅ SHA256 checksums
+
+**Output**:
+
+- `release/macos-universal/hypnoscript`
+- `release/macos-universal/install.sh`
+- `release/HypnoScript-1.0.0-macos-universal.tar.gz`
+- `release/HypnoScript-1.0.0-macos-universal.dmg` (macOS only)
+- `release/HypnoScript-1.0.0-macos-universal.pkg` (macOS only)
+- `.sha256` files for all archives
+
+**Architecture Options**:
+
+```bash
+npm run release:macos              # Universal (Intel + Apple Silicon)
+npm run release:macos:x64          # Intel only
+npm run release:macos:arm64        # Apple Silicon only
+```
+
+**Package Type Options**:
+
+```bash
+npm run release:macos:dmg          # DMG only (requires macOS)
+npm run release:macos:pkg          # PKG only (requires macOS)
+pwsh scripts/build_macos.ps1 -PackageType tar.gz  # TAR.GZ only
+pwsh scripts/build_macos.ps1 -PackageType all     # All formats
+```
+
+**Requirements**:
+
+- PowerShell 7+ (cross-platform)
+- Rust toolchain (cargo)
+- macOS targets: `rustup target add x86_64-apple-darwin aarch64-apple-darwin`
+- DMG/PKG creation requires macOS with `hdiutil` and `pkgbuild`
+
+**Installation on macOS**:
+
+From TAR.GZ:
+
+```bash
+tar -xzf HypnoScript-1.0.0-macos-universal.tar.gz
+cd macos-universal
+sudo bash install.sh
+```
+
+From DMG:
+
+1. Open `HypnoScript-1.0.0-macos-universal.dmg`
+2. Drag `hypnoscript` to the "Install to /usr/local/bin" symlink
+
+From PKG:
+
+```bash
+sudo installer -pkg HypnoScript-1.0.0-macos-universal.pkg -target /
+```
+
+---
+
 ### Debian Package (Legacy)
 
 **Script**: `build_deb.sh` (deprecated in favor of `build_linux.ps1`)
@@ -92,7 +162,30 @@ npm run release:prepare
 # 2. Build platform-specific packages
 npm run release:windows  # Windows x64
 npm run release:linux    # Linux x64
+npm run release:macos    # macOS Universal (Intel + Apple Silicon)
+
+# Or build all at once
+npm run release:all
 ```
+
+## 🏗️ Architecture Support
+
+### Windows
+
+- ✅ **x64** (Intel/AMD 64-bit) - Full support
+
+### Linux
+
+- ✅ **x64** (Intel/AMD 64-bit) - Full support
+- 🔄 ARM64 - Possible with `rustup target add aarch64-unknown-linux-gnu`
+
+### macOS
+
+- ✅ **x64** (Intel) - Full support
+- ✅ **ARM64** (Apple Silicon) - Full support
+- ✅ **Universal** (Intel + Apple Silicon) - Full support with `lipo`
+
+---
 
 ## 🛠 Cross-Compilation Setup
 
@@ -108,6 +201,17 @@ rustup target add x86_64-unknown-linux-gnu
 rustup target add x86_64-pc-windows-msvc
 ```
 
+### macOS Targets (for building macOS binaries on any platform)
+
+```bash
+rustup target add x86_64-apple-darwin      # Intel
+rustup target add aarch64-apple-darwin     # Apple Silicon
+```
+
+**Note**: Creating Universal binaries and DMG/PKG installers requires running on macOS.
+
+---
+
 ## 📝 Version Management
 
 Version information is defined in:
@@ -115,9 +219,12 @@ Version information is defined in:
 - `Cargo.toml` (workspace root)
 - `scripts/build_winget.ps1` (line 8: `$VERSION = "1.0.0"`)
 - `scripts/build_linux.ps1` (line 10: `$VERSION = "1.0.0"`)
+- `scripts/build_macos.ps1` (line 11: `$VERSION = "1.0.0"`)
 - `scripts/build_deb.sh` (line 7: `VERSION=1.0.0`)
 
 **Important**: Keep versions synchronized across all files!
+
+---
 
 ## 🔐 Checksum Verification
 
@@ -136,11 +243,20 @@ sha256sum hypnoscript-1.0.0-linux-x64.tar.gz
 cat hypnoscript-1.0.0-linux-x64.tar.gz.sha256
 ```
 
+**macOS**:
+
+```bash
+shasum -a 256 HypnoScript-1.0.0-macos-universal.tar.gz
+cat HypnoScript-1.0.0-macos-universal.tar.gz.sha256
+```
+
+---
+
 ## 📊 Build Artifacts
 
 After running release scripts, the `release/` directory contains:
 
-```
+```text
 release/
 ├── windows-x64/
 │   ├── hypnoscript.exe
@@ -153,11 +269,25 @@ release/
 │   ├── README.md
 │   ├── LICENSE
 │   └── VERSION.txt
+├── macos-universal/
+│   ├── hypnoscript
+│   ├── install.sh
+│   ├── README.md
+│   ├── LICENSE
+│   └── VERSION.txt
 ├── HypnoScript-windows-x64.zip
 ├── HypnoScript-windows-x64.zip.sha256
 ├── hypnoscript-1.0.0-linux-x64.tar.gz
-└── hypnoscript-1.0.0-linux-x64.tar.gz.sha256
+├── hypnoscript-1.0.0-linux-x64.tar.gz.sha256
+├── HypnoScript-1.0.0-macos-universal.tar.gz
+├── HypnoScript-1.0.0-macos-universal.tar.gz.sha256
+├── HypnoScript-1.0.0-macos-universal.dmg (macOS only)
+├── HypnoScript-1.0.0-macos-universal.dmg.sha256
+├── HypnoScript-1.0.0-macos-universal.pkg (macOS only)
+└── HypnoScript-1.0.0-macos-universal.pkg.sha256
 ```
+
+---
 
 ## 🐛 Troubleshooting
 
