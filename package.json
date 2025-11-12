@@ -33,7 +33,7 @@
     "docs:preview": "cd hypnoscript-docs && npm run preview",
     "docs:install": "cd hypnoscript-docs && npm ci",
     "release:prepare": "npm run format && npm run lint && npm run test && npm run build",
-    "release:linux": "bash scripts/build_deb.sh",
+    "release:linux": "pwsh scripts/build_linux.ps1",
     "release:windows": "pwsh scripts/build_winget.ps1",
     "cli:version": "./target/release/hypnoscript-cli version",
     "cli:builtins": "./target/release/hypnoscript-cli builtins",
