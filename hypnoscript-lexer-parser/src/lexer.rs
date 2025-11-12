@@ -412,7 +412,7 @@ mod tests {
     fn test_simple_tokens() {
         let mut lexer = Lexer::new("induce x: number = 42;");
         let tokens = lexer.lex().unwrap();
-        assert!(tokens.len() > 0);
+        assert!(!tokens.is_empty());
         assert_eq!(tokens[0].token_type, TokenType::Induce);
     }
 

@@ -1333,8 +1333,7 @@ impl Interpreter {
         self.execution_context
             .iter()
             .rev()
-            .find_map(|frame| frame.session_name.as_deref())
-            .map_or(false, |current| current == session_name)
+            .find_map(|frame| frame.session_name.as_deref()) == Some(session_name)
     }
 
     fn call_builtin(
@@ -1694,10 +1693,10 @@ impl Interpreter {
             )),
             "ToDouble" => Some(Value::Number(
                 CoreBuiltins::to_double(&self.string_arg(args, 0, name)?)
-                    .map_err(|e| InterpreterError::Runtime(e))?,
+                    .map_err(InterpreterError::Runtime)?,
             )),
             "ToString" => Some(Value::String(
-                args.get(0)
+                args.first()
                     .map(|v| v.to_string())
                     .unwrap_or_else(|| "null".to_string()),
             )),

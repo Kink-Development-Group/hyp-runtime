@@ -1407,7 +1407,7 @@ impl TypeChecker {
                             }
                         }
 
-                        return return_type;
+                        return_type
                     } else {
                         self.errors
                             .push(format!("Undefined function '{}'", func_name));
