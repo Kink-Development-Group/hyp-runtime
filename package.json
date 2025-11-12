@@ -42,9 +42,9 @@
     "release:macos:pkg": "pwsh scripts/build_macos.ps1 -PackageType pkg",
     "release:windows": "pwsh scripts/build_winget.ps1",
     "release:all": "npm run release:prepare && npm run release:windows && npm run release:linux && npm run release:macos",
-    "cli:version": "./target/release/hypnoscript-cli version",
-    "cli:builtins": "./target/release/hypnoscript-cli builtins",
-    "cli:test": "./target/release/hypnoscript-cli run hypnoscript-tests/test_rust_demo.hyp"
+    "cli:version": "cargo run --release --package hypnoscript-cli -- version",
+    "cli:builtins": "cargo run --release --package hypnoscript-cli -- builtins",
+    "cli:test": "cargo run --release --package hypnoscript-cli -- run hypnoscript-tests/test_rust_demo.hyp"
   },
   "repository": {
     "type": "git",

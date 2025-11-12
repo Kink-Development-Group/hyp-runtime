@@ -137,8 +137,10 @@ jobs:
 
       - name: Check for unsafe code
         run: |
-          if grep -r "unsafe" --include="*.rs" src/ hypnoscript-*/src/; then
+          if git grep -n "unsafe" -- '*.rs'; then
             echo "Warning: Found unsafe code blocks"
+          else
+            echo "No unsafe code detected"
           fi
 
       - name: Run cargo deny
@@ -167,8 +169,8 @@ jobs:
 
       - name: Generate performance report
         run: |
-          ./target/release/hypnoscript-cli run test_rust_demo.hyp --verbose
-          time ./target/release/hypnoscript-cli run test_rust_demo.hyp
+          ./target/release/hypnoscript-cli run hypnoscript-tests/test_rust_demo.hyp --verbose
+          time ./target/release/hypnoscript-cli run hypnoscript-tests/test_rust_demo.hyp
 
       - name: Upload performance results
         uses: actions/upload-artifact@v4
@@ -225,7 +227,7 @@ jobs:
           mkdir -p release
           cp target/release/hypnoscript-cli release/
           cp README.md release/
-          cp RUST_README.md release/
+          cp RUST_README.md release/ || true
           cp LICENSE release/ || true
           tar -czf hypnoscript-rust-release.tar.gz -C release .
 
