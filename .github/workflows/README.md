@@ -7,12 +7,14 @@ This directory contains GitHub Actions workflows for building, testing, and depl
 ### 1. `rust-build-and-test.yml` - Main CI Pipeline
 
 **Triggers:**
+
 - Push to `main` or `develop` branches
 - Pull requests to `main` or `develop`
 
 **Jobs:**
 
 #### `build-and-test`
+
 - **Platforms:** Windows, Linux, macOS
 - **Rust Version:** Stable
 - **Steps:**
@@ -24,6 +26,7 @@ This directory contains GitHub Actions workflows for building, testing, and depl
   - Upload binaries as artifacts
 
 #### `code-quality`
+
 - **Platform:** Ubuntu
 - **Steps:**
   - CodeQL security analysis (Rust)
@@ -32,6 +35,7 @@ This directory contains GitHub Actions workflows for building, testing, and depl
   - Cargo deny for license and security checks
 
 #### `performance`
+
 - **Platform:** Ubuntu
 - **Steps:**
   - Run benchmark tests
@@ -39,12 +43,14 @@ This directory contains GitHub Actions workflows for building, testing, and depl
   - Time execution of sample programs
 
 #### `coverage`
+
 - **Platform:** Ubuntu
 - **Steps:**
   - Generate code coverage with `cargo-llvm-cov`
   - Upload to Codecov
 
 #### `deployment`
+
 - **Platform:** Ubuntu
 - **Triggers:** Only on `main` branch
 - **Steps:**
@@ -57,11 +63,13 @@ This directory contains GitHub Actions workflows for building, testing, and depl
 ### 2. `rust-build-and-release.yml` - Release Pipeline
 
 **Triggers:**
+
 - Tags matching `v*.*.*` or `rust-v*.*.*`
 
 **Jobs:**
 
 #### `build-release`
+
 - **Strategy:** Matrix build for multiple platforms
 - **Targets:**
   - Linux x64 (glibc)
@@ -76,12 +84,14 @@ This directory contains GitHub Actions workflows for building, testing, and depl
   - Compute SHA256 checksums
 
 #### `build-deb-package`
+
 - **Platform:** Ubuntu
 - **Steps:**
   - Build Debian package with `cargo-deb`
   - Package for APT repositories
 
 #### `create-release`
+
 - **Depends:** build-release, build-deb-package
 - **Steps:**
   - Download all platform artifacts
@@ -90,6 +100,7 @@ This directory contains GitHub Actions workflows for building, testing, and depl
   - Include installation instructions
 
 #### `publish-crates`
+
 - **Triggers:** Only on version tags
 - **Steps:**
   - Publish all crates to crates.io
@@ -100,12 +111,14 @@ This directory contains GitHub Actions workflows for building, testing, and depl
 ### 3. `deploy-docs.yml` - Documentation Pipeline
 
 **Triggers:**
+
 - Push to `main` affecting documentation or Rust code
 - Pull requests affecting documentation
 
 **Jobs:**
 
 #### `build-and-deploy`
+
 - **Platform:** Ubuntu
 - **Steps:**
   - Build Rust API documentation (`cargo doc`)
@@ -114,6 +127,7 @@ This directory contains GitHub Actions workflows for building, testing, and depl
   - Deploy to GitHub Pages (main branch only)
 
 #### `test-build`
+
 - **Platform:** Ubuntu
 - **Triggers:** Pull requests only
 - **Steps:**
@@ -142,11 +156,13 @@ All workflows use caching to speed up builds:
 ## Testing Strategy
 
 ### Unit Tests
+
 ```bash
 cargo test --workspace
 ```
 
 ### Integration Tests
+
 ```bash
 cargo test --package hypnoscript-lexer-parser
 cargo test --package hypnoscript-compiler
@@ -154,6 +170,7 @@ cargo test --package hypnoscript-runtime
 ```
 
 ### CLI Tests
+
 ```bash
 hypnoscript-cli version
 hypnoscript-cli builtins
@@ -164,6 +181,7 @@ hypnoscript-cli run <file>
 ```
 
 ### Performance Tests
+
 ```bash
 cargo test --release -- --ignored --nocapture
 ```
@@ -171,21 +189,25 @@ cargo test --release -- --ignored --nocapture
 ## Code Quality Checks
 
 ### Formatting
+
 ```bash
 cargo fmt --all -- --check
 ```
 
 ### Linting
+
 ```bash
 cargo clippy --all-targets --all-features -- -D warnings
 ```
 
 ### Security Audit
+
 ```bash
 cargo audit
 ```
 
 ### Coverage
+
 ```bash
 cargo llvm-cov --all-features --workspace
 ```
@@ -194,10 +216,12 @@ cargo llvm-cov --all-features --workspace
 
 1. **Update version** in all `Cargo.toml` files
 2. **Create tag:**
+
    ```bash
    git tag -a v1.0.0 -m "Release v1.0.0"
    git push origin v1.0.0
    ```
+
 3. **GitHub Actions automatically:**
    - Builds binaries for all platforms
    - Creates Debian package
@@ -208,35 +232,42 @@ cargo llvm-cov --all-features --workspace
 ## Platform-Specific Notes
 
 ### Linux (glibc)
+
 - Target: `x86_64-unknown-linux-gnu`
 - Requires glibc 2.17+
 - Most compatible with modern Linux distributions
 
 ### Linux (musl)
+
 - Target: `x86_64-unknown-linux-musl`
 - Static binary, no runtime dependencies
 - Ideal for containers and embedded systems
 
 ### Windows
+
 - Target: `x86_64-pc-windows-msvc`
 - Requires Visual C++ runtime (usually pre-installed)
 
 ### macOS x64
+
 - Target: `x86_64-apple-darwin`
 - Intel-based Macs
 
 ### macOS ARM64
+
 - Target: `aarch64-apple-darwin`
 - Apple Silicon (M1/M2/M3) Macs
 
 ## Continuous Deployment
 
 The `deployment` job on the main branch automatically:
+
 1. Builds release binaries
 2. Creates a release package
 3. Uploads to GitHub Artifacts
 
 For tagged releases, the full release workflow:
+
 1. Builds for all platforms
 2. Creates GitHub Release
 3. Publishes to crates.io
@@ -253,11 +284,13 @@ For tagged releases, the full release workflow:
 1. **Create feature branch**
 2. **Make changes** to Rust code
 3. **Run local tests:**
+
    ```bash
    cargo test
    cargo clippy
    cargo fmt
    ```
+
 4. **Push to branch** - triggers CI
 5. **Create PR** - full test suite runs
 6. **Merge to main** - triggers deployment
@@ -267,15 +300,16 @@ For tagged releases, the full release workflow:
 
 The Rust pipelines replace the C# pipelines with equivalent functionality:
 
-| C# Pipeline | Rust Pipeline | Notes |
-|-------------|---------------|-------|
-| `build-and-test.yml` | `rust-build-and-test.yml` | Same structure, Rust tools |
-| `build-and-release.yml` | `rust-build-and-release.yml` | Multi-platform support |
-| `deploy-docs.yml` | `deploy-docs.yml` | Enhanced with Rust API docs |
+| C# Pipeline             | Rust Pipeline                | Notes                       |
+| ----------------------- | ---------------------------- | --------------------------- |
+| `build-and-test.yml`    | `rust-build-and-test.yml`    | Same structure, Rust tools  |
+| `build-and-release.yml` | `rust-build-and-release.yml` | Multi-platform support      |
+| `deploy-docs.yml`       | `deploy-docs.yml`            | Enhanced with Rust API docs |
 
 ## Performance Comparison
 
 Rust CI is generally faster than C#:
+
 - **Build time:** ~2-5 minutes (vs 5-10 for C#)
 - **Test time:** ~1-2 minutes (vs 3-5 for C#)
 - **Binary size:** 5-10MB (vs 60+MB for C#)
@@ -284,18 +318,21 @@ Rust CI is generally faster than C#:
 ## Troubleshooting
 
 ### Build Failures
+
 - Check Rust version compatibility
 - Verify Cargo.lock is committed
 - Review clippy warnings
 
 ### Test Failures
+
 - Run tests locally first
 - Check for platform-specific issues
 - Review test output in artifacts
 
 ### Release Issues
+
 - Ensure all Cargo.toml versions match
-- Check tag format (v*.*.*)
+- Check tag format (v*.*.\*)
 - Verify CARGO_TOKEN is set for crates.io
 
 ## Further Reading

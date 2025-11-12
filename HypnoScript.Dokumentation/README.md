@@ -1,13 +1,13 @@
 # HypnoScript Dokumentation
 
-Dies ist die vollständige Dokumentation für HypnoScript - Die hypnotische Programmiersprache. Die Dokumentation wird mit [Docusaurus 3.8](https://docusaurus.io/) erstellt und automatisch zu GitHub Pages deployed.
+Dies ist die vollständige Dokumentation für HypnoScript - Die hypnotische Programmiersprache. Die Dokumentation wird mit [VitePress](https://vitepress.dev/) erstellt und automatisch zu GitHub Pages deployed.
 
 ## 🚀 Schnellstart
 
 ### Voraussetzungen
 
 - Node.js 18.0 oder höher
-- npm oder yarn
+- npm, yarn oder pnpm
 
 ### Installation
 
@@ -16,13 +16,13 @@ Dies ist die vollständige Dokumentation für HypnoScript - Die hypnotische Prog
 npm install
 
 # Entwicklungsserver starten
-npm start
+npm run dev
 
 # Dokumentation bauen
 npm run build
 
-# Lokalen Server für gebaute Dokumentation starten
-npm run serve
+# Vorschau der gebauten Dokumentation
+npm run preview
 ```
 
 ## 📁 Projektstruktur
@@ -30,6 +30,12 @@ npm run serve
 ```
 HypnoScript.Dokumentation/
 ├── docs/                    # Dokumentationsseiten
+│   ├── .vitepress/         # VitePress-Konfiguration
+│   │   ├── config.mts      # Hauptkonfiguration
+│   │   └── theme/          # Custom Theme
+│   │       ├── index.ts    # Theme-Einstiegspunkt
+│   │       └── style.css   # Custom CSS
+│   ├── index.md            # Homepage
 │   ├── intro.md            # Einführung
 │   ├── getting-started/    # Erste Schritte
 │   ├── language-reference/ # Sprachreferenz
@@ -38,15 +44,9 @@ HypnoScript.Dokumentation/
 │   ├── examples/           # Beispiele
 │   ├── development/        # Entwicklung
 │   └── reference/          # Referenz
-├── blog/                   # Blog-Posts
-├── src/                    # Quellcode
-│   ├── css/               # Custom CSS
-│   └── pages/             # Zusätzliche Seiten
-├── static/                # Statische Dateien
-│   └── img/               # Bilder
-├── docusaurus.config.js   # Docusaurus-Konfiguration
-├── sidebars.js            # Sidebar-Struktur
-└── package.json           # Dependencies
+├── static/                 # Statische Dateien
+│   └── img/                # Bilder
+└── package.json            # Dependencies
 ```
 
 ## 🛠️ Entwicklung
@@ -54,26 +54,27 @@ HypnoScript.Dokumentation/
 ### Neue Seite hinzufügen
 
 1. Erstelle eine neue `.md` Datei im entsprechenden Verzeichnis unter `docs/`
-2. Füge Frontmatter hinzu:
+2. Füge Frontmatter hinzu (optional):
    ```markdown
    ---
-   sidebar_position: 1
+   title: Seitentitel
+   description: Beschreibung
    ---
    ```
-3. Aktualisiere `sidebars.js` um die Seite in die Navigation einzufügen
+3. Aktualisiere `docs/.vitepress/config.mts` um die Seite in die Sidebar einzufügen
 
 ### Styling anpassen
 
-- Custom CSS: `src/css/custom.css`
-- Theme-Komponenten: `src/theme/`
+- Custom CSS: `docs/.vitepress/theme/style.css`
+- Theme-Komponenten: `docs/.vitepress/theme/index.ts`
 
 ### Lokale Entwicklung
 
 ```bash
-npm start
+npm run dev
 ```
 
-Öffne [http://localhost:3000](http://localhost:3000) im Browser.
+Öffne [http://localhost:5173](http://localhost:5173) im Browser.
 
 ## 🚀 Deployment
 
@@ -87,7 +88,7 @@ Die Dokumentation wird automatisch zu GitHub Pages deployed über GitHub Actions
 
 ```bash
 npm run build
-npm run deploy
+# Die gebaute Dokumentation befindet sich in docs/.vitepress/dist/
 ```
 
 ## 📚 Dokumentationsstruktur

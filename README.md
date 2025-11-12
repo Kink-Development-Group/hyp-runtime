@@ -115,7 +115,7 @@ Alle Tests ausführen:
 cargo test --all
 ```
 
-**Ergebnis: Alle 48 Tests erfolgreich ✅**
+**_Ergebnis: Alle 48 Tests erfolgreich ✅_**
 
 Alle Crates besitzen Unit-Tests – Lexer, Parser, Runtime-Builtins, Type Checker, Interpreter und WASM Codegen.
 
@@ -233,7 +233,7 @@ mod tests {
 
 ## 📝 Migrationsstatus
 
-**Gesamt: ~95% Komplett**
+**_Gesamt: ~95% Komplett_**
 
 - ✅ Core-Typ-System (100%)
 - ✅ Symbol-Tabelle (100%)
@@ -319,6 +319,6 @@ MIT License (gleiche wie das Original-Projekt)
 
 ---
 
-**Die Rust-Runtime ist production-ready für HypnoScript-Kernprogrammierung! 🚀**
+**_Die Rust-Runtime ist production-ready für HypnoScript-Kernprogrammierung! 🚀_**
 
 **Viel Spaß beim hypnotischen Programmieren mit Rust!**
