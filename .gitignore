@@ -72,5 +72,8 @@ artifacts/
 .builds
 *.pidb
 *.svclog
-*.scctarget/
+*.scc
+
+# Rust
+target/
 Cargo.lock
