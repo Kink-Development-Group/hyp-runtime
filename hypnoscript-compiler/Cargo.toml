@@ -7,3 +7,8 @@ license.workspace = true
 repository.workspace = true
 
 [dependencies]
+hypnoscript-core = { path = "../hypnoscript-core" }
+hypnoscript-lexer-parser = { path = "../hypnoscript-lexer-parser" }
+hypnoscript-runtime = { path = "../hypnoscript-runtime" }
+anyhow = { workspace = true }
+thiserror = { workspace = true }

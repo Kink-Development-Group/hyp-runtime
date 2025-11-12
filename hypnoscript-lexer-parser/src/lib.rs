@@ -5,7 +5,9 @@
 pub mod token;
 pub mod lexer;
 pub mod ast;
+pub mod parser;
 
 // Re-export commonly used types
 pub use token::{Token, TokenType};
 pub use lexer::Lexer;
+pub use parser::Parser;

@@ -1,6 +1,7 @@
 use anyhow::Result;
 use clap::{Parser, Subcommand};
-use hypnoscript_lexer_parser::Lexer;
+use hypnoscript_lexer_parser::{Lexer, Parser as HypnoParser};
+use hypnoscript_compiler::Interpreter;
 use std::fs;
 
 #[derive(Parser)]
@@ -33,6 +34,12 @@ enum Commands {
         file: String,
     },
     
+    /// Parse a HypnoScript file (show AST)
+    Parse {
+        /// Path to the .hyp file
+        file: String,
+    },
+    
     /// Show version information
     Version,
     
@@ -57,18 +64,29 @@ fn main() -> Result<()> {
                 println!("\n--- Lexing ---");
             }
             
+            // Lex
             let mut lexer = Lexer::new(&source);
             let tokens = lexer.lex().map_err(|e| anyhow::anyhow!(e))?;
             
-            if debug || verbose {
-                println!("Tokens: {} total", tokens.len());
-                for token in &tokens {
-                    println!("{:?}", token);
-                }
+            if debug {
+                println!("Tokens: {}", tokens.len());
             }
             
-            println!("\n✅ File processed successfully!");
-            println!("Note: Full interpreter implementation pending.");
+            // Parse
+            let mut parser = HypnoParser::new(tokens);
+            let ast = parser.parse_program().map_err(|e| anyhow::anyhow!(e))?;
+            
+            if debug {
+                println!("\n--- Executing ---");
+            }
+            
+            // Execute
+            let mut interpreter = Interpreter::new();
+            interpreter.execute_program(ast).map_err(|e| anyhow::anyhow!(e))?;
+            
+            if verbose {
+                println!("\n✅ Program executed successfully!");
+            }
         }
         
         Commands::Lex { file } => {
@@ -83,6 +101,17 @@ fn main() -> Result<()> {
             println!("\nTotal tokens: {}", tokens.len());
         }
         
+        Commands::Parse { file } => {
+            let source = fs::read_to_string(&file)?;
+            let mut lexer = Lexer::new(&source);
+            let tokens = lexer.lex().map_err(|e| anyhow::anyhow!(e))?;
+            let mut parser = HypnoParser::new(tokens);
+            let ast = parser.parse_program().map_err(|e| anyhow::anyhow!(e))?;
+            
+            println!("=== AST ===");
+            println!("{:#?}", ast);
+        }
+        
         Commands::Version => {
             println!("HypnoScript v1.0.0 (Rust Edition)");
             println!("The Hypnotic Programming Language");
@@ -94,37 +123,36 @@ fn main() -> Result<()> {
             println!("=== HypnoScript Builtin Functions ===\n");
             
             println!("📊 Math Builtins:");
-            println!("  - sin, cos, tan, sqrt, pow, log, log10");
-            println!("  - abs, floor, ceil, round, min, max");
-            println!("  - factorial, gcd, lcm, is_prime, fibonacci");
-            println!("  - clamp");
+            println!("  - Sin, Cos, Tan, Sqrt, Pow, Log, Log10");
+            println!("  - Abs, Floor, Ceil, Round, Min, Max");
+            println!("  - Factorial, Gcd, Lcm, IsPrime, Fibonacci");
+            println!("  - Clamp");
             
             println!("\n📝 String Builtins:");
-            println!("  - length, to_upper, to_lower, trim");
-            println!("  - index_of, replace, reverse, capitalize");
-            println!("  - starts_with, ends_with, contains");
-            println!("  - split, substring, repeat");
-            println!("  - pad_left, pad_right");
+            println!("  - Length, ToUpper, ToLower, Trim");
+            println!("  - IndexOf, Replace, Reverse, Capitalize");
+            println!("  - StartsWith, EndsWith, Contains");
+            println!("  - Split, Substring, Repeat");
+            println!("  - PadLeft, PadRight");
             
             println!("\n📦 Array Builtins:");
-            println!("  - length, is_empty, get, index_of, contains");
-            println!("  - reverse, sum, average, min, max, sort");
-            println!("  - first, last, take, skip, slice");
-            println!("  - join, count, distinct");
+            println!("  - Length, IsEmpty, Get, IndexOf, Contains");
+            println!("  - Reverse, Sum, Average, Min, Max, Sort");
+            println!("  - First, Last, Take, Skip, Slice");
+            println!("  - Join, Count, Distinct");
             
             println!("\n✨ Hypnotic Builtins:");
             println!("  - observe (output)");
             println!("  - drift (sleep)");
-            println!("  - deep_trance");
-            println!("  - hypnotic_countdown");
-            println!("  - trance_induction");
-            println!("  - hypnotic_visualization");
+            println!("  - DeepTrance");
+            println!("  - HypnoticCountdown");
+            println!("  - TranceInduction");
+            println!("  - HypnoticVisualization");
             
             println!("\n🔄 Conversion Functions:");
-            println!("  - to_int, to_double, to_string, to_boolean");
+            println!("  - ToInt, ToDouble, ToString, ToBoolean");
             
             println!("\nTotal: 50+ builtin functions implemented");
-            println!("Note: Full 150+ builtin library migration in progress");
         }
     }
 
