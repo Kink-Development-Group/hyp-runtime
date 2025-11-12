@@ -28,8 +28,8 @@ jobs:
   build:
     runs-on: ubuntu-latest
     env:
-      rust_src_dir: target/doc
-      rust_doc_output_dir: rust-docs
+      RUST_DOC_SRC: target/doc
+      RUST_DOC_OUTPUT: rust-docs
 
     steps:
       - name: Checkout
@@ -48,13 +48,13 @@ jobs:
 
       - name: Ensure rust source dir exists
         run: |
-          if [ ! -d "${rust_src_dir}" ]; then
+          if [ ! -d "${RUST_DOC_SRC}" ]; then
             echo "'rust-src-dir' does not point to an existing directory"
-            echo "The value of 'rust-src-dir' is: ${rust_src_dir}"
+            echo "The value of 'rust-src-dir' is: ${RUST_DOC_SRC}"
             exit 1
           fi
-          mkdir -p "${rust_doc_output_dir}"
-          cp -r "${rust_src_dir}/." "${rust_doc_output_dir}/"
+          mkdir -p "${RUST_DOC_OUTPUT}"
+          cp -r "${RUST_DOC_SRC}/." "${RUST_DOC_OUTPUT}/"
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
@@ -77,7 +77,7 @@ jobs:
       - name: Copy Rust docs to build directory
         run: |
           mkdir -p hypnoscript-docs/docs/.vitepress/dist/rust-api
-          cp -r "${rust_doc_output_dir}/." hypnoscript-docs/docs/.vitepress/dist/rust-api/
+          cp -r "${RUST_DOC_OUTPUT}/." hypnoscript-docs/docs/.vitepress/dist/rust-api/
 
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
@@ -101,8 +101,8 @@ jobs:
     runs-on: ubuntu-latest
     if: github.event_name == 'pull_request'
     env:
-      rust_src_dir: target/doc
-      rust_doc_output_dir: rust-docs
+      RUST_DOC_SRC: target/doc
+      RUST_DOC_OUTPUT: rust-docs
 
     steps:
       - name: Checkout
@@ -118,13 +118,13 @@ jobs:
 
       - name: Ensure rust source dir exists
         run: |
-          if [ ! -d "${rust_src_dir}" ]; then
+          if [ ! -d "${RUST_DOC_SRC}" ]; then
             echo "'rust-src-dir' does not point to an existing directory"
-            echo "The value of 'rust-src-dir' is: ${rust_src_dir}"
+            echo "The value of 'rust-src-dir' is: ${RUST_DOC_SRC}"
             exit 1
           fi
-          mkdir -p "${rust_doc_output_dir}"
-          cp -r "${rust_src_dir}/." "${rust_doc_output_dir}/"
+          mkdir -p "${RUST_DOC_OUTPUT}"
+          cp -r "${RUST_DOC_SRC}/." "${RUST_DOC_OUTPUT}/"
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
