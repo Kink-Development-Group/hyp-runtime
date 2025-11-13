@@ -1,0 +1,92 @@
+# Labeler-Konfiguration für HypnoScript
+# Siehe https://github.com/actions/labeler für das Konfigurationsformat.
+
+'area:core':
+  - changed-files:
+      - any-glob-to-any-file:
+          - 'hypnoscript-core/**'
+
+'area:lexer-parser':
+  - changed-files:
+      - any-glob-to-any-file:
+          - 'hypnoscript-lexer-parser/**'
+
+'area:compiler':
+  - changed-files:
+      - any-glob-to-any-file:
+          - 'hypnoscript-compiler/**'
+
+'area:runtime':
+  - changed-files:
+      - any-glob-to-any-file:
+          - 'hypnoscript-runtime/**'
+
+'area:cli':
+  - changed-files:
+      - any-glob-to-any-file:
+          - 'hypnoscript-cli/**'
+
+'area:documentation':
+  - changed-files:
+      - any-glob-to-any-file:
+          - 'hypnoscript-docs/**'
+          - '*.md'
+          - '**/*.md'
+
+'area:testing':
+  - changed-files:
+      - any-glob-to-any-file:
+          - 'hypnoscript-tests/**'
+          - '**/*.hyp'
+
+'area:ci':
+  - changed-files:
+      - any-glob-to-any-file:
+          - '.github/**'
+
+'area:tooling':
+  - changed-files:
+      - any-glob-to-any-file:
+          - 'scripts/**'
+          - 'release/**'
+          - 'package.json'
+          - 'package-lock.json'
+
+'area:workspace':
+  - changed-files:
+      - any-glob-to-any-file:
+          - 'Cargo.toml'
+          - '**/Cargo.toml'
+          - 'deny.toml'
+
+'branch:main-target':
+  - base-branch:
+      - '^main$'
+
+'branch:dev-target':
+  - base-branch:
+      - '^(dev|development)$'
+
+'branch:release-target':
+  - base-branch:
+      - '^(release|release[-/].+)$'
+
+'type:feature':
+  - head-branch:
+      - '(?i)^(feature|feat)[-/].+'
+
+'type:task':
+  - head-branch:
+      - '(?i)^(task|chore)[-/].+'
+
+'type:release':
+  - head-branch:
+      - '(?i)^release[-/].+'
+
+'type:bugfix':
+  - head-branch:
+      - '(?i)^(bugfix|fix)[-/].+'
+
+'type:hotfix':
+  - head-branch:
+      - '(?i)^hotfix[-/].+'
