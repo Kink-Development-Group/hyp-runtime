@@ -40,6 +40,21 @@ Zur Dokumentation steht weiterhin `HypnoScript.Dokumentation/` (Docusaurus) bere
 
 - Rust 1.76+ (empfohlen) inkl. `cargo`
 
+### Automatischer Installer
+
+```bash
+curl -fsSL https://kink-development-group.github.io/hyp-runtime/install.sh | bash
+```
+
+Das Skript erkennt Linux/macOS automatisch, lädt die passende Runtime aus dem aktuellen Release und aktualisiert bestehende Installationen. Wichtige Optionen: `--prefix`, `--version`, `--check`, `--include-prerelease`, `--force`, `--uninstall`.
+
+#### Updates & Deinstallation
+
+- **Updates checken:** `hypnoscript self-update --check` zeigt verfügbare Versionen an.
+- **Aktualisieren:** `hypnoscript self-update` zieht die neueste Release-Version inklusive sudo-Handhabung.
+- **Neuinstallation erzwingen:** `hypnoscript self-update --force` führt den Installer erneut aus.
+- **Deinstallation:** `curl -fsSL https://kink-development-group.github.io/hyp-runtime/install.sh | bash -s -- --uninstall` entfernt Binärdatei und Metadaten.
+
 ### Projekt klonen & bauen
 
 ```bash
@@ -103,6 +118,9 @@ hypnoscript-cli builtins
 
 # Version anzeigen
 hypnoscript-cli version
+
+# Update auf neue Version prüfen
+hypnoscript self-update --check
 ```
 
 ---

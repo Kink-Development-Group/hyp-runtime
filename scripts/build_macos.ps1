@@ -172,35 +172,13 @@ if (Test-Path $LicensePath) {
 
 Set-Content -Path (Join-Path $ReleaseDir "VERSION.txt") -Value $VERSION
 
-# 4. Installation-Script erstellen
-$InstallScript = @"
-#!/bin/bash
-# HypnoScript macOS Installation Script
-
-set -e
-
-INSTALL_DIR="/usr/local/bin"
-BINARY_NAME="hypnoscript"
-
-echo "Installing HypnoScript to `$INSTALL_DIR..."
-
-# Check for sudo
-if [ "`$EUID" -ne 0 ]; then
-    echo "Please run with sudo:"
-    echo "  sudo bash install.sh"
-    exit 1
-fi
-
-# Copy binary
-cp `$BINARY_NAME `$INSTALL_DIR/`$BINARY_NAME
-chmod +x `$INSTALL_DIR/`$BINARY_NAME
-
-echo "✓ HypnoScript installed successfully!"
-echo ""
-echo "Run 'hypnoscript --version' to verify the installation."
-"@
-
-Set-Content -Path (Join-Path $ReleaseDir "install.sh") -Value $InstallScript
+# 4. Installation-Script hinzufügen
+$InstallerSource = Join-Path $ProjectRoot "install.sh"
+if (Test-Path $InstallerSource) {
+    Copy-Item $InstallerSource (Join-Path $ReleaseDir "install.sh") -Force
+} else {
+    Write-Host "⚠ install.sh not found at project root" -ForegroundColor Yellow
+}
 
 # 5. TAR.GZ erstellen (immer)
 if ($PackageType -eq 'tar.gz' -or $PackageType -eq 'all') {
