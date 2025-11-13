@@ -43,6 +43,34 @@ cargo install --path hypnoscript-cli
 
 Die fertig gebaute CLI liegt anschließend unter `./target/release/hypnoscript` bzw. nach der Installation im Cargo-Bin-Verzeichnis (`~/.cargo/bin` bzw. `%USERPROFILE%\.cargo\bin`).
 
+## Automatischer Installer (empfohlen für Releases)
+
+Für Produktionssysteme oder schnelle Tests kannst du den offiziellen Installer verwenden. Das Skript erkennt dein Betriebssystem (Linux / macOS), lädt automatisch die passende Runtime aus dem aktuellen Release und aktualisiert bestehende Installationen.
+
+```bash
+curl -fsSL https://kink-development-group.github.io/hyp-runtime/install.sh | bash
+```
+
+Wichtige Optionen im Überblick:
+
+| Option                 | Beschreibung                                                   |
+| ---------------------- | -------------------------------------------------------------- |
+| `--prefix <pfad>`      | Zielverzeichnis (Standard: `/usr/local/bin`)                   |
+| `--check`              | Nur auf Updates prüfen (Exit-Code `0` = aktuell, `2` = Update) |
+| `--version <v>`        | Konkrete Version installieren                                  |
+| `--include-prerelease` | Auch Vorabversionen berücksichtigen                            |
+| `--force`              | Installation erzwingen, selbst wenn Version bereits vorhanden  |
+| `--uninstall`          | Installierte Runtime (Binary & Metadaten) entfernen            |
+
+Das Skript kann jederzeit erneut ausgeführt werden. Erkennt es eine neue Version, wird automatisch ein Update eingespielt.
+
+### Updates & Deinstallation
+
+- **Updates prüfen:** `hypnoscript self-update --check`
+- **Aktualisieren:** `hypnoscript self-update`
+- **Neuinstallation erzwingen:** `hypnoscript self-update --force`
+- **Runtime entfernen:** `curl -fsSL https://kink-development-group.github.io/hyp-runtime/install.sh | bash -s -- --uninstall`
+
 ## Vorbereitete Release-Pakete verwenden
 
 Wenn du nicht selbst bauen möchtest, findest du unter [GitHub Releases](https://github.com/Kink-Development-Group/hyp-runtime/releases) signierte Artefakte für Windows, macOS und Linux. Nach dem Entpacken kannst du die enthaltene Binärdatei direkt ausführen.

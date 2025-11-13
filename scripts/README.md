@@ -38,7 +38,7 @@ Creates a Linux release package including:
 
 - ✅ Binary for Linux (`hypnoscript`)
 - ✅ TAR.GZ archive for distribution
-- ✅ Installation script
+- ✅ Unified `install.sh` Installer (Auto-Detect, Update & Uninstall)
 - ✅ SHA256 checksum
 
 **Output**:
@@ -75,7 +75,7 @@ Creates a macOS release package with multiple distribution formats:
 - ✅ TAR.GZ archive for distribution
 - ✅ DMG disk image (macOS only)
 - ✅ PKG installer (macOS only)
-- ✅ Installation script
+- ✅ Unified `install.sh` Installer (Auto-Detect, Update & Uninstall)
 - ✅ SHA256 checksums
 
 **Output**:
