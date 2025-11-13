@@ -1,4 +1,4 @@
-use anyhow::{anyhow, Result};
+use anyhow::{Result, anyhow};
 use clap::{Parser, Subcommand};
 use hypnoscript_compiler::{Interpreter, TypeChecker, WasmCodeGenerator};
 use hypnoscript_lexer_parser::{Lexer, Parser as HypnoParser};
@@ -322,9 +322,7 @@ fn build_agent() -> Agent {
 }
 
 fn github_get(agent: &Agent, url: &str) -> ureq::Request {
-    let mut request = agent
-        .get(url)
-        .set("Accept", "application/vnd.github+json");
+    let mut request = agent.get(url).set("Accept", "application/vnd.github+json");
 
     if let Ok(token) = env::var("GITHUB_TOKEN") {
         request = request

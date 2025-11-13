@@ -122,8 +122,7 @@ impl HypnoType {
 
         match self.base_type {
             HypnoBaseType::Array => {
-                if let (Some(elem1), Some(elem2)) = (&self.element_type, &other.element_type)
-                {
+                if let (Some(elem1), Some(elem2)) = (&self.element_type, &other.element_type) {
                     elem1.is_compatible_with(elem2)
                 } else {
                     false
