@@ -45,6 +45,7 @@ const highlighter = await createHighlighter({
     'toml',
     'typescript',
     'yaml',
+    'text',
     hypnoscriptLanguage,
   ],
 });
@@ -82,6 +83,9 @@ const resolveLanguage = (rawLang: string | undefined): string => {
 
   return 'text';
 };
+
+const escapeVueInterpolation = (html: string): string =>
+  html.replaceAll('{{', '&#123;&#123;').replaceAll('}}', '&#125;&#125;');
 
 // https://vitepress.dev/reference/site-config
 export default defineConfig({
@@ -301,13 +305,15 @@ export default defineConfig({
     lineNumbers: true,
     highlight(code, lang) {
       const resolved = resolveLanguage(lang);
-      return highlighter.codeToHtml(code, {
+      const highlighted = highlighter.codeToHtml(code, {
         lang: resolved,
         themes: {
           light: 'github-light',
           dark: 'github-dark',
         },
       });
+
+      return escapeVueInterpolation(highlighted);
     },
   },
 });
