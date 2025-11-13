@@ -222,7 +222,7 @@ ls -la
 Bei Problemen:
 
 1. **GitHub Issues**: [Issues erstellen](https://github.com/Kink-Development-Group/hyp-runtime/issues)
-2. **Discussions**: [Community-Diskussionen](https://github.com/Kink-Development-Group/hyp-runtime/discussions)
+2. **Community**: Tausche dich über das [GitHub Repository](https://github.com/Kink-Development-Group/hyp-runtime) aus
 3. **Dokumentation**: Siehe [Troubleshooting Guide](../development/debugging)
 
 ## Nächste Schritte

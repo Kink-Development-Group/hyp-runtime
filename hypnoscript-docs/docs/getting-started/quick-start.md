@@ -310,9 +310,9 @@ hyp --version
 
 ### Getting Help
 
-- **Documentation**: Visit the [HypnoScript Documentation](https://hypnoscript.dev)
+- **Documentation**: Explore the [HypnoScript Docs](/intro)
 - **GitHub Issues**: Report bugs at [GitHub Issues](https://github.com/Kink-Development-Group/hyp-runtime/issues)
-- **Community**: Join discussions on [GitHub Discussions](https://github.com/Kink-Development-Group/hyp-runtime/discussions)
+- **Support**: Tausche dich im [GitHub Repository](https://github.com/Kink-Development-Group/hyp-runtime) aus
 
 ## What's Next?
 

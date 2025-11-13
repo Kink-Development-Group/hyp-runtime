@@ -108,7 +108,7 @@ HypnoScript kombiniert die Eleganz moderner Programmiersprachen mit einer einzig
 - **GitHub**: [Kink-Development-Group/hyp-runtime](https://github.com/Kink-Development-Group/hyp-runtime)
 - **Dokumentation**: Diese Seite
 - **Issues**: [GitHub Issues](https://github.com/Kink-Development-Group/hyp-runtime/issues)
-- **Diskussionen**: [GitHub Discussions](https://github.com/Kink-Development-Group/hyp-runtime/discussions)
+- **Community Updates**: Verfolge den Fortschritt im [GitHub Repository](https://github.com/Kink-Development-Group/hyp-runtime)
 
 ## Lizenz
 

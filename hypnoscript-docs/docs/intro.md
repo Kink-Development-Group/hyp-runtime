@@ -87,11 +87,11 @@ dotnet run --project HypnoScript.CLI -- run example.hyp
 
 - **GitHub**: [Kink-Development-Group/hyp-runtime](https://github.com/Kink-Development-Group/hyp-runtime)
 - **Issues**: [GitHub Issues](https://github.com/Kink-Development-Group/hyp-runtime/issues)
-- **Discussions**: [GitHub Discussions](https://github.com/Kink-Development-Group/hyp-runtime/discussions)
+- **Community**: Austausch über [GitHub Issues](https://github.com/Kink-Development-Group/hyp-runtime/issues)
 
 ## Lizenz
 
-HypnoScript ist unter der MIT-Lizenz veröffentlicht. Siehe [LICENSE](https://github.com/Kink-Development-Group/hyp-runtime/blob/main/LICENSE) für Details.
+HypnoScript ist unter der MIT-Lizenz veröffentlicht. Siehe die [MIT-Lizenz](https://opensource.org/license/mit/) für Details.
 
 ---
 

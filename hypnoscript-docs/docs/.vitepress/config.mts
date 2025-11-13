@@ -3,6 +3,8 @@ import { createHighlighter } from 'shiki';
 import { defineConfig } from 'vitepress';
 import hypnoscriptGrammar from './hypnoscript.tmLanguage.json' with { type: 'json' };
 
+const BASE_PATH = '/hyp-runtime/';
+
 const hypnoscriptLanguage = {
   ...hypnoscriptGrammar,
   name: 'HypnoScript',
@@ -91,16 +93,21 @@ const escapeVueInterpolation = (html: string): string =>
 export default defineConfig({
   title: 'HypnoScript',
   description: 'Code with style - Die hypnotische Programmiersprache',
-  base: '/hyp-runtime/',
+  base: BASE_PATH,
 
   // Ignoriere tote Links während der Migration
   ignoreDeadLinks: true,
 
-  head: [['link', { rel: 'icon', href: '/hyp-runtime/favicon.ico' }]],
+  head: [['link', { rel: 'icon', href: `${BASE_PATH}img/favicon.ico` }]],
+
+  vite: {
+    publicDir: '../static',
+  },
 
   themeConfig: {
     // https://vitepress.dev/reference/default-theme-config
     logo: '/img/logo.svg',
+    editLink: false as unknown as undefined,
 
     nav: [
       { text: 'Home', link: '/' },
@@ -110,10 +117,7 @@ export default defineConfig({
         items: [
           { text: 'Installation', link: '/getting-started/installation' },
           { text: 'Quick Start', link: '/getting-started/quick-start' },
-          {
-            text: 'Tutorial',
-            link: '/tutorial-basics/create-your-first-script',
-          },
+          { text: 'CLI Basics', link: '/getting-started/cli-basics' },
         ],
       },
       {
@@ -122,6 +126,7 @@ export default defineConfig({
           { text: 'Sprachreferenz', link: '/language-reference/syntax' },
           { text: 'Builtin-Funktionen', link: '/builtins/overview' },
           { text: 'CLI', link: '/cli/overview' },
+          { text: 'Runtime', link: '/reference/runtime' },
         ],
       },
     ],
@@ -145,27 +150,8 @@ export default defineConfig({
             { text: 'Installation', link: '/getting-started/installation' },
             { text: 'Quick Start', link: '/getting-started/quick-start' },
             { text: 'Grundkonzepte', link: '/getting-started/core-concepts' },
-          ],
-        },
-        {
-          text: 'Tutorial',
-          collapsed: false,
-          items: [
-            {
-              text: 'Dein erstes Skript',
-              link: '/tutorial-basics/create-your-first-script',
-            },
-            {
-              text: 'Variablen & Typen',
-              link: '/tutorial-basics/variables-and-types',
-            },
-            { text: 'Funktionen', link: '/tutorial-basics/functions' },
-            {
-              text: 'Arrays & Collections',
-              link: '/tutorial-basics/arrays-and-collections',
-            },
-            { text: 'Records', link: '/tutorial-basics/records' },
-            { text: 'Sessions', link: '/tutorial-basics/sessions' },
+            { text: 'Hello World', link: '/getting-started/hello-world' },
+            { text: 'CLI Basics', link: '/getting-started/cli-basics' },
           ],
         },
         {
@@ -173,16 +159,18 @@ export default defineConfig({
           collapsed: true,
           items: [
             { text: 'Syntax', link: '/language-reference/syntax' },
-            { text: 'Datentypen', link: '/language-reference/data-types' },
+            { text: 'Variablen', link: '/language-reference/variables' },
             { text: 'Operatoren', link: '/language-reference/operators' },
             {
               text: 'Kontrollstrukturen',
               link: '/language-reference/control-flow',
             },
             { text: 'Funktionen', link: '/language-reference/functions' },
+            { text: 'Arrays', link: '/language-reference/arrays' },
             { text: 'Records', link: '/language-reference/records' },
             { text: 'Sessions', link: '/language-reference/sessions' },
-            { text: 'Kommentare', link: '/language-reference/comments' },
+            { text: 'Tranceify', link: '/language-reference/tranceify' },
+            { text: 'Assertions', link: '/language-reference/assertions' },
           ],
         },
         {
@@ -190,16 +178,20 @@ export default defineConfig({
           collapsed: true,
           items: [
             { text: 'Übersicht', link: '/builtins/overview' },
-            { text: 'Core Builtins', link: '/builtins/core' },
-            { text: 'Array Builtins', link: '/builtins/arrays' },
-            { text: 'String Builtins', link: '/builtins/strings' },
-            { text: 'Math Builtins', link: '/builtins/math' },
-            { text: 'File Builtins', link: '/builtins/files' },
-            { text: 'Time Builtins', link: '/builtins/time' },
-            { text: 'System Builtins', link: '/builtins/system' },
-            { text: 'Hashing Builtins', link: '/builtins/hashing' },
-            { text: 'Statistics Builtins', link: '/builtins/statistics' },
-            { text: 'Validation Builtins', link: '/builtins/validation' },
+            { text: 'Array-Funktionen', link: '/builtins/array-functions' },
+            { text: 'String-Funktionen', link: '/builtins/string-functions' },
+            { text: 'Math-Funktionen', link: '/builtins/math-functions' },
+            { text: 'System-Funktionen', link: '/builtins/system-functions' },
+            { text: 'Zeit & Datum', link: '/builtins/time-date-functions' },
+            { text: 'Datei-Funktionen', link: '/builtins/file-functions' },
+            { text: 'Utility-Funktionen', link: '/builtins/utility-functions' },
+            { text: 'Hashing & Encoding', link: '/builtins/hashing-encoding' },
+            { text: 'Statistik-Funktionen', link: '/builtins/statistics-functions' },
+            { text: 'Validierungs-Funktionen', link: '/builtins/validation-functions' },
+            { text: 'Hypnotic Functions', link: '/builtins/hypnotic-functions' },
+            { text: 'Performance-Funktionen', link: '/builtins/performance-functions' },
+            { text: 'Dictionary-Funktionen', link: '/builtins/dictionary-functions' },
+            { text: 'Netzwerk-Funktionen', link: '/builtins/network-functions' },
           ],
         },
         {
@@ -207,60 +199,109 @@ export default defineConfig({
           collapsed: true,
           items: [
             { text: 'Übersicht', link: '/cli/overview' },
-            { text: 'hyp run', link: '/cli/run' },
-            { text: 'hyp test', link: '/cli/test' },
-            { text: 'hyp debug', link: '/cli/debug' },
+            { text: 'Befehle', link: '/cli/commands' },
+            { text: 'Konfiguration', link: '/cli/configuration' },
+            { text: 'Testing', link: '/cli/testing' },
+            { text: 'Debugging', link: '/cli/debugging' },
+            { text: 'Erweiterte Befehle', link: '/cli/advanced-commands' },
+            { text: 'Enterprise Features', link: '/cli/enterprise-features' },
           ],
         },
         {
           text: 'Testing',
           collapsed: true,
           items: [
-            { text: 'Test Framework', link: '/testing/framework' },
+            { text: 'Überblick', link: '/testing/overview' },
             { text: 'Assertions', link: '/testing/assertions' },
             { text: 'Best Practices', link: '/testing/best-practices' },
+            { text: 'Fixtures', link: '/testing/fixtures' },
+            { text: 'Performance', link: '/testing/performance' },
+            { text: 'Reporting', link: '/testing/reporting' },
           ],
         },
         {
           text: 'Debugging',
           collapsed: true,
           items: [
+            { text: 'Überblick', link: '/debugging/overview' },
             { text: 'Debug-Modus', link: '/debugging/debug-mode' },
             { text: 'Breakpoints', link: '/debugging/breakpoints' },
+            { text: 'Tools', link: '/debugging/tools' },
             { text: 'Troubleshooting', link: '/debugging/troubleshooting' },
+            { text: 'Best Practices', link: '/debugging/best-practices' },
+            { text: 'Performance', link: '/debugging/performance' },
           ],
         },
         {
           text: 'Error Handling',
           collapsed: true,
           items: [
+            { text: 'Überblick', link: '/error-handling/overview' },
             { text: 'Fehlerbehandlung', link: '/error-handling/basics' },
             { text: 'Häufige Fehler', link: '/error-handling/common-errors' },
           ],
         },
         {
-          text: 'Erweiterte Features',
+          text: 'Enterprise',
           collapsed: true,
           items: [
-            { text: 'Enterprise Features', link: '/enterprise/overview' },
+            { text: 'Überblick', link: '/enterprise/overview' },
+            { text: 'Features', link: '/enterprise/features' },
+            { text: 'Security', link: '/enterprise/security' },
+            { text: 'Architecture', link: '/enterprise/architecture' },
+            { text: 'Integration', link: '/enterprise/integration' },
+            { text: 'Monitoring', link: '/enterprise/monitoring' },
+            { text: 'Debugging', link: '/enterprise/debugging' },
+            { text: 'API Management', link: '/enterprise/api-management' },
+            { text: 'Messaging', link: '/enterprise/messaging' },
+            { text: 'Datenbank', link: '/enterprise/database' },
+            { text: 'Backup & Recovery', link: '/enterprise/backup-recovery' },
+          ],
+        },
+        {
+          text: 'Referenzen',
+          collapsed: true,
+          items: [
+            { text: 'Runtime', link: '/reference/runtime' },
+            { text: 'Compiler', link: '/reference/compiler' },
+            { text: 'Interpreter', link: '/reference/interpreter' },
+            { text: 'API', link: '/reference/api' },
+          ],
+        },
+        {
+          text: 'Tutorial Extras',
+          collapsed: true,
+          items: [
             { text: 'Performance', link: '/tutorial-extras/performance' },
-            { text: 'Best Practices', link: '/tutorial-extras/best-practices' },
+            {
+              text: 'Dokumentations-Versionen',
+              link: '/tutorial-extras/manage-docs-versions',
+            },
+            { text: 'Lokalisierung', link: '/tutorial-extras/translate-your-site' },
           ],
         },
         {
           text: 'Beispiele',
           collapsed: true,
           items: [
-            { text: 'Code-Beispiele', link: '/examples/overview' },
-            { text: 'Praxisbeispiele', link: '/examples/practical-examples' },
+            { text: 'Einstieg', link: '/examples/basic-examples' },
+            { text: 'Array-Beispiele', link: '/examples/array-examples' },
+            { text: 'String-Beispiele', link: '/examples/string-examples' },
+            { text: 'System-Beispiele', link: '/examples/system-examples' },
+            { text: 'Math-Beispiele', link: '/examples/math-examples' },
+            { text: 'Utility-Beispiele', link: '/examples/utility-examples' },
+            {
+              text: 'Therapeutische Beispiele',
+              link: '/examples/therapeutic-examples',
+            },
+            { text: 'CLI Workflows', link: '/examples/cli-workflows' },
           ],
         },
         {
           text: 'Entwicklung',
           collapsed: true,
           items: [
-            { text: 'Mitwirken', link: '/development/contributing' },
-            { text: 'Architektur', link: '/development/architecture' },
+            { text: 'Debugging-Prozesse', link: '/development/debugging' },
           ],
         },
       ],
@@ -280,12 +321,6 @@ export default defineConfig({
 
     search: {
       provider: 'local',
-    },
-
-    editLink: {
-      pattern:
-        'https://github.com/Kink-Development-Group/hyp-runtime/edit/main/HypnoScript.Dokumentation/docs/:path',
-      text: 'Diese Seite auf GitHub bearbeiten',
     },
 
     lastUpdated: {
