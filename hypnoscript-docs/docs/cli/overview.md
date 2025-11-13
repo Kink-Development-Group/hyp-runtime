@@ -43,16 +43,17 @@ Alle Subcommands sind bewusst schlank gehalten. Für einen tieferen Blick sieh d
 
 ## Befehlsüberblick
 
-| Befehl         | Kurzbeschreibung                            |
-| -------------- | ------------------------------------------- |
-| `run`          | Führt ein HypnoScript-Programm aus          |
-| `run --debug`  | Zeigt zusätzlich Tokens, AST und Typprüfung |
-| `lex`          | Tokenisiert eine Datei                      |
-| `parse`        | Zeigt den AST                               |
-| `check`        | Führt Type Checking durch                   |
-| `compile-wasm` | Generiert WebAssembly Text Format (.wat)    |
-| `builtins`     | Listet alle verfügbaren Builtin-Funktionen  |
-| `version`      | Zeigt Versions- und Featureinformationen    |
+| Befehl         | Kurzbeschreibung                                 |
+| -------------- | ------------------------------------------------ |
+| `run`          | Führt ein HypnoScript-Programm aus               |
+| `run --debug`  | Zeigt zusätzlich Tokens, AST und Typprüfung      |
+| `lex`          | Tokenisiert eine Datei                           |
+| `parse`        | Zeigt den AST                                    |
+| `check`        | Führt Type Checking durch                        |
+| `compile-wasm` | Generiert WebAssembly Text Format (.wat)         |
+| `self-update`  | Prüft Releases und führt den neuen Installer aus |
+| `builtins`     | Listet alle verfügbaren Builtin-Funktionen       |
+| `version`      | Zeigt Versions- und Featureinformationen         |
 
 Weitere Details liefert die Seite [CLI-Befehle](./commands).
 
@@ -77,6 +78,12 @@ hypnoscript compile-wasm my_script.hyp -o my_script.wat
 - **Windows**: Nutze das ZIP aus dem Release, entpacke in `%LOCALAPPDATA%\Programs\hypnoscript` und ergänze den Pfad.
 - **macOS / Linux**: Archiv nach `/usr/local/bin` oder `~/.local/bin` kopieren.
 - Für portable Nutzung kannst du den Binary-Pfad direkt angeben (`./hypnoscript run demo.hyp`).
+
+## Updates & Wartung
+
+- **Self-Update:** `hypnoscript self-update` prüft Releases und startet automatisch das neue `install.sh`. Mit `--check` wird nur geprüft, `--force` erzwingt eine Neuinstallation, `--include-prerelease` aktiviert RC-/Beta-Builds.
+- **Installer im Release:** Jedes Release enthält zusätzlich zu den Binaries ein `share/hypnoscript/install.sh`, sodass du Updates auch offline starten kannst (z.B. `bash share/hypnoscript/install.sh --check`).
+- **Windows-Einschränkung:** Auf Windows steht derzeit nur `--check` zur Verfügung; Installation erfolgt weiterhin über das manuell heruntergeladene Archiv.
 
 ## Nächste Schritte
 

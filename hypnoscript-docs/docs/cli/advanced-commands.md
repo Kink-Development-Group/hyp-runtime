@@ -15,4 +15,10 @@ Die HypnoScript CLI hält die Zahl der Subcommands bewusst klein. Es gibt aktuel
 - `alias hrun='hypnoscript run --debug'`
 - `function hcheck() { hypnoscript check "$1" && hypnoscript run "$1"; }`
 
+## Update-Automatisierung
+
+- **CI-Check auf Updates:** `hypnoscript self-update --check || echo "Update verfügbar"`
+- **Air-Gapped Updates:** Pakete aus dem Release entpacken und `share/hypnoscript/install.sh --prefix ~/.local` manuell ausführen
+- **Skriptketten:** `hypnoscript self-update --quiet --no-sudo && hypnoscript version` für wartungsarme Deployments
+
 Weitere Befehle findest du auf der Seite [CLI-Befehle](./commands).

@@ -157,6 +157,24 @@ npm run build
 - Debugging
 - Extending
 
+## 🔁 Installer-Synchronisation
+
+Der neue einheitliche Installer (`install.sh`) lebt im Repository-Wurzelverzeichnis und wird automatisch in die Dokumentation gespiegelt. Das Script `scripts/sync-installer.mjs` kopiert ihn vor jedem `dev`, `build` oder `preview`-Lauf nach `static/install.sh` (siehe `package.json`-`pre*`-Hooks). Dadurch steht im veröffentlichen Handbuch exakt derselbe Installer zum Download bereit, der auch in den Release-Archiven enthalten ist.
+
+Manueller Lauf – z.B. nach Änderungen am Installer ohne Dokumentations-Build:
+
+```bash
+npm run sync-installer
+```
+
+Alternativ kannst du das Script direkt ausführen:
+
+```bash
+node ./scripts/sync-installer.mjs
+```
+
+Die GitHub-Actions, die Releases bauen, führen denselben Schritt aus und legen das Skript zusätzlich in den Release-Archiven (`share/hypnoscript/install.sh`) ab.
+
 ### Referenz
 
 - Grammatik
@@ -186,6 +204,7 @@ Die Dokumentation unterstützt mehrere Sprachen:
    ```
 
 2. Erstelle Übersetzungen:
+
    ```bash
    npm run write-translations
    ```
@@ -220,10 +239,10 @@ MIT License - siehe [LICENSE](../../LICENSE) für Details.
 
 ## 🔗 Links
 
-- **Live-Dokumentation**: https://Kink-Development-Group.github.io/hyp-runtime/
-- **GitHub Repository**: https://github.com/Kink-Development-Group/hyp-runtime
-- **Docusaurus**: https://docusaurus.io/
-- **Issues**: https://github.com/Kink-Development-Group/hyp-runtime/issues
+- **Live-Dokumentation**: <https://Kink-Development-Group.github.io/hyp-runtime/>
+- **GitHub Repository**: <https://github.com/Kink-Development-Group/hyp-runtime>
+- **Docusaurus**: <https://docusaurus.io/>
+- **Issues**: <https://github.com/Kink-Development-Group/hyp-runtime/issues>
 
 ---
 
