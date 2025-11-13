@@ -423,8 +423,7 @@ fn handle_self_update(
     }
 
     let metadata = load_install_metadata();
-    let install_prefix =
-        install_prefix_from_metadata(&metadata).or_else(derive_prefix_from_binary);
+    let install_prefix = install_prefix_from_metadata(&metadata).or_else(derive_prefix_from_binary);
 
     let (installer_path, remove_after) = match find_shared_installer(metadata.as_ref()) {
         Some(path) => (path, false),
