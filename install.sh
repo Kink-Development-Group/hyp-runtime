@@ -1,5 +1,16 @@
 #!/usr/bin/env bash
 # HypnoScript runtime installer / updater
+#
+# SECURITY NOTICE:
+# This installer script may be executed via a command like:
+#   curl -fsSL <URL> | bash
+# Downloading and executing remote code via a pipe to bash can be dangerous.
+# You should always review the script before running it, and consider downloading
+# and inspecting it first:
+#   curl -fsSL <URL> -o install.sh
+#   less install.sh
+#   bash install.sh
+#
 
 set -euo pipefail
 
@@ -387,21 +398,21 @@ fi
 
 info "Installing to $DEST_DIR"
 if [[ ! -w "$DEST_DIR" ]]; then
-  $SUDO_PREFIX mkdir -p "$DEST_DIR"
+  ${SUDO_PREFIX}mkdir -p "$DEST_DIR"
 fi
-$SUDO_PREFIX install -m 0755 "$UNPACK_DIR/hypnoscript" "$DEST_DIR/hypnoscript"
+${SUDO_PREFIX}install -m 0755 "$UNPACK_DIR/hypnoscript" "$DEST_DIR/hypnoscript"
 
 META_DIR="$DEST_DIR/../share/hypnoscript"
-$SUDO_PREFIX mkdir -p "$META_DIR"
+${SUDO_PREFIX}mkdir -p "$META_DIR"
 
 if [[ -f "$UNPACK_DIR/VERSION.txt" ]]; then
-  $SUDO_PREFIX install -m 0644 "$UNPACK_DIR/VERSION.txt" "$META_DIR/VERSION.txt"
+  ${SUDO_PREFIX}install -m 0644 "$UNPACK_DIR/VERSION.txt" "$META_DIR/VERSION.txt"
 fi
 
 if [[ -f "$UNPACK_DIR/install.sh" ]]; then
-  $SUDO_PREFIX install -m 0755 "$UNPACK_DIR/install.sh" "$META_DIR/install.sh"
+  ${SUDO_PREFIX}install -m 0755 "$UNPACK_DIR/install.sh" "$META_DIR/install.sh"
 elif [[ -n "$SCRIPT_DIR" && -f "$SCRIPT_DIR/install.sh" ]]; then
-  $SUDO_PREFIX install -m 0755 "$SCRIPT_DIR/install.sh" "$META_DIR/install.sh"
+  ${SUDO_PREFIX}install -m 0755 "$SCRIPT_DIR/install.sh" "$META_DIR/install.sh"
 fi
 
 info_tmp=$(mktemp 2>/dev/null) || info_tmp="/tmp/hyp-install-info-$$"
@@ -415,7 +426,7 @@ cat >"$info_tmp" <<EOF
   "source": "installer"
 }
 EOF
-$SUDO_PREFIX install -m 0644 "$info_tmp" "$META_DIR/installation.json"
+${SUDO_PREFIX}install -m 0644 "$info_tmp" "$META_DIR/installation.json"
 rm -f "$info_tmp"
 
 trap - EXIT

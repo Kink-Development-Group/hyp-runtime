@@ -73,7 +73,7 @@
 
 'type:feature':
   - head-branch:
-  - '^(?:[Ff][Ee][Aa][Tt][Uu][Rr][Ee]|[Ff][Ee][Aa][Tt])[-/].+'
+      - '^(?:[Ff][Ee][Aa][Tt][Uu][Rr][Ee]|[Ff][Ee][Aa][Tt])[-/].+'
 
 'type:task':
   - head-branch:
@@ -81,12 +81,12 @@
 
 'type:release':
   - head-branch:
-  - '^[Rr][Ee][Ll][Ee][Aa][Ss][Ee][-/].+'
+      - '^[Rr][Ee][Ll][Ee][Aa][Ss][Ee][-/].+'
 
 'type:bugfix':
   - head-branch:
-  - '^(?:[Bb][Uu][Gg][Ff][Ii][Xx]|[Ff][Ii][Xx])[-/].+'
+      - '^(?:[Bb][Uu][Gg][Ff][Ii][Xx]|[Ff][Ii][Xx])[-/].+'
 
 'type:hotfix':
   - head-branch:
-  - '^[Hh][Oo][Tt][Ff][Ii][Xx][-/].+'
+      - '^[Hh][Oo][Tt][Ff][Ii][Xx][-/].+'

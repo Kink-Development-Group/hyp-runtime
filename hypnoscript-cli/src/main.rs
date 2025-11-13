@@ -320,14 +320,10 @@ fn build_agent() -> Agent {
         .build()
 }
 
-fn github_get(agent: &Agent, url: &str) -> Request {
+fn github_get(agent: &Agent, url: &str) -> ureq::Request {
     let mut request = agent
         .get(url)
-        .set("Accept", "application/vnd.github+json")
-        .set(
-            "User-Agent",
-            &format!("hypnoscript-cli/{}", env!("CARGO_PKG_VERSION")),
-        );
+        .set("Accept", "application/vnd.github+json");
 
     if let Ok(token) = env::var("GITHUB_TOKEN") {
         request = request
