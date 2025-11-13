@@ -424,7 +424,7 @@ fn handle_self_update(
 
     let metadata = load_install_metadata();
     let install_prefix =
-        install_prefix_from_metadata(&metadata).or_else(|| derive_prefix_from_binary());
+        install_prefix_from_metadata(&metadata).or_else(derive_prefix_from_binary);
 
     let (installer_path, remove_after) = match find_shared_installer(metadata.as_ref()) {
         Some(path) => (path, false),
@@ -498,14 +498,13 @@ fn load_install_metadata() -> Option<InstallMetadata> {
 
 #[cfg(not(target_os = "windows"))]
 fn find_shared_installer(metadata: Option<&InstallMetadata>) -> Option<PathBuf> {
-    if let Some(meta) = metadata {
-        if let Some(prefix) = &meta.prefix {
-            if let Some(root) = Path::new(prefix).parent() {
-                let candidate = root.join("share").join("hypnoscript").join("install.sh");
-                if candidate.exists() {
-                    return Some(candidate);
-                }
-            }
+    if let Some(meta) = metadata
+        && let Some(prefix) = &meta.prefix
+        && let Some(root) = Path::new(prefix).parent()
+    {
+        let candidate = root.join("share").join("hypnoscript").join("install.sh");
+        if candidate.exists() {
+            return Some(candidate);
         }
     }
 
