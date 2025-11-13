@@ -4,6 +4,8 @@ use hypnoscript_compiler::{Interpreter, TypeChecker, WasmCodeGenerator};
 use hypnoscript_lexer_parser::{Lexer, Parser as HypnoParser};
 use semver::Version;
 use serde::Deserialize;
+#[cfg(not(target_os = "windows"))]
+use std::io::Write;
 use std::{env, fs, time::Duration};
 use ureq::{Agent, AgentBuilder};
 
@@ -11,7 +13,6 @@ use ureq::{Agent, AgentBuilder};
 use std::{
     path::{Path, PathBuf},
     process::{Command, Stdio},
-    time::{SystemTime, UNIX_EPOCH},
 };
 
 const GITHUB_OWNER: &str = "Kink-Development-Group";
@@ -20,6 +21,9 @@ const GITHUB_API: &str = "https://api.github.com";
 #[cfg(not(target_os = "windows"))]
 const INSTALLER_FALLBACK_URL: &str =
     "https://kink-development-group.github.io/hyp-runtime/install.sh";
+
+#[cfg(not(target_os = "windows"))]
+use tempfile::{Builder, TempPath};
 
 #[cfg(unix)]
 use std::os::unix::fs::PermissionsExt;
@@ -80,26 +84,26 @@ enum Commands {
         output: Option<String>,
     },
 
-    /// Update oder prüfe die HypnoScript-Installation
+    /// Update or check the HypnoScript installation
     #[command(name = "self-update", alias = "update")]
     SelfUpdate {
-        /// Nur nach Updates suchen, keine Installation durchführen
+        /// Only check for updates, do not install
         #[arg(long)]
         check: bool,
 
-        /// Vorabversionen berücksichtigen
+        /// Include pre-release versions
         #[arg(long)]
         include_prerelease: bool,
 
-        /// Installation erzwingen, selbst wenn Version identisch ist
+        /// Force installation even if version is identical
         #[arg(long)]
         force: bool,
 
-        /// Installer-Ausgabe reduzieren
+        /// Reduce installer output
         #[arg(long)]
         quiet: bool,
 
-        /// Kein sudo für den Installer verwenden
+        /// Do not use sudo for the installer
         #[arg(long)]
         no_sudo: bool,
     },
@@ -312,6 +316,30 @@ struct InstallMetadata {
     target: Option<String>,
 }
 
+#[cfg(not(target_os = "windows"))]
+enum InstallerScript {
+    Shared(PathBuf),
+    Temporary(TempPath),
+}
+
+#[cfg(not(target_os = "windows"))]
+impl InstallerScript {
+    fn shared(path: PathBuf) -> Self {
+        Self::Shared(path)
+    }
+
+    fn temporary(temp_path: TempPath) -> Self {
+        Self::Temporary(temp_path)
+    }
+
+    fn path(&self) -> &Path {
+        match self {
+            InstallerScript::Shared(path) => path,
+            InstallerScript::Temporary(temp_path) => temp_path.as_ref(),
+        }
+    }
+}
+
 fn build_agent() -> Agent {
     AgentBuilder::new()
         .timeout(Duration::from_secs(20))
@@ -347,7 +375,7 @@ fn fetch_latest_release(agent: &Agent, include_prerelease: bool) -> Result<Githu
         releases
             .into_iter()
             .next()
-            .ok_or_else(|| anyhow!("Keine Veröffentlichung gefunden"))
+            .ok_or_else(|| anyhow!("No release found"))
     } else {
         let url = format!(
             "{}/repos/{}/{}/releases/latest",
@@ -360,7 +388,7 @@ fn fetch_latest_release(agent: &Agent, include_prerelease: bool) -> Result<Githu
 
 fn parse_version(tag: &str) -> Result<Version> {
     let normalized = tag.trim_start_matches(['v', 'V']);
-    Version::parse(normalized).map_err(|err| anyhow!("Ungültige Versionsangabe '{}': {}", tag, err))
+    Version::parse(normalized).map_err(|err| anyhow!("Invalid version tag '{}': {}", tag, err))
 }
 
 #[cfg(target_os = "windows")]
@@ -378,15 +406,16 @@ fn handle_self_update(
 
     if check {
         if latest_version > current_version {
-            println!("Update verfügbar: {} → {}", current_version, latest_version);
+            println!("Update available: {} → {}", current_version, latest_version);
+            std::process::exit(2);
         } else {
-            println!("HypnoScript ist aktuell (Version {}).", current_version);
+            println!("HypnoScript is up to date (version {}).", current_version);
+            std::process::exit(0);
         }
-        return Ok(());
     }
 
     Err(anyhow!(
-        "Self-Update wird unter Windows derzeit nicht unterstützt. Bitte lade das aktuelle Release manuell herunter."
+        "Self-update is not currently supported on Windows. Please download the latest release manually."
     ))
 }
 
@@ -405,32 +434,38 @@ fn handle_self_update(
 
     if check {
         if latest_version > current_version {
-            println!("Update verfügbar: {} → {}", current_version, latest_version);
+            println!("Update available: {} → {}", current_version, latest_version);
+            std::process::exit(2);
         } else {
-            println!("HypnoScript ist aktuell (Version {}).", current_version);
+            println!("HypnoScript is up to date (version {}).", current_version);
+            std::process::exit(0);
         }
-        return Ok(());
     }
 
     if latest_version <= current_version && !force {
         println!(
-            "HypnoScript ist bereits auf dem neuesten Stand (Version {}).",
+            "HypnoScript is already up to date (version {}).",
             current_version
         );
         return Ok(());
     }
 
     let metadata = load_install_metadata();
+    // Try to determine the current installation prefix from metadata or binary location.
+    // If both fail, install_prefix will be None, and the installer will use its default
+    // prefix (/usr/local/bin), which is the correct fallback behavior.
     let install_prefix = install_prefix_from_metadata(&metadata).or_else(derive_prefix_from_binary);
 
-    let (installer_path, remove_after) = match find_shared_installer(metadata.as_ref()) {
-        Some(path) => (path, false),
-        None => (download_installer(&agent)?, true),
+    let installer = match find_shared_installer(metadata.as_ref()) {
+        Some(path) => InstallerScript::shared(path),
+        None => download_installer(&agent)?,
     };
 
     let mut command = Command::new("bash");
-    command.arg(&installer_path);
+    command.arg(installer.path());
 
+    // Only pass --prefix if we successfully determined the current installation location.
+    // Otherwise, let the installer use its default prefix.
     if let Some(prefix) = &install_prefix {
         command.arg("--prefix").arg(prefix);
     }
@@ -451,21 +486,14 @@ fn handle_self_update(
     command.stdout(Stdio::inherit());
     command.stderr(Stdio::inherit());
 
-    println!("Starte Installer für Version {}...", latest_version);
+    println!("Starting installer for version {}...", latest_version);
     let status = command.status()?;
 
-    if remove_after {
-        let _ = fs::remove_file(&installer_path);
-    }
-
     if !status.success() {
-        return Err(anyhow!("Installer beendete sich mit Status {}", status));
+        return Err(anyhow!("Installer exited with status {}", status));
     }
 
-    println!(
-        "HypnoScript wurde auf Version {} aktualisiert.",
-        latest_version
-    );
+    println!("HypnoScript updated to version {}.", latest_version);
     Ok(())
 }
 
@@ -515,24 +543,23 @@ fn find_shared_installer(metadata: Option<&InstallMetadata>) -> Option<PathBuf> 
 }
 
 #[cfg(not(target_os = "windows"))]
-fn download_installer(agent: &Agent) -> Result<PathBuf> {
+fn download_installer(agent: &Agent) -> Result<InstallerScript> {
     let response = agent.get(INSTALLER_FALLBACK_URL).call()?;
     let script = response.into_string()?;
 
-    let timestamp = SystemTime::now()
-        .duration_since(UNIX_EPOCH)
-        .map_err(|err| anyhow!("Systemzeit liegt vor UNIX_Epoch: {}", err))?;
-
-    let mut path = env::temp_dir();
-    path.push(format!("hypnoscript-installer-{}.sh", timestamp.as_nanos()));
-    fs::write(&path, script)?;
+    let mut temp_file = Builder::new()
+        .prefix("hypnoscript-installer-")
+        .suffix(".sh")
+        .tempfile()?;
+    temp_file.write_all(script.as_bytes())?;
 
     #[cfg(unix)]
     {
-        let mut perms = fs::metadata(&path)?.permissions();
+        let mut perms = temp_file.as_file().metadata()?.permissions();
         perms.set_mode(0o755);
-        fs::set_permissions(&path, perms)?;
+        temp_file.as_file().set_permissions(perms)?;
     }
 
-    Ok(path)
+    let temp_path = temp_file.into_temp_path();
+    Ok(InstallerScript::temporary(temp_path))
 }

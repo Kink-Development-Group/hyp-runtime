@@ -18,13 +18,24 @@ impl SystemBuiltins {
     }
 
     /// Set environment variable
-    pub fn set_env_var(name: &str, value: &str) {
-        if name.is_empty()
-            || name.contains('\0')
-            || value.contains('\0')
-            || cfg!(windows) && name.contains('=')
-        {
-            return;
+    ///
+    /// # Errors
+    /// Returns an error if:
+    /// - `name` is empty
+    /// - `name` or `value` contains null bytes
+    /// - On Windows, `name` contains '='
+    pub fn set_env_var(name: &str, value: &str) -> Result<(), String> {
+        if name.is_empty() {
+            return Err("Environment variable name cannot be empty".to_string());
+        }
+        if name.contains('\0') {
+            return Err("Environment variable name cannot contain null bytes".to_string());
+        }
+        if value.contains('\0') {
+            return Err("Environment variable value cannot contain null bytes".to_string());
+        }
+        if cfg!(windows) && name.contains('=') {
+            return Err("Environment variable name cannot contain '=' on Windows".to_string());
         }
 
         // SAFETY: Environment variable names/values are validated above to satisfy
@@ -33,6 +44,7 @@ impl SystemBuiltins {
         unsafe {
             env::set_var(name, value);
         }
+        Ok(())
     }
 
     /// Get operating system

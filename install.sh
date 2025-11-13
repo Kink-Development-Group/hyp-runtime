@@ -14,11 +14,28 @@
 
 set -euo pipefail
 
-REPO_OWNER=${HYP_INSTALL_REPO_OWNER:-"Kink-Development-Group"}
-REPO_NAME=${HYP_INSTALL_REPO_NAME:-"hyp-runtime"}
-GITHUB_BASE=${HYP_INSTALL_GITHUB_BASE:-"https://github.com"}
-API_BASE=${HYP_INSTALL_API_BASE:-"https://api.github.com"}
+# Default repository configuration
+REPO_OWNER_DEFAULT="Kink-Development-Group"
+REPO_NAME_DEFAULT="hyp-runtime"
+GITHUB_BASE_DEFAULT="https://github.com"
+API_BASE_DEFAULT="https://api.github.com"
+
+# Allow environment variable overrides (with security warnings)
+REPO_OWNER=${HYP_INSTALL_REPO_OWNER:-"$REPO_OWNER_DEFAULT"}
+REPO_NAME=${HYP_INSTALL_REPO_NAME:-"$REPO_NAME_DEFAULT"}
+GITHUB_BASE=${HYP_INSTALL_GITHUB_BASE:-"$GITHUB_BASE_DEFAULT"}
+API_BASE=${HYP_INSTALL_API_BASE:-"$API_BASE_DEFAULT"}
 DEFAULT_PREFIX=${HYP_INSTALL_PREFIX:-"/usr/local/bin"}
+
+# Security: Warn if repository configuration has been overridden
+REPO_OVERRIDE_WARNING=0
+if [[ "$REPO_OWNER" != "$REPO_OWNER_DEFAULT" ]] || \
+   [[ "$REPO_NAME" != "$REPO_NAME_DEFAULT" ]] || \
+   [[ "$GITHUB_BASE" != "$GITHUB_BASE_DEFAULT" ]] || \
+   [[ "$API_BASE" != "$API_BASE_DEFAULT" ]]; then
+  REPO_OVERRIDE_WARNING=1
+fi
+
 SCRIPT_NAME=$(basename "$0")
 SCRIPT_DIR=""
 if [[ -n ${BASH_SOURCE[0]:-} && ${BASH_SOURCE[0]} != "-" ]]; then
@@ -60,6 +77,20 @@ Options:
   --quiet              Suppress informational output
   --no-sudo            Do not attempt to elevate privileges automatically
   --help               Show this help message
+
+Environment Variables (Advanced):
+  HYP_INSTALL_PREFIX            Override default installation prefix
+  HYP_INSTALL_PACKAGE_DIR       Use a local package directory instead of downloading
+  GITHUB_TOKEN                  GitHub API token for authentication
+
+  SECURITY WARNING: The following variables allow downloading from custom repositories.
+  Only use these if you understand the security implications.
+
+  HYP_INSTALL_REPO_OWNER        Override repository owner (default: $REPO_OWNER_DEFAULT)
+  HYP_INSTALL_REPO_NAME         Override repository name (default: $REPO_NAME_DEFAULT)
+  HYP_INSTALL_GITHUB_BASE       Override GitHub base URL (default: $GITHUB_BASE_DEFAULT)
+  HYP_INSTALL_API_BASE          Override GitHub API base URL (default: $API_BASE_DEFAULT)
+  HYP_INSTALL_ALLOW_OVERRIDE    Set to 1 to allow repository overrides in non-interactive mode
 EOF
 }
 
@@ -218,6 +249,37 @@ if [[ -n "$LOCAL_PACKAGE_DIR" ]]; then
   info "Found local package directory: $LOCAL_PACKAGE_DIR"
 fi
 
+# Security: Display warning if repository configuration has been overridden
+if [[ $REPO_OVERRIDE_WARNING -eq 1 ]]; then
+  warn "=========================================="
+  warn "SECURITY WARNING: Repository configuration overridden via environment variables"
+  warn "  REPO_OWNER: $REPO_OWNER (default: $REPO_OWNER_DEFAULT)"
+  warn "  REPO_NAME: $REPO_NAME (default: $REPO_NAME_DEFAULT)"
+  warn "  GITHUB_BASE: $GITHUB_BASE (default: $GITHUB_BASE_DEFAULT)"
+  warn "  API_BASE: $API_BASE (default: $API_BASE_DEFAULT)"
+  warn ""
+  warn "This installer will download binaries from the specified repository."
+  warn "Only proceed if you trust this source. Malicious binaries could"
+  warn "compromise your system even if checksums match."
+  warn "=========================================="
+
+  if [[ -t 0 ]]; then
+    read -p "Continue anyway? [y/N] " -n 1 -r
+    echo
+    if [[ ! $REPLY =~ ^[Yy]$ ]]; then
+      error "Installation aborted by user"
+      exit 1
+    fi
+  else
+    error "Repository override detected in non-interactive mode. Aborting for safety."
+    error "Set HYP_INSTALL_ALLOW_OVERRIDE=1 to bypass this check (not recommended)."
+    if [[ ${HYP_INSTALL_ALLOW_OVERRIDE:-0} -ne 1 ]]; then
+      exit 1
+    fi
+    warn "HYP_INSTALL_ALLOW_OVERRIDE=1 detected. Proceeding with custom repository."
+  fi
+fi
+
 fetch_latest_version() {
   require curl
   local url
@@ -227,7 +289,17 @@ fetch_latest_version() {
     url="$API_BASE/repos/$REPO_OWNER/$REPO_NAME/releases/latest"
   fi
   local json
-  json=$(curl -fsSL "${CURL_AUTH_HEADERS[@]}" "$url") || return 1
+  if ! json=$(curl -fsSL ${CURL_AUTH_HEADERS[@]+"${CURL_AUTH_HEADERS[@]}"} "$url"); then
+    error "Failed to fetch release information from GitHub API"
+    return 1
+  fi
+
+  # Validate that we received JSON with at least one release
+  if ! printf '%s' "$json" | grep -q '"tag_name"'; then
+    error "Invalid or empty response from GitHub API (no releases found)"
+    return 1
+  fi
+
   local tag
   if [[ $INCLUDE_PRERELEASE -eq 1 ]]; then
     tag=$(printf '%s' "$json" | sed -n 's/.*"tag_name":"\([^"]*\)"[^}]*"prerelease":false.*/\1/p' | head -n1)
@@ -235,7 +307,12 @@ fetch_latest_version() {
   else
     tag=$(printf '%s' "$json" | sed -n 's/.*"tag_name":"\([^"]*\)".*/\1/p' | head -n1)
   fi
-  [[ -n "$tag" ]] || return 1
+
+  if [[ -z "$tag" ]]; then
+    error "Failed to parse release tag from GitHub API response"
+    return 1
+  fi
+
   trim_v "$tag"
 }
 
@@ -266,11 +343,39 @@ perform_uninstall() {
   fi
 
   local bin_dir
-  bin_dir=$(cd "$(dirname "$bin_path")" && pwd)
+  if command -v realpath >/dev/null 2>&1; then
+    bin_dir=$(realpath "$(dirname "$bin_path")")
+  else
+    bin_dir=$(cd "$(dirname "$bin_path")" && pwd -P)
+  fi
+
   local prefix_root
-  prefix_root=$(cd "$bin_dir/.." && pwd)
+  if command -v realpath >/dev/null 2>&1; then
+    prefix_root=$(realpath "$bin_dir/..")
+  else
+    prefix_root=$(cd "$bin_dir/.." && pwd -P)
+  fi
+
   local share_dir="$prefix_root/share/hypnoscript"
   local meta_file="$share_dir/installation.json"
+
+  # Security check: Validate share_dir doesn't contain suspicious path components
+  case "$share_dir" in
+    *..*)
+      error "Share directory path contains invalid components: $share_dir"
+      exit 1
+      ;;
+    //*|*//*)
+      error "Share directory path contains suspicious patterns: $share_dir"
+      exit 1
+      ;;
+  esac
+
+  # Security check: Ensure share_dir is a subdirectory of prefix_root
+  if [[ "$share_dir" != "$prefix_root/share/hypnoscript" ]]; then
+    error "Share directory path mismatch (possible manipulation attempt)"
+    exit 1
+  fi
 
   if [[ -f "$meta_file" ]]; then
     local recorded_prefix
@@ -301,8 +406,20 @@ perform_uninstall() {
   fi
 
   if [[ -d "$share_dir" ]]; then
-    info "Removing HypnoScript metadata at $share_dir"
-    ${remover_prefix}rm -rf "$share_dir"
+    # Security check: Verify directory contains HypnoScript metadata before deletion
+    local contains_metadata=0
+    if [[ -f "$share_dir/installation.json" ]] || \
+       [[ -f "$share_dir/VERSION.txt" ]] || \
+       [[ -f "$share_dir/install.sh" ]]; then
+      contains_metadata=1
+    fi
+
+    if [[ $contains_metadata -eq 0 ]]; then
+      warn "Share directory exists but does not contain expected HypnoScript files. Skipping deletion for safety."
+    else
+      info "Removing HypnoScript metadata at $share_dir"
+      ${remover_prefix}rm -rf "$share_dir"
+    fi
   fi
 
   info "Uninstallation complete"
@@ -367,8 +484,8 @@ else
 
   info "Downloading $ASSET"
   require curl
-  curl -fsSL "${CURL_AUTH_HEADERS[@]}" -o "$TMPDIR/$ASSET" "$DOWNLOAD_URL"
-  if curl -fsSL "${CURL_AUTH_HEADERS[@]}" -o "$TMPDIR/$ASSET.sha256" "$CHECKSUM_URL" 2>/dev/null; then
+  curl -fsSL ${CURL_AUTH_HEADERS[@]+"${CURL_AUTH_HEADERS[@]}"} -o "$TMPDIR/$ASSET" "$DOWNLOAD_URL"
+  if curl -fsSL ${CURL_AUTH_HEADERS[@]+"${CURL_AUTH_HEADERS[@]}"} -o "$TMPDIR/$ASSET.sha256" "$CHECKSUM_URL" 2>/dev/null; then
     if command -v sha256sum >/dev/null 2>&1; then
       (cd "$TMPDIR" && sha256sum -c "$ASSET.sha256")
     elif command -v shasum >/dev/null 2>&1; then

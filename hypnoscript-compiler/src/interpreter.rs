@@ -1910,7 +1910,8 @@ impl Interpreter {
                 SystemBuiltins::set_env_var(
                     &self.string_arg(args, 0, name)?,
                     &self.string_arg(args, 1, name)?,
-                );
+                )
+                .map_err(InterpreterError::Runtime)?;
                 Some(Value::Null)
             }
             "GetOperatingSystem" => Some(Value::String(SystemBuiltins::get_operating_system())),
