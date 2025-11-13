@@ -129,7 +129,7 @@ induce sharedSession = Session("Shared", false, true);
 
 ```hyp
 // Direkter Aufruf
-induce result = SumArray([1,2,3]);
+induce result = ArraySum([1,2,3]);
 
 // Mit Fehlerbehandlung
 if (IsValidEmail(email)) {
@@ -215,7 +215,7 @@ for (induce i = 0; i < 1000000; induce i = i + 1) {
 ```hyp
 // Robuste Fehlerbehandlung
 Trance safeArrayAccess(arr, index) {
-    if (index < 0 || index >= ArrayLength(arr)) {
+    if (index < 0 || index >= Length(arr)) {
         return null;
     }
     return ArrayGet(arr, index);
@@ -226,7 +226,7 @@ Trance safeArrayAccess(arr, index) {
 
 ```hyp
 // Effiziente Schleifen
-induce length = ArrayLength(arr);
+induce length = Length(arr);
 for (induce i = 0; i < length; induce i = i + 1) {
     // Code
 }

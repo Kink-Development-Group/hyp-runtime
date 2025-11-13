@@ -4,266 +4,87 @@ sidebar_position: 1
 
 # Installation
 
-Lerne, wie du HypnoScript auf deinem System installierst und einrichtest.
+Dieser Leitfaden führt dich durch die Installation der Rust-basierten HypnoScript-Toolchain.
 
 ## Voraussetzungen
 
-### Systemanforderungen
+| Komponente      | Empfehlung                                                                 |
+| --------------- | -------------------------------------------------------------------------- |
+| Betriebssystem  | Windows 10+, macOS 12+, Linux (Ubuntu 20.04+, Fedora 38+, Arch)            |
+| Rust Toolchain  | `rustup` mit Rust 1.76 oder neuer (`rustup --version` zur Kontrolle)       |
+| Build-Werkzeuge | Git, C/C++ Build-Tools (werden von `rustup` / Paketmanager bereitgestellt) |
 
-- **Betriebssystem**: Windows 10+, macOS 10.15+, oder Linux (Ubuntu 18.04+, CentOS 7+)
-- **.NET**: .NET 8.0 SDK oder höher
-- **RAM**: Mindestens 512 MB verfügbarer RAM
-- **Festplatte**: 100 MB freier Speicherplatz
+Optional für die Dokumentation: Node.js 18+.
 
-### .NET Installation
-
-HypnoScript benötigt .NET 8.0 oder höher. Falls noch nicht installiert:
-
-#### Windows
-
-```powershell
-# Download von Microsoft
-winget install Microsoft.DotNet.SDK.8
-# oder
-choco install dotnet-sdk
-```
-
-#### macOS
+### Rust installieren
 
 ```bash
-# Mit Homebrew
-brew install dotnet
+curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
 
-# Oder Download von Microsoft
-curl -sSL https://dot.net/v1/dotnet-install.sh | bash
+# Nach der Installation ein neues Terminal öffnen und prüfen
+rustc --version
+cargo --version
 ```
 
-#### Linux (Ubuntu/Debian)
+Unter Windows empfiehlt sich alternativ der [rustup-init.exe Download](https://win.rustup.rs/).
+
+## HypnoScript aus dem Repository bauen (empfohlen)
 
 ```bash
-# Repository hinzufügen
-wget https://packages.microsoft.com/config/ubuntu/$(lsb_release -rs)/packages-microsoft-prod.deb -O packages-microsoft-prod.deb
-sudo dpkg -i packages-microsoft-prod.deb
-rm packages-microsoft-prod.deb
-
-# .NET installieren
-sudo apt-get update
-sudo apt-get install -y dotnet-sdk-8.0
-```
-
-## Installation von HypnoScript
-
-### Option 1: Aus dem Repository (Empfohlen)
-
-```bash
-# Repository klonen
 git clone https://github.com/Kink-Development-Group/hyp-runtime.git
 cd hyp-runtime
 
-# Projekt bauen
-dotnet build
+# Release-Build der CLI erzeugen
+cargo build -p hypnoscript-cli --release
 
-# Testen der Installation
-dotnet run --project HypnoScript.CLI -- --help
+# Optional global installieren (legt hypnoscript ins Cargo-Bin-Verzeichnis)
+cargo install --path hypnoscript-cli
 ```
 
-### Option 2: Release-Download
+Die fertig gebaute CLI liegt anschließend unter `./target/release/hypnoscript` bzw. nach der Installation im Cargo-Bin-Verzeichnis (`~/.cargo/bin` bzw. `%USERPROFILE%\.cargo\bin`).
 
-1. Gehe zu [GitHub Releases](https://github.com/Kink-Development-Group/hyp-runtime/releases)
-2. Lade die neueste Version für dein Betriebssystem herunter
-3. Entpacke das Archiv
-4. Führe die ausführbare Datei aus
+## Vorbereitete Release-Pakete verwenden
 
-### Option 3: Globale Installation (Entwicklung)
+Wenn du nicht selbst bauen möchtest, findest du unter [GitHub Releases](https://github.com/Kink-Development-Group/hyp-runtime/releases) signierte Artefakte für Windows, macOS und Linux. Nach dem Entpacken kannst du die enthaltene Binärdatei direkt ausführen.
+
+## Installation prüfen
 
 ```bash
-# Repository klonen
-git clone https://github.com/Kink-Development-Group/hyp-runtime.git
-cd hyp-runtime
+# Version und verfügbare Befehle anzeigen
+hypnoscript version
+hypnoscript builtins
 
-# Globale Installation
-dotnet tool install --global --add-source ./HypnoScript.CLI/bin/Debug/net8.0 HypnoScript.CLI
-
-# Oder mit dotnet run
-dotnet run --project HypnoScript.CLI -- run example.hyp
+# Minimales Testprogramm
+echo 'Focus { entrance { observe "Installation erfolgreich!"; } } Relax' > test.hyp
+hypnoscript run test.hyp
 ```
 
-## Verifikation der Installation
+Erwartete Ausgabe (gekürzt):
 
-### Test der Installation
-
-```bash
-# Version anzeigen
-dotnet run --project HypnoScript.CLI -- --version
-
-# Hilfe anzeigen
-dotnet run --project HypnoScript.CLI -- --help
-
-# Einfaches Test-Programm
-echo 'Focus { entrance { observe "Installation erfolgreich!"; } } Relax;' > test.hyp
-dotnet run --project HypnoScript.CLI -- run test.hyp
-```
-
-### Erwartete Ausgabe
-
-```
-HypnoScript CLI v1.0.0
+```text
+HypnoScript v1.0.0 (Rust Edition)
 Installation erfolgreich!
 ```
 
-## Konfiguration
+## Häufige Probleme
 
-### Umgebungsvariablen
+| Problem                   | Lösung                                                                                              |
+| ------------------------- | --------------------------------------------------------------------------------------------------- |
+| `cargo` nicht gefunden    | Prüfe, ob `~/.cargo/bin` (Linux/macOS) bzw. `%USERPROFILE%\.cargo\bin` (Windows) im `PATH` liegt.   |
+| Linker-Fehler unter Linux | Installiere Build-Abhängigkeiten (`sudo apt install build-essential` oder Distribution-Äquivalent). |
+| Keine Ausführungsrechte   | Setze `chmod +x hypnoscript` nach dem Entpacken eines Release-Artefakts.                            |
 
-```bash
-# Windows (PowerShell)
-$env:HYPNOSCRIPT_HOME = "C:\path\to\hyp-runtime"
+## Optional: Entwicklungskomfort
 
-# macOS/Linux
-export HYPNOSCRIPT_HOME="/path/to/hyp-runtime"
-```
-
-### Konfigurationsdatei
-
-Erstelle eine `hypnoscript.config.json` im Projektverzeichnis:
-
-```json
-{
-  "defaultOutput": "console",
-  "enableDebug": false,
-  "logLevel": "info",
-  "timeout": 30000,
-  "maxMemory": 512
-}
-```
-
-## IDE-Integration
-
-### Visual Studio Code
-
-1. Installiere die C# Extension
-2. Öffne das HypnoScript-Projekt
-3. Erstelle eine `.vscode/launch.json`:
-
-```json
-{
-  "version": "0.2.0",
-  "configurations": [
-    {
-      "name": "Run HypnoScript",
-      "type": "coreclr",
-      "request": "launch",
-      "preLaunchTask": "build",
-      "program": "${workspaceFolder}/HypnoScript.CLI/bin/Debug/net8.0/HypnoScript.CLI.dll",
-      "args": ["run", "${file}"],
-      "cwd": "${workspaceFolder}",
-      "console": "internalConsole",
-      "stopAtEntry": false
-    }
-  ]
-}
-```
-
-### JetBrains Rider
-
-1. Öffne das Projekt in Rider
-2. Konfiguriere Run Configurations
-3. Setze die CLI als Startup Project
-
-## Troubleshooting
-
-### Häufige Probleme
-
-#### .NET nicht gefunden
-
-```bash
-# Prüfe .NET Installation
-dotnet --version
-
-# Falls nicht installiert, siehe .NET Installation oben
-```
-
-#### Build-Fehler
-
-```bash
-# Dependencies wiederherstellen
-dotnet restore
-
-# Clean und Rebuild
-dotnet clean
-dotnet build
-```
-
-#### Berechtigungsfehler (Linux/macOS)
-
-```bash
-# Ausführungsrechte setzen
-chmod +x HypnoScript.CLI/bin/Debug/net8.0/HypnoScript.CLI
-
-# Oder mit sudo (nicht empfohlen)
-sudo dotnet run --project HypnoScript.CLI -- run test.hyp
-```
-
-#### Pfad-Probleme
-
-```bash
-# Prüfe aktuelles Verzeichnis
-pwd
-
-# Navigiere zum Projektverzeichnis
-cd /path/to/hyp-runtime
-
-# Prüfe Projektstruktur
-ls -la
-```
-
-### Support
-
-Bei Problemen:
-
-1. **GitHub Issues**: [Issues erstellen](https://github.com/Kink-Development-Group/hyp-runtime/issues)
-2. **Community**: Tausche dich über das [GitHub Repository](https://github.com/Kink-Development-Group/hyp-runtime) aus
-3. **Dokumentation**: Siehe [Troubleshooting Guide](../development/debugging)
+- **VS Code**: Installiere die Extensions _Rust Analyzer_ und _Even Better TOML_. Das Repo enthält eine `hyp-runtime.code-workspace`-Datei.
+- **Shell Alias**: `alias hyp="hypnoscript"` für kürzere Befehle.
+- **Dokumentation bauen**: `npm install` & `npm run dev` im Ordner `hypnoscript-docs`.
 
 ## Nächste Schritte
 
-- [Schnellstart-Guide](./quick-start) - Erstelle dein erstes HypnoScript-Programm
-- [Hello World](./hello-world) - Lerne die Grundlagen
-- [CLI-Grundlagen](./cli-basics) - Verstehe die Kommandozeilen-Tools
-- [Sprachreferenz](../language-reference/syntax) - Lerne die Syntax
+- [Quick Start](./quick-start)
+- [CLI Basics](./cli-basics)
+- [Sprachreferenz](../language-reference/syntax)
+- [Standardbibliothek](../builtins/overview)
 
----
-
-**Installation erfolgreich? Dann lass uns mit dem [Schnellstart-Guide](./quick-start) beginnen!** 🚀
-
-## Automatisierte Releases & Paketmanager
-
-Bei jedem neuen Release werden automatisch folgende Pakete gebaut und als Release-Artefakte auf GitHub bereitgestellt:
-
-- **Windows ZIP**: Für die Installation via winget oder manuell
-- **Linux .deb**: Für die Installation via APT oder manuell
-- **SHA256-Hash**: Für das winget-Manifest
-
-Die jeweils aktuellen Pakete findest du unter [GitHub Releases](https://github.com/Kink-Development-Group/hyp-runtime/releases).
-
-### Windows (winget)
-
-```powershell
-winget install HypnoScript.HypnoScript
-```
-
-Das winget-Manifest wird nach jedem Release aktualisiert. Die SHA256-Prüfsumme findest du im Release oder im Workflow-Log.
-
-### Linux (APT)
-
-```bash
-sudo apt update
-sudo apt install hypnoscript
-```
-
-Alternativ kann das .deb-Paket direkt aus dem Release heruntergeladen und installiert werden:
-
-```bash
-sudo dpkg -i hypnoscript_1.0.0_amd64.deb
-sudo apt-get install -f  # fehlende Abhängigkeiten ggf. nachinstallieren
-```
+Viel Spaß beim hypnotischen Coden! 🌀

@@ -4,95 +4,99 @@ sidebar_position: 1
 
 # Willkommen bei HypnoScript
 
-HypnoScript ist eine innovative Programmiersprache, die hypnotische Konzepte mit moderner Softwareentwicklung verbindet. Sie bietet eine einzigartige Syntax, die sowohl für Anfänger als auch für erfahrene Entwickler zugänglich ist.
+HypnoScript ist eine moderne, esoterische Programmiersprache, die hypnotische Metaphern mit einer pragmatischen, Rust-basierten Toolchain verbindet. Die Sprache orientiert sich syntaktisch an TypeScript/JavaScript, ersetzt klassische Schlüsselwörter aber durch hypnotische Begriffe wie `Focus`, `induce`, `observe` oder `Relax`.
 
 ## Was ist HypnoScript?
 
-HypnoScript ist eine interpretierte Programmiersprache, die in C# entwickelt wurde und folgende Hauptmerkmale bietet:
+Die aktuelle Runtime besteht vollständig aus Rust-Crates und liefert:
 
-- **Hypnotische Syntax**: Verwendet hypnotische Begriffe wie `Focus`, `Trance`, `Induce`, `Observe`
-- **Umfangreiche Standardbibliothek**: Über 200+ Builtin-Funktionen für alle Anwendungsfälle
-- **Moderne Features**: Arrays, Records, Funktionen, Sessions, Assertions
-- **Runtime-Ready**: CLI-Tools, Test-Framework, Debugging-Unterstützung
-- **Plattformübergreifend**: Läuft auf Windows, macOS und Linux
+- 🦀 **Native Toolchain** – Lexer, Parser, statischer Type Checker, Interpreter und WASM-Codegenerator sind vollständig in Rust umgesetzt.
+- 🎯 **Hypnotische Syntax** – Sprachkonstrukte wie `deepFocus`, `snap`, `anchor` oder `oscillate` transportieren hypnotische Bilder.
+- 🔒 **Statisches Typ-System** – Der Type Checker kennt Zahlen, Strings, Booleans, Arrays, Sessions, Funktionen sowie `tranceify`-Records.
+- 📦 **Standardbibliothek** – Über 110 Builtins für Mathematik, Strings, Arrays, Dateien, Statistik, Systeminformationen, Zeit & Datum sowie Validierung.
+- 🛠️ **CLI für den gesamten Workflow** – Ein einzelnes Binary (`hypnoscript`) bietet `run`, `lex`, `parse`, `check`, `compile-wasm`, `builtins` und `version`.
 
-## Schnellstart
+Die Sprache ist cross-platform (Windows/macOS/Linux) und erzeugt native Binaries oder optional WebAssembly-Ausgabe.
+
+## Grundelemente der Syntax
+
+| Konzept                | Beschreibung                                                                                             |
+| ---------------------- | -------------------------------------------------------------------------------------------------------- |
+| `Focus { ... } Relax`  | Umschließt jedes Programm (Entry- und Exit-Punkt).                                                       |
+| `entrance { ... }`     | Optionaler Startblock für Initialisierung oder Begrüßung.                                                |
+| `finale { ... }`       | Optionaler Cleanup-Block, der am Ende garantiert ausgeführt wird.                                        |
+| `induce` / `freeze`    | Deklariert Variablen (`induce`) oder Konstanten (`freeze`).                                              |
+| `observe` / `whisper`  | Ausgabe mit bzw. ohne Zeilenumbruch. `command` hebt Text emphatisch hervor.                              |
+| `if`, `while`, `loop`  | Kontrollstrukturen mit hypnotischen Operator-Synonymen (`youAreFeelingVerySleepy`, `underMyControl`, …). |
+| `suggestion`           | Funktionsdefinition (global oder innerhalb von Sessions).                                                |
+| `session`              | Objektorientierte Strukturen mit Feldern (`expose`/`conceal`) und Methoden.                              |
+| `tranceify`            | Deklariert Record-Typen mit festen Feldern.                                                              |
+| `anchor` / `oscillate` | Speichert Zustände oder toggelt Booleans.                                                                |
 
 ```hyp
 Focus {
     entrance {
-        observe "Willkommen bei HypnoScript!";
+        observe "Willkommen in der Trance";
     }
 
-    induce name = "Welt";
-    observe "Hallo, " + name + "!";
+    induce counter: number = 0;
+    while (counter goingDeeper 3) {
+        observe "Tiefe: " + counter;
+        counter = counter + 1;
+    }
 
-    induce numbers = [1, 2, 3, 4, 5];
-    induce sum = SumArray(numbers);
-    observe "Summe: " + sum;
-} Relax;
+    suggestion hypnoticSum(values: number[]): number {
+        awaken ArraySum(values);
+    }
+
+    observe "Summe: " + ToString(hypnoticSum([2, 4, 6]));
+} Relax
 ```
 
-## Hauptfunktionen
+## Standardbibliothek im Überblick
 
-### 🧠 Hypnotische Syntax
+Die Builtins sind in Modulen organisiert. Eine detaillierte Referenz findest du unter [Standardbibliothek](./builtins/overview).
 
-Verwende hypnotische Konzepte für eine intuitive Programmierung:
+- **Mathematik** – `Sin`, `Cos`, `Tan`, `Sqrt`, `Pow`, `Factorial`, `Clamp`, …
+- **Strings** – `Length`, `ToUpper`, `Trim`, `Replace`, `Split`, `PadLeft`, `IsWhitespace`, …
+- **Arrays** – `ArrayLength`, `ArrayIsEmpty`, `ArraySum`, `ArraySort`, `ArrayDistinct`, …
+- **Dateien** – `ReadFile`, `WriteFile`, `ListDirectory`, `GetFileExtension`, …
+- **System** – `GetOperatingSystem`, `GetUsername`, `GetArgs`, `Exit`, …
+- **Zeit & Datum** – `CurrentTimestamp`, `FormatDateTime`, `IsLeapYear`, …
+- **Statistik** – `Mean`, `Median`, `StandardDeviation`, `Correlation`, …
+- **Validierung** – `IsValidEmail`, `MatchesPattern`, `IsInRange`, …
+- **Hypnotische Kernfunktionen** – `Observe`, `Whisper`, `Command`, `Drift`, `DeepTrance`, `HypnoticCountdown`, `TranceInduction`, `HypnoticVisualization`.
 
-- `Focus` - Hauptblock für Programmausführung
-- `Trance` - Funktionsdefinitionen
-- `Induce` - Variablenzuweisung
-- `Observe` - Ausgabe
-- `Relax` - Programmende
-
-### 📚 Umfangreiche Bibliothek
-
-HypnoScript bietet eine umfassende Standardbibliothek mit über 200 Funktionen:
-
-- **Array-Funktionen**: `ArrayGet`, `ArraySet`, `ArraySort`, `ShuffleArray`
-- **String-Funktionen**: `Length`, `Substring`, `Reverse`, `IsPalindrome`
-- **Mathematische Funktionen**: `Sin`, `Cos`, `Sqrt`, `Factorial`
-- **System-Funktionen**: `FileExists`, `HttpGet`, `GetCurrentTime`
-- **Hypnotische Funktionen**: `DeepTrance`, `HypnoticCountdown`, `TranceInduction`
-
-### 🛠️ Moderne Entwicklungstools
-
-- **CLI-Interface**: Vollständige Kommandozeilen-Schnittstelle
-- **Test-Framework**: Automatisierte Tests mit Assertions
-- **Debugging**: Umfassende Debugging-Unterstützung
-- **Runtime-Features**: Webserver, API, Dokumentation
-
-## Installation
+## Entwicklungs-Workflow
 
 ```bash
-# Repository klonen
-git clone https://github.com/Kink-Development-Group/hyp-runtime.git
-cd hyp-runtime
+# Quelle lesen, lexen, parsen, checken und ausführen
+hypnoscript lex   examples/test.hyp
+hypnoscript parse examples/test.hyp
+hypnoscript check examples/test.hyp
+hypnoscript run   examples/test.hyp
 
-# Projekt bauen
-dotnet build
+# Zu WebAssembly (wat) generieren
+hypnoscript compile-wasm examples/test.hyp --output output.wat
 
-# CLI verwenden
-dotnet run --project HypnoScript.CLI -- run example.hyp
+# Listing aller Builtins
+hypnoscript builtins
 ```
+
+Der Interpreter führt Programme deterministisch aus. Typprüfungsfehler werden gemeldet, blockieren die Ausführung aber nicht – ideal für exploratives Arbeiten.
 
 ## Nächste Schritte
 
-- [Installation und Setup](./getting-started/installation)
-- [Schnellstart-Guide](./getting-started/quick-start)
+- [Installation](./getting-started/installation)
+- [Quick Start](./getting-started/quick-start)
+- [Grundkonzepte](./getting-started/core-concepts)
 - [Sprachreferenz](./language-reference/syntax)
-- [Builtin-Funktionen](./builtins/overview)
+- [Standardbibliothek](./builtins/overview)
 
-## Community
+## Community & Lizenz
 
-- **GitHub**: [Kink-Development-Group/hyp-runtime](https://github.com/Kink-Development-Group/hyp-runtime)
-- **Issues**: [GitHub Issues](https://github.com/Kink-Development-Group/hyp-runtime/issues)
-- **Community**: Austausch über [GitHub Issues](https://github.com/Kink-Development-Group/hyp-runtime/issues)
+- GitHub: [Kink-Development-Group/hyp-runtime](https://github.com/Kink-Development-Group/hyp-runtime)
+- Issues & Roadmap: [GitHub Issues](https://github.com/Kink-Development-Group/hyp-runtime/issues)
+- Lizenz: [MIT](https://opensource.org/license/mit/)
 
-## Lizenz
-
-HypnoScript ist unter der MIT-Lizenz veröffentlicht. Siehe die [MIT-Lizenz](https://opensource.org/license/mit/) für Details.
-
----
-
-**Bereit, in die hypnotische Welt der Programmierung einzutauchen?** 🧠✨
+Tauche ein, hypnotisiere deinen Code und genieße eine Sprache, die humorvollen Flair mit ernstzunehmender Infrastruktur verbindet. 🧠✨

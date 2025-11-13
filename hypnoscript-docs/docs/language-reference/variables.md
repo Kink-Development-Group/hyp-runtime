@@ -4,7 +4,11 @@ sidebar_position: 2
 
 # Variablen und Datentypen
 
-In HypnoScript werden Variablen mit dem Schlüsselwort `induce` deklariert. Die Sprache ist dynamisch typisiert, unterstützt aber verschiedene primitive und komplexe Datentypen.
+:::tip Vollständige Referenz
+Siehe [Keywords Referenz](./_keywords-reference#variablen-und-konstanten) für die vollständige Dokumentation aller Variablen-Keywords (induce, implant, freeze, anchor, oscillate).
+:::
+
+In HypnoScript werden Variablen mit dem Schlüsselwort `induce` deklariert. Die Sprache unterstützt statisches Type Checking mit verschiedenen primitiven und komplexen Datentypen.
 
 ## Variablen deklarieren
 

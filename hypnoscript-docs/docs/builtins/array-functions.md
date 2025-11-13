@@ -4,6 +4,14 @@ sidebar_position: 2
 
 # Array-Funktionen
 
+:::tip Vollständige Referenz
+Siehe [Builtin-Funktionen Vollständige Referenz](./_complete-reference#array-builtins) für die **aktuelle, vollständige Dokumentation** aller Array-Funktionen mit korrekten Funktionsnamen.
+:::
+
+:::warning Hinweis
+Diese Seite enthält teilweise veraltete Funktionsnamen. Die korrekte Referenz finden Sie in der [Vollständigen Referenz](./_complete-reference#array-builtins).
+:::
+
 HypnoScript bietet umfangreiche Array-Funktionen für die Arbeit mit Listen und Sammlungen von Daten.
 
 ## Grundlegende Array-Operationen
@@ -72,13 +80,13 @@ observe reversed; // [5, 4, 3, 2, 1]
 
 ## Array-Analyse
 
-### SumArray(arr)
+### ArraySum(arr)
 
 Berechnet die Summe aller numerischen Elemente.
 
 ```hyp
 induce numbers = [1, 2, 3, 4, 5];
-induce sum = SumArray(numbers);
+induce sum = ArraySum(numbers);
 observe "Summe: " + sum; // 15
 ```
 

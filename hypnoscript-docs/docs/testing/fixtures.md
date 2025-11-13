@@ -71,7 +71,7 @@ Focus {
 
   // Test array fixtures
   induce numbers: number[] = numberArray;
-  Assert(ArrayLength(numbers) == 8, "Number array should have 8 elements");
+  Assert(Length(numbers) == 8, "Number array should have 8 elements");
   Assert(numbers[0] == 1, "First element should be 1");
 
   Observe("All fixture tests passed!");
@@ -114,7 +114,7 @@ Focus {
 
   // Test dynamic fixtures
   Assert(dynamicUser["name"] == "Jane Smith", "Dynamic user name should match");
-  Assert(ArrayLength(fibonacci) == 10, "Fibonacci array should have 10 elements");
+  Assert(Length(fibonacci) == 10, "Fibonacci array should have 10 elements");
 
   Observe("Dynamic fixture generation successful!");
 } Relax
@@ -157,12 +157,12 @@ Focus {
       return false;
     }
 
-    if (ArrayLength(arr) == 0) {
+    if (Length(arr) == 0) {
       return false;
     }
 
     // Check type consistency
-    for (induce i: number = 0; i < ArrayLength(arr); i = i + 1) {
+    for (induce i: number = 0; i < Length(arr); i = i + 1) {
       if (expectedType == "number" && !IsNumber(arr[i])) {
         return false;
       }
@@ -413,8 +413,8 @@ Focus {
 
   // Comprehensive testing
   Assert(ValidateUserFixture(user), "User fixture should be valid");
-  Assert(ArrayLength(products) > 0, "Products fixture should not be empty");
-  Assert(ArrayLength(errors) > 0, "Error fixtures should be available");
+  Assert(Length(products) > 0, "Products fixture should not be empty");
+  Assert(Length(errors) > 0, "Error fixtures should be available");
 
   Observe("Integration test with fixtures completed successfully!");
 } Relax

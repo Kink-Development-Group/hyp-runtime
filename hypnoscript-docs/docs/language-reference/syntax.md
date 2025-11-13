@@ -15,7 +15,7 @@ Jedes HypnoScript-Programm beginnt mit `Focus` und endet mit `Relax`:
 ```hyp
 Focus {
     // Programm-Code hier
-} Relax;
+} Relax
 ```
 
 ### Entrance-Block
@@ -27,27 +27,27 @@ Focus {
     entrance {
         observe "Programm gestartet";
     }
-} Relax;
+} Relax
 ```
 
 ## Variablen und Zuweisungen
 
-### Induce (Variablenzuweisung)
+### Induce (Variablendeklaration)
 
-Verwende `induce` um Variablen zu erstellen und Werte zuzuweisen:
+Verwende `induce` um Variablen zu deklarieren und Werte zuzuweisen. Typ-Annotationen sind optional aber empfohlen:
 
 ```hyp
 Focus {
     entrance {
-        induce name = "HypnoScript";
-        induce version = 1.0;
-        induce isActive = true;
+        induce name: string = "HypnoScript";
+        induce version: number = 1.0;
+        induce isActive: boolean = true;
 
         observe "Name: " + name;
         observe "Version: " + version;
         observe "Aktiv: " + isActive;
     }
-} Relax;
+} Relax
 ```
 
 ### Datentypen
@@ -58,27 +58,23 @@ HypnoScript unterstützt verschiedene Datentypen:
 Focus {
     entrance {
         // Strings
-        induce text = "Hallo Welt";
+        induce text: string = "Hallo Welt";
 
-        // Zahlen (Integer und Double)
-        induce integer = 42;
-        induce decimal = 3.14159;
+        // Zahlen (nur number Typ)
+        induce integer: number = 42;
+        induce decimal: number = 3.14159;
 
         // Boolean
-        induce flag = true;
+        induce flag: boolean = true;
 
         // Arrays
-        induce numbers = [1, 2, 3, 4, 5];
-        induce names = ["Alice", "Bob", "Charlie"];
+        induce numbers: number[] = [1, 2, 3, 4, 5];
+        induce names: string[] = ["Alice", "Bob", "Charlie"];
 
-        // Records (Objekte)
-        induce person = {
-            name: "Max",
-            age: 30,
-            city: "Berlin"
-        };
+        // Records (mit tranceify definiert)
+        // Siehe Records-Dokumentation für Details
     }
-} Relax;
+} Relax
 ```
 
 ## Ausgabe
@@ -93,10 +89,10 @@ Focus {
         observe "Einfache Ausgabe";
         observe "Mehrzeilige" + " " + "Ausgabe";
 
-        induce name = "HypnoScript";
+        induce name: string = "HypnoScript";
         observe "Willkommen bei " + name;
     }
-} Relax;
+} Relax
 ```
 
 ## Kontrollstrukturen
@@ -106,7 +102,7 @@ Focus {
 ```hyp
 Focus {
     entrance {
-        induce age = 18;
+        induce age: number = 18;
 
         if (age >= 18) {
             observe "Volljährig";
@@ -115,7 +111,7 @@ Focus {
         }
 
         // Mit else if
-        induce score = 85;
+        induce score: number = 85;
         if (score >= 90) {
             observe "Ausgezeichnet";
         } else if (score >= 80) {
@@ -126,7 +122,7 @@ Focus {
             observe "Verbesserungsbedarf";
         }
     }
-} Relax;
+} Relax
 ```
 
 ### While-Schleife
@@ -134,55 +130,55 @@ Focus {
 ```hyp
 Focus {
     entrance {
-        induce counter = 1;
+        induce counter: number = 1;
 
         while (counter <= 5) {
             observe "Zähler: " + counter;
-            induce counter = counter + 1;
+            counter = counter + 1;
         }
     }
-} Relax;
+} Relax
 ```
 
-### For-Schleife
+### Loop-Schleife
 
 ```hyp
 Focus {
     entrance {
-        // For-Schleife mit Range
-        for (induce i = 1; i <= 10; induce i = i + 1) {
+        // Loop-Schleife mit Zähler
+        loop (induce i: number = 1; i <= 10; i = i + 1) {
             observe "Iteration " + i;
         }
 
-        // For-Schleife über Array
-        induce fruits = ["Apfel", "Banane", "Orange"];
-        for (induce i = 0; i < ArrayLength(fruits); induce i = i + 1) {
+        // Loop-Schleife über Array mit ArrayLength
+        induce fruits: string[] = ["Apfel", "Birne", "Kirsche"];
+        loop (induce i: number = 0; i < ArrayLength(fruits); i = i + 1) {
             observe "Frucht " + (i + 1) + ": " + ArrayGet(fruits, i);
         }
     }
-} Relax;
+} Relax
 ```
 
 ## Funktionen
 
-### Trance (Funktionsdefinition)
+### Suggestion (Funktionsdefinition)
 
 ```hyp
 Focus {
     // Funktion definieren
-    Trance greet(name) {
+    suggestion greet(name: string) {
         observe "Hallo, " + name + "!";
     }
 
-    Trance add(a, b) {
-        return a + b;
+    suggestion add(a: number, b: number): number {
+        awaken a + b;
     }
 
-    Trance factorial(n) {
+    suggestion factorial(n: number): number {
         if (n <= 1) {
-            return 1;
+            awaken 1;
         } else {
-            return n * factorial(n - 1);
+            awaken n * factorial(n - 1);
         }
     }
 
@@ -190,13 +186,13 @@ Focus {
         // Funktionen aufrufen
         greet("HypnoScript");
 
-        induce result = add(5, 3);
+        induce result: number = add(5, 3);
         observe "5 + 3 = " + result;
 
-        induce fact = factorial(5);
+        induce fact: number = factorial(5);
         observe "5! = " + fact;
     }
-} Relax;
+} Relax
 ```
 
 ### Funktionen mit Rückgabewerten
@@ -255,7 +251,7 @@ Focus {
         observe "Array-Länge: " + length;
 
         // Array durchsuchen
-        for (induce i = 0; i < ArrayLength(numbers); induce i = i + 1) {
+        for (induce i = 0; i < Length(numbers); induce i = i + 1) {
             observe "Element " + i + ": " + ArrayGet(numbers, i);
         }
     }
@@ -274,7 +270,7 @@ Focus {
         observe "Sortiert: " + sorted;
 
         // Summe
-        induce sum = SumArray(numbers);
+        induce sum = ArraySum(numbers);
         observe "Summe: " + sum;
 
         // Durchschnitt
@@ -562,7 +558,7 @@ Focus {
         induce array = [1, 2, 3];
         induce index = 5;
 
-        if (index >= 0 && index < ArrayLength(array)) {
+        if (index >= 0 && index < Length(array)) {
             induce value = ArrayGet(array, index);
             observe "Wert: " + value;
         } else {

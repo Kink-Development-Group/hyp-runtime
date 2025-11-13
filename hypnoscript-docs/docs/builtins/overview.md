@@ -4,242 +4,326 @@ sidebar_position: 1
 
 # Builtin-Funktionen Übersicht
 
-HypnoScript bietet eine umfassende Standardbibliothek mit über **200+ eingebauten Funktionen**, die in verschiedene Kategorien unterteilt sind. Diese Funktionen sind direkt in der Sprache verfügbar und erfordern keine zusätzlichen Imports.
+HypnoScript bietet eine umfassende Standardbibliothek mit über **110 eingebauten Funktionen** in der Rust-Edition. Diese Funktionen sind direkt in der Sprache verfügbar und erfordern keine zusätzlichen Imports.
 
 ## Kategorien
 
-### 🔢 Array-Funktionen
+### 🧠 Core & Hypnotische Funktionen
 
-Funktionen für die Arbeit mit Arrays und Listen.
+Grundlegende I/O, Konvertierung und hypnotische Spezialfunktionen.
 
-| Funktion                      | Beschreibung          | Beispiel                          |
-| ----------------------------- | --------------------- | --------------------------------- |
-| `ArrayLength(arr)`            | Länge des Arrays      | `ArrayLength([1,2,3])` → `3`      |
-| `ArrayGet(arr, index)`        | Element an Index      | `ArrayGet([1,2,3], 1)` → `2`      |
-| `ArraySet(arr, index, value)` | Setzt Wert an Index   | `ArraySet(arr, 0, "neu")`         |
-| `ArraySort(arr)`              | Sortiert Array        | `ArraySort([3,1,2])` → `[1,2,3]`  |
-| `ShuffleArray(arr)`           | Mischt Array zufällig | `ShuffleArray([1,2,3,4,5])`       |
-| `SumArray(arr)`               | Summe aller Werte     | `SumArray([1,2,3,4,5])` → `15`    |
-| `AverageArray(arr)`           | Durchschnitt          | `AverageArray([1,2,3,4,5])` → `3` |
+| Funktion                  | Beschreibung                        | Beispiel                            |
+| ------------------------- | ----------------------------------- | ----------------------------------- |
+| `observe(text)`           | Standard-Ausgabe mit Zeilenumbruch  | `observe "Hallo Welt";`             |
+| `whisper(text)`           | Ausgabe ohne Zeilenumbruch          | `whisper "Teil1"; whisper "Teil2";` |
+| `command(text)`           | Imperative Ausgabe (Großbuchstaben) | `command "Wichtig!";`               |
+| `drift(ms)`               | Pause/Sleep in Millisekunden        | `drift(2000);`                      |
+| `DeepTrance(duration)`    | Tiefe Trance-Induktion              | `DeepTrance(5000);`                 |
+| `HypnoticCountdown(from)` | Hypnotischer Countdown              | `HypnoticCountdown(10);`            |
+| `TranceInduction(name)`   | Vollständige Trance-Induktion       | `TranceInduction("Max");`           |
+| `ToInt(value)`            | Zu Integer konvertieren             | `ToInt(3.14)` → `3`                 |
+| `ToString(value)`         | Zu String konvertieren              | `ToString(42)` → `"42"`             |
+| `ToBoolean(value)`        | Zu Boolean konvertieren             | `ToBoolean("true")` → `true`        |
 
-[→ Detaillierte Array-Funktionen](./array-functions)
+### 🔢 Math-Funktionen
+
+Umfassende mathematische Operationen und Berechnungen.
+
+| Kategorie              | Funktionen                                        |
+| ---------------------- | ------------------------------------------------- |
+| **Trigonometrie**      | `Sin`, `Cos`, `Tan`                               |
+| **Wurzeln & Potenzen** | `Sqrt`, `Pow`                                     |
+| **Logarithmen**        | `Log` (ln), `Log10`                               |
+| **Rundung**            | `Abs`, `Floor`, `Ceil`, `Round`, `Clamp`          |
+| **Min/Max**            | `Min`, `Max`                                      |
+| **Zahlentheorie**      | `Factorial`, `Gcd`, `Lcm`, `IsPrime`, `Fibonacci` |
+
+**Beispiel:**
+
+```hyp
+induce result: number = Sqrt(16);  // 4.0
+induce isPrime: boolean = IsPrime(17);  // true
+induce fib: number = Fibonacci(10);  // 55
+```
 
 ### 📝 String-Funktionen
 
 Funktionen für String-Manipulation und -Analyse.
 
-| Funktion                        | Beschreibung    | Beispiel                             |
-| ------------------------------- | --------------- | ------------------------------------ |
-| `Length(str)`                   | String-Länge    | `Length("Hallo")` → `5`              |
-| `Substring(str, start, length)` | Teilstring      | `Substring("Hallo", 1, 3)` → `"all"` |
-| `ToUpper(str)`                  | Großbuchstaben  | `ToUpper("hallo")` → `"HALLO"`       |
-| `Reverse(str)`                  | Kehrt String um | `Reverse("Hallo")` → `"ollaH"`       |
-| `IsPalindrome(str)`             | Prüft Palindrom | `IsPalindrome("anna")` → `true`      |
-| `CountWords(str)`               | Zählt Wörter    | `CountWords("Hallo Welt")` → `2`     |
+| Kategorie        | Funktionen                                                      |
+| ---------------- | --------------------------------------------------------------- |
+| **Basis**        | `Length`, `ToUpper`, `ToLower`, `Trim`, `Reverse`, `Capitalize` |
+| **Suchen**       | `IndexOf`, `Contains`, `StartsWith`, `EndsWith`                 |
+| **Manipulation** | `Replace`, `Split`, `Substring`, `Repeat`                       |
+| **Padding**      | `PadLeft`, `PadRight`                                           |
+| **Prüfungen**    | `IsEmpty`, `IsWhitespace`                                       |
 
-[→ Detaillierte String-Funktionen](./string-functions)
+**Beispiel:**
 
-### 🧮 Mathematische Funktionen
+```hyp
+induce text: string = "  Hallo Welt  ";
+induce cleaned: string = Trim(text);  // "Hallo Welt"
+induce upper: string = ToUpper(cleaned);  // "HALLO WELT"
+induce words: string[] = Split(cleaned, " ");  // ["Hallo", "Welt"]
+```
 
-Umfassende mathematische Operationen und Berechnungen.
+### 📦 Array-Funktionen
 
-| Funktion                     | Beschreibung                | Beispiel                |
-| ---------------------------- | --------------------------- | ----------------------- |
-| `Sin(x)`, `Cos(x)`, `Tan(x)` | Trigonometrische Funktionen | `Sin(90)` → `1.0`       |
-| `Sqrt(x)`                    | Quadratwurzel               | `Sqrt(16)` → `4.0`      |
-| `Pow(x, y)`                  | Potenz                      | `Pow(2, 3)` → `8.0`     |
-| `Factorial(n)`               | Fakultät                    | `Factorial(5)` → `120`  |
-| `Random()`                   | Zufallszahl [0,1)           | `Random()` → `0.123...` |
-| `IsPrime(n)`                 | Prüft Primzahl              | `IsPrime(17)` → `true`  |
+Funktionen für die Arbeit mit Arrays und Listen.
 
-[→ Detaillierte Mathematische Funktionen](./math-functions)
+| Kategorie          | Funktionen                                        |
+| ------------------ | ------------------------------------------------- |
+| **Basis**          | `Length`, `IsEmpty`, `Get`, `IndexOf`, `Contains` |
+| **Transformation** | `Reverse`, `Sort`, `Distinct`                     |
+| **Aggregation**    | `Sum`, `Average`, `Min`, `Max`                    |
+| **Slicing**        | `First`, `Last`, `Take`, `Skip`, `Slice`          |
+| **Weitere**        | `Join`, `Count`                                   |
 
-### 🛠️ Utility-Funktionen
+**Beispiel:**
 
-Allgemeine Hilfsfunktionen für verschiedene Anwendungsfälle.
+```hyp
+induce numbers: number[] = [5, 2, 8, 1, 9];
+induce sorted: number[] = Sort(numbers);  // [1, 2, 5, 8, 9]
+induce sum: number = Sum(numbers);  // 25
+induce avg: number = Average(numbers);  // 5.0
+```
 
-| Funktion                | Beschreibung         | Beispiel                                                    |
-| ----------------------- | -------------------- | ----------------------------------------------------------- |
-| `Clamp(x, min, max)`    | Begrenzt Wert        | `Clamp(15, 0, 10)` → `10`                                   |
-| `IsEven(x)`, `IsOdd(x)` | Gerade/Ungerade      | `IsEven(4)` → `true`                                        |
-| `IsValidEmail(str)`     | E-Mail-Validierung   | `IsValidEmail("test@example.com")` → `true`                 |
-| `GenerateUUID()`        | UUID generieren      | `GenerateUUID()` → `"123e4567-e89b-12d3-a456-426614174000"` |
-| `FormatCurrency(x)`     | Währungsformatierung | `FormatCurrency(1234.56)` → `"$1,234.56"`                   |
-
-[→ Detaillierte Utility-Funktionen](./utility-functions)
-
-### 💻 System-Funktionen
-
-Funktionen für System-Interaktion und -Informationen.
-
-| Funktion              | Beschreibung    | Beispiel                                |
-| --------------------- | --------------- | --------------------------------------- |
-| `GetCurrentTime()`    | Unix-Timestamp  | `GetCurrentTime()` → `1640995200`       |
-| `GetCurrentDate()`    | Aktuelles Datum | `GetCurrentDate()` → `"2024-01-01"`     |
-| `GetMachineName()`    | Rechnername     | `GetMachineName()` → `"DESKTOP-ABC123"` |
-| `GetUserName()`       | Benutzername    | `GetUserName()` → `"john.doe"`          |
-| `GetProcessorCount()` | CPU-Kerne       | `GetProcessorCount()` → `8`             |
-| `ClearScreen()`       | Konsole löschen | `ClearScreen()`                         |
-
-[→ Detaillierte System-Funktionen](./system-functions)
-
-### 🕒 Zeit- und Datumsfunktionen
-
-Erweiterte Funktionen für Zeit- und Datumsverarbeitung.
-
-| Funktion            | Beschreibung    | Beispiel                                    |
-| ------------------- | --------------- | ------------------------------------------- |
-| `GetDayOfWeek()`    | Wochentag       | `GetDayOfWeek()` → `1` (Montag)             |
-| `GetDayOfYear()`    | Tag im Jahr     | `GetDayOfYear()` → `1`                      |
-| `IsLeapYear(y)`     | Schaltjahr      | `IsLeapYear(2024)` → `true`                 |
-| `AddDays(date, n)`  | Tage addieren   | `AddDays("2024-01-01", 7)` → `"2024-01-08"` |
-| `GetAge(birthDate)` | Alter berechnen | `GetAge("1990-01-01")` → `34`               |
-
-[→ Detaillierte Zeit- und Datumsfunktionen](./time-date-functions)
+[→ Detaillierte Array-Funktionen](./array-functions)
 
 ### 📊 Statistik-Funktionen
 
 Funktionen für statistische Berechnungen und Analysen.
 
-| Funktion                          | Beschreibung       | Beispiel                                           |
-| --------------------------------- | ------------------ | -------------------------------------------------- |
-| `CalculateMean(arr)`              | Mittelwert         | `CalculateMean([1,2,3,4,5])` → `3`                 |
-| `CalculateStandardDeviation(arr)` | Standardabweichung | `CalculateStandardDeviation([1,2,3,4,5])` → `1.58` |
-| `LinearRegression(x, y)`          | Lineare Regression | `LinearRegression([1,2,3], [2,4,6])` → `2.0`       |
+| Kategorie            | Funktionen                                                                                 |
+| -------------------- | ------------------------------------------------------------------------------------------ |
+| **Zentrale Tendenz** | `CalculateMean`, `CalculateMedian`, `CalculateMode`                                        |
+| **Streuung**         | `CalculateVariance`, `CalculateStandardDeviation`, `CalculateRange`, `CalculatePercentile` |
+| **Korrelation**      | `CalculateCorrelation`, `LinearRegression`                                                 |
+
+**Beispiel:**
+
+```hyp
+induce data: number[] = [1, 2, 3, 4, 5];
+induce mean: number = CalculateMean(data);  // 3.0
+induce stddev: number = CalculateStandardDeviation(data);  // 1.58...
+```
 
 [→ Detaillierte Statistik-Funktionen](./statistics-functions)
 
-### 🔐 Hashing/Encoding
+### 🕒 Zeit & Datum
 
-Funktionen für Kryptographie und Datenkodierung.
+Funktionen für Zeit- und Datumsverarbeitung.
 
-| Funktion            | Beschreibung       | Beispiel                                                                                    |
-| ------------------- | ------------------ | ------------------------------------------------------------------------------------------- |
-| `HashMD5(str)`      | MD5-Hash           | `HashMD5("test")` → `"098f6bcd4621d373cade4e832627b4f6"`                                    |
-| `HashSHA256(str)`   | SHA256-Hash        | `HashSHA256("test")` → `"9f86d081884c7d659a2feaa0c55ad015a3bf4f1b2b0b822cd15d6c15b0f00a08"` |
-| `Base64Encode(str)` | Base64-Kodierung   | `Base64Encode("test")` → `"dGVzdA=="`                                                       |
-| `Base64Decode(str)` | Base64-Dekodierung | `Base64Decode("dGVzdA==")` → `"test"`                                                       |
+| Kategorie         | Funktionen                                                           |
+| ----------------- | -------------------------------------------------------------------- |
+| **Aktuelle Zeit** | `GetCurrentTime`, `GetCurrentDate`, `GetCurrentDateTime`             |
+| **Komponenten**   | `GetYear`, `GetMonth`, `GetDay`, `GetHour`, `GetMinute`, `GetSecond` |
+| **Berechnungen**  | `GetDayOfWeek`, `GetDayOfYear`, `IsLeapYear`, `GetDaysInMonth`       |
 
-[→ Detaillierte Hashing/Encoding-Funktionen](./hashing-encoding)
+**Beispiel:**
 
-### 🧠 Hypnotische Spezialfunktionen
+```hyp
+induce timestamp: number = GetCurrentTime();  // Unix timestamp
+induce date: string = GetCurrentDate();  // "2024-01-15"
+induce year: number = GetYear();  // 2024
+```
 
-Einzigartige Funktionen für hypnotische Anwendungen.
+[→ Detaillierte Zeit/Datum-Funktionen](./time-date-functions)
 
-| Funktion                       | Beschreibung            | Beispiel                                  |
-| ------------------------------ | ----------------------- | ----------------------------------------- |
-| `DeepTrance(duration)`         | Tiefe Trance            | `DeepTrance(5000)`                        |
-| `HypnoticCountdown(from)`      | Countdown               | `HypnoticCountdown(10)`                   |
-| `TranceInduction(name)`        | Trance-Induktion        | `TranceInduction("Max")`                  |
-| `HypnoticSuggestion(msg)`      | Suggestion              | `HypnoticSuggestion("Du bist entspannt")` |
-| `ProgressiveRelaxation(steps)` | Progressive Entspannung | `ProgressiveRelaxation(5)`                |
+### 💻 System-Funktionen
 
-[→ Detaillierte Hypnotische Funktionen](./hypnotic-functions)
+Funktionen für System-Interaktion und -Informationen.
 
-### 📚 Dictionary-Funktionen
+| Kategorie         | Funktionen                                                                           |
+| ----------------- | ------------------------------------------------------------------------------------ |
+| **System-Info**   | `GetOperatingSystem`, `GetArchitecture`, `GetCpuCount`, `GetHostname`, `GetUsername` |
+| **Verzeichnisse** | `GetCurrentDirectory`, `GetHomeDirectory`, `GetTempDirectory`                        |
+| **Umgebung**      | `GetEnvVar`, `SetEnvVar`, `GetArgs`                                                  |
+| **Prozess**       | `Exit`                                                                               |
 
-Funktionen für die Arbeit mit Key-Value-Paaren.
+**Beispiel:**
 
-| Funktion                          | Beschreibung      | Beispiel                                    |
-| --------------------------------- | ----------------- | ------------------------------------------- |
-| `CreateDictionary()`              | Leeres Dictionary | `CreateDictionary()` → `{}`                 |
-| `DictionaryKeys(dict)`            | Alle Keys         | `DictionaryKeys(dict)` → `["key1", "key2"]` |
-| `DictionaryGet(dict, key)`        | Wert abrufen      | `DictionaryGet(dict, "key1")` → `"value1"`  |
-| `DictionarySet(dict, key, value)` | Wert setzen       | `DictionarySet(dict, "key1", "value1")`     |
+```hyp
+induce os: string = GetOperatingSystem();  // "Windows", "Linux", "macOS"
+induce cores: number = GetCpuCount();  // 8
+induce home: string = GetHomeDirectory();  // "/home/user" oder "C:\\Users\\user"
+```
 
-[→ Detaillierte Dictionary-Funktionen](./dictionary-functions)
+[→ Detaillierte System-Funktionen](./system-functions)
 
 ### 📁 Datei-Funktionen
 
 Funktionen für Dateisystem-Operationen.
 
-| Funktion                   | Beschreibung    | Beispiel                             |
-| -------------------------- | --------------- | ------------------------------------ |
-| `FileExists(path)`         | Datei existiert | `FileExists("test.txt")` → `true`    |
-| `ReadFile(path)`           | Datei lesen     | `ReadFile("test.txt")` → `"Inhalt"`  |
-| `WriteFile(path, content)` | Datei schreiben | `WriteFile("test.txt", "Hallo")`     |
-| `GetFileSize(path)`        | Dateigröße      | `GetFileSize("test.txt")` → `1024`   |
-| `FileCopy(source, dest)`   | Datei kopieren  | `FileCopy("source.txt", "dest.txt")` |
+| Kategorie           | Funktionen                                                             |
+| ------------------- | ---------------------------------------------------------------------- |
+| **Lesen/Schreiben** | `ReadFile`, `WriteFile`, `AppendFile`                                  |
+| **Verwaltung**      | `DeleteFile`, `CopyFile`, `RenameFile`                                 |
+| **Prüfungen**       | `FileExists`, `IsFile`, `IsDirectory`                                  |
+| **Informationen**   | `GetFileSize`, `GetFileExtension`, `GetFileName`, `GetParentDirectory` |
+| **Verzeichnisse**   | `CreateDirectory`, `ListDirectory`                                     |
+
+**Beispiel:**
+
+```hyp
+if (FileExists("config.txt")) {
+    induce content: string = ReadFile("config.txt");
+    observe "Config: " + content;
+} else {
+    WriteFile("config.txt", "default config");
+}
+```
 
 [→ Detaillierte Datei-Funktionen](./file-functions)
 
-### 🌐 Netzwerk-Funktionen
+### ✅ Validierung
 
-Funktionen für Web- und Netzwerk-Operationen.
+Funktionen für Datenvalidierung.
 
-| Funktion              | Beschreibung       | Beispiel                                                      |
-| --------------------- | ------------------ | ------------------------------------------------------------- |
-| `HttpGet(url)`        | HTTP GET-Request   | `HttpGet("https://api.example.com/data")`                     |
-| `HttpPost(url, data)` | HTTP POST-Request  | `HttpPost("https://api.example.com", "data")`                 |
-| `IsValidUrl(str)`     | URL-Validierung    | `IsValidUrl("https://example.com")` → `true`                  |
-| `ExtractDomain(url)`  | Domain extrahieren | `ExtractDomain("https://example.com/path")` → `"example.com"` |
+| Kategorie   | Funktionen                                                                  |
+| ----------- | --------------------------------------------------------------------------- |
+| **Format**  | `IsValidEmail`, `IsValidUrl`, `IsValidPhoneNumber`                          |
+| **Zeichen** | `IsAlphanumeric`, `IsAlphabetic`, `IsNumeric`, `IsLowercase`, `IsUppercase` |
+| **Weitere** | `IsInRange`, `MatchesPattern`                                               |
 
-[→ Detaillierte Netzwerk-Funktionen](./network-functions)
+**Beispiel:**
 
-### ✅ Validierung-Funktionen
-
-Funktionen für Datenvalidierung und -formatierung.
-
-| Funktion                  | Beschreibung              | Beispiel                                               |
-| ------------------------- | ------------------------- | ------------------------------------------------------ |
-| `IsValidEmail(str)`       | E-Mail-Validierung        | `IsValidEmail("test@example.com")` → `true`            |
-| `IsValidPhoneNumber(str)` | Telefonnummer             | `IsValidPhoneNumber("+49123456789")` → `true`          |
-| `IsValidCreditCard(str)`  | Kreditkarte               | `IsValidCreditCard("4111111111111111")` → `true`       |
-| `FormatPhoneNumber(str)`  | Telefonnummer formatieren | `FormatPhoneNumber("1234567890")` → `"(123) 456-7890"` |
+```hyp
+induce email: string = "user@example.com";
+if (IsValidEmail(email)) {
+    observe "Gültige E-Mail!";
+}
+```
 
 [→ Detaillierte Validierung-Funktionen](./validation-functions)
 
-### ⚡ Performance-Funktionen
+### 🔐 Hashing & String-Analyse
 
-Funktionen für Performance-Monitoring und Debugging.
+Funktionen für Hashing und erweiterte String-Operationen.
 
-| Funktion              | Beschreibung          | Beispiel                                               |
-| --------------------- | --------------------- | ------------------------------------------------------ |
-| `GetMemoryUsage()`    | Speicherverbrauch     | `GetMemoryUsage()` → `1048576`                         |
-| `GetCPUUsage()`       | CPU-Auslastung        | `GetCPUUsage()` → `25.5`                               |
-| `GetProcessInfo()`    | Prozess-Informationen | `GetProcessInfo()` → `{id: 1234, name: "hypnoscript"}` |
-| `Log(message, level)` | Logging               | `Log("Debug info", "DEBUG")`                           |
-| `Trace(message)`      | Tracing               | `Trace("Function called")`                             |
+| Kategorie          | Funktionen                                                          |
+| ------------------ | ------------------------------------------------------------------- |
+| **Hashing**        | `HashString`, `HashNumber`, `SimpleRandom`                          |
+| **Analyse**        | `AreAnagrams`, `IsPalindrome`, `CountOccurrences`                   |
+| **Transformation** | `RemoveDuplicates`, `UniqueCharacters`, `ReverseWords`, `TitleCase` |
 
-[→ Detaillierte Performance-Funktionen](./performance-functions)
+**Beispiel:**
+
+```hyp
+induce hash: number = HashString("password");
+induce isPalin: boolean = IsPalindrome("anna");  // true
+induce titleText: string = TitleCase("hello world");  // "Hello World"
+```
+
+[→ Detaillierte Hashing-Funktionen](./hashing-encoding)
+
+### 🧠 DeepMind (Higher-Order Functions)
+
+Erweiterte funktionale Programmierung und Kontrollfluss.
+
+| Kategorie            | Funktionen                                                       |
+| -------------------- | ---------------------------------------------------------------- |
+| **Schleifen**        | `RepeatAction`, `RepeatUntil`, `RepeatWhile`                     |
+| **Verzögerung**      | `DelayedSuggestion`                                              |
+| **Komposition**      | `Compose`, `Pipe`                                                |
+| **Fehlerbehandlung** | `TryOrAwaken`, `EnsureAwakening`                                 |
+| **Weitere**          | `IfTranced`, `SequentialTrance`, `MeasureTranceDepth`, `Memoize` |
+
+**Beispiel:**
+
+```hyp
+// Aktion 5 mal wiederholen
+RepeatAction(5, suggestion() {
+    observe "Wiederholt!";
+});
+
+// Funktionskomposition
+suggestion double(x: number): number {
+    awaken x * 2;
+}
+
+suggestion addTen(x: number): number {
+    awaken x + 10;
+}
+
+induce composed = Compose(double, addTen);
+induce result: number = composed(5);  // double(addTen(5)) = 30
+```
+
+[→ Detaillierte DeepMind-Funktionen](./deepmind-functions)
 
 ## Verwendung
 
-Alle Builtin-Funktionen können direkt in HypnoScript-Code verwendet werden:
+Alle Builtin-Funktionen können direkt in HypnoScript-Code verwendet werden, ohne Import:
 
 ```hyp
 Focus {
     entrance {
-        observe "Builtin-Funktionen Demo";
+        observe "=== Builtin-Funktionen Demo ===";
     }
 
     // Array-Funktionen
-    induce numbers = [1, 2, 3, 4, 5];
-    induce sum = SumArray(numbers);
+    induce numbers: number[] = [1, 2, 3, 4, 5];
+    induce sum: number = Sum(numbers);
     observe "Summe: " + sum;
 
     // String-Funktionen
-    induce text = "Hallo Welt";
-    induce reversed = Reverse(text);
+    induce text: string = "Hallo Welt";
+    induce reversed: string = Reverse(text);
     observe "Umgekehrt: " + reversed;
 
     // Mathematische Funktionen
-    induce sqrt = Sqrt(16);
+    induce sqrt: number = Sqrt(16);
     observe "Quadratwurzel von 16: " + sqrt;
 
     // System-Funktionen
-    induce currentTime = GetCurrentTime();
-    observe "Aktuelle Zeit: " + currentTime;
+    induce os: string = GetOperatingSystem();
+    observe "Betriebssystem: " + os;
 
     // Validierung
-    induce isValid = IsValidEmail("test@example.com");
+    induce isValid: boolean = IsValidEmail("test@example.com");
     observe "E-Mail gültig: " + isValid;
-} Relax;
+
+    // Statistik
+    induce mean: number = CalculateMean([1, 2, 3, 4, 5]);
+    observe "Mittelwert: " + mean;
+
+    finale {
+        observe "=== Demo beendet ===";
+    }
+} Relax
 ```
+
+## CLI-Befehl
+
+Liste alle Builtin-Funktionen im Terminal:
+
+```bash
+hypnoscript builtins
+```
+
+## Vollständige Referenz
+
+Für eine vollständige alphabetische Liste aller 110+ Funktionen siehe:
+
+[→ Vollständige Builtin-Referenz](./_complete-reference)
+
+## Kategorien-Index
+
+- [Math-Funktionen](./math-functions)
+- [String-Funktionen](./string-functions)
+- [Array-Funktionen](./array-functions)
+- [Statistik-Funktionen](./statistics-functions)
+- [Zeit/Datum-Funktionen](./time-date-functions)
+- [System-Funktionen](./system-functions)
+- [Datei-Funktionen](./file-functions)
+- [Validierung-Funktionen](./validation-functions)
+- [Hashing-Funktionen](./hashing-encoding)
+- [DeepMind-Funktionen](./deepmind-functions)
+- [Hypnotische Funktionen](./hypnotic-functions)
 
 ## Nächste Schritte
 
-- [Array-Funktionen](./array-functions) - Detaillierte Dokumentation aller Array-Funktionen
-- [String-Funktionen](./string-functions) - Umfassende String-Manipulation
-- [Mathematische Funktionen](./math-functions) - Mathematische Operationen und Berechnungen
-- [Beispiele](../examples/basic-examples) - Praktische Beispiele für Builtin-Funktionen
+- [Beispiele](../examples/basic-examples) - Praktische Beispiele
+- [Language Reference](../language-reference/syntax) - Sprachsyntax
+- [CLI Commands](../cli/commands) - Kommandozeilenbefehle

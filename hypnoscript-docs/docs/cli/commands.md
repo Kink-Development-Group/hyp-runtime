@@ -1,439 +1,561 @@
----
-sidebar_position: 2
----
-
 # CLI-Befehle
 
-Die HypnoScript CLI bietet umfangreiche Befehle für Entwicklung, Testing und Deployment.
+Die HypnoScript CLI (Rust Edition) bietet alle wesentlichen Befehle für Entwicklung, Testing und Analyse von HypnoScript-Programmen.
+
+## Übersicht
+
+```bash
+hypnoscript <COMMAND> [OPTIONS]
+```
+
+**Verfügbare Befehle:**
+
+| Befehl         | Beschreibung                       |
+| -------------- | ---------------------------------- |
+| `run`          | Führt ein HypnoScript-Programm aus |
+| `lex`          | Tokenisiert eine HypnoScript-Datei |
+| `parse`        | Zeigt den AST einer Datei          |
+| `check`        | Führt Type Checking durch          |
+| `compile-wasm` | Kompiliert zu WebAssembly (.wat)   |
+| `version`      | Zeigt Versionsinformationen        |
+| `builtins`     | Listet alle Builtin-Funktionen     |
 
 ## run - Programm ausführen
 
-Führt ein HypnoScript-Programm aus.
+Führt ein HypnoScript-Programm aus. Dies ist der Hauptbefehl für die Ausführung von .hyp-Dateien.
 
 ### Syntax
 
 ```bash
-dotnet run --project HypnoScript.CLI -- run <datei> [optionen]
+hypnoscript run <FILE> [OPTIONS]
 ```
+
+### Argumente
+
+| Argument | Beschreibung        | Erforderlich |
+| -------- | ------------------- | ------------ |
+| `<FILE>` | Pfad zur .hyp-Datei | ✅ Ja        |
 
 ### Optionen
 
-| Option      | Kurzform | Beschreibung          |
-| ----------- | -------- | --------------------- |
-| `--verbose` | `-v`     | Detaillierte Ausgabe  |
-| `--quiet`   | `-q`     | Minimale Ausgabe      |
-| `--output`  | `-o`     | Ausgabedatei          |
-| `--timeout` | `-t`     | Timeout in Sekunden   |
-| `--args`    | `-a`     | Zusätzliche Argumente |
+| Option      | Kurzform | Beschreibung           |
+| ----------- | -------- | ---------------------- |
+| `--debug`   | `-d`     | Debug-Modus aktivieren |
+| `--verbose` | `-v`     | Ausführliche Ausgabe   |
+
+### Verhalten
+
+1. **Lexing**: Tokenisiert den Quellcode
+2. **Parsing**: Erstellt den AST
+3. **Type Checking**: Prüft Typen (Fehler werden als Warnung ausgegeben)
+4. **Execution**: Führt das Programm aus
+
+**Hinweis:** Type-Fehler führen nicht zum Abbruch - das Programm wird trotzdem ausgeführt.
 
 ### Beispiele
 
 ```bash
-# Einfaches Programm ausführen
-dotnet run --project HypnoScript.CLI -- run hello.hyp
+# Einfache Ausführung
+hypnoscript run hello.hyp
+
+# Mit Debug-Modus
+hypnoscript run script.hyp --debug
 
 # Mit detaillierter Ausgabe
-dotnet run --project HypnoScript.CLI -- run script.hyp --verbose
+hypnoscript run complex.hyp --verbose
 
-# Mit Timeout
-dotnet run --project HypnoScript.CLI -- run long_script.hyp --timeout 30
+# Beide Optionen kombiniert
+hypnoscript run test.hyp -d -v
+```
+
+### Debug-Modus Ausgabe
+
+Im Debug-Modus werden zusätzliche Informationen ausgegeben:
+
+```
+Running file: script.hyp
+Source code:
+Focus { ... }
+
+--- Lexing ---
+Tokens: 42
+
+--- Type Checking ---
+
+--- Executing ---
+<Programm-Ausgabe>
+
+✅ Program executed successfully!
+```
+
+## lex - Tokenisierung
+
+Tokenisiert eine HypnoScript-Datei und zeigt alle Token an.
+
+### Syntax
+
+```bash
+hypnoscript lex <FILE>
+```
+
+### Argumente
+
+| Argument | Beschreibung        | Erforderlich |
+| -------- | ------------------- | ------------ |
+| `<FILE>` | Pfad zur .hyp-Datei | ✅ Ja        |
+
+### Ausgabe
+
+Listet alle Token mit Index und Typ:
+
+```
+=== Tokens ===
+   0: Token { token_type: Focus, lexeme: "Focus", line: 1, column: 1 }
+   1: Token { token_type: LBrace, lexeme: "{", line: 1, column: 7 }
+   2: Token { token_type: Observe, lexeme: "observe", line: 2, column: 5 }
+   ...
+
+Total tokens: 42
+```
+
+### Verwendung
+
+- **Syntax-Debugging**: Verstehen wie der Lexer Code interpretiert
+- **Token-Analyse**: Prüfen ob Schlüsselwörter korrekt erkannt werden
+- **Lernzwecke**: Verstehen wie HypnoScript-Code tokenisiert wird
+
+### Beispiel
+
+```bash
+hypnoscript lex examples/01_hello_trance.hyp
+```
+
+## parse - AST anzeigen
+
+Parst eine HypnoScript-Datei und zeigt den resultierenden Abstract Syntax Tree (AST).
+
+### Syntax
+
+```bash
+hypnoscript parse <FILE>
+```
+
+### Argumente
+
+| Argument | Beschreibung        | Erforderlich |
+| -------- | ------------------- | ------------ |
+| `<FILE>` | Pfad zur .hyp-Datei | ✅ Ja        |
+
+### Ausgabe
+
+Zeigt den AST in formatierter Form:
+
+```
+=== AST ===
+Program([
+    FocusBlock([
+        ObserveStatement(
+            StringLiteral("Hallo Welt")
+        ),
+        VariableDeclaration {
+            name: "x",
+            type_annotation: Some("number"),
+            initializer: Some(NumberLiteral(42.0)),
+            is_constant: false
+        }
+    ])
+])
+```
+
+### Verwendung
+
+- **Struktur-Analyse**: Verstehen wie Code geparst wird
+- **Compiler-Debugging**: Probleme im Parser identifizieren
+- **Entwicklung**: AST-Struktur für Compiler-Erweiterungen verstehen
+
+### Beispiel
+
+```bash
+hypnoscript parse examples/02_variables_arithmetic.hyp
+```
+
+## check - Type Checking
+
+Führt Type Checking auf einer HypnoScript-Datei durch und meldet Typ-Fehler.
+
+### Syntax
+
+```bash
+hypnoscript check <FILE>
+```
+
+### Argumente
+
+| Argument | Beschreibung        | Erforderlich |
+| -------- | ------------------- | ------------ |
+| `<FILE>` | Pfad zur .hyp-Datei | ✅ Ja        |
+
+### Ausgabe
+
+**Ohne Fehler:**
+
+```
+✅ No type errors found!
+```
+
+**Mit Fehlern:**
+
+```
+❌ Type errors found:
+  - Variable 'x' used before declaration at line 5
+  - Type mismatch: expected number, got string at line 8
+  - Function 'unknown' not defined at line 12
+```
+
+### Type Checking Regeln
+
+Der Type Checker prüft:
+
+- ✅ Variablendeklarationen
+- ✅ Funktionsaufrufe und -signaturen
+- ✅ Typ-Kompatibilität in Zuweisungen
+- ✅ Array-Typen
+- ✅ Session-Member-Zugriffe
+- ✅ Return-Statement Typen
+
+### Verwendung
+
+- **Vor Deployment**: Typ-Fehler frühzeitig finden
+- **Entwicklung**: Code-Qualität sicherstellen
+- **CI/CD**: Als Teil der Build-Pipeline
+
+### Beispiel
+
+```bash
+hypnoscript check src/main.hyp
+
+# In CI/CD Pipeline
+hypnoscript check **/*.hyp
+if [ $? -eq 0 ]; then
+    echo "Type check passed"
+else
+    echo "Type check failed"
+    exit 1
+fi
+```
+
+## compile-wasm - WebAssembly Generierung
+
+Kompiliert ein HypnoScript-Programm zu WebAssembly Text Format (.wat).
+
+### Syntax
+
+```bash
+hypnoscript compile-wasm <INPUT> [OPTIONS]
+```
+
+### Argumente
+
+| Argument  | Beschreibung               | Erforderlich |
+| --------- | -------------------------- | ------------ |
+| `<INPUT>` | Pfad zur .hyp-Eingabedatei | ✅ Ja        |
+
+### Optionen
+
+| Option     | Kurzform | Beschreibung       | Standard      |
+| ---------- | -------- | ------------------ | ------------- |
+| `--output` | `-o`     | Ausgabe-.wat-Datei | `<input>.wat` |
+
+### Verhalten
+
+1. **Parsing**: Erstellt AST aus Quellcode
+2. **Code Generation**: Generiert WASM-Text-Format
+3. **Ausgabe**: Schreibt .wat-Datei
+
+**Hinweis:** Die generierte .wat-Datei kann mit Tools wie `wat2wasm` zu binärem WASM kompiliert werden.
+
+### Ausgabe
+
+```
+✅ WASM code written to: output.wat
+```
+
+### Beispiele
+
+```bash
+# Standard-Ausgabe (script.wat)
+hypnoscript compile-wasm script.hyp
+
+# Custom Ausgabedatei
+hypnoscript compile-wasm script.hyp --output program.wat
+hypnoscript compile-wasm script.hyp -o program.wat
+
+# Komplett zu binärem WASM (benötigt wabt)
+hypnoscript compile-wasm script.hyp
+wat2wasm script.wat -o script.wasm
+```
+
+### WASM-Integration
+
+Nach Kompilierung kann das WASM-Modul in verschiedenen Umgebungen verwendet werden:
+
+**Web (JavaScript):**
+
+```javascript
+WebAssembly.instantiateStreaming(fetch('script.wasm')).then((module) => {
+  // Nutze exportierte Funktionen
+});
+```
+
+**Node.js:**
+
+```javascript
+const fs = require('fs');
+const bytes = fs.readFileSync('script.wasm');
+const module = await WebAssembly.instantiate(bytes);
+```
+
+## version - Versionsinformationen
+
+Zeigt Versionsinformationen und Features der HypnoScript CLI.
+
+### Syntax
+
+```bash
+hypnoscript version
+```
+
+### Ausgabe
+
+```
+HypnoScript v1.0.0 (Rust Edition)
+The Hypnotic Programming Language
+
+Migrated from C# to Rust for improved performance
+
+Features:
+  - Full parser and interpreter
+  - Type checker
+  - WASM code generation
+  - 110+ builtin functions
+```
+
+### Verwendung
+
+- **Version prüfen**: Aktuell installierte Version feststellen
+- **Feature-Überblick**: Verfügbare Funktionalität anzeigen
+- **Debugging**: Version in Bug-Reports angeben
+
+### Beispiel
+
+```bash
+hypnoscript version
+```
+
+## builtins - Builtin-Funktionen auflisten
+
+Listet alle verfügbaren Builtin-Funktionen der HypnoScript Standard-Bibliothek.
+
+### Syntax
+
+```bash
+hypnoscript builtins
+```
+
+### Ausgabe
+
+```
+=== HypnoScript Builtin Functions ===
+
+📊 Math Builtins:
+  - Sin, Cos, Tan, Sqrt, Pow, Log, Log10
+  - Abs, Floor, Ceil, Round, Min, Max
+  - Factorial, Gcd, Lcm, IsPrime, Fibonacci
+  - Clamp
+
+📝 String Builtins:
+  - Length, ToUpper, ToLower, Trim
+  - IndexOf, Replace, Reverse, Capitalize
+  - StartsWith, EndsWith, Contains
+  - Split, Substring, Repeat
+  - PadLeft, PadRight
+
+📦 Array Builtins:
+  - Length, IsEmpty, Get, IndexOf, Contains
+  - Reverse, Sum, Average, Min, Max, Sort
+  - First, Last, Take, Skip, Slice
+  - Join, Count, Distinct
+
+✨ Hypnotic Builtins:
+  - observe (output)
+  - drift (sleep)
+  - DeepTrance
+  - HypnoticCountdown
+  - TranceInduction
+  - HypnoticVisualization
+
+🔄 Conversion Functions:
+  - ToInt, ToDouble, ToString, ToBoolean
+
+Total: 50+ builtin functions implemented
+```
+
+### Verwendung
+
+- **Referenz**: Schnell nachschlagen welche Funktionen verfügbar sind
+- **Entwicklung**: Entdecken neuer Funktionalität
+- **Dokumentation**: Liste für eigene Referenzen
+
+### Beispiel
+
+```bash
+# Auflisten
+hypnoscript builtins
 
 # Ausgabe in Datei umleiten
-dotnet run --project HypnoScript.CLI -- run script.hyp --output result.txt
+hypnoscript builtins > builtin-reference.txt
 
-# Mit zusätzlichen Argumenten
-dotnet run --project HypnoScript.CLI -- run script.hyp --args "param1=value1" "param2=value2"
-```
-
-## test - Tests ausführen
-
-Führt Tests für HypnoScript-Dateien aus.
-
-### Syntax
-
-```bash
-dotnet run --project HypnoScript.CLI -- test <pattern> [optionen]
-```
-
-### Optionen
-
-| Option      | Kurzform | Beschreibung                    |
-| ----------- | -------- | ------------------------------- |
-| `--verbose` | `-v`     | Detaillierte Test-Ausgabe       |
-| `--quiet`   | `-q`     | Nur Zusammenfassung             |
-| `--format`  | `-f`     | Ausgabeformat (text, json, xml) |
-| `--output`  | `-o`     | Test-Report-Datei               |
-| `--filter`  | `-F`     | Test-Filter                     |
-
-### Beispiele
-
-```bash
-# Alle Tests im aktuellen Verzeichnis
-dotnet run --project HypnoScript.CLI -- test *.hyp
-
-# Spezifische Test-Datei
-dotnet run --project HypnoScript.CLI -- test test_math.hyp
-
-# Tests mit detaillierter Ausgabe
-dotnet run --project HypnoScript.CLI -- test *.hyp --verbose
-
-# JSON-Report generieren
-dotnet run --project HypnoScript.CLI -- test *.hyp --format json --output test-report.json
-
-# Tests mit Filter
-dotnet run --project HypnoScript.CLI -- test *.hyp --filter "math"
-```
-
-## build - Programm kompilieren
-
-Kompiliert ein HypnoScript-Programm.
-
-### Syntax
-
-```bash
-dotnet run --project HypnoScript.CLI -- build <datei> [optionen]
-```
-
-### Optionen
-
-| Option       | Kurzform | Beschreibung             |
-| ------------ | -------- | ------------------------ |
-| `--output`   | `-o`     | Ausgabedatei             |
-| `--optimize` | `-O`     | Optimierungen aktivieren |
-| `--debug`    | `-d`     | Debug-Informationen      |
-| `--target`   | `-t`     | Zielformat (il, wasm)    |
-
-### Beispiele
-
-```bash
-# Programm kompilieren
-dotnet run --project HypnoScript.CLI -- build script.hyp
-
-# Mit Optimierungen
-dotnet run --project HypnoScript.CLI -- build script.hyp --optimize
-
-# Debug-Version
-dotnet run --project HypnoScript.CLI -- build script.hyp --debug
-
-# WebAssembly-Target
-dotnet run --project HypnoScript.CLI -- build script.hyp --target wasm
-```
-
-## debug - Debug-Modus
-
-Führt ein Programm im Debug-Modus aus.
-
-### Syntax
-
-```bash
-dotnet run --project HypnoScript.CLI -- debug <datei> [optionen]
-```
-
-### Optionen
-
-| Option          | Kurzform | Beschreibung                   |
-| --------------- | -------- | ------------------------------ |
-| `--breakpoints` | `-b`     | Breakpoint-Datei               |
-| `--step`        | `-s`     | Schritt-für-Schritt-Ausführung |
-| `--trace`       | `-t`     | Ausführungs-Trace              |
-| `--variables`   | `-v`     | Variablen anzeigen             |
-
-### Beispiele
-
-```bash
-# Debug-Modus starten
-dotnet run --project HypnoScript.CLI -- debug script.hyp
-
-# Mit Breakpoints
-dotnet run --project HypnoScript.CLI -- debug script.hyp --breakpoints breakpoints.txt
-
-# Schritt-für-Schritt
-dotnet run --project HypnoScript.CLI -- debug script.hyp --step
-
-# Mit Trace
-dotnet run --project HypnoScript.CLI -- debug script.hyp --trace
-
-# Variablen anzeigen
-dotnet run --project HypnoScript.CLI -- debug script.hyp --variables
-```
-
-## serve - Webserver starten
-
-Startet einen Webserver für HypnoScript-Anwendungen.
-
-### Syntax
-
-```bash
-dotnet run --project HypnoScript.CLI -- serve [optionen]
-```
-
-### Optionen
-
-| Option     | Kurzform | Beschreibung        |
-| ---------- | -------- | ------------------- |
-| `--port`   | `-p`     | Port-Nummer         |
-| `--host`   | `-h`     | Host-Adresse        |
-| `--config` | `-c`     | Konfigurationsdatei |
-| `--ssl`    | `-s`     | SSL aktivieren      |
-
-### Beispiele
-
-```bash
-# Standard-Webserver
-dotnet run --project HypnoScript.CLI -- serve
-
-# Mit spezifischem Port
-dotnet run --project HypnoScript.CLI -- serve --port 8080
-
-# Mit SSL
-dotnet run --project HypnoScript.CLI -- serve --ssl
-
-# Mit Konfiguration
-dotnet run --project HypnoScript.CLI -- serve --config server.json
-```
-
-## validate - Syntax prüfen
-
-Prüft die Syntax von HypnoScript-Dateien.
-
-### Syntax
-
-```bash
-dotnet run --project HypnoScript.CLI -- validate <datei> [optionen]
-```
-
-### Optionen
-
-| Option       | Kurzform | Beschreibung        |
-| ------------ | -------- | ------------------- |
-| `--strict`   | `-s`     | Strikte Validierung |
-| `--warnings` | `-w`     | Warnungen anzeigen  |
-| `--output`   | `-o`     | Validierungs-Report |
-
-### Beispiele
-
-```bash
-# Syntax prüfen
-dotnet run --project HypnoScript.CLI -- validate script.hyp
-
-# Strikte Validierung
-dotnet run --project HypnoScript.CLI -- validate script.hyp --strict
-
-# Mit Warnungen
-dotnet run --project HypnoScript.CLI -- validate script.hyp --warnings
-
-# Report generieren
-dotnet run --project HypnoScript.CLI -- validate script.hyp --output validation.json
-```
-
-## format - Code formatieren
-
-Formatiert HypnoScript-Code.
-
-### Syntax
-
-```bash
-dotnet run --project HypnoScript.CLI -- format <datei> [optionen]
-```
-
-### Optionen
-
-| Option       | Kurzform | Beschreibung             |
-| ------------ | -------- | ------------------------ |
-| `--check`    | `-c`     | Nur prüfen, nicht ändern |
-| `--in-place` | `-i`     | Datei direkt ändern      |
-| `--output`   | `-o`     | Ausgabedatei             |
-
-### Beispiele
-
-```bash
-# Code formatieren
-dotnet run --project HypnoScript.CLI -- format script.hyp
-
-# Nur prüfen
-dotnet run --project HypnoScript.CLI -- format script.hyp --check
-
-# Direkt ändern
-dotnet run --project HypnoScript.CLI -- format script.hyp --in-place
-
-# In neue Datei
-dotnet run --project HypnoScript.CLI -- format script.hyp --output formatted.hyp
-```
-
-## lint - Code-Analyse
-
-Führt statische Code-Analyse durch.
-
-### Syntax
-
-```bash
-dotnet run --project HypnoScript.CLI -- lint <datei> [optionen]
-```
-
-### Optionen
-
-| Option       | Kurzform | Beschreibung        |
-| ------------ | -------- | ------------------- |
-| `--rules`    | `-r`     | Lint-Regeln         |
-| `--severity` | `-s`     | Mindest-Schweregrad |
-| `--output`   | `-o`     | Lint-Report         |
-
-### Beispiele
-
-```bash
-# Code-Analyse
-dotnet run --project HypnoScript.CLI -- lint script.hyp
-
-# Mit spezifischen Regeln
-dotnet run --project HypnoScript.CLI -- lint script.hyp --rules "style,performance"
-
-# Nur Fehler
-dotnet run --project HypnoScript.CLI -- lint script.hyp --severity error
-
-# Report generieren
-dotnet run --project HypnoScript.CLI -- lint script.hyp --output lint-report.json
-```
-
-## package - Paket erstellen
-
-Erstellt ein ausführbares Paket.
-
-### Syntax
-
-```bash
-dotnet run --project HypnoScript.CLI -- package <datei> [optionen]
-```
-
-### Optionen
-
-| Option           | Kurzform | Beschreibung                |
-| ---------------- | -------- | --------------------------- |
-| `--output`       | `-o`     | Ausgabedatei                |
-| `--runtime`      | `-r`     | Ziel-Runtime                |
-| `--dependencies` | `-d`     | Abhängigkeiten einschließen |
-
-### Beispiele
-
-```bash
-# Paket erstellen
-dotnet run --project HypnoScript.CLI -- package script.hyp
-
-# Mit Runtime
-dotnet run --project HypnoScript.CLI -- package script.hyp --runtime win-x64
-
-# Mit Abhängigkeiten
-dotnet run --project HypnoScript.CLI -- package script.hyp --dependencies
-
-# Spezifische Ausgabe
-dotnet run --project HypnoScript.CLI -- package script.hyp --output myapp.exe
+# Filtern mit grep
+hypnoscript builtins | grep "Array"
 ```
 
 ## Globale Optionen
 
-Alle Befehle unterstützen diese globalen Optionen:
+Diese Optionen funktionieren mit allen Befehlen:
 
-| Option        | Kurzform | Beschreibung                         |
-| ------------- | -------- | ------------------------------------ |
-| `--help`      | `-h`     | Hilfe anzeigen                       |
-| `--version`   | `-V`     | Version anzeigen                     |
-| `--verbose`   | `-v`     | Detaillierte Ausgabe                 |
-| `--quiet`     | `-q`     | Minimale Ausgabe                     |
-| `--config`    | `-c`     | Konfigurationsdatei                  |
-| `--log-level` | `-l`     | Log-Level (debug, info, warn, error) |
+| Option      | Kurzform | Beschreibung         |
+| ----------- | -------- | -------------------- |
+| `--help`    | `-h`     | Zeigt Hilfe          |
+| `--version` | `-V`     | Zeigt Version (kurz) |
 
-## Konfigurationsdatei
-
-Die CLI kann über eine `hypnoscript.config.json` konfiguriert werden:
-
-```json
-{
-  "defaultOutput": "console",
-  "enableDebug": false,
-  "logLevel": "info",
-  "timeout": 30000,
-  "maxMemory": 512,
-  "testFramework": {
-    "autoRun": true,
-    "reportFormat": "detailed"
-  },
-  "server": {
-    "port": 8080,
-    "host": "localhost"
-  },
-  "formatting": {
-    "indentSize": 2,
-    "maxLineLength": 80
-  },
-  "linting": {
-    "rules": ["style", "performance", "security"],
-    "severity": "warning"
-  }
-}
-```
-
-## Umgebungsvariablen
-
-| Variable                | Beschreibung             |
-| ----------------------- | ------------------------ |
-| `HYPNOSCRIPT_HOME`      | Installationsverzeichnis |
-| `HYPNOSCRIPT_LOG_LEVEL` | Log-Level                |
-| `HYPNOSCRIPT_CONFIG`    | Konfigurationsdatei      |
-| `HYPNOSCRIPT_TIMEOUT`   | Standard-Timeout         |
-
-## Beispiele für komplexe Workflows
-
-### Entwicklungsworkflow
+### Beispiele
 
 ```bash
-# 1. Syntax prüfen
-dotnet run --project HypnoScript.CLI -- validate script.hyp
+# Hilfe für Hauptbefehl
+hypnoscript --help
 
-# 2. Code formatieren
-dotnet run --project HypnoScript.CLI -- format script.hyp --in-place
+# Hilfe für Unterbefehl
+hypnoscript run --help
 
-# 3. Lint-Analyse
-dotnet run --project HypnoScript.CLI -- lint script.hyp
-
-# 4. Tests ausführen
-dotnet run --project HypnoScript.CLI -- test *.hyp
-
-# 5. Programm ausführen
-dotnet run --project HypnoScript.CLI -- run script.hyp
+# Kurzversion
+hypnoscript --version
 ```
 
-### CI/CD-Pipeline
+## Exit Codes
+
+Die CLI verwendet Standard-Exit-Codes:
+
+| Code | Bedeutung                   |
+| ---- | --------------------------- |
+| `0`  | Erfolg                      |
+| `1`  | Fehler (Parse/Type/Runtime) |
+
+### Verwendung in Scripts
 
 ```bash
-# Build und Test
-dotnet run --project HypnoScript.CLI -- build script.hyp --optimize
-dotnet run --project HypnoScript.CLI -- test *.hyp --format json --output test-results.json
-dotnet run --project HypnoScript.CLI -- lint script.hyp --severity error
+#!/bin/bash
 
-# Deployment
-dotnet run --project HypnoScript.CLI -- package script.hyp --runtime linux-x64
-dotnet run --project HypnoScript.CLI -- serve --port 8080 --ssl
+hypnoscript check script.hyp
+if [ $? -eq 0 ]; then
+    hypnoscript run script.hyp
+else
+    echo "Type check failed!"
+    exit 1
+fi
 ```
+
+## Best Practices
+
+### Entwicklungs-Workflow
+
+1. **Schreiben**: Code in .hyp-Datei schreiben
+2. **Prüfen**: `hypnoscript check script.hyp`
+3. **Testen**: `hypnoscript run script.hyp --debug`
+4. **Optimieren**: Bei Bedarf Code anpassen
+5. **Deployen**: Final mit `hypnoscript run script.hyp`
 
 ### Debugging-Workflow
 
-```bash
-# 1. Syntax prüfen
-dotnet run --project HypnoScript.CLI -- validate script.hyp
+1. **Lexing prüfen**: `hypnoscript lex script.hyp`
+2. **AST prüfen**: `hypnoscript parse script.hyp`
+3. **Typen prüfen**: `hypnoscript check script.hyp`
+4. **Ausführen**: `hypnoscript run script.hyp --debug --verbose`
 
-# 2. Debug-Modus mit Trace
-dotnet run --project HypnoScript.CLI -- debug script.hyp --trace --variables
+### CI/CD Integration
 
-# 3. Schritt-für-Schritt
-dotnet run --project HypnoScript.CLI -- debug script.hyp --step
+```yaml
+# GitHub Actions Beispiel
+steps:
+  - name: Install HypnoScript
+    run: cargo install --path hypnoscript-cli
+
+  - name: Type Check
+    run: hypnoscript check src/**/*.hyp
+
+  - name: Run Tests
+    run: |
+      for file in tests/*.hyp; do
+        hypnoscript run "$file"
+      done
+
+  - name: Build WASM
+    run: hypnoscript compile-wasm src/main.hyp -o dist/app.wat
 ```
 
-## Nächste Schritte
+## Tipps & Tricks
 
-- [Konfiguration](./configuration) - Erweiterte Konfiguration
-- [Testing](./testing) - Test-Framework
-- [Debugging](./debugging) - Debugging-Tools
-- [Runtime-Features](./enterprise-features) - Runtime-Features
+### Shell-Aliase
 
----
+Vereinfache häufige Befehle:
 
-**Beherrschst du die CLI-Befehle? Dann lerne die [Konfiguration](./configuration) kennen!** ⚙️
+```bash
+# In ~/.bashrc oder ~/.zshrc
+alias hyp='hypnoscript'
+alias hyp-run='hypnoscript run'
+alias hyp-check='hypnoscript check'
+alias hyp-wasm='hypnoscript compile-wasm'
+```
+
+Verwendung:
+
+```bash
+hyp run script.hyp
+hyp-check script.hyp
+hyp-wasm script.hyp
+```
+
+### Batch-Verarbeitung
+
+```bash
+# Alle .hyp-Dateien prüfen
+for file in **/*.hyp; do
+    echo "Checking $file..."
+    hypnoscript check "$file"
+done
+
+# Alle Tests ausführen
+for file in tests/*.hyp; do
+    echo "Running $file..."
+    hypnoscript run "$file"
+done
+```
+
+### Output Redirection
+
+```bash
+# Fehler in Datei schreiben
+hypnoscript run script.hyp 2> errors.log
+
+# Ausgabe UND Fehler
+hypnoscript run script.hyp &> complete.log
+
+# Nur Fehler anzeigen
+hypnoscript run script.hyp 2>&1 >/dev/null
+```
+
+## Siehe auch
+
+- [Quick Start](../getting-started/quick-start) - Erste Schritte
+- [Debugging](./debugging) - Erweiterte Debugging-Techniken
+- [Configuration](./configuration) - CLI-Konfiguration
+- [Builtin Functions](../builtins/overview) - Referenz aller Funktionen

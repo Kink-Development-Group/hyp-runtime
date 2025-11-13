@@ -284,7 +284,7 @@ Benchmark "Array-Sortierung" {
 
         // Performance-Metriken speichern
         RecordMetric("sort_duration", duration);
-        RecordMetric("array_size", ArrayLength(arr));
+        RecordMetric("array_size", Length(arr));
     }
 } Relax;
 ```

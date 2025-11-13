@@ -4,7 +4,7 @@ layout: home
 hero:
   name: 'HypnoScript'
   text: 'Die hypnotische Programmiersprache'
-  tagline: Code with style - Moderne Programmierung mit hypnotischer Eleganz
+  tagline: Code with style – moderne Programmierung mit hypnotischer Eleganz
   image:
     src: /img/logo.svg
     alt: HypnoScript Logo
@@ -22,39 +22,31 @@ hero:
 features:
   - icon: 🎯
     title: Hypnotische Syntax
-    details: Einzigartige Schlüsselwörter wie Focus, Trance, Induce und Observe machen deinen Code ausdrucksstark und lesbar.
+    details: Schlüsselwörter wie Focus, Relax, induce, observe oder deepFocus übersetzen hypnotische Metaphern direkt in Code.
 
-  - icon: 🚀
-    title: Modern & Leistungsstark
-    details: In Rust entwickelt für maximale Performance, Sicherheit und Zuverlässigkeit. Kompiliert zu nativem Code oder WASM.
+  - icon: 🦀
+    title: Vollständig in Rust umgesetzt
+    details: Lexer, Parser, Type Checker, Interpreter und WASM-Codegen laufen nativ auf Windows, macOS und Linux.
+
+  - icon: 🧠
+    title: Statisches Typ-System
+    details: Der Type Checker entdeckt Fehler frühzeitig und versteht Sessions, Records und Funktionen.
 
   - icon: 📦
     title: Umfangreiche Standardbibliothek
-    details: Über 200+ eingebaute Funktionen für Arrays, Strings, Mathematik, Dateien, Hashing, Statistik und mehr.
+    details: Über 110 eingebaute Funktionen für Arrays, Strings, Mathematik, Dateien, Statistik, System- und Zeitoperationen.
 
-  - icon: 🎨
-    title: Typsicher
-    details: Statischer Type Checker für frühe Fehlererkennung und bessere Code-Qualität.
+  - icon: 🛠️
+    title: Produktive CLI
+    details: Ein einzelnes Binary bietet run, lex, parse, check, compile-wasm, builtins und version.
 
-  - icon: 🧪
-    title: Integriertes Testing
-    details: Eingebautes Test-Framework mit Assertions für TDD und qualitätsgesicherte Entwicklung.
+  - icon: 🧩
+    title: Sessions & Tranceify
+    details: Objektorientierte Sessions mit Sichtbarkeiten sowie Record-Typen für strukturierte Daten.
 
-  - icon: 🐛
-    title: Debugging-Support
-    details: Umfassende Debug-Tools mit Breakpoints, Step-Execution und detaillierten Fehlermeldungen.
-
-  - icon: 📊
-    title: Records & Sessions
-    details: Strukturierte Datentypen und Sessions für State-Management in komplexen Anwendungen.
-
-  - icon: 🔧
-    title: CLI Tools
-    details: Leistungsstarke Kommandozeilen-Tools für Build, Run, Test und Debug-Operationen.
-
-  - icon: 🌍
-    title: Plattformübergreifend
-    details: Läuft auf Windows, macOS und Linux. Kompiliert zu WASM für Web-Integration.
+  - icon: 🌐
+    title: Webready mit WASM
+    details: Programme lassen sich optional nach WebAssembly (.wat) generieren und weiterverarbeiten.
 ---
 
 ## Schneller Einstieg
@@ -62,12 +54,18 @@ features:
 ### Installation
 
 ```bash
-# Download und Installation (Windows, macOS, Linux)
-curl -sSL https://hypnoscript.dev/install.sh | sh
+# Repository klonen
+git clone https://github.com/Kink-Development-Group/hyp-runtime.git
+cd hyp-runtime
 
-# Oder via Package Manager
-cargo install hypnoscript-cli
+# HypnoScript CLI in Release-Qualität bauen
+cargo build -p hypnoscript-cli --release
+
+# Optional global installieren (binary heißt hypnoscript)
+cargo install --path hypnoscript-cli
 ```
+
+Fertige Artefakte (Windows, macOS, Linux) findest du außerdem im Ordner `release/` sowie unter [GitHub Releases](https://github.com/Kink-Development-Group/hyp-runtime/releases).
 
 ### Dein erstes HypnoScript-Programm
 
@@ -77,31 +75,35 @@ Focus {
         observe "Willkommen bei HypnoScript!";
     }
 
-    induce name = "Entwickler";
+    induce name: string = "Entwickler";
     observe "Hallo, " + name + "!";
 
-    induce numbers = [1, 2, 3, 4, 5];
+    induce numbers: number[] = [1, 2, 3, 4, 5];
     induce sum = ArraySum(numbers);
     observe "Summe: " + ToString(sum);
+
+    if (sum lookAtTheWatch 10) deepFocus {
+        observe "Die Erinnerung wird jetzt intensiver.";
+    }
 }
 ```
 
 ### Ausführen
 
 ```bash
-hyp run mein_script.hyp
+hypnoscript run mein_script.hyp
 ```
 
 ## Warum HypnoScript?
 
-HypnoScript kombiniert die Eleganz moderner Programmiersprachen mit einer einzigartigen, hypnotisch inspirierten Syntax. Die Sprache ist in Rust entwickelt und bietet:
+HypnoScript kombiniert die Eleganz moderner Programmiersprachen mit einer einzigartigen, hypnotisch inspirierten Syntax. Die aktuelle Rust-Implementierung liefert:
 
-- **🎯 Einzigartige Syntax** - Ausdrucksstark und intuitiv
-- **⚡ Hohe Performance** - Dank Rust-basierter Runtime
-- **🔒 Typ-Sicherheit** - Statischer Type Checker verhindert Laufzeitfehler
-- **🧩 Reiches Ökosystem** - Umfangreiche Builtin-Bibliothek
-- **🧪 Testing First** - Eingebautes Test-Framework
-- **📚 Vollständige Dokumentation** - Ausführliche Guides und Tutorials
+- **🎯 Einzigartige Syntax** – Focus/Relax-Blöcke, hypnotische Operatoren wie `youAreFeelingVerySleepy` (`==`) und `underMyControl` (`&&`).
+- **🦾 Rust-Performance** – Keine .NET-Abhängigkeiten, schnelle Binaries, optionale WASM-Ausgabe.
+- **🔒 Statische Sicherheit** – Der Type Checker versteht Variablen, Funktionen, Sessions und Record-Typen (`tranceify`).
+- **🧰 Standardbibliothek** – Mathe, Strings, Arrays, Dateien, Statistik, Validierung, System- und Zeitfunktionen.
+- **🧪 Entwicklungs-Workflow** – CLI unterstützt Lexing, Parsing, Type Checking und die Programmausführung.
+- **📄 Beispiele & Tests** – Umfangreiche `.hyp`-Beispiele sowie Regressionstests im Repository.
 
 ## Community & Support
 

@@ -4,203 +4,277 @@ sidebar_position: 4
 
 # Mathematische Funktionen
 
-HypnoScript bietet umfangreiche mathematische Funktionen für Berechnungen, Statistik und wissenschaftliche Anwendungen.
+HypnoScript bietet mathematische Funktionen für Berechnungen, Trigonometrie und Zahlentheorie.
 
-## Grundlegende Mathematik
+## Verfügbare Funktionen
 
-### Abs(x)
+Die folgenden Funktionen sind in der `MathBuiltins`-Bibliothek verfügbar:
 
-Gibt den absoluten Wert einer Zahl zurück.
+### Trigonometrische Funktionen
 
-```hyp
-induce abs1 = Abs(-5); // 5
-induce abs2 = Abs(3.14); // 3.14
-induce abs3 = Abs(0); // 0
-```
+#### sin(x: number): number
 
-### Sign(x)
-
-Gibt das Vorzeichen einer Zahl zurück (-1, 0, 1).
+Berechnet den Sinus (x in Radiant).
 
 ```hyp
-induce sign1 = Sign(-10); // -1
-induce sign2 = Sign(0); // 0
-induce sign3 = Sign(42); // 1
+Focus {
+    induce result: number = sin(0);  // 0
+    observe "sin(0) = " + result;
+} Relax
 ```
 
-### Floor(x)
+#### cos(x: number): number
 
-Rundet eine Zahl ab.
+Berechnet den Kosinus (x in Radiant).
 
 ```hyp
-induce floor1 = Floor(3.7); // 3
-induce floor2 = Floor(-3.7); // -4
-induce floor3 = Floor(5); // 5
+Focus {
+    induce result: number = cos(0);  // 1
+    observe "cos(0) = " + result;
+} Relax
 ```
 
-### Ceiling(x)
+#### tan(x: number): number
 
-Rundet eine Zahl auf.
+Berechnet den Tangens (x in Radiant).
 
 ```hyp
-induce ceiling1 = Ceiling(3.2); // 4
-induce ceiling2 = Ceiling(-3.2); // -3
-induce ceiling3 = Ceiling(5); // 5
+Focus {
+    induce result: number = tan(0);  // 0
+    observe "tan(0) = " + result;
+} Relax
 ```
 
-### Round(x, decimals)
+### Wurzel- und Potenzfunktionen
 
-Rundet eine Zahl auf eine bestimmte Anzahl Dezimalstellen.
-
-```hyp
-induce round1 = Round(3.14159, 2); // 3.14
-induce round2 = Round(3.14159, 0); // 3
-induce round3 = Round(3.5, 0); // 4
-```
-
-### Min(x, y)
-
-Gibt den kleineren von zwei Werten zurück.
-
-```hyp
-induce min1 = Min(5, 3); // 3
-induce min2 = Min(-10, 5); // -10
-induce min3 = Min(3.14, 3.15); // 3.14
-```
-
-### Max(x, y)
-
-Gibt den größeren von zwei Werten zurück.
-
-```hyp
-induce max1 = Max(5, 3); // 5
-induce max2 = Max(-10, 5); // 5
-induce max3 = Max(3.14, 3.15); // 3.15
-```
-
-### Clamp(value, min, max)
-
-Begrenzt einen Wert auf einen Bereich.
-
-```hyp
-induce clamp1 = Clamp(15, 0, 10); // 10
-induce clamp2 = Clamp(-5, 0, 10); // 0
-induce clamp3 = Clamp(5, 0, 10); // 5
-```
-
-## Potenzen und Wurzeln
-
-### Pow(base, exponent)
-
-Berechnet eine Potenz.
-
-```hyp
-induce pow1 = Pow(2, 3); // 8
-induce pow2 = Pow(5, 2); // 25
-induce pow3 = Pow(2, 0.5); // 1.4142135623730951
-```
-
-### Sqrt(x)
+#### sqrt(x: number): number
 
 Berechnet die Quadratwurzel.
 
 ```hyp
-induce sqrt1 = Sqrt(16); // 4
-induce sqrt2 = Sqrt(2); // 1.4142135623730951
-induce sqrt3 = Sqrt(0); // 0
+Focus {
+    induce result: number = sqrt(16);  // 4
+    observe "sqrt(16) = " + result;
+} Relax
 ```
 
-### Cbrt(x)
+#### pow(base: number, exponent: number): number
 
-Berechnet die Kubikwurzel.
+Berechnet eine Potenz.
 
 ```hyp
-induce cbrt1 = Cbrt(27); // 3
-induce cbrt2 = Cbrt(8); // 2
-induce cbrt3 = Cbrt(-8); // -2
+Focus {
+    induce result: number = pow(2, 3);  // 8
+    observe "2^3 = " + result;
+} Relax
 ```
 
-### Root(x, n)
+### Logarithmen
 
-Berechnet die n-te Wurzel.
+#### log(x: number): number
+
+Berechnet den natürlichen Logarithmus (ln).
 
 ```hyp
-induce root1 = Root(16, 4); // 2
-induce root2 = Root(32, 5); // 2
-induce root3 = Root(100, 2); // 10
+Focus {
+    induce result: number = log(2.718281828);  // ~1
+    observe "ln(e) = " + result;
+} Relax
 ```
 
-## Trigonometrie
+#### log10(x: number): number
 
-### Sin(x)
-
-Berechnet den Sinus (Radiant).
+Berechnet den Logarithmus zur Basis 10.
 
 ```hyp
-induce sin1 = Sin(0); // 0
-induce sin2 = Sin(PI / 2); // 1
-induce sin3 = Sin(PI); // 0
+Focus {
+    induce result: number = log10(100);  // 2
+    observe "log10(100) = " + result;
+} Relax
 ```
 
-### Cos(x)
+### Rundungsfunktionen
 
-Berechnet den Kosinus (Radiant).
+#### abs(x: number): number
+
+Gibt den absoluten Wert zurück.
 
 ```hyp
-induce cos1 = Cos(0); // 1
-induce cos2 = Cos(PI / 2); // 0
-induce cos3 = Cos(PI); // -1
+Focus {
+    induce result: number = abs(-5);  // 5
+    observe "abs(-5) = " + result;
+} Relax
 ```
 
-### Tan(x)
+#### floor(x: number): number
 
-Berechnet den Tangens (Radiant).
+Rundet ab.
 
 ```hyp
-induce tan1 = Tan(0); // 0
-induce tan2 = Tan(PI / 4); // 1
-induce tan3 = Tan(PI / 2); // Unendlich
+Focus {
+    induce result: number = floor(3.7);  // 3
+    observe "floor(3.7) = " + result;
+} Relax
 ```
 
-### Asin(x)
+#### ceil(x: number): number
 
-Berechnet den Arkussinus.
+Rundet auf.
 
 ```hyp
-induce asin1 = Asin(0); // 0
-induce asin2 = Asin(1); // PI / 2
-induce asin3 = Asin(-1); // -PI / 2
+Focus {
+    induce result: number = ceil(3.2);  // 4
+    observe "ceil(3.2) = " + result;
+} Relax
 ```
 
-### Acos(x)
+#### round(x: number): number
 
-Berechnet den Arkuskosinus.
+Rundet zur nächsten ganzen Zahl.
 
 ```hyp
-induce acos1 = Acos(1); // 0
-induce acos2 = Acos(0); // PI / 2
-induce acos3 = Acos(-1); // PI
+Focus {
+    induce result: number = round(3.5);  // 4
+    observe "round(3.5) = " + result;
+} Relax
 ```
 
-### Atan(x)
+### Min/Max
 
-Berechnet den Arkustangens.
+#### min(a: number, b: number): number
+
+Gibt den kleineren Wert zurück.
 
 ```hyp
-induce atan1 = Atan(0); // 0
-induce atan2 = Atan(1); // PI / 4
-induce atan3 = Atan(-1); // -PI / 4
+Focus {
+    induce result: number = min(5, 3);  // 3
+    observe "min(5, 3) = " + result;
+} Relax
 ```
 
-### Atan2(y, x)
+#### max(a: number, b: number): number
 
-Berechnet den Arkustangens mit Quadrantenbestimmung.
+Gibt den größeren Wert zurück.
 
 ```hyp
-induce atan2_1 = Atan2(1, 1); // PI / 4
-induce atan2_2 = Atan2(1, -1); // 3 * PI / 4
-induce atan2_3 = Atan2(-1, -1); // -3 * PI / 4
+Focus {
+    induce result: number = max(5, 3);  // 5
+    observe "max(5, 3) = " + result;
+} Relax
 ```
+
+### Erweiterte Funktionen
+
+#### factorial(n: number): number
+
+Berechnet die Fakultät.
+
+```hyp
+Focus {
+    induce result: number = factorial(5);  // 120
+    observe "5! = " + result;
+} Relax
+```
+
+#### gcd(a: number, b: number): number
+
+Berechnet den größten gemeinsamen Teiler.
+
+```hyp
+Focus {
+    induce result: number = gcd(48, 18);  // 6
+    observe "gcd(48, 18) = " + result;
+} Relax
+```
+
+#### lcm(a: number, b: number): number
+
+Berechnet das kleinste gemeinsame Vielfache.
+
+```hyp
+Focus {
+    induce result: number = lcm(12, 18);  // 36
+    observe "lcm(12, 18) = " + result;
+} Relax
+```
+
+#### is_prime(n: number): boolean
+
+Prüft, ob eine Zahl eine Primzahl ist.
+
+```hyp
+Focus {
+    induce result: boolean = is_prime(7);  // true
+    observe "7 ist Primzahl: " + result;
+} Relax
+```
+
+#### fibonacci(n: number): number
+
+Berechnet die n-te Fibonacci-Zahl.
+
+```hyp
+Focus {
+    induce result: number = fibonacci(10);  // 55
+    observe "fibonacci(10) = " + result;
+} Relax
+```
+
+#### clamp(value: number, min: number, max: number): number
+
+Begrenzt einen Wert auf einen Bereich.
+
+```hyp
+Focus {
+    induce result: number = clamp(15, 0, 10);  // 10
+    observe "clamp(15, 0, 10) = " + result;
+} Relax
+```
+
+## Vollständiges Beispiel
+
+```hyp
+Focus {
+    entrance {
+        observe "=== Mathematische Funktionen Demo ===";
+
+        // Trigonometrie
+        induce angle: number = 0;
+        observe "sin(0) = " + sin(angle);
+        observe "cos(0) = " + cos(angle);
+
+        // Wurzeln und Potenzen
+        observe "sqrt(16) = " + sqrt(16);
+        observe "pow(2, 10) = " + pow(2, 10);
+
+        // Rundung
+        induce pi: number = 3.14159;
+        observe "floor(pi) = " + floor(pi);
+        observe "ceil(pi) = " + ceil(pi);
+        observe "round(pi) = " + round(pi);
+
+        // Min/Max
+        observe "min(5, 10) = " + min(5, 10);
+        observe "max(5, 10) = " + max(5, 10);
+
+        // Erweiterte Funktionen
+        observe "factorial(5) = " + factorial(5);
+        observe "gcd(48, 18) = " + gcd(48, 18);
+        observe "fibonacci(10) = " + fibonacci(10);
+        observe "is_prime(13): " + is_prime(13);
+    }
+} Relax
+```
+
+## Hinweise
+
+- Alle Winkelfunktionen (sin, cos, tan) erwarten Radiant als Eingabe
+- Die Funktionen sind direkt verfügbar und müssen nicht importiert werden
+- Typ-Konvertierungen erfolgen automatisch zwischen ganzen Zahlen und Fließkommazahlen
+  induce atan2_2 = Atan2(1, -1); // 3 _ PI / 4
+  induce atan2_3 = Atan2(-1, -1); // -3 _ PI / 4
+
+````
 
 ### DegreesToRadians(degrees)
 
@@ -210,7 +284,7 @@ Konvertiert Grad in Radiant.
 induce rad1 = DegreesToRadians(0); // 0
 induce rad2 = DegreesToRadians(90); // PI / 2
 induce rad3 = DegreesToRadians(180); // PI
-```
+````
 
 ### RadiansToDegrees(radians)
 

@@ -4,6 +4,10 @@ sidebar_position: 3
 
 # String-Funktionen
 
+:::tip Vollständige Referenz
+Siehe [Builtin-Funktionen Vollständige Referenz](./_complete-reference#string-builtins) für die vollständige, aktuelle Dokumentation aller String-Funktionen.
+:::
+
 HypnoScript bietet umfangreiche String-Funktionen für Textverarbeitung, -manipulation und -analyse.
 
 ## Grundlegende String-Operationen
