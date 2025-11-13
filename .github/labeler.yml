@@ -77,7 +77,7 @@
 
 'type:task':
   - head-branch:
-  - '^(?:[Tt][Aa][Ss][Kk]|[Cc][Hh][Oo][Rr][Ee])[-/].+'
+      - '^(?:[Tt][Aa][Ss][Kk]|[Cc][Hh][Oo][Rr][Ee])[-/].+'
 
 'type:release':
   - head-branch:
