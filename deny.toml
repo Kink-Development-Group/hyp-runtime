@@ -105,6 +105,7 @@ allow = [
 ]
 # Treat unused allowlist entries as informational to avoid noisy warnings when
 # preparing for future dependencies.
+# Currently, this is set to "allow" because CDLA-Permissive-2.0 (see line 104) is included in anticipation of future dependencies that may use this license.
 unused-allowed-license = "allow"
 # The confidence threshold for detecting a license from license text.
 # The higher the value, the more closely the license text must be to the
