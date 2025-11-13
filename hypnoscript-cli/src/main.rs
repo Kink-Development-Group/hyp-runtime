@@ -361,7 +361,7 @@ fn fetch_latest_release(agent: &Agent, include_prerelease: bool) -> Result<Githu
 }
 
 fn parse_version(tag: &str) -> Result<Version> {
-    let normalized = tag.trim_start_matches(|c| c == 'v' || c == 'V');
+    let normalized = tag.trim_start_matches(['v', 'V']);
     Version::parse(normalized).map_err(|err| anyhow!("Ungültige Versionsangabe '{}': {}", tag, err))
 }
 

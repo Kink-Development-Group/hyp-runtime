@@ -1251,13 +1251,13 @@ impl TypeChecker {
             AstNode::ReturnStatement(value) => {
                 if let Some(val) = value {
                     let actual_type = self.infer_type(val);
-                    if let Some(ret_type) = &self.current_function_return_type.clone() {
-                        if !self.types_compatible(ret_type, &actual_type) {
-                            self.errors.push(format!(
-                                "Return type mismatch: expected {}, got {}",
-                                ret_type, actual_type
-                            ));
-                        }
+                    if let Some(ret_type) = &self.current_function_return_type.clone()
+                        && !self.types_compatible(ret_type, &actual_type)
+                    {
+                        self.errors.push(format!(
+                            "Return type mismatch: expected {}, got {}",
+                            ret_type, actual_type
+                        ));
                     }
                 }
             }
