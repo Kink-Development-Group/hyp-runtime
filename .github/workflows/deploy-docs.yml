@@ -1,76 +1,155 @@
-name: Deploy Documentation to GitHub Pages
+name: Deploy VitePress Documentation to GitHub Pages
 
 permissions:
-  contents: write
+  contents: read
+  pages: write
+  id-token: write
+
+# Allow one concurrent deployment
+concurrency:
+  group: pages
+  cancel-in-progress: false
 
 on:
   push:
     branches: [main]
     paths:
-      - 'HypnoScript.Dokumentation/**'
-      - '.github/workflows/deploy-docs.yml'
+      - "hypnoscript-docs/**"
+      - ".github/workflows/deploy-docs.yml"
+      - "hypnoscript-*/src/**"
+      - "README.md"
   pull_request:
     branches: [main]
     paths:
-      - 'HypnoScript.Dokumentation/**'
+      - "hypnoscript-docs/**"
+      - "hypnoscript-*/src/**"
 
 jobs:
-  build-and-deploy:
+  build:
     runs-on: ubuntu-latest
+    env:
+      RUST_DOC_SRC: target/doc
+      RUST_DOC_OUTPUT: rust-docs
 
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 # Für VitePress lastUpdated-Feature
+
+      - name: Setup Rust
+        uses: actions-rust-lang/setup-rust-toolchain@v1
+        with:
+          toolchain: stable
+
+      - name: Build Rust documentation
+        run: |
+          cargo doc --no-deps --workspace --release
+
+      - name: Ensure rust source dir exists
+        run: |
+          if [ ! -d "${RUST_DOC_SRC}" ]; then
+            echo "'rust-src-dir' does not point to an existing directory"
+            echo "The value of 'rust-src-dir' is: ${RUST_DOC_SRC}"
+            exit 1
+          fi
+          mkdir -p "${RUST_DOC_OUTPUT}"
+          cp -r "${RUST_DOC_SRC}/." "${RUST_DOC_OUTPUT}/"
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '18'
-          cache: 'npm'
-          cache-dependency-path: HypnoScript.Dokumentation/package-lock.json
+          node-version: "20"
+          cache: "npm"
+          cache-dependency-path: hypnoscript-docs/package-lock.json
+
+      - name: Setup Pages
+        uses: actions/configure-pages@v4
 
       - name: Install Dependencies
-        working-directory: HypnoScript.Dokumentation
+        working-directory: hypnoscript-docs
         run: npm ci
 
-      - name: Build Documentation
-        working-directory: HypnoScript.Dokumentation
+      - name: Build VitePress Documentation
+        working-directory: hypnoscript-docs
         run: npm run build
 
-      - name: Deploy to GitHub Pages
-        if: github.ref == 'refs/heads/main'
-        uses: peaceiris/actions-gh-pages@v3
+      - name: Copy Rust docs to build directory
+        run: |
+          mkdir -p hypnoscript-docs/docs/.vitepress/dist/rust-api
+          cp -r "${RUST_DOC_OUTPUT}/." hypnoscript-docs/docs/.vitepress/dist/rust-api/
+
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v3
         with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: ./HypnoScript.Dokumentation/build
-          destination_dir: .
+          path: hypnoscript-docs/docs/.vitepress/dist
+
+  deploy:
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    needs: build
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main'
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
 
   # Optional: Build and test on PR
   test-build:
     runs-on: ubuntu-latest
     if: github.event_name == 'pull_request'
+    env:
+      RUST_DOC_SRC: target/doc
+      RUST_DOC_OUTPUT: rust-docs
 
     steps:
       - name: Checkout
         uses: actions/checkout@v4
 
+      - name: Setup Rust
+        uses: actions-rust-lang/setup-rust-toolchain@v1
+        with:
+          toolchain: stable
+
+      - name: Build Rust documentation
+        run: cargo doc --no-deps --workspace --release
+
+      - name: Ensure rust source dir exists
+        run: |
+          if [ ! -d "${RUST_DOC_SRC}" ]; then
+            echo "'rust-src-dir' does not point to an existing directory"
+            echo "The value of 'rust-src-dir' is: ${RUST_DOC_SRC}"
+            exit 1
+          fi
+          mkdir -p "${RUST_DOC_OUTPUT}"
+          cp -r "${RUST_DOC_SRC}/." "${RUST_DOC_OUTPUT}/"
+
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '18'
-          cache: 'npm'
-          cache-dependency-path: HypnoScript.Dokumentation/package-lock.json
+          node-version: "20"
+          cache: "npm"
+          cache-dependency-path: hypnoscript-docs/package-lock.json
 
       - name: Install Dependencies
-        working-directory: HypnoScript.Dokumentation
+        working-directory: hypnoscript-docs
         run: npm ci
 
-      - name: Build Documentation
-        working-directory: HypnoScript.Dokumentation
+      - name: Build VitePress Documentation
+        working-directory: hypnoscript-docs
         run: npm run build
 
       - name: Check for broken links
-        working-directory: HypnoScript.Dokumentation
+        working-directory: hypnoscript-docs
         run: |
-          npm install -g broken-link-checker
-          blc http://localhost:3000 -ro
+          npm install --no-save linkinator@^3 wait-on@^7
+          npx vitepress preview docs --host 127.0.0.1 --port 4173 &
+          PREVIEW_PID=$!
+          trap 'kill $PREVIEW_PID 2>/dev/null || true' EXIT
+          npx wait-on http://127.0.0.1:4173/hyp-runtime/
+          npx linkinator http://127.0.0.1:4173/hyp-runtime/ --recurse --skip "^mailto:"
+          kill $PREVIEW_PID 2>/dev/null || true
+          wait $PREVIEW_PID 2>/dev/null || true
+          trap - EXIT

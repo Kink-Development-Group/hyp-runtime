@@ -1,0 +1,15 @@
+[package]
+name = "hypnoscript-cli"
+version.workspace = true
+edition.workspace = true
+authors.workspace = true
+license.workspace = true
+repository.workspace = true
+
+[dependencies]
+hypnoscript-core = { path = "../hypnoscript-core" }
+hypnoscript-lexer-parser = { path = "../hypnoscript-lexer-parser" }
+hypnoscript-compiler = { path = "../hypnoscript-compiler" }
+hypnoscript-runtime = { path = "../hypnoscript-runtime" }
+anyhow = { workspace = true }
+clap = { version = "4.5", features = ["derive"] }

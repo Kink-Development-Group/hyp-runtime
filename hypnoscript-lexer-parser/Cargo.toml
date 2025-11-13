@@ -1,0 +1,13 @@
+[package]
+name = "hypnoscript-lexer-parser"
+version.workspace = true
+edition.workspace = true
+authors.workspace = true
+license.workspace = true
+repository.workspace = true
+
+[dependencies]
+hypnoscript-core = { path = "../hypnoscript-core" }
+serde = { workspace = true }
+serde_json = { workspace = true }
+once_cell = "1"
