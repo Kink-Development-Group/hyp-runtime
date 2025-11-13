@@ -1,6 +1,6 @@
 Focus {
     entrance {
-        observe "Welcome to HypnoScript Rust Edition!";
+        observe "Welcome to HypnoScript!";
     }
 
     induce x: number = 42;

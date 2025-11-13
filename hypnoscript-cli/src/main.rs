@@ -30,7 +30,7 @@ fn into_anyhow<E: std::fmt::Display>(error: E) -> anyhow::Error {
 
 #[derive(Parser)]
 #[command(name = "hypnoscript")]
-#[command(about = "HypnoScript - The Hypnotic Programming Language (Rust Edition)", long_about = None)]
+#[command(about = "HypnoScript - The Hypnotic Programming Language", long_about = None)]
 struct Cli {
     #[command(subcommand)]
     command: Commands,
@@ -244,10 +244,8 @@ fn main() -> Result<()> {
         }
 
         Commands::Version => {
-            println!("HypnoScript v{} (Rust Edition)", env!("CARGO_PKG_VERSION"));
+            println!("HypnoScript v{}", env!("CARGO_PKG_VERSION"));
             println!("The Hypnotic Programming Language");
-            println!();
-            println!("Migrated from C# to Rust for improved performance");
             println!();
             println!("Features:");
             println!("  - Full parser and interpreter");

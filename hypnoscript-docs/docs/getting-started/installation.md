@@ -110,7 +110,7 @@ hypnoscript run test.hyp
 Erwartete Ausgabe (gekürzt):
 
 ```text
-HypnoScript v1.0.0 (Rust Edition)
+HypnoScript v1.0.0
 Installation erfolgreich!
 ```
 

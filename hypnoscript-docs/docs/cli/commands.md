@@ -2,7 +2,7 @@
 
 <!-- markdownlint-disable MD024 MD040 -->
 
-Die HypnoScript CLI (Rust Edition) bietet alle wesentlichen Befehle für Entwicklung, Testing und Analyse von HypnoScript-Programmen.
+Die HypnoScript CLI bietet alle wesentlichen Befehle für Entwicklung, Testing und Analyse von HypnoScript-Programmen.
 
 ## Übersicht
 
@@ -376,7 +376,7 @@ hypnoscript version
 ### Ausgabe
 
 ```
-HypnoScript v1.0.0 (Rust Edition)
+HypnoScript v1.0.0
 The Hypnotic Programming Language
 
 Migrated from C# to Rust for improved performance

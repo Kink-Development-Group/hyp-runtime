@@ -80,7 +80,7 @@ cargo run -p hypnoscript-cli -- run test_simple.hyp
 ```hypnoscript
 Focus {
     entrance {
-        observe "Welcome to HypnoScript Rust Edition!";
+        observe "Welcome to HypnoScript!";
     }
 
     induce x: number = 42;
