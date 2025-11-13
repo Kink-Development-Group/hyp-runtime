@@ -2,36 +2,49 @@
 title: CLI Debugging
 ---
 
-# CLI Debugging
+Die HypnoScript CLI setzt beim Debugging auf wenige, aber wirkungsvolle Mechanismen. Dieser Leitfaden zeigt, wie du Fehler schnell eingrenzt und welche Befehle dir helfen, den Programmzustand sichtbar zu machen.
 
-Die HypnoScript CLI bietet zahlreiche Optionen für Debugging und Fehleranalyse.
+## Debug- und Verbose-Modus
 
-## Debug- und Verbose-Optionen
+- `--debug` zeigt den Quelltext, die erzeugten Tokens, den AST sowie die Ergebnisse des Type Checkers, bevor der Interpreter startet.
+- `--verbose` ergänzt Statusmeldungen (z.B. "Running file" oder "Program executed successfully").
+- Beide Flags lassen sich kombinieren: `hypnoscript run script.hyp --debug --verbose`.
 
-- `--debug`: Aktiviert Debug-Ausgaben (z.B. Stacktraces, interne Statusmeldungen)
-- `--verbose`: Zeigt zusätzliche Details zu Token, AST und Ausführung
-
-## Wichtige CLI-Befehle
-
-- `run <file.hyp> [--debug] [--verbose]`: Skript ausführen
-- `test <file.hyp> [--debug] [--verbose]`: Tests ausführen und Assertion-Fehler anzeigen
-- `profile <file.hyp> [--debug] [--verbose]`: Profiling (geplant)
-- `benchmark <file.hyp> [--debug] [--verbose]`: Benchmarking (geplant)
-- `optimize <file.hyp> [--debug] [--verbose]`: Code-Optimierung (geplant)
-
-## Debug-Ausgaben interpretieren
-
-- Assertion-Fehler werden klar hervorgehoben
-- Fehlerausgaben enthalten ggf. Stacktraces (bei `--debug`)
-- Zusammenfassungen am Ende zeigen, wie viele Tests bestanden/fehlgeschlagen sind
-
-## Beispiel
+## Token- und AST-Analyse
 
 ```bash
-dotnet run --project HypnoScript.CLI -- test test_basic.hyp --debug --verbose
+hypnoscript lex script.hyp
+hypnoscript parse script.hyp
+```
+
+- Nutze `lex`, um zu kontrollieren, welche Schlüsselwörter und Literale der Lexer erkennt.
+- `parse` liefert den vollständigen AST – ideal, wenn Kontrollstrukturen oder Sessions nicht wie erwartet aufgebaut werden.
+
+## Typprüfung ohne Ausführung
+
+```bash
+hypnoscript check script.hyp
+```
+
+- Der Type Checker meldet fehlende Funktionen, falsche Rückgabewerte oder ungeeignete Zuweisungen.
+- Die CLI führt das Programm auch bei Typfehlern aus; verwende `check`, um Fehler schon vorher einzufangen.
+
+## Typischer Debug-Workflow
+
+```bash
+# 1. Type Checking
+hypnoscript check scripts/deep_trance.hyp
+
+# 2. Tokens & AST inspizieren
+hypnoscript lex scripts/deep_trance.hyp
+hypnoscript parse scripts/deep_trance.hyp
+
+# 3. Mit Debug-Ausgabe ausführen
+hypnoscript run scripts/deep_trance.hyp --debug
 ```
 
 ## Tipps
 
-- Nutzen Sie die CLI-Optionen gezielt, um Fehlerquellen schnell zu identifizieren
-- Kombinieren Sie Debug- und Verbose-Flags für maximale Transparenz
+- Kommentiere komplexe Bereiche temporär aus (`//`) und führe den Rest mit `--debug` aus, um das Problem lokal einzugrenzen.
+- Bei Array-Operationen hilft `hypnoscript builtins`, um passende Hilfsfunktionen zu finden (z.B. `ArrayJoin`, `ArrayContains`).
+- Speichere Debug-Ausgaben mit `> debug.log`, falls du sie später vergleichen möchtest (`hypnoscript run script.hyp --debug > debug.log`).

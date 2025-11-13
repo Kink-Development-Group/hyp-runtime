@@ -3,21 +3,19 @@ title: Quick Start
 sidebar_position: 2
 ---
 
-# Quick Start Guide
+Dieser Leitfaden setzt voraus, dass du HypnoScript gemäß [Installation](./installation) eingerichtet hast. Wir erstellen ein erstes Skript, führen es aus und streifen die wichtigsten Sprachelemente.
 
-Dieser Leitfaden setzt voraus, dass du HypnoScript gemäß [Installation](./installation) eingerichtet hast. Wir erstellen ein erstes Skript, führen es aus und werfen einen Blick auf die wichtigsten Sprachkonstrukte.
-
-## 1. Verifiziere deine Installation
+## 1. Installation prüfen
 
 ```bash
-hypnoscript --version
+hypnoscript version
 ```
 
-Wenn der Befehl funktioniert, bist du bereit.
+Der Befehl sollte Versions- und Featureinformationen ausgeben.
 
-## 2. Erstelle dein erstes Skript
+## 2. Erstes Skript anlegen
 
-Lege eine Datei `hello_trance.hyp` mit folgendem Inhalt an:
+Speichere den folgenden Code als `hello_trance.hyp`:
 
 ```hyp
 Focus {
@@ -30,7 +28,7 @@ Focus {
 
     induce numbers: number[] = [1, 2, 3, 4, 5];
     induce total: number = ArraySum(numbers);
-    observe "Summe: " + total;
+    observe "Summe: " + ToString(total);
 
     if (total youAreFeelingVerySleepy 15) {
         observe "Die Zahlen befinden sich im Gleichgewicht.";
@@ -48,12 +46,11 @@ Focus {
 
 Highlights:
 
-- `Focus { ... } Relax` markiert Start und Ende des Programms
-- `entrance` ist optional und eignet sich für Initialisierung
-- `induce` deklariert Variablen mit optionalen Typ-Annotationen
-- `ArraySum()` ist eine Builtin-Funktion für Arrays
-- Hypnotische Operatoren wie `youAreFeelingVerySleepy` (==) und `goingDeeper` (<=) sind erlaubt
-- `observe` gibt Text aus
+- `Focus { ... } Relax` markiert Start und Ende des Programms.
+- `entrance` eignet sich für Initialisierung.
+- `induce` deklariert Variablen mit optionaler Typannotation.
+- Hypnotische Operatoren wie `youAreFeelingVerySleepy` (`==`) oder `goingDeeper` (`<=`) sind voll unterstützt.
+- `ArraySum` und `ToString` stammen aus der Standardbibliothek.
 
 ## 3. Skript ausführen
 
@@ -61,37 +58,23 @@ Highlights:
 hypnoscript run hello_trance.hyp
 ```
 
-Erwartete Ausgabe:
-
-```text
-🌀 Willkommen in deiner ersten Hypnose-Session
-Hallo, Hypnotisierte Person!
-Summe: 15
-Die Zahlen befinden sich im Gleichgewicht.
-Trancetiefe: 0
-Trancetiefe: 1
-Trancetiefe: 2
-```
+Die Ausgabe sollte die Begrüßung, die Summe und den kleinen While-Loop zeigen.
 
 ## 4. Syntax in Kürze
 
 ```hyp
 Focus {
-    // Konstanten
     freeze PI: number = 3.14159;
 
-    // Variablen
     induce toggle: boolean = false;
-    oscillate toggle;  // toggelt true/false
+    oscillate toggle; // toggelt true/false
 
-    // Funktionen
     suggestion hypnoticEcho(text: string): string {
         awaken text + " ... tiefer ...";
     }
 
     observe hypnoticEcho("Atme ruhig");
 
-    // Sessions (Klassen)
     session Subject {
         expose name: string;
         conceal depth: number;
@@ -101,7 +84,7 @@ Focus {
             this.depth = 0;
         }
 
-        suggestion deepen() {
+        expose suggestion deepen() {
             this.depth = this.depth + 1;
             observe this.name + " geht tiefer: " + this.depth;
         }
@@ -112,73 +95,83 @@ Focus {
 } Relax
 ```
 
-## 5. Wichtige Sprachfeatures
-
-### Variablen
+## 5. Kontrollstrukturen
 
 ```hyp
-induce x: number = 42;          // Veränderlich
-freeze MAX: number = 100;        // Konstante
-implant y: string = "Text";      // Alternative zu induce
-anchor saved: number = x;        // Snapshot/Anchor
-```
-
-### Kontrollstrukturen
-
-```hyp
-// If-Else
-if (x > 10) {
-    observe "Groß";
+if (total lookAtTheWatch 10) {
+    observe "größer als 10";
+} else if (total youCannotResist 10) {
+    observe "ungleich 10";
 } else {
-    observe "Klein";
+    observe "genau 10";
 }
 
-// While-Schleife
-while (x > 0) {
-    x = x - 1;
+while (depth fallUnderMySpell 5) {
+    depth = depth + 1;
 }
 
-// Loop-Schleife (wie for)
-loop (induce i: number = 0; i < 10; i = i + 1) {
-    observe "Iteration " + i;
+loop {
+    observe "Endlosschleife";
+    snap; // beendet die Schleife
 }
 ```
 
-### Funktionen
+- `snap` ist Synonym für `break`.
+- `sink` ist Synonym für `continue`.
+- `deepFocus` kann nach der If-Bedingung stehen: `if (x > 0) deepFocus { ... }`.
+
+## 6. Funktionen und Trigger
 
 ```hyp
 suggestion add(a: number, b: number): number {
-    awaken a + b;  // awaken = return
+    awaken a + b;
 }
 
-trigger onClick: suggestion() {
-    observe "Clicked!";
+trigger onClick = suggestion(label: string) {
+    observe "Trigger: " + label;
 }
+
+observe ToString(add(2, 3));
+onClick("Demo");
 ```
 
-### Arrays
+- `awaken` ist das hypnotische Pendant zu `return`.
+- Trigger verhalten sich wie benannte Callback-Funktionen. Sie werden wie normale Funktionen aufgerufen.
+
+## 7. Arrays & Builtins
 
 ```hyp
 induce arr: number[] = [1, 2, 3];
-observe arr[0];                    // Zugriff
-arr[1] = 42;                       // Zuweisung
-observe ArrayLength(arr);          // Länge
-observe ArrayGet(arr, 0);          // Element abrufen
+observe arr[0];              // Direktzugriff
+arr[1] = 42;                 // Zuweisung
+
+observe ArrayLength(arr);    // 3
+observe ArrayGet(arr, 2);    // 3
+observe ArrayJoin(arr, ", ");
 ```
 
-## 6. Häufige Fragen
+Weitere nützliche Funktionen:
 
-| Frage                            | Antwort                                                                                      |
-| -------------------------------- | -------------------------------------------------------------------------------------------- |
-| Warum endet alles mit `Relax`?   | Der Relax-Block signalisiert Programmende und entspricht dem sanften Ausleiten einer Session |
-| Muss ich Typannotationen setzen? | Sie sind optional, werden aber empfohlen für bessere Fehlerdiagnose                          |
-| Wo finde ich mehr Beispiele?     | Im Ordner `hypnoscript-tests/` und in der `examples/` Dokumentation                          |
+- Strings: `ToUpper`, `Trim`, `Split`, `Replace`
+- Mathe: `Sqrt`, `Clamp`, `Factorial`, `IsPrime`
+- System: `GetOperatingSystem`, `GetArgs`
+- Dateien: `ReadFile`, `WriteFile`, `ListDirectory`
 
-## 7. Wie geht es weiter?
+Alle verfügbaren Builtins listet `hypnoscript builtins` auf.
 
-- [Core Concepts](./core-concepts) – Grundlegende Konzepte verstehen
-- [Sprachreferenz](../language-reference/syntax) – Vollständige Grammatik und Semantik
-- [Builtin-Funktionen](../builtins/overview) – Dokumentation aller Standardfunktionen
-- [Beispiele](../examples/basic-examples) – Mehr Inspiration für eigene Sessions
+## 8. Häufige Fragen
+
+| Frage                            | Antwort                                                                                                                                     |
+| -------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------- |
+| Warum endet alles mit `Relax`?   | Der Relax-Block markiert das sichere Ausleiten – er ist fester Bestandteil der Grammatik.                                                   |
+| Muss ich Typannotationen setzen? | Nein, aber sie verbessern Fehlermeldungen und die Autovervollständigung.                                                                    |
+| Gibt es for-Schleifen?           | Nein. Nutze `while` oder `loop { ... snap; }` sowie Array-Builtins wie `ArrayForEach` existiert nicht – lieber eigene Funktionen schreiben. |
+
+## 9. Wie geht es weiter?
+
+- [Core Concepts](./core-concepts) – Konzepte und Toolchain im Überblick
+- [CLI Basics](./cli-basics) – Alle Subcommands und Optionen
+- [Sprachreferenz](../language-reference/syntax) – Ausführliche Grammatik & Beispiele
+- [Builtin-Übersicht](../builtins/overview) – Funktionen nach Kategorien
 
 Viel Spaß beim Experimentieren mit HypnoScript! 🌀

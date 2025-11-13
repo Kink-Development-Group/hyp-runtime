@@ -4,167 +4,86 @@ sidebar_position: 1
 
 # CLI Übersicht
 
-Die HypnoScript Command Line Interface (CLI) bietet eine vollständige Entwicklungsumgebung für HypnoScript-Programme mit umfangreichen Features für Entwicklung, Testing und Deployment.
+Die HypnoScript Command Line Interface (CLI) ist ein in Rust gebautes Einzelbinary (`hypnoscript`). Es bündelt Lexer, Parser, Type Checker, Interpreter und den WASM-Codegenerator in einem Tool.
 
 ## Installation
 
+### Vorgefertigte Pakete
+
+1. Lade das passende Archiv aus den [GitHub Releases](https://github.com/Kink-Development-Group/hyp-runtime/releases).
+2. Entpacke das Archiv und füge den Binärpfad deiner `PATH`-Umgebungsvariable hinzu.
+3. Prüfe die Installation mit `hypnoscript version`.
+
+### Aus dem Quellcode bauen
+
 ```bash
-# Repository klonen
 git clone https://github.com/Kink-Development-Group/hyp-runtime.git
 cd hyp-runtime
-
-# Projekt bauen
-dotnet build
-
-# CLI verwenden
-dotnet run --project HypnoScript.CLI -- --help
+cargo build --release -p hypnoscript-cli
+# Optional installieren
+cargo install --path hypnoscript-cli
 ```
 
-## Installation via Paketmanager
+Die kompilierten Binaries findest du unter `target/release/`.
 
-### Windows (winget)
-
-```powershell
-winget install HypnoScript.HypnoScript
-```
-
-### Linux (APT)
+## Schnellstart
 
 ```bash
-sudo apt update
-sudo apt install hypnoscript
-```
-
-## Automatisierte Releases & Paketmanager
-
-Die aktuellen Installationspakete (ZIP für Windows/winget, .deb für Linux/APT) werden bei jedem Release automatisch gebaut und als Artefakte auf GitHub bereitgestellt:
-
-- [GitHub Releases](https://github.com/Kink-Development-Group/hyp-runtime/releases)
-
-### Installation mit winget (Windows)
-
-```powershell
-winget install HypnoScript.HypnoScript
-```
-
-### Installation mit APT (Linux)
-
-```bash
-sudo apt update
-sudo apt install hypnoscript
-```
-
-## Grundlegende Verwendung
-
-```bash
-# Programm ausführen
-dotnet run --project HypnoScript.CLI -- run programm.hyp
-
-# Version anzeigen
-dotnet run --project HypnoScript.CLI -- --version
-
 # Hilfe anzeigen
-dotnet run --project HypnoScript.CLI -- --help
-```
+hypnoscript --help
 
-## Verfügbare Befehle
-
-| Befehl     | Beschreibung         | Beispiel              |
-| ---------- | -------------------- | --------------------- |
-| `run`      | Programm ausführen   | `run script.hyp`      |
-| `test`     | Tests ausführen      | `test *.hyp`          |
-| `build`    | Programm kompilieren | `build script.hyp`    |
-| `debug`    | Debug-Modus          | `debug script.hyp`    |
-| `serve`    | Webserver starten    | `serve --port 8080`   |
-| `validate` | Syntax prüfen        | `validate script.hyp` |
-
-## Globale Optionen
-
-| Option      | Kurzform | Beschreibung         |
-| ----------- | -------- | -------------------- |
-| `--verbose` | `-v`     | Detaillierte Ausgabe |
-| `--quiet`   | `-q`     | Minimale Ausgabe     |
-| `--config`  | `-c`     | Konfigurationsdatei  |
-| `--output`  | `-o`     | Ausgabedatei         |
-| `--timeout` | `-t`     | Timeout in Sekunden  |
-
-## Konfiguration
-
-### Konfigurationsdatei (hypnoscript.config.json)
-
-```json
-{
-  "defaultOutput": "console",
-  "enableDebug": false,
-  "logLevel": "info",
-  "timeout": 30000,
-  "maxMemory": 512,
-  "testFramework": {
-    "autoRun": true,
-    "reportFormat": "detailed"
-  },
-  "server": {
-    "port": 8080,
-    "host": "localhost"
-  }
-}
-```
-
-### Umgebungsvariablen
-
-```bash
-# Windows
-set HYPNOSCRIPT_HOME=C:\path\to\hyp-runtime
-set HYPNOSCRIPT_LOG_LEVEL=debug
-
-# Linux/macOS
-export HYPNOSCRIPT_HOME=/path/to/hyp-runtime
-export HYPNOSCRIPT_LOG_LEVEL=debug
-```
-
-## Beispiele
-
-### Einfaches Programm ausführen
-
-```bash
-# Programm erstellen
-echo 'Focus { entrance { observe "Hallo Welt!"; } } Relax;' > hello.hyp
+# Versionshinweis
+hypnoscript version
 
 # Programm ausführen
-dotnet run --project HypnoScript.CLI -- run hello.hyp
+hypnoscript run hello.hyp
 ```
 
-### Mit Parametern
+Alle Subcommands sind bewusst schlank gehalten. Für einen tieferen Blick sieh dir die folgenden Abschnitte an.
+
+## Befehlsüberblick
+
+| Befehl         | Kurzbeschreibung                            |
+| -------------- | ------------------------------------------- |
+| `run`          | Führt ein HypnoScript-Programm aus          |
+| `run --debug`  | Zeigt zusätzlich Tokens, AST und Typprüfung |
+| `lex`          | Tokenisiert eine Datei                      |
+| `parse`        | Zeigt den AST                               |
+| `check`        | Führt Type Checking durch                   |
+| `compile-wasm` | Generiert WebAssembly Text Format (.wat)    |
+| `builtins`     | Listet alle verfügbaren Builtin-Funktionen  |
+| `version`      | Zeigt Versions- und Featureinformationen    |
+
+Weitere Details liefert die Seite [CLI-Befehle](./commands).
+
+## Typischer Workflow
 
 ```bash
-# Programm mit Argumenten
-dotnet run --project HypnoScript.CLI -- run script.hyp --arg1 value1 --arg2 value2
+# 1. Type Checking ohne Ausführung
+hypnoscript check my_script.hyp
+
+# 2. Bei Fehlern AST prüfen
+hypnoscript parse my_script.hyp
+
+# 3. Debug-Ausgabe aktivieren
+hypnoscript run my_script.hyp --debug
+
+# 4. Optional WASM generieren
+hypnoscript compile-wasm my_script.hyp -o my_script.wat
 ```
 
-### Debug-Modus
+## Plattformhinweise
 
-```bash
-# Mit Debug-Informationen
-dotnet run --project HypnoScript.CLI -- debug script.hyp --verbose
-```
-
-### Tests ausführen
-
-```bash
-# Alle Tests im Verzeichnis
-dotnet run --project HypnoScript.CLI -- test *.hyp
-
-# Spezifische Test-Datei
-dotnet run --project HypnoScript.CLI -- test test_math.hyp
-```
+- **Windows**: Nutze das ZIP aus dem Release, entpacke in `%LOCALAPPDATA%\Programs\hypnoscript` und ergänze den Pfad.
+- **macOS / Linux**: Archiv nach `/usr/local/bin` oder `~/.local/bin` kopieren.
+- Für portable Nutzung kannst du den Binary-Pfad direkt angeben (`./hypnoscript run demo.hyp`).
 
 ## Nächste Schritte
 
-- [CLI-Befehle](./commands) - Detaillierte Befehlsreferenz
-- [Konfiguration](./configuration) - Erweiterte Konfiguration
-- [Testing](./testing) - Test-Framework
-- [Debugging](./debugging) - Debugging-Tools
+- [CLI-Befehle](./commands) – Details zu allen Subcommands
+- [CLI Basics](../getting-started/cli-basics) – Schritt-für-Schritt-Anleitung
+- [Sprachreferenz](../language-reference/syntax) – Grammatik & Beispiele
 
 ---
 
-**Bereit für die detaillierte Befehlsreferenz?** 🚀
+**Tipp:** `hypnoscript builtins` verschafft dir einen schnellen Überblick über die Standardbibliothek.

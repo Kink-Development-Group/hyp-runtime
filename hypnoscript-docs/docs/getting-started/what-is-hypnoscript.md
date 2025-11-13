@@ -1,82 +1,93 @@
-# What is HypnoScript?
+# Was ist HypnoScript?
 
-HypnoScript ist eine domänenspezielle, statisch typisierte Skriptsprache, die hypnotische Sessions, mentale Trainingssequenzen und interaktive Suggestionen reproduzierbar macht. Im Gegensatz zu generischen Automations-Frameworks modelliert HypnoScript alle Schritte einer Session – von der Einleitung bis zum sicheren Ausstieg – als erstklassige Sprachelemente. Dadurch entsteht eine gemeinsam nutzbare Grundlage für Therapeut:innen, Creator und Tool-Entwickler:innen.
+HypnoScript ist eine statisch typisierte Skriptsprache mit hypnotischer Syntax. Statt `class`, `function` oder `print` findest du Begriffe wie `session`, `suggestion` und `observe`. Die Rust-basierte Implementierung liefert Lexer, Parser, Type Checker, Interpreter und einen WASM-Codegenerator in einem kompakten Toolchain-Bundle.
 
-## Leitlinien der Sprache
+## Designprinzipien
 
-- **Sicherheit zuerst** – Jede Session läuft in einer sand-boxed Runtime und erzwingt Backout-Sequenzen, Timeout-Überwachung sowie Sicherheitsnetze gegen widersprüchliche Suggestionen.
-- **Determinismus** – Runs sind reproduzierbar. Zufallsquellen, Zeitfunktionen und externe Integrationen können über Seeds oder Mocking kontrolliert werden.
-- **Erklärbarkeit** – Jede Hypnose-Aktion hinterlässt strukturierte Telemetrie. Logs, Visualisierungen und Timeline-Replays helfen bei Training, Compliance und QA.
-- **Modularität** – Trance-Bausteine, Suggestionen und Ausleitungsprotokolle lassen sich als wiederverwendbare Bibliotheken versionieren.
+- **Lesbarkeit vor allem** – Hypnotische Schlüsselwörter sollen Spaß machen, ohne die Verständlichkeit zu verlieren.
+- **Statische Sicherheit** – Der Type Checker validiert Variablen, Funktionssignaturen, Rückgabewerte und Session-Mitglieder.
+- **Deterministische Ausführung** – Der Interpreter führt Programme reproduzierbar aus und meldet Typfehler, bricht aber nicht zwangsläufig ab.
+- **Ein Binary, alle Schritte** – Die CLI deckt Lexing, Parsing, Type Checking, Ausführung und optionales WASM-Target ab.
 
 ## Sprache auf einen Blick
 
-| Element            | Beschreibung                                                                                                      |
-| ------------------ | ----------------------------------------------------------------------------------------------------------------- |
-| `Focus { ... }`    | Oberster Block einer Session, definiert Ablauf, Variablen und Sicherheitsnetze.                                   |
-| `entrance { ... }` | Einleitungsphase. Hier werden Rapport, Atmung, Trigger und vorbereitende Hinweise orchestriert.                   |
-| `induce`           | Deklariert Variablen inkl. Typ und initialem Suggestion-Wert.                                                     |
-| `observe`          | Sendet Suggestionen oder Debug-Informationen an Klient:innen, Tests oder Logs.                                    |
-| `deepFocus {}`     | Leitet eine Vertiefungsphase ein. Variiert je nach Protokoll (z. B. Countdown, Stufen, Fractionation).            |
-| `Relax`            | Terminatorblock, sorgt immer für sichere Ausleitung, egal ob die Session regulär endet oder über Fehler abbricht. |
+| Element                           | Beschreibung                                                                                        |
+| --------------------------------- | --------------------------------------------------------------------------------------------------- |
+| `Focus { ... } Relax`             | Umschließt jedes Programm. `Relax` markiert das Ende und ist obligatorisch.                         |
+| `entrance { ... }`                | Optionaler Startblock für Initialisierung, Begrüßung oder Setup.                                    |
+| `finale { ... }`                  | Optionaler Cleanup-Block, der vor `Relax` ausgeführt wird.                                          |
+| `induce` / `implant`              | Deklariert veränderbare Variablen mit optionalem Typ.                                               |
+| `freeze`                          | Deklariert Konstanten.                                                                              |
+| `observe` / `whisper` / `command` | Ausgabe mit Zeilenumbruch, ohne Zeilenumbruch bzw. fett/imperativ.                                  |
+| `suggestion`                      | Definiert Funktionen; `awaken` (oder `return`) gibt Werte zurück.                                   |
+| `session`                         | Objektorientierte Strukturen mit `expose` (öffentlich), `conceal` (privat) und `dominant` (static). |
+| `anchor`                          | Speichert den aktuellen Wert eines Ausdrucks für später.                                            |
+| `oscillate`                       | Toggle für boolesche Variablen.                                                                     |
+| `deepFocus`                       | Optionaler Zusatz hinter `if (...)` für etwas dramatischere Bedingungsblöcke.                       |
 
-HypnoScript nutzt eine vertraute, blockorientierte Syntax mit geschweiften Klammern. Typannotationen, Kontrollstrukturen und Funktionsaufrufe orientieren sich an moderner Skript-Sprache, bleiben aber bewusst lesbar.
+## Beispielprogramm
 
-## Beispiel: Geführte Session mit Sicherheitsnetz
-
-```hypnoscript
+```hyp
 Focus {
     entrance {
-        observe "Willkommen, heute arbeiten wir an tiefer Entspannung.";
+        observe "Willkommen bei HypnoScript";
     }
 
+    freeze MAX_DEPTH: number = 3;
     induce depth: number = 0;
-    induce affirmations: array = [
-        "Dein Atem bleibt ruhig und gleichmäßig.",
-        "Jede Ausatmung vertieft deine Entspannung."
-    ];
 
-    deepFocus {
-        loop each suggestion in affirmations {
-            observe suggestion;
-            depth = depth + 1;
+    while (depth goingDeeper MAX_DEPTH) {
+        observe "Tiefe: " + depth;
+        depth = depth + 1;
+    }
+
+    suggestion introduce(name: string): string {
+        awaken "Hallo, " + name + "!";
+    }
+
+    observe introduce("Hypnotisierte Person");
+
+    session Subject {
+        expose name: string;
+        conceal level: number;
+
+        suggestion constructor(name: string) {
+            this.name = name;
+            this.level = 0;
+        }
+
+        expose suggestion deepen() {
+            this.level = this.level + 1;
+            observe this.name + " geht tiefer: " + this.level;
         }
     }
 
-    on warn (event) {
-        log "Warnung: " + event.message;
-        suggest safety.reset();
-    }
-
-    Relax {
-        observe "Du kehrst vollkommen klar und erfrischt zurück.";
-        guard ensureAwake();
-    }
+    induce alice: Subject = Subject("Alice");
+    alice.deepen();
 } Relax
 ```
 
-Das Beispiel kombiniert Kontrollstrukturen (`loop`), Typannotationen und eingebettete Sicherheitslogik (`on warn`). Die Session endet garantiert mit dem `Relax`-Block und ruft eine Schutz-Routine, sobald eine Warnung auftritt.
+## Plattform-Komponenten
 
-## Komponenten des HypnoScript-Ökosystems
+- **Lexer & Parser** – Liefern Token-Streams und ASTs, inkl. hypnotischer Operator-Synonyme (`youAreFeelingVerySleepy`, `underMyControl`, …).
+- **Type Checker** – Registriert alle Builtins, prüft Funktions- und Sessionsignaturen, Sichtbarkeiten und Konversionen.
+- **Interpreter** – Führt AST-Knoten aus, verwaltet Sessions, statische Felder, Trigger und Builtins.
+- **WASM-Codegenerator** – Erstellt WebAssembly Text (.wat) für ausgewählte Konstrukte.
+- **CLI** – `hypnoscript` vereint alle Schritte: `run`, `lex`, `parse`, `check`, `compile-wasm`, `builtins`, `version`.
 
-- **Compiler & Type Checker** – Validiert Sessions, sorgt für statische Sicherheit und erzeugt optimierte Bytecode-Pipelines.
-- **Runtime** – Führt Skripte deterministisch aus, verwaltet Suggestion-Queues, externe Hooks (Audio, Biofeedback) und Telemetrie.
-- **CLI** – Startet Skripte (`hyp run`), führt Tests (`hyp test`), leitet Debug-Sitzungen (`hyp debug`) und exportiert Telemetrie.
-- **Editor-Integrationen** – VS Code Extension für Syntax-Highlighting, Autovervollständigung, Linting und Timeline-Replay.
-- **Testing Framework** – Ermöglicht Smoke-, Regression- und Compliance-Tests mit vordefinierten HypnoScript-Szenarien.
+## Typische Einsatzfelder
 
-## Typische Anwendungsfälle
-
-- **Therapeutische Skripte** – Standardisierte Induktionsabläufe und Protokolle samt Sicherheitsleitplanken.
-- **Unterhaltungs- & Lerninhalte** – Interaktive Hypnose-Erlebnisse oder Gamification-Events mit verzweigten Szenen.
-- **Automatisiertes Feedback** – Biofeedback-Geräte oder Sensoren lassen sich einbinden und lösen Suggestionen dynamisch aus.
-- **Hypnose-Training** – Simulierte Sessions für Coaching, inklusive Debug-Logs, Breakpoints und Replay.
+- **Skript-Experimente** – Kombination aus ungewöhnlicher Syntax und vertrauten Kontrollstrukturen.
+- **Lehre & Workshops** – Zeigt, wie Parser, Type Checker und Interpreter zusammenarbeiten.
+- **Tooling-Demos** – Beispiel dafür, wie eine Sprache komplett in Rust abgebildet werden kann.
+- **Web-WASM-Experimente** – Programmteile nach `.wat` exportieren und in WebAssembly-Projekten einsetzen.
 
 ## Weiterführende Ressourcen
 
-- [Core Concepts](./core-concepts) – Fundamentale Sprachelemente und Ausführungsmodell
-- [Installation](./installation) – Starte lokal mit CLI und Runtime
-- [Quick Start](./quick-start) – Erste Session in weniger als zehn Minuten
-- [Language Reference](../language-reference/syntax) – Vollständige Syntax und Standardbibliotheken
+- [Core Concepts](./core-concepts) – Überblick über Sprachelemente, Typsystem und Runtime.
+- [Installation](./installation) – Lokale Einrichtung der Toolchain.
+- [Quick Start](./quick-start) – Dein erstes Skript in wenigen Minuten.
+- [Sprachreferenz](../language-reference/syntax) – Grammatik, Operatoren, Funktionen, Sessions.
+- [Builtin-Übersicht](../builtins/overview) – Alle Standardfunktionen nach Kategorien.
 
-HypnoScript hilft dabei, hypnotische Abläufe transparent, sicher und wiederholbar zu gestalten – ohne die Kreativität oder Individualität einer Session einzuschränken.
+HypnoScript macht hypnotische Metaphern programmierbar – mit einer ehrlichen Rust-Basis unter der Haube.

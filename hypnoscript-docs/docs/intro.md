@@ -4,19 +4,19 @@ sidebar_position: 1
 
 # Willkommen bei HypnoScript
 
-HypnoScript ist eine moderne, esoterische Programmiersprache, die hypnotische Metaphern mit einer pragmatischen, Rust-basierten Toolchain verbindet. Die Sprache orientiert sich syntaktisch an TypeScript/JavaScript, ersetzt klassische Schlüsselwörter aber durch hypnotische Begriffe wie `Focus`, `induce`, `observe` oder `Relax`.
+HypnoScript ist eine moderne, esoterische Programmiersprache, die hypnotische Metaphern mit einer pragmatischen Rust-Toolchain verbindet. Die Syntax erinnert an TypeScript, nutzt aber Schlüsselwörter wie `Focus`, `induce`, `observe` oder `Relax`, um hypnotische Konzepte direkt auszudrücken.
 
 ## Was ist HypnoScript?
 
 Die aktuelle Runtime besteht vollständig aus Rust-Crates und liefert:
 
-- 🦀 **Native Toolchain** – Lexer, Parser, statischer Type Checker, Interpreter und WASM-Codegenerator sind vollständig in Rust umgesetzt.
-- 🎯 **Hypnotische Syntax** – Sprachkonstrukte wie `deepFocus`, `snap`, `anchor` oder `oscillate` transportieren hypnotische Bilder.
-- 🔒 **Statisches Typ-System** – Der Type Checker kennt Zahlen, Strings, Booleans, Arrays, Sessions, Funktionen sowie `tranceify`-Records.
-- 📦 **Standardbibliothek** – Über 110 Builtins für Mathematik, Strings, Arrays, Dateien, Statistik, Systeminformationen, Zeit & Datum sowie Validierung.
+- 🦀 **Native Toolchain** – Lexer, Parser, statischer Type Checker, Interpreter und WASM-Codegenerator sind vollständig in Rust implementiert.
+- 🎯 **Hypnotische Syntax** – Sprachkonstrukte wie `deepFocus`, `snap`, `anchor` oder `oscillate` übersetzen hypnotische Bilder in Code.
+- 🔒 **Statisches Typ-System** – Der Type Checker kennt Zahlen, Strings, Booleans, Arrays, Funktionen und Sessions inklusive Sichtbarkeiten.
+- 📦 **Standardbibliothek** – Mathe-, String-, Array-, Datei-, Statistik-, System-, Zeit- und Validierungs-Builtins stehen direkt bereit.
 - 🛠️ **CLI für den gesamten Workflow** – Ein einzelnes Binary (`hypnoscript`) bietet `run`, `lex`, `parse`, `check`, `compile-wasm`, `builtins` und `version`.
 
-Die Sprache ist cross-platform (Windows/macOS/Linux) und erzeugt native Binaries oder optional WebAssembly-Ausgabe.
+Die Sprache ist plattformübergreifend (Windows/macOS/Linux) und erzeugt native Binaries sowie optional WebAssembly-Ausgabe.
 
 ## Grundelemente der Syntax
 
@@ -25,13 +25,12 @@ Die Sprache ist cross-platform (Windows/macOS/Linux) und erzeugt native Binaries
 | `Focus { ... } Relax`  | Umschließt jedes Programm (Entry- und Exit-Punkt).                                                       |
 | `entrance { ... }`     | Optionaler Startblock für Initialisierung oder Begrüßung.                                                |
 | `finale { ... }`       | Optionaler Cleanup-Block, der am Ende garantiert ausgeführt wird.                                        |
-| `induce` / `freeze`    | Deklariert Variablen (`induce`) oder Konstanten (`freeze`).                                              |
+| `induce` / `freeze`    | Deklariert Variablen (`induce`/`implant`) oder Konstanten (`freeze`).                                    |
 | `observe` / `whisper`  | Ausgabe mit bzw. ohne Zeilenumbruch. `command` hebt Text emphatisch hervor.                              |
 | `if`, `while`, `loop`  | Kontrollstrukturen mit hypnotischen Operator-Synonymen (`youAreFeelingVerySleepy`, `underMyControl`, …). |
 | `suggestion`           | Funktionsdefinition (global oder innerhalb von Sessions).                                                |
-| `session`              | Objektorientierte Strukturen mit Feldern (`expose`/`conceal`) und Methoden.                              |
-| `tranceify`            | Deklariert Record-Typen mit festen Feldern.                                                              |
-| `anchor` / `oscillate` | Speichert Zustände oder toggelt Booleans.                                                                |
+| `session`              | Objektorientierte Strukturen mit Feldern (`expose`/`conceal`), Konstruktoren und statischen Mitgliedern. |
+| `anchor` / `oscillate` | Speichert Werte zwischen oder toggelt Booleans.                                                          |
 
 ```hyp
 Focus {
@@ -55,16 +54,16 @@ Focus {
 
 ## Standardbibliothek im Überblick
 
-Die Builtins sind in Modulen organisiert. Eine detaillierte Referenz findest du unter [Standardbibliothek](./builtins/overview).
+Die Builtins sind in Kategorien organisiert. Eine detaillierte Referenz findest du unter [Standardbibliothek](./builtins/overview).
 
-- **Mathematik** – `Sin`, `Cos`, `Tan`, `Sqrt`, `Pow`, `Factorial`, `Clamp`, …
-- **Strings** – `Length`, `ToUpper`, `Trim`, `Replace`, `Split`, `PadLeft`, `IsWhitespace`, …
-- **Arrays** – `ArrayLength`, `ArrayIsEmpty`, `ArraySum`, `ArraySort`, `ArrayDistinct`, …
-- **Dateien** – `ReadFile`, `WriteFile`, `ListDirectory`, `GetFileExtension`, …
-- **System** – `GetOperatingSystem`, `GetUsername`, `GetArgs`, `Exit`, …
-- **Zeit & Datum** – `CurrentTimestamp`, `FormatDateTime`, `IsLeapYear`, …
-- **Statistik** – `Mean`, `Median`, `StandardDeviation`, `Correlation`, …
-- **Validierung** – `IsValidEmail`, `MatchesPattern`, `IsInRange`, …
+- **Mathematik** – `Sin`, `Cos`, `Tan`, `Sqrt`, `Pow`, `Factorial`, `Clamp`, `Gcd`, `Lcm`, `IsPrime`, `Fibonacci`, …
+- **Strings** – `Length`, `ToUpper`, `ToLower`, `Trim`, `Reverse`, `Replace`, `Split`, `Substring`, `PadLeft`, `IsWhitespace`, …
+- **Arrays** – `ArrayLength`, `ArrayIsEmpty`, `ArraySum`, `ArrayAverage`, `ArraySlice`, `ArrayDistinct`, …
+- **Dateien** – `ReadFile`, `WriteFile`, `AppendFile`, `ListDirectory`, `GetFileExtension`, …
+- **System** – `GetOperatingSystem`, `GetUsername`, `GetArgs`, `Exit`, `GetCurrentDirectory`, …
+- **Zeit & Datum** – `CurrentTimestamp`, `CurrentDateTime`, `IsLeapYear`, `DayOfWeek`, …
+- **Statistik** – `Mean`, `Median`, `Mode`, `StandardDeviation`, `Correlation`, `LinearRegression`, …
+- **Validierung** – `IsValidEmail`, `MatchesPattern`, `IsInRange`, `IsNumeric`, `IsLowercase`, …
 - **Hypnotische Kernfunktionen** – `Observe`, `Whisper`, `Command`, `Drift`, `DeepTrance`, `HypnoticCountdown`, `TranceInduction`, `HypnoticVisualization`.
 
 ## Entwicklungs-Workflow

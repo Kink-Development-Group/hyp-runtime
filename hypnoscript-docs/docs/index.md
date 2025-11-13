@@ -4,7 +4,7 @@ layout: home
 hero:
   name: 'HypnoScript'
   text: 'Die hypnotische Programmiersprache'
-  tagline: Code with style – moderne Programmierung mit hypnotischer Eleganz
+  tagline: Moderne Skripte mit hypnotischer Syntax und einer soliden Rust-Basis
   image:
     src: /img/logo.svg
     alt: HypnoScript Logo
@@ -22,31 +22,31 @@ hero:
 features:
   - icon: 🎯
     title: Hypnotische Syntax
-    details: Schlüsselwörter wie Focus, Relax, induce, observe oder deepFocus übersetzen hypnotische Metaphern direkt in Code.
+    details: Schlüsselwörter wie Focus, Relax, induce, observe oder deepFocus bringen hypnotische Metaphern direkt in deinen Code.
 
   - icon: 🦀
     title: Vollständig in Rust umgesetzt
-    details: Lexer, Parser, Type Checker, Interpreter und WASM-Codegen laufen nativ auf Windows, macOS und Linux.
+    details: Lexer, Parser, statischer Type Checker, Interpreter und WASM-Codegen laufen nativ auf Windows, macOS und Linux.
 
   - icon: 🧠
     title: Statisches Typ-System
-    details: Der Type Checker entdeckt Fehler frühzeitig und versteht Sessions, Records und Funktionen.
+    details: Der Type Checker versteht Zahlen, Strings, Booleans, Arrays, Funktionen und Sessions inklusive Sichtbarkeiten.
 
   - icon: 📦
-    title: Umfangreiche Standardbibliothek
-    details: Über 110 eingebaute Funktionen für Arrays, Strings, Mathematik, Dateien, Statistik, System- und Zeitoperationen.
+    title: Standardbibliothek inklusive
+    details: Mathe, Strings, Arrays, Dateien, Statistik, Systeminformationen, Zeit & Datum sowie Validierungsfunktionen sind sofort verfügbar.
 
   - icon: 🛠️
-    title: Produktive CLI
-    details: Ein einzelnes Binary bietet run, lex, parse, check, compile-wasm, builtins und version.
+    title: Schlanke CLI
+    details: Ein einziges Binary liefert run, lex, parse, check, compile-wasm, builtins und version – mehr brauchst du nicht.
 
   - icon: 🧩
-    title: Sessions & Tranceify
-    details: Objektorientierte Sessions mit Sichtbarkeiten sowie Record-Typen für strukturierte Daten.
+    title: Sessions mit Sichtbarkeit
+    details: Definiere Sessions mit `expose`/`conceal`, Konstruktoren und statischen (`dominant`) Mitgliedern.
 
   - icon: 🌐
-    title: Webready mit WASM
-    details: Programme lassen sich optional nach WebAssembly (.wat) generieren und weiterverarbeiten.
+    title: WebAssembly Export
+    details: Erzeuge optional WebAssembly Textdateien (.wat) und nutze HypnoScript im Browser.
 ---
 
 ## Schneller Einstieg
@@ -79,11 +79,11 @@ Focus {
     observe "Hallo, " + name + "!";
 
     induce numbers: number[] = [1, 2, 3, 4, 5];
-    induce sum = ArraySum(numbers);
+    induce sum: number = ArraySum(numbers);
     observe "Summe: " + ToString(sum);
 
     if (sum lookAtTheWatch 10) deepFocus {
-        observe "Die Erinnerung wird jetzt intensiver.";
+      observe "Die Erinnerung wird jetzt intensiver.";
     }
 }
 ```
@@ -96,14 +96,14 @@ hypnoscript run mein_script.hyp
 
 ## Warum HypnoScript?
 
-HypnoScript kombiniert die Eleganz moderner Programmiersprachen mit einer einzigartigen, hypnotisch inspirierten Syntax. Die aktuelle Rust-Implementierung liefert:
+HypnoScript kombiniert die Eleganz moderner Programmiersprachen mit einer einzigartigen, hypnotisch inspirierten Syntax. Die Rust-Implementierung bringt dir:
 
-- **🎯 Einzigartige Syntax** – Focus/Relax-Blöcke, hypnotische Operatoren wie `youAreFeelingVerySleepy` (`==`) und `underMyControl` (`&&`).
-- **🦾 Rust-Performance** – Keine .NET-Abhängigkeiten, schnelle Binaries, optionale WASM-Ausgabe.
-- **🔒 Statische Sicherheit** – Der Type Checker versteht Variablen, Funktionen, Sessions und Record-Typen (`tranceify`).
-- **🧰 Standardbibliothek** – Mathe, Strings, Arrays, Dateien, Statistik, Validierung, System- und Zeitfunktionen.
-- **🧪 Entwicklungs-Workflow** – CLI unterstützt Lexing, Parsing, Type Checking und die Programmausführung.
-- **📄 Beispiele & Tests** – Umfangreiche `.hyp`-Beispiele sowie Regressionstests im Repository.
+- **🎯 Einzigartige Syntax** – Focus/Relax-Blöcke, hypnotische Operatoren wie `youAreFeelingVerySleepy` (`==`) oder `underMyControl` (`&&`).
+- **🦾 Rust-Performance** – Keine externen Laufzeitabhängigkeiten, schnelle Binaries und optionaler WASM-Export.
+- **🔒 Statische Sicherheit** – Der Type Checker prüft Variablen, Funktionen, Sessions sowie Zugriffe auf statische und private Mitglieder.
+- **🧰 Standardbibliothek** – Mathe, Strings, Arrays, Dateien, Statistik, Validierung, System- und Zeitfunktionen sind direkt integriert.
+- **🧪 Entwicklungs-Workflow** – Die CLI unterstützt Lexing, Parsing, Type Checking und Programmausführung im gleichen Tool.
+- **📄 Beispiele & Tests** – `.hyp`-Beispiele und Regressionstests im Repository zeigen reale Sprachfeatures.
 
 ## Community & Support
 
