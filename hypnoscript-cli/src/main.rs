@@ -307,6 +307,7 @@ struct GithubRelease {
 
 #[cfg(not(target_os = "windows"))]
 #[derive(Debug, Deserialize)]
+#[allow(dead_code)]
 struct InstallMetadata {
     prefix: Option<String>,
     version: Option<String>,
