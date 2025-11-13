@@ -5,7 +5,7 @@ use hypnoscript_lexer_parser::{Lexer, Parser as HypnoParser};
 use semver::Version;
 use serde::Deserialize;
 use std::{env, fs, time::Duration};
-use ureq::{Agent, AgentBuilder, Request};
+use ureq::{Agent, AgentBuilder};
 
 #[cfg(not(target_os = "windows"))]
 use std::{
