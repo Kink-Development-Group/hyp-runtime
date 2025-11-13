@@ -122,8 +122,7 @@ impl HypnoType {
 
         match self.base_type {
             HypnoBaseType::Array => {
-                if let (Some(ref elem1), Some(ref elem2)) =
-                    (&self.element_type, &other.element_type)
+                if let (Some(elem1), Some(elem2)) = (&self.element_type, &other.element_type)
                 {
                     elem1.is_compatible_with(elem2)
                 } else {
@@ -131,7 +130,7 @@ impl HypnoType {
                 }
             }
             HypnoBaseType::Record => {
-                if let (Some(ref fields1), Some(ref fields2)) = (&self.fields, &other.fields) {
+                if let (Some(fields1), Some(fields2)) = (&self.fields, &other.fields) {
                     if fields1.len() != fields2.len() {
                         return false;
                     }
@@ -145,7 +144,7 @@ impl HypnoType {
                 }
             }
             HypnoBaseType::Function => {
-                if let (Some(ref params1), Some(ref params2)) =
+                if let (Some(params1), Some(params2)) =
                     (&self.parameter_types, &other.parameter_types)
                 {
                     if params1.len() != params2.len() {
@@ -157,7 +156,7 @@ impl HypnoType {
                         .all(|(p1, p2)| p1.is_compatible_with(p2));
 
                     let return_match = match (&self.return_type, &other.return_type) {
-                        (Some(ref ret1), Some(ref ret2)) => ret1.is_compatible_with(ret2),
+                        (Some(ret1), Some(ret2)) => ret1.is_compatible_with(ret2),
                         (None, None) => true,
                         _ => false,
                     };

@@ -4,7 +4,6 @@ use hypnoscript_compiler::{Interpreter, TypeChecker, WasmCodeGenerator};
 use hypnoscript_lexer_parser::{Lexer, Parser as HypnoParser};
 use semver::Version;
 use serde::Deserialize;
-use serde_json;
 use std::{env, fs, time::Duration};
 use ureq::{Agent, AgentBuilder, Request};
 
@@ -18,6 +17,7 @@ use std::{
 const GITHUB_OWNER: &str = "Kink-Development-Group";
 const GITHUB_REPO: &str = "hyp-runtime";
 const GITHUB_API: &str = "https://api.github.com";
+#[cfg(not(target_os = "windows"))]
 const INSTALLER_FALLBACK_URL: &str =
     "https://kink-development-group.github.io/hyp-runtime/install.sh";
 
@@ -305,6 +305,7 @@ struct GithubRelease {
     draft: bool,
 }
 
+#[cfg(not(target_os = "windows"))]
 #[derive(Debug, Deserialize)]
 struct InstallMetadata {
     prefix: Option<String>,
@@ -314,12 +315,12 @@ struct InstallMetadata {
 
 fn build_agent() -> Agent {
     AgentBuilder::new()
-        .timeout(Some(Duration::from_secs(20)))
-        .user_agent(format!("hypnoscript-cli/{}", env!("CARGO_PKG_VERSION")))
+        .timeout(Duration::from_secs(20))
+        .user_agent(&format!("hypnoscript-cli/{}", env!("CARGO_PKG_VERSION")))
         .build()
 }
 
-fn github_get(agent: &Agent, url: &str) -> ureq::Request {
+fn github_get(agent: &Agent, url: &str) -> Request {
     let mut request = agent
         .get(url)
         .set("Accept", "application/vnd.github+json")
@@ -345,7 +346,7 @@ fn fetch_latest_release(agent: &Agent, include_prerelease: bool) -> Result<Githu
         );
         let releases: Vec<GithubRelease> = github_get(agent, &url)
             .call()?
-            .into_json()?
+            .into_json::<Vec<GithubRelease>>()?
             .into_iter()
             .filter(|release| !release.draft)
             .collect();

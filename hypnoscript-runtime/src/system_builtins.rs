@@ -19,7 +19,20 @@ impl SystemBuiltins {
 
     /// Set environment variable
     pub fn set_env_var(name: &str, value: &str) {
-        env::set_var(name, value);
+        if name.is_empty()
+            || name.contains('\0')
+            || value.contains('\0')
+            || cfg!(windows) && name.contains('=')
+        {
+            return;
+        }
+
+        // SAFETY: Environment variable names/values are validated above to satisfy
+        // the platform-specific requirements of `std::env::set_var` on the 2024
+        // edition, which now enforces these preconditions in an unsafe API.
+        unsafe {
+            env::set_var(name, value);
+        }
     }
 
     /// Get operating system
