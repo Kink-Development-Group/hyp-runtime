@@ -91,7 +91,7 @@ $InstallerSource = Join-Path $ProjectRoot "install.sh"
 if (Test-Path $InstallerSource) {
     Copy-Item $InstallerSource (Join-Path $ReleaseDir "install.sh") -Force
 } else {
-    Write-Host "⚠⚠ Warning: install.sh not found at project root" -ForegroundColor Yellow
+    Write-Host "⚠ Warning: install.sh not found at project root" -ForegroundColor Yellow
 }
 
 # 5. TAR.GZ-Archiv erstellen
