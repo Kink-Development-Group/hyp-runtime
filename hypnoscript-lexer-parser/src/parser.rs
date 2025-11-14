@@ -37,13 +37,19 @@ use crate::token::{Token, TokenType};
 /// "#;
 ///
 /// let mut lexer = Lexer::new(source);
-/// let tokens = lexer.tokenize().unwrap();
+/// let tokens = lexer.lex().unwrap();
 /// let mut parser = Parser::new(tokens);
 /// let ast = parser.parse_program().unwrap();
 /// ```
 pub struct Parser {
     tokens: Vec<Token>,
     current: usize,
+}
+
+#[derive(Copy, Clone, Debug, Eq, PartialEq)]
+enum BlockContext {
+    Program,
+    Regular,
 }
 
 impl Parser {
@@ -66,7 +72,7 @@ impl Parser {
         }
 
         // Parse program body
-        let statements = self.parse_block_statements()?;
+        let statements = self.parse_block_statements(BlockContext::Program)?;
 
         // Expect closing brace
         if !self.match_token(&TokenType::RBrace) {
@@ -83,19 +89,22 @@ impl Parser {
     }
 
     /// Parse block statements
-    fn parse_block_statements(&mut self) -> Result<Vec<AstNode>, String> {
+    fn parse_block_statements(&mut self, context: BlockContext) -> Result<Vec<AstNode>, String> {
         let mut statements = Vec::new();
 
         while !self.is_at_end() && !self.check(&TokenType::RBrace) && !self.check(&TokenType::Relax)
         {
             // entrance block (constructor/setup)
             if self.match_token(&TokenType::Entrance) {
+                if context != BlockContext::Program {
+                    return Err("'entrance' blocks are only allowed at the top level".to_string());
+                }
                 if !self.match_token(&TokenType::LBrace) {
                     return Err("Expected '{' after 'entrance'".to_string());
                 }
                 let mut entrance_statements = Vec::new();
                 while !self.is_at_end() && !self.check(&TokenType::RBrace) {
-                    entrance_statements.push(self.parse_statement()?);
+                    entrance_statements.push(self.parse_statement(BlockContext::Regular)?);
                 }
                 if !self.match_token(&TokenType::RBrace) {
                     return Err("Expected '}' after entrance block".to_string());
@@ -106,12 +115,15 @@ impl Parser {
 
             // finale block (destructor/cleanup)
             if self.match_token(&TokenType::Finale) {
+                if context != BlockContext::Program {
+                    return Err("'finale' blocks are only allowed at the top level".to_string());
+                }
                 if !self.match_token(&TokenType::LBrace) {
                     return Err("Expected '{' after 'finale'".to_string());
                 }
                 let mut finale_statements = Vec::new();
                 while !self.is_at_end() && !self.check(&TokenType::RBrace) {
-                    finale_statements.push(self.parse_statement()?);
+                    finale_statements.push(self.parse_statement(BlockContext::Regular)?);
                 }
                 if !self.match_token(&TokenType::RBrace) {
                     return Err("Expected '}' after finale block".to_string());
@@ -120,14 +132,14 @@ impl Parser {
                 continue;
             }
 
-            statements.push(self.parse_statement()?);
+            statements.push(self.parse_statement(context)?);
         }
 
         Ok(statements)
     }
 
     /// Parse a single statement
-    fn parse_statement(&mut self) -> Result<AstNode, String> {
+    fn parse_statement(&mut self, context: BlockContext) -> Result<AstNode, String> {
         // Variable declaration - induce, implant, embed, freeze
         if self.match_token(&TokenType::SharedTrance) {
             if self.match_token(&TokenType::Induce)
@@ -187,6 +199,9 @@ impl Parser {
 
         // Trigger declaration (event handler/callback)
         if self.match_token(&TokenType::Trigger) {
+            if context != BlockContext::Program {
+                return Err("Triggers can only be declared at the top level".to_string());
+            }
             return self.parse_trigger_declaration();
         }
 
@@ -388,7 +403,7 @@ impl Parser {
 
         // Parse body
         self.consume(&TokenType::LBrace, "Expected '{' before trigger body")?;
-        let body = self.parse_block_statements()?;
+        let body = self.parse_block_statements(BlockContext::Regular)?;
         self.consume(&TokenType::RBrace, "Expected '}' after trigger body")?;
 
         Ok(AstNode::TriggerDeclaration {
@@ -409,7 +424,7 @@ impl Parser {
         self.match_token(&TokenType::DeepFocus);
 
         self.consume(&TokenType::LBrace, "Expected '{' after if condition")?;
-        let then_branch = self.parse_block_statements()?;
+        let then_branch = self.parse_block_statements(BlockContext::Regular)?;
         self.consume(&TokenType::RBrace, "Expected '}' after if block")?;
 
         let else_branch = if self.match_token(&TokenType::Else) {
@@ -418,7 +433,7 @@ impl Parser {
                 Some(vec![self.parse_if_statement()?])
             } else {
                 self.consume(&TokenType::LBrace, "Expected '{' after 'else'")?;
-                let else_statements = self.parse_block_statements()?;
+                let else_statements = self.parse_block_statements(BlockContext::Regular)?;
                 self.consume(&TokenType::RBrace, "Expected '}' after else block")?;
                 Some(else_statements)
             }
@@ -440,7 +455,7 @@ impl Parser {
         self.consume(&TokenType::RParen, "Expected ')' after while condition")?;
 
         self.consume(&TokenType::LBrace, "Expected '{' after while condition")?;
-        let body = self.parse_block_statements()?;
+        let body = self.parse_block_statements(BlockContext::Regular)?;
         self.consume(&TokenType::RBrace, "Expected '}' after while block")?;
 
         Ok(AstNode::WhileStatement { condition, body })
@@ -472,7 +487,7 @@ impl Parser {
             &TokenType::LBrace,
             &format!("Expected '{{' after '{}' loop header", keyword),
         )?;
-        let body = self.parse_block_statements()?;
+        let body = self.parse_block_statements(BlockContext::Regular)?;
         self.consume(&TokenType::RBrace, &format!("Expected '}}' after '{}' loop block", keyword))?;
 
         Ok(AstNode::LoopStatement {
@@ -626,7 +641,7 @@ impl Parser {
         };
 
         self.consume(&TokenType::LBrace, "Expected '{' after function signature")?;
-        let body = self.parse_block_statements()?;
+        let body = self.parse_block_statements(BlockContext::Regular)?;
         self.consume(&TokenType::RBrace, "Expected '}' after function body")?;
 
         Ok(AstNode::FunctionDeclaration {
@@ -861,7 +876,7 @@ impl Parser {
         };
 
         self.consume(&TokenType::LBrace, "Expected '{' after method signature")?;
-        let body = self.parse_block_statements()?;
+        let body = self.parse_block_statements(BlockContext::Regular)?;
         self.consume(&TokenType::RBrace, "Expected '}' after method body")?;
 
         Ok(SessionMember::Method(SessionMethod {
@@ -1368,7 +1383,7 @@ impl Parser {
         if self.match_token(&TokenType::LBrace) {
             let mut statements = Vec::new();
             while !self.check(&TokenType::RBrace) && !self.is_at_end() {
-                statements.push(self.parse_statement()?);
+                statements.push(self.parse_statement(BlockContext::Regular)?);
             }
             self.consume(&TokenType::RBrace, "Expected '}' after block")?;
             Ok(statements)
@@ -1508,5 +1523,45 @@ Focus {
         let mut parser = Parser::new(tokens);
         let ast = parser.parse_program();
         assert!(ast.is_ok());
+    }
+
+    #[test]
+    fn test_trigger_inside_function_is_rejected() {
+        let source = r#"
+Focus {
+    suggestion inner() {
+        trigger localTrigger = suggestion() {
+            observe "Nope";
+        };
+    }
+} Relax
+"#;
+        let mut lexer = Lexer::new(source);
+        let tokens = lexer.lex().unwrap();
+        let mut parser = Parser::new(tokens);
+        let ast = parser.parse_program();
+        assert!(ast.is_err());
+        let error = ast.err().unwrap();
+        assert!(error.contains("Triggers can only be declared at the top level"));
+    }
+
+    #[test]
+    fn test_entrance_inside_function_is_rejected() {
+        let source = r#"
+Focus {
+    suggestion wrong() {
+        entrance {
+            observe "Nope";
+        }
+    }
+} Relax
+"#;
+        let mut lexer = Lexer::new(source);
+        let tokens = lexer.lex().unwrap();
+        let mut parser = Parser::new(tokens);
+        let ast = parser.parse_program();
+        assert!(ast.is_err());
+        let error = ast.err().unwrap();
+        assert!(error.contains("'entrance' blocks are only allowed at the top level"));
     }
 }

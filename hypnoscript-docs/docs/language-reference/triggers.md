@@ -32,6 +32,8 @@ trigger triggerName = suggestion(parameter1: type1, parameter2: type2): returnTy
 | **First-Class**      | Können als Parameter übergeben und gespeichert werden |
 | **Event-Orientiert** | Ideal für Event-Handler und Callbacks                 |
 
+> ✅ Der Rust-Parser erzwingt diese Regel ab sofort strikt: Jeder Versuch, einen `trigger` innerhalb eines Blocks, einer Funktion oder Session zu deklarieren, resultiert in dem Fehler _"Triggers can only be declared at the top level"_.
+
 ## Einfache Beispiele
 
 ### Cleanup-Trigger

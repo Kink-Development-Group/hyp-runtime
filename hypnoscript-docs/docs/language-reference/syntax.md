@@ -20,12 +20,30 @@ Focus {
 
 ### Entrance-Block
 
+> ⚠️ `entrance`-Blöcke sind **nur auf Top-Level** erlaubt – direkt innerhalb von `Focus { ... }`. Wird der Block innerhalb einer Funktion, Session oder eines anderen Blocks deklariert, bricht der Parser mit der Meldung `'entrance' blocks are only allowed at the top level` ab.
+
 Der `entrance`-Block wird beim Programmstart ausgeführt:
 
 ```hyp
 Focus {
     entrance {
         observe "Programm gestartet";
+    }
+} Relax
+```
+
+### Finale-Block
+
+Analog zum `entrance`-Block steht `finale { ... }` ausschließlich auf oberster Ebene zur Verfügung und eignet sich für Aufräumarbeiten. Auch hier erzwingt der Parser strikte Top-Level-Platzierung und meldet `'finale' blocks are only allowed at the top level`, falls der Block verschachtelt wird.
+
+```hyp
+Focus {
+    entrance {
+        observe "Setup";
+    }
+
+    finale {
+        observe "Cleanup";
     }
 } Relax
 ```
