@@ -10,9 +10,12 @@ portiert und ab Version 1.0 ausschließlich in Rust weiterentwickelt.
 
 - 🦀 **Reine Rust-Codebasis** – schneller Build, keine .NET-Abhängigkeiten mehr
 - 🧠 **Vollständige Toolchain** – Lexer, Parser, Type Checker, Interpreter und WASM-Codegen
-- 🧰 **110+ Builtins** – Mathe, Strings, Arrays, Hypnose, Files, Zeit, System, Statistik, Hashing, Validation
+- 🧰 **180+ Builtins** – Mathe, Strings, Arrays, Hypnose, Files, Zeit, System, Statistik, Hashing, Validation, Kryptographie
+- 🌍 **Mehrsprachigkeit** – i18n-Unterstützung (EN, DE, FR, ES)
+- 🔐 **Kryptographie** – SHA-256, SHA-512, MD5, Base64, UUID
+- 🧬 **Funktionale Programmierung** – map, filter, reduce, compose, pipe
 - 🖥️ **CLI-Workflow** – `run`, `lex`, `parse`, `check`, `compile-wasm`, `builtins`, `version`
-- ✅ **Umfangreiche Tests** – 48 Tests über alle Crates (Lexer, Runtime, Compiler, CLI)
+- ✅ **Umfangreiche Tests** – 91 Tests über alle Crates (Lexer, Runtime, Compiler, CLI)
 - 📚 **Dokumentation** – Docusaurus im Ordner `HypnoScript.Dokumentation`
 - 🚀 **Performance** – Zero-cost abstractions, kein Garbage Collector, nativer Code
 
@@ -26,7 +29,7 @@ hyp-runtime/
 ├── hypnoscript-core/             # Typ-System & Symbole (100%)
 ├── hypnoscript-lexer-parser/     # Tokens, Lexer, AST, Parser (100%)
 ├── hypnoscript-compiler/         # Type Checker, Interpreter, WASM Codegen (100%)
-├── hypnoscript-runtime/          # 110+ Builtin-Funktionen (75%)
+├── hypnoscript-runtime/          # 180+ Builtin-Funktionen (100%)
 └── hypnoscript-cli/              # Kommandozeileninterface (100%)
 ```
 
