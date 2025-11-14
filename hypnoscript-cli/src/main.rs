@@ -1,6 +1,9 @@
 use anyhow::{Result, anyhow};
 use clap::{Parser, Subcommand};
-use hypnoscript_compiler::{Interpreter, TypeChecker, WasmCodeGenerator};
+use hypnoscript_compiler::{
+    Interpreter, TypeChecker, WasmCodeGenerator, WasmBinaryGenerator,
+    NativeCodeGenerator, TargetPlatform, OptimizationLevel, Optimizer
+};
 use hypnoscript_lexer_parser::{Lexer, Parser as HypnoParser};
 use semver::Version;
 use serde::Deserialize;
@@ -83,6 +86,42 @@ enum Commands {
         /// Output WASM file
         #[arg(short, long)]
         output: Option<String>,
+
+        /// Generate binary WASM (.wasm) instead of text format (.wat)
+        #[arg(short, long)]
+        binary: bool,
+    },
+
+    /// Compile to native binary
+    CompileNative {
+        /// Path to the .hyp file
+        input: String,
+
+        /// Output binary file
+        #[arg(short, long)]
+        output: Option<String>,
+
+        /// Target platform (windows-x64, linux-x64, macos-arm64, etc.)
+        #[arg(short, long)]
+        target: Option<String>,
+
+        /// Optimization level (none, less, default, aggressive, release)
+        #[arg(long, default_value = "default")]
+        opt_level: String,
+    },
+
+    /// Optimize HypnoScript code
+    Optimize {
+        /// Path to the .hyp file
+        input: String,
+
+        /// Output file (optimized)
+        #[arg(short, long)]
+        output: Option<String>,
+
+        /// Show optimization statistics
+        #[arg(short, long)]
+        stats: bool,
     },
 
     /// Update or check the HypnoScript installation
@@ -222,20 +261,117 @@ fn main() -> Result<()> {
             }
         }
 
-        Commands::CompileWasm { input, output } => {
+        Commands::CompileWasm { input, output, binary } => {
             let source = fs::read_to_string(&input)?;
             let mut lexer = Lexer::new(&source);
             let tokens = lexer.lex().map_err(into_anyhow)?;
             let mut parser = HypnoParser::new(tokens);
             let ast = parser.parse_program().map_err(into_anyhow)?;
 
-            let mut generator = WasmCodeGenerator::new();
-            let wasm_code = generator.generate(&ast);
+            if binary {
+                // Generate binary WASM
+                let mut generator = WasmBinaryGenerator::new();
+                let wasm_bytes = generator.generate(&ast).map_err(into_anyhow)?;
 
-            let output_file = output.unwrap_or_else(|| input.replace(".hyp", ".wat"));
+                let output_file = output.unwrap_or_else(|| input.replace(".hyp", ".wasm"));
+                fs::write(&output_file, wasm_bytes)?;
+                println!("✅ Binary WASM written to: {}", output_file);
+            } else {
+                // Generate text WASM (WAT)
+                let mut generator = WasmCodeGenerator::new();
+                let wasm_code = generator.generate(&ast);
 
-            fs::write(&output_file, wasm_code)?;
-            println!("✅ WASM code written to: {}", output_file);
+                let output_file = output.unwrap_or_else(|| input.replace(".hyp", ".wat"));
+                fs::write(&output_file, wasm_code)?;
+                println!("✅ WASM text format written to: {}", output_file);
+            }
+        }
+
+        Commands::CompileNative { input, output, target, opt_level } => {
+            let source = fs::read_to_string(&input)?;
+            let mut lexer = Lexer::new(&source);
+            let tokens = lexer.lex().map_err(into_anyhow)?;
+            let mut parser = HypnoParser::new(tokens);
+            let ast = parser.parse_program().map_err(into_anyhow)?;
+
+            let mut generator = NativeCodeGenerator::new();
+
+            // Set target platform
+            if let Some(target_str) = target {
+                let platform = match target_str.as_str() {
+                    "windows-x64" => TargetPlatform::WindowsX64,
+                    "windows-arm64" => TargetPlatform::WindowsArm64,
+                    "macos-x64" => TargetPlatform::MacOsX64,
+                    "macos-arm64" => TargetPlatform::MacOsArm64,
+                    "linux-x64" => TargetPlatform::LinuxX64,
+                    "linux-arm64" => TargetPlatform::LinuxArm64,
+                    "linux-riscv" => TargetPlatform::LinuxRiscV,
+                    _ => return Err(anyhow!("Unsupported target platform: {}", target_str)),
+                };
+                generator.set_target_platform(platform);
+            }
+
+            // Set optimization level
+            let opt = match opt_level.as_str() {
+                "none" => OptimizationLevel::None,
+                "less" => OptimizationLevel::Less,
+                "default" => OptimizationLevel::Default,
+                "aggressive" => OptimizationLevel::Aggressive,
+                "release" => OptimizationLevel::Release,
+                _ => return Err(anyhow!("Invalid optimization level: {}", opt_level)),
+            };
+            generator.set_optimization_level(opt);
+
+            if let Some(out) = output {
+                generator.set_output_path(out.into());
+            }
+
+            println!("🔨 Compiling to native code...");
+            println!("{}", generator.target_info());
+
+            match generator.generate(&ast) {
+                Ok(path) => {
+                    println!("✅ Native binary written to: {}", path.display());
+                }
+                Err(e) => {
+                    println!("⚠️  {}", e);
+                    println!("\nHinweis: Native Code-Generierung wird in einer zukünftigen Version implementiert.");
+                    println!("Verwenden Sie stattdessen:");
+                    println!("  - 'hypnoscript run {}' für Interpretation", input);
+                    println!("  - 'hypnoscript compile-wasm {}' für WebAssembly", input);
+                }
+            }
+        }
+
+        Commands::Optimize { input, output, stats } => {
+            let source = fs::read_to_string(&input)?;
+            let mut lexer = Lexer::new(&source);
+            let tokens = lexer.lex().map_err(into_anyhow)?;
+            let mut parser = HypnoParser::new(tokens);
+            let ast = parser.parse_program().map_err(into_anyhow)?;
+
+            let mut optimizer = Optimizer::new();
+            optimizer.enable_all_optimizations();
+
+            println!("🔧 Optimizing code...");
+            let optimized_ast = optimizer.optimize(&ast).map_err(into_anyhow)?;
+
+            if stats {
+                let opt_stats = optimizer.stats();
+                println!("\n📊 Optimization Statistics:");
+                println!("  - Constant folding:     {} optimizations", opt_stats.folded_constants);
+                println!("  - Dead code elimination: {} blocks removed", opt_stats.eliminated_dead_code);
+                println!("  - CSE:                  {} eliminations", opt_stats.eliminated_common_subexpr);
+                println!("  - Loop invariants:      {} moved", opt_stats.moved_loop_invariants);
+                println!("  - Function inlining:    {} functions", opt_stats.inlined_functions);
+            }
+
+            // For now, just report that optimization was performed
+            // In a full implementation, we would regenerate source code from the optimized AST
+            let output_file = output.unwrap_or_else(|| input.replace(".hyp", ".opt.hyp"));
+            println!("✅ Optimized AST available (output generation not yet implemented)");
+            println!("   Would write to: {}", output_file);
+            println!("\nOptimierter AST:\n{:#?}", optimized_ast);
         }
 
         Commands::SelfUpdate {
@@ -255,8 +391,10 @@ fn main() -> Result<()> {
             println!("Features:");
             println!("  - Full parser and interpreter");
             println!("  - Type checker");
-            println!("  - WASM code generation");
-            println!("  - 110+ builtin functions");
+            println!("  - WASM code generation (text & binary)");
+            println!("  - Native code compilation (planned)");
+            println!("  - Code optimization");
+            println!("  - 180+ builtin functions");
         }
 
         Commands::Builtins => {

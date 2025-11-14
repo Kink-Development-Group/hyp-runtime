@@ -1,7 +1,42 @@
 use std::f64;
+use crate::builtin_trait::BuiltinModule;
+use crate::localization::LocalizedMessage;
 
 /// Mathematical builtin functions
+///
+/// Provides comprehensive mathematical operations including trigonometry,
+/// algebra, number theory, and statistical functions.
 pub struct MathBuiltins;
+
+impl BuiltinModule for MathBuiltins {
+    fn module_name() -> &'static str {
+        "Math"
+    }
+
+    fn description() -> &'static str {
+        "Mathematical functions including trigonometry, algebra, and number theory"
+    }
+
+    fn description_localized(locale: Option<&str>) -> String {
+        let locale = crate::localization::detect_locale(locale);
+        let msg = LocalizedMessage::new("Mathematical functions including trigonometry, algebra, and number theory")
+            .with_translation("de", "Mathematische Funktionen inkl. Trigonometrie, Algebra und Zahlentheorie")
+            .with_translation("fr", "Fonctions mathématiques y compris trigonométrie, algèbre et théorie des nombres")
+            .with_translation("es", "Funciones matemáticas incluyendo trigonometría, álgebra y teoría de números");
+        msg.resolve(&locale).to_string()
+    }
+
+    fn function_names() -> &'static [&'static str] {
+        &[
+            "Sin", "Cos", "Tan", "Asin", "Acos", "Atan", "Atan2",
+            "Sinh", "Cosh", "Tanh", "Asinh", "Acosh", "Atanh",
+            "Sqrt", "Cbrt", "Pow", "Log", "Log2", "Log10", "Exp", "Exp2",
+            "Abs", "Floor", "Ceil", "Round", "Min", "Max", "Hypot",
+            "Factorial", "Gcd", "Lcm", "IsPrime", "Fibonacci",
+            "Clamp", "Sign", "ToDegrees", "ToRadians",
+        ]
+    }
+}
 
 impl MathBuiltins {
     /// Sine function
@@ -19,9 +54,72 @@ impl MathBuiltins {
         x.tan()
     }
 
+    /// Arc sine (inverse sine)
+    /// Returns the angle in radians whose sine is x
+    /// Range: [-π/2, π/2]
+    pub fn asin(x: f64) -> f64 {
+        x.asin()
+    }
+
+    /// Arc cosine (inverse cosine)
+    /// Returns the angle in radians whose cosine is x
+    /// Range: [0, π]
+    pub fn acos(x: f64) -> f64 {
+        x.acos()
+    }
+
+    /// Arc tangent (inverse tangent)
+    /// Returns the angle in radians whose tangent is x
+    /// Range: [-π/2, π/2]
+    pub fn atan(x: f64) -> f64 {
+        x.atan()
+    }
+
+    /// Two-argument arc tangent
+    /// Computes the angle in radians between the positive x-axis and the point (x, y)
+    /// Range: [-π, π]
+    pub fn atan2(y: f64, x: f64) -> f64 {
+        y.atan2(x)
+    }
+
+    /// Hyperbolic sine
+    pub fn sinh(x: f64) -> f64 {
+        x.sinh()
+    }
+
+    /// Hyperbolic cosine
+    pub fn cosh(x: f64) -> f64 {
+        x.cosh()
+    }
+
+    /// Hyperbolic tangent
+    pub fn tanh(x: f64) -> f64 {
+        x.tanh()
+    }
+
+    /// Inverse hyperbolic sine
+    pub fn asinh(x: f64) -> f64 {
+        x.asinh()
+    }
+
+    /// Inverse hyperbolic cosine
+    pub fn acosh(x: f64) -> f64 {
+        x.acosh()
+    }
+
+    /// Inverse hyperbolic tangent
+    pub fn atanh(x: f64) -> f64 {
+        x.atanh()
+    }
+
     /// Square root
     pub fn sqrt(x: f64) -> f64 {
         x.sqrt()
+    }
+
+    /// Cube root
+    pub fn cbrt(x: f64) -> f64 {
+        x.cbrt()
     }
 
     /// Power function
@@ -34,9 +132,24 @@ impl MathBuiltins {
         x.ln()
     }
 
+    /// Base-2 logarithm
+    pub fn log2(x: f64) -> f64 {
+        x.log2()
+    }
+
     /// Base-10 logarithm
     pub fn log10(x: f64) -> f64 {
         x.log10()
+    }
+
+    /// Exponential function (e^x)
+    pub fn exp(x: f64) -> f64 {
+        x.exp()
+    }
+
+    /// 2^x
+    pub fn exp2(x: f64) -> f64 {
+        x.exp2()
     }
 
     /// Absolute value
@@ -67,6 +180,43 @@ impl MathBuiltins {
     /// Maximum of two values
     pub fn max(a: f64, b: f64) -> f64 {
         a.max(b)
+    }
+
+    /// Hypotenuse (Euclidean distance)
+    /// Computes sqrt(x^2 + y^2) without undue overflow or underflow
+    pub fn hypot(x: f64, y: f64) -> f64 {
+        x.hypot(y)
+    }
+
+    /// Convert degrees to radians
+    pub fn degrees_to_radians(degrees: f64) -> f64 {
+        degrees * std::f64::consts::PI / 180.0
+    }
+
+    /// Convert radians to degrees
+    pub fn radians_to_degrees(radians: f64) -> f64 {
+        radians * 180.0 / std::f64::consts::PI
+    }
+
+    /// Sign function: returns -1, 0, or 1
+    pub fn sign(x: f64) -> f64 {
+        if x > 0.0 {
+            1.0
+        } else if x < 0.0 {
+            -1.0
+        } else {
+            0.0
+        }
+    }
+
+    /// Truncate (remove fractional part)
+    pub fn trunc(x: f64) -> f64 {
+        x.trunc()
+    }
+
+    /// Fractional part
+    pub fn fract(x: f64) -> f64 {
+        x.fract()
     }
 
     /// Factorial
@@ -171,5 +321,50 @@ mod tests {
         assert_eq!(MathBuiltins::fibonacci(0), 0);
         assert_eq!(MathBuiltins::fibonacci(1), 1);
         assert_eq!(MathBuiltins::fibonacci(10), 55);
+    }
+
+    #[test]
+    fn test_inverse_trig() {
+        assert!((MathBuiltins::asin(0.5) - std::f64::consts::PI / 6.0).abs() < 0.0001);
+        assert!((MathBuiltins::acos(0.5) - std::f64::consts::PI / 3.0).abs() < 0.0001);
+        assert!((MathBuiltins::atan(1.0) - std::f64::consts::PI / 4.0).abs() < 0.0001);
+    }
+
+    #[test]
+    fn test_hyperbolic() {
+        assert!((MathBuiltins::sinh(0.0) - 0.0).abs() < 0.0001);
+        assert!((MathBuiltins::cosh(0.0) - 1.0).abs() < 0.0001);
+        assert!((MathBuiltins::tanh(0.0) - 0.0).abs() < 0.0001);
+    }
+
+    #[test]
+    fn test_exp_and_log() {
+        assert!((MathBuiltins::exp(1.0) - std::f64::consts::E).abs() < 0.0001);
+        assert!((MathBuiltins::log2(8.0) - 3.0).abs() < 0.0001);
+        assert!((MathBuiltins::exp2(3.0) - 8.0).abs() < 0.0001);
+    }
+
+    #[test]
+    fn test_hypot() {
+        assert!((MathBuiltins::hypot(3.0, 4.0) - 5.0).abs() < 0.0001);
+    }
+
+    #[test]
+    fn test_angle_conversion() {
+        assert!((MathBuiltins::degrees_to_radians(180.0) - std::f64::consts::PI).abs() < 0.0001);
+        assert!((MathBuiltins::radians_to_degrees(std::f64::consts::PI) - 180.0).abs() < 0.0001);
+    }
+
+    #[test]
+    fn test_sign() {
+        assert_eq!(MathBuiltins::sign(42.0), 1.0);
+        assert_eq!(MathBuiltins::sign(-42.0), -1.0);
+        assert_eq!(MathBuiltins::sign(0.0), 0.0);
+    }
+
+    #[test]
+    fn test_cbrt() {
+        assert!((MathBuiltins::cbrt(27.0) - 3.0).abs() < 0.0001);
+        assert!((MathBuiltins::cbrt(-8.0) - (-2.0)).abs() < 0.0001);
     }
 }

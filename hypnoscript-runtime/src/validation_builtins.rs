@@ -1,12 +1,44 @@
 use regex::Regex;
 use std::sync::OnceLock;
+use crate::builtin_trait::BuiltinModule;
+use crate::localization::LocalizedMessage;
 
 /// Validation builtin functions
+///
+/// Provides data validation functions for common formats like email,
+/// URL, phone numbers, and pattern matching.
 pub struct ValidationBuiltins;
 
 static EMAIL_REGEX: OnceLock<Regex> = OnceLock::new();
 static URL_REGEX: OnceLock<Regex> = OnceLock::new();
 static PHONE_REGEX: OnceLock<Regex> = OnceLock::new();
+
+impl BuiltinModule for ValidationBuiltins {
+    fn module_name() -> &'static str {
+        "Validation"
+    }
+
+    fn description() -> &'static str {
+        "Data validation functions for emails, URLs, phone numbers, and patterns"
+    }
+
+    fn description_localized(locale: Option<&str>) -> String {
+        let locale = crate::localization::detect_locale(locale);
+        let msg = LocalizedMessage::new("Data validation functions for emails, URLs, phone numbers, and patterns")
+            .with_translation("de", "Datenvalidierungsfunktionen für E-Mails, URLs, Telefonnummern und Muster")
+            .with_translation("fr", "Fonctions de validation de données pour e-mails, URL, numéros de téléphone et motifs")
+            .with_translation("es", "Funciones de validación de datos para correos electrónicos, URLs, números de teléfono y patrones");
+        msg.resolve(&locale).to_string()
+    }
+
+    fn function_names() -> &'static [&'static str] {
+        &[
+            "IsValidEmail", "IsValidUrl", "IsValidPhoneNumber",
+            "IsAlphanumeric", "IsAlphabetic", "IsNumeric",
+            "IsLowercase", "IsUppercase", "IsInRange", "MatchesPattern",
+        ]
+    }
+}
 
 impl ValidationBuiltins {
     /// Check if string is valid email

@@ -28,7 +28,7 @@ Focus {
 
 - `if`, `else if`, `else`
 - `while` für bedingte Schleifen
-- `loop { ... }` als endlose Schleife (Beenden via `snap`/`break`)
+- `loop` unterstützt sowohl die Endlosschleife `loop { ... }` als auch einen klassischen Kopf `loop (init; condition; update) { ... }`; `pendulum (...)` ist ein Alias, das immer eine Bedingung verlangt.
 - `snap` (Alias `break`), `sink` (Alias `continue`)
 - Hypnotische Operatoren wie `youAreFeelingVerySleepy` (`==`) oder `underMyControl` (`&&`)
 - Booleans können mit `oscillate flag;` umgeschaltet werden

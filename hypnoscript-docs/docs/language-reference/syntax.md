@@ -142,6 +142,8 @@ Focus {
 
 ### Loop-Schleife
 
+`loop` kann wie eine klassische for-Schleife mit Kopf `loop (initialisierung; bedingung; update)` oder als Endlosschleife ohne Kopf verwendet werden. Die Variante `pendulum ( ... )` ist ein Alias für denselben Aufbau, verlangt jedoch immer eine Bedingung und eignet sich für "hin-und-her"-Konstrukte.
+
 ```hyp
 Focus {
     entrance {
@@ -154,6 +156,11 @@ Focus {
         induce fruits: string[] = ["Apfel", "Birne", "Kirsche"];
         loop (induce i: number = 0; i < ArrayLength(fruits); i = i + 1) {
             observe "Frucht " + (i + 1) + ": " + ArrayGet(fruits, i);
+        }
+
+        // Pendulum benötigt immer einen Kopf und verhält sich wie loop (...)
+        pendulum (induce phase: number = -2; phase <= 2; phase = phase + 1) {
+            observe "Phase " + phase;
         }
     }
 } Relax

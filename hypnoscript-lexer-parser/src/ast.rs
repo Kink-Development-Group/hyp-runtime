@@ -29,6 +29,7 @@ pub enum AstNode {
         type_annotation: Option<String>,
         initializer: Option<Box<AstNode>>,
         is_constant: bool, // true for 'freeze', false for 'induce'/'implant'
+        storage: VariableStorage,
     },
 
     /// Anchor statement: saves the current value of a variable for later restoration
@@ -71,6 +72,9 @@ pub enum AstNode {
     /// command: Imperative output (usually uppercase/emphasized)
     CommandStatement(Box<AstNode>),
 
+    /// murmur: Quiet output/debug level
+    MurmurStatement(Box<AstNode>),
+
     IfStatement {
         condition: Box<AstNode>,
         then_branch: Vec<AstNode>,
@@ -87,9 +91,22 @@ pub enum AstNode {
         condition: Box<AstNode>,
         body: Vec<AstNode>,
     },
+
+    /// Loop statement supporting both `loop` and `pendulum` keywords.
+    /// When `init`, `condition`, and `update` are provided, the construct behaves like
+    /// a traditional C-style `for` loop. Leaving all three clauses empty represents the
+    /// legacy infinite `loop { ... }` form. `pendulum` is treated as syntactic sugar for
+    /// the same structure.
     LoopStatement {
+        init: Option<Box<AstNode>>,
+        condition: Option<Box<AstNode>>,
+        update: Option<Box<AstNode>>,
         body: Vec<AstNode>,
     },
+
+    /// suspend: Pause without fixed end (infinite loop or wait)
+    SuspendStatement,
+
     ReturnStatement(Option<Box<AstNode>>),
     BreakStatement,
     ContinueStatement,
@@ -98,6 +115,14 @@ pub enum AstNode {
     /// Example: oscillate myFlag;
     OscillateStatement {
         target: Box<AstNode>,
+    },
+
+    /// entrain: Pattern matching expression (like switch/match)
+    /// Example: entrain value { when 0 => ...; when x: number => ...; otherwise => ...; }
+    EntrainExpression {
+        subject: Box<AstNode>,
+        cases: Vec<EntrainCase>,
+        default: Option<Vec<AstNode>>,
     },
 
     // Expressions
@@ -138,6 +163,42 @@ pub enum AstNode {
         target: Box<AstNode>,
         value: Box<AstNode>,
     },
+
+    /// await expression for async operations
+    /// Example: await asyncFunction();
+    AwaitExpression {
+        expression: Box<AstNode>,
+    },
+
+    /// Nullish coalescing operator (?? or lucidFallback)
+    /// Example: value ?? defaultValue
+    NullishCoalescing {
+        left: Box<AstNode>,
+        right: Box<AstNode>,
+    },
+
+    /// Optional chaining operator (?. or dreamReach)
+    /// Example: obj?.property
+    OptionalChaining {
+        object: Box<AstNode>,
+        property: String,
+    },
+
+    /// Optional index access
+    /// Example: arr?.[index]
+    OptionalIndexing {
+        object: Box<AstNode>,
+        index: Box<AstNode>,
+    },
+}
+
+/// Storage location for variable bindings
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
+pub enum VariableStorage {
+    /// Regular lexical storage (respecting current scope)
+    Local,
+    /// Module-level shared trance storage (globally accessible)
+    SharedTrance,
 }
 
 /// Function parameter
@@ -172,6 +233,11 @@ impl AstNode {
                 | AstNode::ArrayLiteral(_)
                 | AstNode::IndexExpression { .. }
                 | AstNode::AssignmentExpression { .. }
+                | AstNode::AwaitExpression { .. }
+                | AstNode::NullishCoalescing { .. }
+                | AstNode::OptionalChaining { .. }
+                | AstNode::OptionalIndexing { .. }
+                | AstNode::EntrainExpression { .. }
         )
     }
 
@@ -183,10 +249,12 @@ impl AstNode {
                 | AstNode::ObserveStatement(_)
                 | AstNode::WhisperStatement(_)
                 | AstNode::CommandStatement(_)
+                | AstNode::MurmurStatement(_)
                 | AstNode::IfStatement { .. }
                 | AstNode::DeepFocusStatement { .. }
                 | AstNode::WhileStatement { .. }
                 | AstNode::LoopStatement { .. }
+                | AstNode::SuspendStatement
                 | AstNode::ReturnStatement(_)
                 | AstNode::BreakStatement
                 | AstNode::ContinueStatement
@@ -241,4 +309,43 @@ pub struct SessionMethod {
     pub visibility: SessionVisibility,
     pub is_static: bool,
     pub is_constructor: bool,
+}
+
+/// Pattern for matching in entrain expressions
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+pub enum Pattern {
+    /// Literal pattern (e.g., when 0, when "hello")
+    Literal(Box<AstNode>),
+    /// Identifier binding (e.g., when x)
+    Identifier(String),
+    /// Type pattern with optional binding (e.g., when value: number)
+    Typed {
+        name: Option<String>,
+        type_annotation: String,
+    },
+    /// Record destructuring pattern (e.g., when HypnoGuest { name, isInTrance: true })
+    Record {
+        type_name: String,
+        fields: Vec<RecordFieldPattern>,
+    },
+    /// Array destructuring pattern (e.g., when [first, second, ...rest])
+    Array {
+        elements: Vec<Pattern>,
+        rest: Option<String>,
+    },
+}
+
+/// Field pattern in record destructuring
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+pub struct RecordFieldPattern {
+    pub name: String,
+    pub pattern: Option<Box<Pattern>>,
+}
+
+/// A case in an entrain (pattern matching) expression
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+pub struct EntrainCase {
+    pub pattern: Pattern,
+    pub guard: Option<Box<AstNode>>, // Optional if-condition
+    pub body: Vec<AstNode>,
 }

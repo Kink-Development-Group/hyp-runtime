@@ -1,0 +1,18 @@
+Focus {
+
+observe "=== Testing Pendulum Loop ===";
+induce sum: number = 0;
+observe sum;  // Should be 0
+
+pendulum (induce i: number = 1; i <= 5; i = i + 1) {
+    observe i;  // Should print 1, 2, 3, 4, 5
+    sum = sum + i;
+    observe sum;  // Should print cumulative sum
+}
+
+observe "Final sum:";
+observe sum;  // Should be 15
+
+}
+
+Relax

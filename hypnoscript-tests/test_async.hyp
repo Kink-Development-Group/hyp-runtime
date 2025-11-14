@@ -1,0 +1,22 @@
+Focus {
+
+observe "=== Testing Async/Await ===";
+
+// Test 1: Simple await (non-promise value)
+induce normalValue: number = 42;
+induce result1 = await normalValue;
+observe result1;  // 42
+
+// Test 2: Await expression result
+induce result2 = await (10 + 20);
+observe result2;  // 30
+
+// Test 3: Using surrenderTo (alternative syntax)
+induce result3 = surrenderTo (5 * 5);
+observe result3;  // 25
+
+observe "=== Async Tests Complete ===";
+
+}
+
+Relax

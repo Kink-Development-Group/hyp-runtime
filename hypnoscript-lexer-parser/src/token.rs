@@ -9,12 +9,14 @@ pub enum TokenType {
     Focus,
     Relax,
     Entrance,
-    Finale,    // Destructor/cleanup block
-    DeepFocus, // Deep focus block modifier
+    Finale,      // Destructor/cleanup block
+    DeepFocus,   // Deep focus block modifier
+    DeeperStill, // Even deeper block modifier
 
     // Variables and declarations
     Induce,  // Variable declaration (standard)
     Implant, // Variable declaration (alternative)
+    Embed,   // Variable declaration (deep memory)
     Freeze,  // Constant declaration
     From,
     External,
@@ -23,19 +25,27 @@ pub enum TokenType {
     // Control structures
     If,
     Else,
+    When,      // Pattern matching case
+    Otherwise, // Pattern matching default
+    Entrain,   // Pattern matching switch
     While,
     Loop,
+    Pendulum,  // Bidirectional loop
     Snap,      // break
     Sink,      // continue
     SinkTo,    // goto
     Oscillate, // toggle boolean
+    Suspend,   // Pause without fixed end
 
     // Functions
     Suggestion,           // Standard function
     Trigger,              // Event handler/callback function
     ImperativeSuggestion, // Imperative function modifier
     DominantSuggestion,   // Static function modifier
+    Mesmerize,            // Async function modifier
     Awaken,               // return
+    Await,                // await async
+    SurrenderTo,          // await (synonym)
     Call,
 
     // Object-oriented programming
@@ -49,10 +59,15 @@ pub enum TokenType {
     Tranceify,
 
     // I/O
-    Observe, // Standard output with newline
-    Whisper, // Output without newline
-    Command, // Imperative output
-    Drift,   // Sleep/delay
+    Observe,        // Standard output with newline
+    Whisper,        // Output without newline
+    Command,        // Imperative output
+    Murmur,         // Quiet output/debug level
+    Drift,          // Sleep/delay
+    PauseReality,   // Sleep/delay (synonym)
+    AccelerateTime, // Speed up execution
+    DecelerateTime, // Slow down execution
+    Subconscious,   // Access to hidden memory
 
     // Hypnotic operators
     YouAreFeelingVerySleepy, // ==
@@ -66,6 +81,8 @@ pub enum TokenType {
     DeeplyLess,              // <= (legacy)
     UnderMyControl,          // &&
     ResistanceIsFutile,      // ||
+    LucidFallback,           // ?? (nullish coalescing)
+    DreamReach,              // ?. (optional chaining)
 
     // Modules and globals
     MindLink,     // import
@@ -75,20 +92,26 @@ pub enum TokenType {
     Label,
 
     // Standard operators
-    DoubleEquals, // ==
-    NotEquals,    // !=
+    DoubleEquals,   // ==
+    NotEquals,      // !=
     Greater,
-    GreaterEqual, // >=
+    GreaterEqual,   // >=
     Less,
-    LessEqual, // <=
+    LessEqual,      // <=
     Plus,
     Minus,
     Asterisk,
     Slash,
     Percent,
-    Bang,     // !
-    AmpAmp,   // &&
-    PipePipe, // ||
+    Bang,           // !
+    AmpAmp,         // &&
+    PipePipe,       // ||
+    QuestionMark,   // ?
+    QuestionDot,    // ?.
+    QuestionQuestion, // ??
+    Pipe,           // | (for union types)
+    Ampersand,      // & (for intersection types)
+    Arrow,          // => (for pattern matching)
 
     // Literals and identifiers
     Identifier,
@@ -101,23 +124,27 @@ pub enum TokenType {
     String,
     Boolean,
     Trance,
+    Lucid, // Optional type modifier
 
     // Boolean literals
     True,
     False,
 
     // Delimiters and brackets
-    LParen,   // (
-    RParen,   // )
-    LBrace,   // {
-    RBrace,   // }
-    LBracket, // [
-    RBracket, // ]
+    LParen,     // (
+    RParen,     // )
+    LBrace,     // {
+    RBrace,     // }
+    LBracket,   // [
+    RBracket,   // ]
+    LAngle,     // < (for generics)
+    RAngle,     // > (for generics)
     Comma,
-    Colon,     // :
-    Semicolon, // ;
-    Dot,       // .
-    Equals,    // =
+    Colon,      // :
+    Semicolon,  // ;
+    Dot,        // .
+    DotDotDot,  // ... (spread operator)
+    Equals,     // =
 
     // End of file
     Eof,
@@ -175,6 +202,13 @@ static KEYWORD_DEFINITIONS: Lazy<HashMap<&'static str, KeywordDefinition>> = Laz
             canonical_lexeme: "deepFocus",
         },
     );
+    map.insert(
+        "deeperstill",
+        KeywordDefinition {
+            token: DeeperStill,
+            canonical_lexeme: "deeperStill",
+        },
+    );
 
     // Variable declarations and sourcing
     map.insert(
@@ -189,6 +223,13 @@ static KEYWORD_DEFINITIONS: Lazy<HashMap<&'static str, KeywordDefinition>> = Laz
         KeywordDefinition {
             token: Implant,
             canonical_lexeme: "implant",
+        },
+    );
+    map.insert(
+        "embed",
+        KeywordDefinition {
+            token: Embed,
+            canonical_lexeme: "embed",
         },
     );
     map.insert(
@@ -236,6 +277,27 @@ static KEYWORD_DEFINITIONS: Lazy<HashMap<&'static str, KeywordDefinition>> = Laz
         },
     );
     map.insert(
+        "when",
+        KeywordDefinition {
+            token: When,
+            canonical_lexeme: "when",
+        },
+    );
+    map.insert(
+        "otherwise",
+        KeywordDefinition {
+            token: Otherwise,
+            canonical_lexeme: "otherwise",
+        },
+    );
+    map.insert(
+        "entrain",
+        KeywordDefinition {
+            token: Entrain,
+            canonical_lexeme: "entrain",
+        },
+    );
+    map.insert(
         "while",
         KeywordDefinition {
             token: While,
@@ -247,6 +309,13 @@ static KEYWORD_DEFINITIONS: Lazy<HashMap<&'static str, KeywordDefinition>> = Laz
         KeywordDefinition {
             token: Loop,
             canonical_lexeme: "loop",
+        },
+    );
+    map.insert(
+        "pendulum",
+        KeywordDefinition {
+            token: Pendulum,
+            canonical_lexeme: "pendulum",
         },
     );
     map.insert(
@@ -291,6 +360,13 @@ static KEYWORD_DEFINITIONS: Lazy<HashMap<&'static str, KeywordDefinition>> = Laz
             canonical_lexeme: "oscillate",
         },
     );
+    map.insert(
+        "suspend",
+        KeywordDefinition {
+            token: Suspend,
+            canonical_lexeme: "suspend",
+        },
+    );
 
     // Functions
     map.insert(
@@ -322,10 +398,31 @@ static KEYWORD_DEFINITIONS: Lazy<HashMap<&'static str, KeywordDefinition>> = Laz
         },
     );
     map.insert(
+        "mesmerize",
+        KeywordDefinition {
+            token: Mesmerize,
+            canonical_lexeme: "mesmerize",
+        },
+    );
+    map.insert(
         "awaken",
         KeywordDefinition {
             token: Awaken,
             canonical_lexeme: "awaken",
+        },
+    );
+    map.insert(
+        "await",
+        KeywordDefinition {
+            token: Await,
+            canonical_lexeme: "await",
+        },
+    );
+    map.insert(
+        "surrenderto",
+        KeywordDefinition {
+            token: SurrenderTo,
+            canonical_lexeme: "surrenderTo",
         },
     );
     map.insert(
@@ -410,10 +507,45 @@ static KEYWORD_DEFINITIONS: Lazy<HashMap<&'static str, KeywordDefinition>> = Laz
         },
     );
     map.insert(
+        "murmur",
+        KeywordDefinition {
+            token: Murmur,
+            canonical_lexeme: "murmur",
+        },
+    );
+    map.insert(
         "drift",
         KeywordDefinition {
             token: Drift,
             canonical_lexeme: "drift",
+        },
+    );
+    map.insert(
+        "pausereality",
+        KeywordDefinition {
+            token: PauseReality,
+            canonical_lexeme: "pauseReality",
+        },
+    );
+    map.insert(
+        "acceleratetime",
+        KeywordDefinition {
+            token: AccelerateTime,
+            canonical_lexeme: "accelerateTime",
+        },
+    );
+    map.insert(
+        "deceleratetime",
+        KeywordDefinition {
+            token: DecelerateTime,
+            canonical_lexeme: "decelerateTime",
+        },
+    );
+    map.insert(
+        "subconscious",
+        KeywordDefinition {
+            token: Subconscious,
+            canonical_lexeme: "subconscious",
         },
     );
 
@@ -522,6 +654,20 @@ static KEYWORD_DEFINITIONS: Lazy<HashMap<&'static str, KeywordDefinition>> = Laz
             canonical_lexeme: "resistanceIsFutile",
         },
     );
+    map.insert(
+        "lucidfallback",
+        KeywordDefinition {
+            token: LucidFallback,
+            canonical_lexeme: "lucidFallback",
+        },
+    );
+    map.insert(
+        "dreamreach",
+        KeywordDefinition {
+            token: DreamReach,
+            canonical_lexeme: "dreamReach",
+        },
+    );
 
     // Primitive type aliases and literals
     map.insert(
@@ -550,6 +696,13 @@ static KEYWORD_DEFINITIONS: Lazy<HashMap<&'static str, KeywordDefinition>> = Laz
         KeywordDefinition {
             token: Trance,
             canonical_lexeme: "trance",
+        },
+    );
+    map.insert(
+        "lucid",
+        KeywordDefinition {
+            token: Lucid,
+            canonical_lexeme: "lucid",
         },
     );
     map.insert(
@@ -588,25 +741,35 @@ impl TokenType {
                 | TokenType::Entrance
                 | TokenType::Finale
                 | TokenType::DeepFocus
+                | TokenType::DeeperStill
                 | TokenType::Induce
                 | TokenType::Implant
+                | TokenType::Embed
                 | TokenType::Freeze
                 | TokenType::Anchor
                 | TokenType::From
                 | TokenType::External
                 | TokenType::If
                 | TokenType::Else
+                | TokenType::When
+                | TokenType::Otherwise
+                | TokenType::Entrain
                 | TokenType::While
                 | TokenType::Loop
+                | TokenType::Pendulum
                 | TokenType::Snap
                 | TokenType::Sink
                 | TokenType::SinkTo
                 | TokenType::Oscillate
+                | TokenType::Suspend
                 | TokenType::Suggestion
                 | TokenType::Trigger
                 | TokenType::ImperativeSuggestion
                 | TokenType::DominantSuggestion
+                | TokenType::Mesmerize
                 | TokenType::Awaken
+                | TokenType::Await
+                | TokenType::SurrenderTo
                 | TokenType::Call
                 | TokenType::Session
                 | TokenType::Constructor
@@ -617,7 +780,12 @@ impl TokenType {
                 | TokenType::Observe
                 | TokenType::Whisper
                 | TokenType::Command
+                | TokenType::Murmur
                 | TokenType::Drift
+                | TokenType::PauseReality
+                | TokenType::AccelerateTime
+                | TokenType::DecelerateTime
+                | TokenType::Subconscious
                 | TokenType::MindLink
                 | TokenType::SharedTrance
                 | TokenType::Label
@@ -648,6 +816,8 @@ impl TokenType {
                 | TokenType::LessEqual
                 | TokenType::UnderMyControl
                 | TokenType::ResistanceIsFutile
+                | TokenType::LucidFallback
+                | TokenType::DreamReach
                 | TokenType::Plus
                 | TokenType::Minus
                 | TokenType::Asterisk
@@ -656,6 +826,12 @@ impl TokenType {
                 | TokenType::Bang
                 | TokenType::AmpAmp
                 | TokenType::PipePipe
+                | TokenType::QuestionMark
+                | TokenType::QuestionDot
+                | TokenType::QuestionQuestion
+                | TokenType::Pipe
+                | TokenType::Ampersand
+                | TokenType::Arrow
         )
     }
 

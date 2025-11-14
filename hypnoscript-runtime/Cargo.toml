@@ -12,7 +12,13 @@ serde = { workspace = true }
 serde_json = { workspace = true }
 anyhow = { workspace = true }
 thiserror = { workspace = true }
+reqwest = { workspace = true }
+csv = { workspace = true }
 chrono = "0.4"
 regex = "1.10"
 num_cpus = "1.16"
 hostname = "0.4"
+sha2 = "0.10"
+md5 = "0.7"
+base64 = "0.22"
+uuid = { version = "1.11", features = ["v4"] }

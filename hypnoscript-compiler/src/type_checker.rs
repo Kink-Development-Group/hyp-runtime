@@ -1085,6 +1085,7 @@ impl TypeChecker {
                 type_annotation,
                 initializer,
                 is_constant,
+                storage: _,
             } => {
                 let expected_type = self.parse_type_annotation(type_annotation.as_deref());
 
@@ -1213,9 +1214,32 @@ impl TypeChecker {
                 }
             }
 
-            AstNode::LoopStatement { body } => {
+            AstNode::LoopStatement {
+                init,
+                condition,
+                update,
+                body,
+            } => {
+                if let Some(init_stmt) = init.as_ref() {
+                    self.check_statement(init_stmt);
+                }
+
+                if let Some(cond_expr) = condition.as_ref() {
+                    let cond_type = self.infer_type(cond_expr);
+                    if cond_type.base_type != HypnoBaseType::Boolean {
+                        self.errors.push(format!(
+                            "Loop condition must be boolean, got {}",
+                            cond_type
+                        ));
+                    }
+                }
+
                 for stmt in body {
                     self.check_statement(stmt);
+                }
+
+                if let Some(update_stmt) = update.as_ref() {
+                    self.check_statement(update_stmt);
                 }
             }
 
@@ -1303,7 +1327,25 @@ impl TypeChecker {
                 let normalized_op = operator.to_ascii_lowercase();
 
                 match normalized_op.as_str() {
-                    "+" | "-" | "*" | "/" | "%" => {
+                    "+" => {
+                        // Allow string concatenation or numeric addition
+                        if left_type.base_type == HypnoBaseType::String
+                            || right_type.base_type == HypnoBaseType::String
+                        {
+                            HypnoType::string()
+                        } else if left_type.base_type == HypnoBaseType::Number
+                            && right_type.base_type == HypnoBaseType::Number
+                        {
+                            HypnoType::number()
+                        } else {
+                            self.errors.push(format!(
+                                "Operator '+' requires either two numbers or at least one string, got {} and {}",
+                                left_type, right_type
+                            ));
+                            HypnoType::unknown()
+                        }
+                    }
+                    "-" | "*" | "/" | "%" => {
                         if left_type.base_type != HypnoBaseType::Number
                             || right_type.base_type != HypnoBaseType::Number
                         {
@@ -1504,6 +1546,86 @@ impl TypeChecker {
                     }
                     HypnoType::create_array(first_type)
                 }
+            }
+
+            AstNode::NullishCoalescing { left, right } => {
+                let left_type = self.infer_type(left);
+                let _right_type = self.infer_type(right);
+                // Nullish coalescing returns the type of the right side if left is null
+                // For simplicity, we return the left type (as it's usually the expected type)
+                left_type
+            }
+
+            AstNode::OptionalChaining { object, property } => {
+                let _obj_type = self.infer_type(object);
+                // Optional chaining always returns a potentially nullable type
+                // For now, we just infer the property type
+                let _ = property;
+                HypnoType::unknown()
+            }
+
+            AstNode::OptionalIndexing { object, index } => {
+                let obj_type = self.infer_type(object);
+                let _idx_type = self.infer_type(index);
+
+                // Return the element type of the array, or unknown
+                if let Some(element_type) = obj_type.element_type {
+                    (*element_type).clone()
+                } else {
+                    HypnoType::unknown()
+                }
+            }
+
+            AstNode::AwaitExpression { expression } => {
+                // For now, await just returns the type of the expression
+                // In a full async system, this would unwrap a Promise type
+                self.infer_type(expression)
+            }
+
+            AstNode::EntrainExpression {
+                subject,
+                cases,
+                default,
+            } => {
+                // Check subject type
+                let _subject_type = self.infer_type(subject);
+
+                // Infer return type from cases
+                if let Some(first_case) = cases.first() {
+                    if let Some(first_stmt) = first_case.body.first() {
+                        let case_type = self.infer_type(first_stmt);
+
+                        // Check that all cases return compatible types
+                        for case in &cases[1..] {
+                            if let Some(stmt) = case.body.first() {
+                                let stmt_type = self.infer_type(stmt);
+                                if !self.types_compatible(&case_type, &stmt_type) {
+                                    self.errors.push(format!(
+                                        "Entrain cases must return same type, got {} and {}",
+                                        case_type, stmt_type
+                                    ));
+                                }
+                            }
+                        }
+
+                        // Check default case if present
+                        if let Some(default_body) = default {
+                            if let Some(stmt) = default_body.first() {
+                                let default_type = self.infer_type(stmt);
+                                if !self.types_compatible(&case_type, &default_type) {
+                                    self.errors.push(format!(
+                                        "Entrain default case must return same type as other cases, got {} and {}",
+                                        case_type, default_type
+                                    ));
+                                }
+                            }
+                        }
+
+                        return case_type;
+                    }
+                }
+
+                HypnoType::unknown()
             }
 
             _ => HypnoType::unknown(),
