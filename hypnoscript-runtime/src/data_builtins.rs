@@ -37,11 +37,11 @@ pub struct CsvParseResult {
 
 #[derive(Debug, Error)]
 pub enum DataError {
-    #[error("JSON-Fehler: {0}")]
+    #[error("JSON error: {0}")]
     Json(String),
-    #[error("CSV-Fehler: {0}")]
+    #[error("CSV error: {0}")]
     Csv(String),
-    #[error("I/O-Fehler: {0}")]
+    #[error("I/O error: {0}")]
     Io(String),
 }
 
