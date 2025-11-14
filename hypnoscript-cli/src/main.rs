@@ -464,7 +464,7 @@ fn handle_self_update(
     // If both fail, install_prefix will be None, and the installer will use its default
     // prefix (/usr/local/bin), which is the correct fallback behavior.
     let install_prefix =
-        install_prefix_from_metadata(&metadata).or_else(|| derive_prefix_from_binary());
+        install_prefix_from_metadata(&metadata).or_else(derive_prefix_from_binary);
 
     let installer = match find_shared_installer(metadata.as_ref()) {
         Some(path) => InstallerScript::shared(path),
