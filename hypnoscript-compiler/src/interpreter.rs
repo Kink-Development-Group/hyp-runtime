@@ -1,5 +1,5 @@
 use hypnoscript_lexer_parser::ast::{
-    AstNode, SessionField, SessionMember, SessionMethod, SessionVisibility,
+    AstNode, Pattern, SessionField, SessionMember, SessionMethod, SessionVisibility,
 };
 use hypnoscript_runtime::{
     ArrayBuiltins, CoreBuiltins, FileBuiltins, HashingBuiltins, MathBuiltins, StatisticsBuiltins,
@@ -343,6 +343,41 @@ struct ExecutionContextFrame {
     session_name: Option<String>,
 }
 
+/// Simple Promise/Future wrapper for async operations
+#[derive(Debug, Clone)]
+pub struct Promise {
+    /// The resolved value (if completed)
+    value: Option<Value>,
+    /// Whether the promise is resolved
+    resolved: bool,
+}
+
+impl Promise {
+    #[allow(dead_code)]
+    fn new() -> Self {
+        Self {
+            value: None,
+            resolved: false,
+        }
+    }
+
+    #[allow(dead_code)]
+    fn resolve(value: Value) -> Self {
+        Self {
+            value: Some(value),
+            resolved: true,
+        }
+    }
+
+    fn is_resolved(&self) -> bool {
+        self.resolved
+    }
+
+    fn get_value(&self) -> Option<Value> {
+        self.value.clone()
+    }
+}
+
 /// Runtime value in HypnoScript
 #[derive(Debug, Clone)]
 pub enum Value {
@@ -353,6 +388,7 @@ pub enum Value {
     Function(FunctionValue),
     Session(Rc<SessionDefinition>),
     Instance(Rc<RefCell<SessionInstance>>),
+    Promise(Rc<RefCell<Promise>>),
     Null,
 }
 
@@ -367,6 +403,7 @@ impl PartialEq for Value {
             (Value::Function(fa), Value::Function(fb)) => fa == fb,
             (Value::Session(sa), Value::Session(sb)) => Rc::ptr_eq(sa, sb),
             (Value::Instance(ia), Value::Instance(ib)) => Rc::ptr_eq(ia, ib),
+            (Value::Promise(pa), Value::Promise(pb)) => Rc::ptr_eq(pa, pb),
             _ => false,
         }
     }
@@ -382,7 +419,7 @@ impl Value {
             Value::Number(n) => *n != 0.0,
             Value::String(s) => !s.is_empty(),
             Value::Array(a) => !a.is_empty(),
-            Value::Function(_) | Value::Session(_) | Value::Instance(_) => true,
+            Value::Function(_) | Value::Session(_) | Value::Instance(_) | Value::Promise(_) => true,
         }
     }
 
@@ -417,6 +454,13 @@ impl std::fmt::Display for Value {
                 let name = instance.borrow().definition_name().to_string();
                 write!(f, "<session-instance {}>", name)
             }
+            Value::Promise(promise) => {
+                if promise.borrow().is_resolved() {
+                    write!(f, "<promise resolved>")
+                } else {
+                    write!(f, "<promise pending>")
+                }
+            }
         }
     }
 }
@@ -425,6 +469,12 @@ pub struct Interpreter {
     globals: HashMap<String, Value>,
     locals: Vec<HashMap<String, Value>>,
     execution_context: Vec<ExecutionContextFrame>,
+
+    /// Optional async runtime for true async execution
+    pub async_runtime: Option<std::sync::Arc<crate::async_runtime::AsyncRuntime>>,
+
+    /// Optional channel registry for inter-task communication
+    pub channel_registry: Option<std::sync::Arc<crate::channel_system::ChannelRegistry>>,
 }
 
 impl Default for Interpreter {
@@ -439,7 +489,37 @@ impl Interpreter {
             globals: HashMap::new(),
             locals: Vec::new(),
             execution_context: Vec::new(),
+            async_runtime: None,
+            channel_registry: None,
         }
+    }
+
+    /// Create interpreter with async runtime support
+    pub fn with_async_runtime() -> Result<Self, InterpreterError> {
+        let runtime = crate::async_runtime::AsyncRuntime::new()
+            .map_err(|e| InterpreterError::Runtime(format!("Failed to create async runtime: {}", e)))?;
+        let registry = crate::channel_system::ChannelRegistry::new();
+
+        Ok(Self {
+            globals: HashMap::new(),
+            locals: Vec::new(),
+            execution_context: Vec::new(),
+            async_runtime: Some(std::sync::Arc::new(runtime)),
+            channel_registry: Some(std::sync::Arc::new(registry)),
+        })
+    }
+
+    /// Enable async runtime for existing interpreter
+    pub fn enable_async_runtime(&mut self) -> Result<(), InterpreterError> {
+        if self.async_runtime.is_none() {
+            let runtime = crate::async_runtime::AsyncRuntime::new()
+                .map_err(|e| InterpreterError::Runtime(format!("Failed to create async runtime: {}", e)))?;
+            let registry = crate::channel_system::ChannelRegistry::new();
+
+            self.async_runtime = Some(std::sync::Arc::new(runtime));
+            self.channel_registry = Some(std::sync::Arc::new(registry));
+        }
+        Ok(())
     }
 
     pub fn execute_program(&mut self, program: AstNode) -> Result<(), InterpreterError> {
@@ -536,6 +616,13 @@ impl Interpreter {
                 Ok(())
             }
 
+            AstNode::MurmurStatement(expr) => {
+                let value = self.evaluate_expression(expr)?;
+                // Murmur is like whisper but even quieter (debug level)
+                CoreBuiltins::whisper(&format!("[DEBUG] {}", value.to_string()));
+                Ok(())
+            }
+
             AstNode::OscillateStatement { target } => {
                 // Toggle a boolean variable
                 if let AstNode::Identifier(name) = target.as_ref() {
@@ -617,6 +704,54 @@ impl Interpreter {
                 Ok(())
             }
 
+            AstNode::PendulumStatement {
+                init,
+                condition,
+                update,
+                body,
+            } => {
+                // Execute init (if present)
+                if let Some(init_node) = init {
+                    self.execute_statement(init_node)?;
+                }
+
+                // Loop while condition is true
+                loop {
+                    let cond_value = self.evaluate_expression(condition)?;
+                    if !cond_value.is_truthy() {
+                        break;
+                    }
+
+                    // Execute body without creating new scope (to preserve variable modifications)
+                    match self.execute_pendulum_body(body) {
+                        Err(InterpreterError::BreakOutsideLoop) => break,
+                        Err(InterpreterError::ContinueOutsideLoop) => {
+                            // Execute update before continuing
+                            if let Some(update_node) = update {
+                                self.evaluate_expression(update_node)?;
+                            }
+                            continue;
+                        }
+                        Err(e) => return Err(e),
+                        Ok(()) => {}
+                    }
+
+                    // Execute update
+                    if let Some(update_node) = update {
+                        self.evaluate_expression(update_node)?;
+                    }
+                }
+                Ok(())
+            }
+
+            AstNode::SuspendStatement => {
+                // Suspend is an infinite pause - in practice, this should wait for external input
+                // For now, we'll just log a warning
+                CoreBuiltins::whisper("[SUSPEND] Program suspended - press Ctrl+C to exit");
+                std::thread::sleep(std::time::Duration::from_secs(3600)); // Sleep for 1 hour
+                Ok(())
+            }
+
             AstNode::ReturnStatement(value) => {
                 let ret_value = if let Some(expr) = value {
                     self.evaluate_expression(expr)?
@@ -652,6 +787,15 @@ impl Interpreter {
         })();
         self.pop_scope();
         result
+    }
+
+    /// Execute pendulum loop body without creating a new scope
+    /// This allows variables to persist across loop iterations
+    fn execute_pendulum_body(&mut self, statements: &[AstNode]) -> Result<(), InterpreterError> {
+        for stmt in statements {
+            self.execute_statement(stmt)?;
+        }
+        Ok(())
     }
 
     fn evaluate_expression(&mut self, expr: &AstNode) -> Result<Value, InterpreterError> {
@@ -735,12 +879,228 @@ impl Interpreter {
                 }
             }
 
+            AstNode::AwaitExpression { expression } => {
+                // Evaluate the expression - it might return a Promise
+                let value = self.evaluate_expression(expression)?;
+
+                // If it's a Promise, await it (resolve it)
+                if let Value::Promise(promise_ref) = value {
+                    let promise = promise_ref.borrow();
+                    if promise.is_resolved() {
+                        // Promise is already resolved, return its value
+                        Ok(promise.get_value().unwrap_or(Value::Null))
+                    } else {
+                        // Promise not yet resolved - in a real async system, we'd wait
+                        // For now, return null (could simulate delay here)
+                        drop(promise); // Release borrow before potentially waiting
+
+                        // Simulate async operation with small delay
+                        std::thread::sleep(std::time::Duration::from_millis(10));
+
+                        // Re-check if resolved after wait
+                        let promise = promise_ref.borrow();
+                        Ok(promise.get_value().unwrap_or(Value::Null))
+                    }
+                } else {
+                    // Not a promise, just return the value
+                    Ok(value)
+                }
+            }
+
+            AstNode::NullishCoalescing { left, right } => {
+                let left_val = self.evaluate_expression(left)?;
+                if matches!(left_val, Value::Null) {
+                    self.evaluate_expression(right)
+                } else {
+                    Ok(left_val)
+                }
+            }
+
+            AstNode::OptionalChaining { object, property } => {
+                let obj = self.evaluate_expression(object)?;
+                if matches!(obj, Value::Null) {
+                    Ok(Value::Null)
+                } else {
+                    self.resolve_member_value(obj, property)
+                }
+            }
+
+            AstNode::OptionalIndexing { object, index } => {
+                let obj = self.evaluate_expression(object)?;
+                if matches!(obj, Value::Null) {
+                    return Ok(Value::Null);
+                }
+
+                let idx = self.evaluate_expression(index)?;
+                if let Value::Array(arr) = obj {
+                    let i = idx.to_number()? as usize;
+                    Ok(arr.get(i).cloned().unwrap_or(Value::Null))
+                } else {
+                    Err(InterpreterError::TypeError(
+                        "Cannot index non-array".to_string(),
+                    ))
+                }
+            }
+
+            AstNode::EntrainExpression {
+                subject,
+                cases,
+                default,
+            } => {
+                let subject_value = self.evaluate_expression(subject)?;
+
+                // Try to match each case
+                for case in cases {
+                    if let Some(matched_env) = self.match_pattern(&case.pattern, &subject_value)? {
+                        // Check guard condition if present
+                        if let Some(guard) = &case.guard {
+                            // Temporarily add pattern bindings to globals
+                            for (name, value) in &matched_env {
+                                self.globals.insert(name.clone(), value.clone());
+                            }
+
+                            let guard_result = self.evaluate_expression(guard)?;
+
+                            // Remove pattern bindings
+                            for (name, _) in &matched_env {
+                                self.globals.remove(name);
+                            }
+
+                            if !guard_result.is_truthy() {
+                                continue;
+                            }
+                        }
+
+                        // Pattern matched and guard passed - execute body
+                        for (name, value) in matched_env {
+                            self.globals.insert(name, value);
+                        }
+
+                        let mut result = Value::Null;
+                        for stmt in &case.body {
+                            // Case bodies can contain both statements and expressions
+                            match stmt {
+                                // Try to evaluate as expression first
+                                _ => result = self.evaluate_expression(stmt)?,
+                            }
+                        }
+
+                        return Ok(result);
+                    }
+                }
+
+                // No case matched - try default
+                if let Some(default_body) = default {
+                    let mut result = Value::Null;
+                    for stmt in default_body {
+                        result = self.evaluate_expression(stmt)?;
+                    }
+                    Ok(result)
+                } else {
+                    Err(InterpreterError::Runtime(
+                        "No pattern matched and no default case provided".to_string(),
+                    ))
+                }
+            }
+
             _ => Err(InterpreterError::Runtime(format!(
                 "Unsupported expression: {:?}",
                 expr
             ))),
         }
     }
+
+    /// Match a pattern against a value, returning bindings if successful
+    fn match_pattern(
+        &mut self,
+        pattern: &Pattern,
+        value: &Value,
+    ) -> Result<Option<std::collections::HashMap<String, Value>>, InterpreterError> {
+        use std::collections::HashMap;
+
+        match pattern {
+            Pattern::Literal(lit_node) => {
+                let lit_value = self.evaluate_expression(lit_node)?;
+                if self.values_equal(&lit_value, value) {
+                    Ok(Some(HashMap::new()))
+                } else {
+                    Ok(None)
+                }
+            }
+
+            Pattern::Identifier(name) => {
+                let mut bindings = HashMap::new();
+                bindings.insert(name.clone(), value.clone());
+                Ok(Some(bindings))
+            }
+
+            Pattern::Typed {
+                name,
+                type_annotation,
+            } => {
+                // Check type match
+                let type_matches = match type_annotation.to_lowercase().as_str() {
+                    "number" => matches!(value, Value::Number(_)),
+                    "string" => matches!(value, Value::String(_)),
+                    "boolean" => matches!(value, Value::Boolean(_)),
+                    "array" => matches!(value, Value::Array(_)),
+                    _ => true, // Unknown types always match for now
+                };
+
+                if !type_matches {
+                    return Ok(None);
+                }
+
+                let mut bindings = HashMap::new();
+                if let Some(name) = name {
+                    bindings.insert(name.clone(), value.clone());
+                }
+                Ok(Some(bindings))
+            }
+
+            Pattern::Array { elements, rest } => {
+                if let Value::Array(arr) = value {
+                    let mut bindings = HashMap::new();
+
+                    // Match array elements
+                    for (i, elem_pattern) in elements.iter().enumerate() {
+                        if i >= arr.len() {
+                            return Ok(None); // Not enough elements
+                        }
+
+                        if let Some(elem_bindings) = self.match_pattern(elem_pattern, &arr[i])? {
+                            bindings.extend(elem_bindings);
+                        } else {
+                            return Ok(None);
+                        }
+                    }
+
+                    // Handle rest pattern
+                    if let Some(rest_name) = rest {
+                        let rest_elements: Vec<Value> = arr.iter().skip(elements.len()).cloned().collect();
+                        bindings.insert(rest_name.clone(), Value::Array(rest_elements));
+                    } else if arr.len() > elements.len() {
+                        return Ok(None); // Too many elements and no rest pattern
+                    }
+
+                    Ok(Some(bindings))
+                } else {
+                    Ok(None)
+                }
+            }
+
+            Pattern::Record { type_name, fields } => {
+                // For now, we'll match against objects (which we don't have yet)
+                // This is a placeholder for when we implement records/objects
+                let _ = (type_name, fields);
+                Err(InterpreterError::Runtime(
+                    "Record pattern matching not yet fully implemented".to_string(),
+                ))
+            }
+        }
+    }
+
+
 
     fn evaluate_binary_op(
         &self,

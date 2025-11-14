@@ -54,6 +54,13 @@ impl Lexer {
                                 self.line,
                                 start_column,
                             ));
+                        } else if self.match_char('>') {
+                            tokens.push(Token::new(
+                                TokenType::Arrow,
+                                "=>".to_string(),
+                                self.line,
+                                start_column,
+                            ));
                         } else {
                             tokens.push(Token::new(
                                 TokenType::Equals,
@@ -160,6 +167,13 @@ impl Lexer {
                                 self.line,
                                 start_column,
                             ));
+                        } else {
+                            tokens.push(Token::new(
+                                TokenType::Ampersand,
+                                "&".to_string(),
+                                self.line,
+                                start_column,
+                            ));
                         }
                     }
                     '|' => {
@@ -167,6 +181,37 @@ impl Lexer {
                             tokens.push(Token::new(
                                 TokenType::PipePipe,
                                 "||".to_string(),
+                                self.line,
+                                start_column,
+                            ));
+                        } else {
+                            tokens.push(Token::new(
+                                TokenType::Pipe,
+                                "|".to_string(),
+                                self.line,
+                                start_column,
+                            ));
+                        }
+                    }
+                    '?' => {
+                        if self.match_char('?') {
+                            tokens.push(Token::new(
+                                TokenType::QuestionQuestion,
+                                "??".to_string(),
+                                self.line,
+                                start_column,
+                            ));
+                        } else if self.match_char('.') {
+                            tokens.push(Token::new(
+                                TokenType::QuestionDot,
+                                "?.".to_string(),
+                                self.line,
+                                start_column,
+                            ));
+                        } else {
+                            tokens.push(Token::new(
+                                TokenType::QuestionMark,
+                                "?".to_string(),
                                 self.line,
                                 start_column,
                             ));
@@ -226,12 +271,23 @@ impl Lexer {
                         self.line,
                         start_column,
                     )),
-                    '.' => tokens.push(Token::new(
-                        TokenType::Dot,
-                        ".".to_string(),
-                        self.line,
-                        start_column,
-                    )),
+                    '.' => {
+                        if self.match_char('.') && self.match_char('.') {
+                            tokens.push(Token::new(
+                                TokenType::DotDotDot,
+                                "...".to_string(),
+                                self.line,
+                                start_column,
+                            ));
+                        } else {
+                            tokens.push(Token::new(
+                                TokenType::Dot,
+                                ".".to_string(),
+                                self.line,
+                                start_column,
+                            ));
+                        }
+                    }
                     '"' => {
                         let string_val = self.read_string()?;
                         tokens.push(Token::new(

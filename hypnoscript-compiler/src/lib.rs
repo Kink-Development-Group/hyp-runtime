@@ -133,6 +133,10 @@
 //! - WASM: Sandboxed Execution
 //! - Native: Optimierte, sichere Code-Generierung
 
+pub mod async_builtins;
+pub mod async_promise;
+pub mod async_runtime;
+pub mod channel_system;
 pub mod interpreter;
 pub mod native_codegen;
 pub mod optimizer;
@@ -141,6 +145,10 @@ pub mod wasm_binary;
 pub mod wasm_codegen;
 
 // Re-export commonly used types
+pub use async_builtins::AsyncBuiltins;
+pub use async_promise::{AsyncPromise, promise_all, promise_race, promise_any, promise_delay, promise_from_async};
+pub use async_runtime::{AsyncRuntime, TaskId, TaskResult, RuntimeEvent, async_delay, async_timeout};
+pub use channel_system::{ChannelRegistry, ChannelMessage, ChannelType, MpscChannel, BroadcastChannel, WatchChannel};
 pub use interpreter::{Interpreter, InterpreterError, Value};
 pub use native_codegen::{NativeCodeGenerator, NativeCodegenError, OptimizationLevel, TargetPlatform};
 pub use optimizer::{Optimizer, OptimizationConfig, OptimizationError, OptimizationStats};

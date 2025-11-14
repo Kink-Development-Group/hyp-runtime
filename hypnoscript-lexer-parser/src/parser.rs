@@ -1,5 +1,6 @@
 use crate::ast::{
-    AstNode, Parameter, SessionField, SessionMember, SessionMethod, SessionVisibility,
+    AstNode, EntrainCase, Parameter, Pattern, RecordFieldPattern, SessionField, SessionMember,
+    SessionMethod, SessionVisibility,
 };
 use crate::token::{Token, TokenType};
 
@@ -91,9 +92,10 @@ impl Parser {
 
     /// Parse a single statement
     fn parse_statement(&mut self) -> Result<AstNode, String> {
-        // Variable declaration - induce, implant, freeze
+        // Variable declaration - induce, implant, embed, freeze
         if self.match_token(&TokenType::Induce)
             || self.match_token(&TokenType::Implant)
+            || self.match_token(&TokenType::Embed)
             || self.match_token(&TokenType::Freeze)
         {
             return self.parse_var_declaration();
@@ -117,6 +119,17 @@ impl Parser {
         // Loop
         if self.match_token(&TokenType::Loop) {
             return self.parse_loop_statement();
+        }
+
+        // Pendulum loop (bidirectional/for-loop style)
+        if self.match_token(&TokenType::Pendulum) {
+            return self.parse_pendulum_statement();
+        }
+
+        // Suspend statement (infinite pause)
+        if self.match_token(&TokenType::Suspend) {
+            self.consume(&TokenType::Semicolon, "Expected ';' after 'suspend'")?;
+            return Ok(AstNode::SuspendStatement);
         }
 
         // Function declaration
@@ -145,6 +158,11 @@ impl Parser {
 
         if self.match_token(&TokenType::Command) {
             return self.parse_command_statement();
+        }
+
+        // Murmur statement (quiet/debug output)
+        if self.match_token(&TokenType::Murmur) {
+            return self.parse_murmur_statement();
         }
 
         // Return statement
@@ -261,6 +279,13 @@ impl Parser {
         Ok(AstNode::CommandStatement(Box::new(expr)))
     }
 
+    /// Parse murmur statement (quiet/debug output)
+    fn parse_murmur_statement(&mut self) -> Result<AstNode, String> {
+        let expr = self.parse_expression()?;
+        self.consume(&TokenType::Semicolon, "Expected ';' after murmur")?;
+        Ok(AstNode::MurmurStatement(Box::new(expr)))
+    }
+
     /// Parse trigger declaration (event handler/callback)
     fn parse_trigger_declaration(&mut self) -> Result<AstNode, String> {
         let name = self
@@ -374,6 +399,80 @@ impl Parser {
         self.consume(&TokenType::RBrace, "Expected '}' after loop block")?;
 
         Ok(AstNode::LoopStatement { body })
+    }
+
+    /// Parse pendulum statement (bidirectional loop, like for-loop)
+    /// Syntax: pendulum (init; condition; update) { body }
+    fn parse_pendulum_statement(&mut self) -> Result<AstNode, String> {
+        self.consume(&TokenType::LParen, "Expected '(' after 'pendulum'")?;
+
+        // Parse init (optional variable declaration or expression)
+        let init = if self.check(&TokenType::Semicolon) {
+            None
+        } else if self.match_token(&TokenType::Induce)
+            || self.match_token(&TokenType::Implant)
+            || self.match_token(&TokenType::Embed)
+        {
+            // Parse variable declaration without trailing semicolon
+            let is_constant = self.previous().token_type == TokenType::Freeze;
+            let name = self
+                .consume(&TokenType::Identifier, "Expected variable name")?
+                .lexeme
+                .clone();
+
+            let type_annotation = if self.match_token(&TokenType::Colon) {
+                let type_token = self.advance();
+                Some(type_token.lexeme.clone())
+            } else {
+                None
+            };
+
+            let initializer = if self.match_token(&TokenType::Equals) {
+                Some(Box::new(self.parse_expression()?))
+            } else {
+                None
+            };
+
+            Some(Box::new(AstNode::VariableDeclaration {
+                name,
+                type_annotation,
+                initializer,
+                is_constant,
+            }))
+        } else {
+            let expr = self.parse_expression()?;
+            Some(Box::new(expr))
+        };
+
+        self.consume(&TokenType::Semicolon, "Expected ';' after pendulum init")?;
+
+        // Parse condition
+        let condition = Box::new(self.parse_expression()?);
+
+        self.consume(
+            &TokenType::Semicolon,
+            "Expected ';' after pendulum condition",
+        )?;
+
+        // Parse update (optional expression)
+        let update = if self.check(&TokenType::RParen) {
+            None
+        } else {
+            Some(Box::new(self.parse_expression()?))
+        };
+
+        self.consume(&TokenType::RParen, "Expected ')' after pendulum clauses")?;
+
+        self.consume(&TokenType::LBrace, "Expected '{' after pendulum header")?;
+        let body = self.parse_block_statements()?;
+        self.consume(&TokenType::RBrace, "Expected '}' after pendulum block")?;
+
+        Ok(AstNode::PendulumStatement {
+            init,
+            condition,
+            update,
+            body,
+        })
     }
 
     /// Parse function declaration
@@ -620,7 +719,7 @@ impl Parser {
 
     /// Parse assignment
     fn parse_assignment(&mut self) -> Result<AstNode, String> {
-        let expr = self.parse_logical_or()?;
+        let expr = self.parse_nullish_coalescing()?;
 
         if self.match_token(&TokenType::Equals) {
             let value = Box::new(self.parse_assignment()?);
@@ -631,6 +730,21 @@ impl Parser {
         }
 
         Ok(expr)
+    }
+
+    /// Parse nullish coalescing (?? or lucidFallback)
+    fn parse_nullish_coalescing(&mut self) -> Result<AstNode, String> {
+        let mut left = self.parse_logical_or()?;
+
+        while self.match_tokens(&[TokenType::QuestionQuestion, TokenType::LucidFallback]) {
+            let right = Box::new(self.parse_logical_or()?);
+            left = AstNode::NullishCoalescing {
+                left: Box::new(left),
+                right,
+            };
+        }
+
+        Ok(left)
     }
 
     /// Parse logical OR
@@ -754,6 +868,12 @@ impl Parser {
 
     /// Parse unary
     fn parse_unary(&mut self) -> Result<AstNode, String> {
+        // Handle await/surrenderTo
+        if self.match_tokens(&[TokenType::Await, TokenType::SurrenderTo]) {
+            let expression = Box::new(self.parse_unary()?);
+            return Ok(AstNode::AwaitExpression { expression });
+        }
+
         if self.match_tokens(&[TokenType::Bang, TokenType::Minus]) {
             let operator = self.previous().lexeme.clone();
             let operand = Box::new(self.parse_unary()?);
@@ -770,6 +890,25 @@ impl Parser {
         loop {
             if self.match_token(&TokenType::LParen) {
                 expr = self.finish_call(expr)?;
+            } else if self.match_tokens(&[TokenType::QuestionDot, TokenType::DreamReach]) {
+                // Optional chaining (?. or dreamReach)
+                if self.check(&TokenType::Identifier) {
+                    let property = self.advance().lexeme.clone();
+                    expr = AstNode::OptionalChaining {
+                        object: Box::new(expr),
+                        property,
+                    };
+                } else if self.match_token(&TokenType::LBracket) {
+                    // Optional indexing ?.[
+                    let index = Box::new(self.parse_expression()?);
+                    self.consume(&TokenType::RBracket, "Expected ']' after optional index")?;
+                    expr = AstNode::OptionalIndexing {
+                        object: Box::new(expr),
+                        index,
+                    };
+                } else {
+                    return Err("Expected property name or '[' after '?.'".to_string());
+                }
             } else if self.match_token(&TokenType::Dot) {
                 let property = self
                     .consume(&TokenType::Identifier, "Expected property name after '.'")?
@@ -817,6 +956,11 @@ impl Parser {
 
     /// Parse primary expression
     fn parse_primary(&mut self) -> Result<AstNode, String> {
+        // Entrain (pattern matching) expression
+        if self.check(&TokenType::Entrain) {
+            return self.parse_entrain_expression();
+        }
+
         // Number literal
         if self.check(&TokenType::NumberLiteral) {
             let token = self.advance();
@@ -870,6 +1014,198 @@ impl Parser {
         }
 
         Err(format!("Unexpected token: {:?}", self.peek()))
+    }
+
+    /// Parse entrain (pattern matching) expression
+    fn parse_entrain_expression(&mut self) -> Result<AstNode, String> {
+        self.consume(&TokenType::Entrain, "Expected 'entrain'")?;
+        let subject = Box::new(self.parse_expression()?);
+        self.consume(&TokenType::LBrace, "Expected '{' after entrain subject")?;
+
+        let mut cases = Vec::new();
+        let mut default_case = None;
+
+        while !self.check(&TokenType::RBrace) && !self.is_at_end() {
+            if self.match_token(&TokenType::Otherwise) {
+                self.consume(&TokenType::Arrow, "Expected '=>' after 'otherwise'")?;
+                default_case = Some(self.parse_entrain_body()?);
+                break;
+            }
+
+            self.consume(&TokenType::When, "Expected 'when' or 'otherwise'")?;
+            let pattern = self.parse_pattern()?;
+
+            let guard = if self.match_token(&TokenType::If) {
+                Some(Box::new(self.parse_expression()?))
+            } else {
+                None
+            };
+
+            self.consume(&TokenType::Arrow, "Expected '=>' after pattern")?;
+            let body = self.parse_entrain_body()?;
+
+            cases.push(EntrainCase {
+                pattern,
+                guard,
+                body,
+            });
+
+            // Optional comma or semicolon between cases
+            self.match_token(&TokenType::Comma);
+            self.match_token(&TokenType::Semicolon);
+        }
+
+        self.consume(&TokenType::RBrace, "Expected '}' after entrain cases")?;
+
+        Ok(AstNode::EntrainExpression {
+            subject,
+            cases,
+            default: default_case,
+        })
+    }
+
+    /// Parse pattern for matching
+    fn parse_pattern(&mut self) -> Result<Pattern, String> {
+        // Literal patterns
+        if self.check(&TokenType::NumberLiteral) {
+            let token = self.advance();
+            let value = token
+                .lexeme
+                .parse::<f64>()
+                .map_err(|_| format!("Invalid number: {}", token.lexeme))?;
+            return Ok(Pattern::Literal(Box::new(AstNode::NumberLiteral(value))));
+        }
+
+        if self.check(&TokenType::StringLiteral) {
+            let token = self.advance();
+            return Ok(Pattern::Literal(Box::new(AstNode::StringLiteral(
+                token.lexeme.clone(),
+            ))));
+        }
+
+        if self.match_token(&TokenType::True) {
+            return Ok(Pattern::Literal(Box::new(AstNode::BooleanLiteral(true))));
+        }
+
+        if self.match_token(&TokenType::False) {
+            return Ok(Pattern::Literal(Box::new(AstNode::BooleanLiteral(false))));
+        }
+
+        // Array pattern: [first, second, ...rest]
+        if self.match_token(&TokenType::LBracket) {
+            let mut elements = Vec::new();
+            let mut rest = None;
+
+            if !self.check(&TokenType::RBracket) {
+                loop {
+                    if self.match_token(&TokenType::DotDotDot) {
+                        // Rest pattern
+                        if self.check(&TokenType::Identifier) {
+                            rest = Some(self.advance().lexeme.clone());
+                        }
+                        break;
+                    }
+
+                    elements.push(self.parse_pattern()?);
+
+                    if !self.match_token(&TokenType::Comma) {
+                        break;
+                    }
+                }
+            }
+
+            self.consume(&TokenType::RBracket, "Expected ']' after array pattern")?;
+            return Ok(Pattern::Array { elements, rest });
+        }
+
+        // Record pattern or identifier with type annotation
+        if self.check(&TokenType::Identifier) {
+            let name = self.advance().lexeme.clone();
+
+            // Check for type annotation: name: Type
+            if self.match_token(&TokenType::Colon) {
+                let type_annotation = self.parse_type_annotation()?;
+                return Ok(Pattern::Typed {
+                    name: Some(name),
+                    type_annotation,
+                });
+            }
+
+            // Check for record pattern: TypeName { field1, field2 }
+            if self.match_token(&TokenType::LBrace) {
+                let type_name = name;
+                let fields = self.parse_record_field_patterns()?;
+                self.consume(&TokenType::RBrace, "Expected '}' after record pattern")?;
+                return Ok(Pattern::Record { type_name, fields });
+            }
+
+            // Simple identifier binding
+            return Ok(Pattern::Identifier(name));
+        }
+
+        Err(format!("Expected pattern, got {:?}", self.peek()))
+    }
+
+    /// Parse record field patterns for destructuring
+    fn parse_record_field_patterns(&mut self) -> Result<Vec<RecordFieldPattern>, String> {
+        let mut fields = Vec::new();
+
+        if !self.check(&TokenType::RBrace) {
+            loop {
+                let name = self.consume(&TokenType::Identifier, "Expected field name")?.lexeme.clone();
+
+                let pattern = if self.match_token(&TokenType::Colon) {
+                    Some(Box::new(self.parse_pattern()?))
+                } else {
+                    None
+                };
+
+                fields.push(RecordFieldPattern { name, pattern });
+
+                if !self.match_token(&TokenType::Comma) {
+                    break;
+                }
+            }
+        }
+
+        Ok(fields)
+    }
+
+    /// Parse body of an entrain case (can be block or single expression)
+    fn parse_entrain_body(&mut self) -> Result<Vec<AstNode>, String> {
+        if self.match_token(&TokenType::LBrace) {
+            let mut statements = Vec::new();
+            while !self.check(&TokenType::RBrace) && !self.is_at_end() {
+                statements.push(self.parse_statement()?);
+            }
+            self.consume(&TokenType::RBrace, "Expected '}' after block")?;
+            Ok(statements)
+        } else {
+            // Single expression
+            Ok(vec![self.parse_expression()?])
+        }
+    }
+
+    /// Parse type annotation (returns the type as a string)
+    fn parse_type_annotation(&mut self) -> Result<String, String> {
+        // Accept identifiers and type keywords (number, string, boolean)
+        let type_name = match self.peek().token_type {
+            TokenType::Identifier => self.advance().lexeme.clone(),
+            TokenType::Number => {
+                self.advance();
+                "number".to_string()
+            }
+            TokenType::String => {
+                self.advance();
+                "string".to_string()
+            }
+            TokenType::Boolean => {
+                self.advance();
+                "boolean".to_string()
+            }
+            _ => return Err(format!("Expected type annotation, got {:?}", self.peek())),
+        };
+        Ok(type_name)
     }
 
     // Helper methods

@@ -1,0 +1,65 @@
+Focus {
+
+// Test Pattern Matching (entrain/when/otherwise)
+
+observe "=== Testing Pattern Matching ===";
+
+// Test 1: Literal pattern matching
+induce value1: number = 42;
+induce result1: string = entrain value1 {
+    when 0 => "zero"
+    when 42 => "answer"
+    when 100 => "hundred"
+    otherwise => "other"
+};
+observe result1;  // Should print: answer
+
+// Test 2: Identifier binding
+induce value2: number = 99;
+induce result2: string = entrain value2 {
+    when x => "bound to x"
+};
+observe result2;  // Should print: bound to x
+
+// Test 3: Type pattern
+induce value3: string = "hello";
+induce result3: string = entrain value3 {
+    when n: number => "is number"
+    when s: string => "is string"
+    otherwise => "unknown"
+};
+observe result3;  // Should print: is string
+
+// Test 4: Array destructuring
+induce arr: array = [1, 2, 3, 4, 5];
+induce result4: string = entrain arr {
+    when [1, 2, 3] => "exact match"
+    when [1, 2, ...rest] => "starts with 1, 2"
+    otherwise => "no match"
+};
+observe result4;  // Should print: starts with 1, 2
+
+// Test 5: Pattern with guard
+induce value5: number = 15;
+induce result5: string = entrain value5 {
+    when x if x > 20 => "large"
+    when x if x > 10 => "medium"
+    when x if x > 0 => "small"
+    otherwise => "zero or negative"
+};
+observe result5;  // Should print: medium
+
+// Test 6: Default case
+induce value6: string = "test";
+induce result6: string = entrain value6 {
+    when "hello" => "greeting"
+    when "goodbye" => "farewell"
+    otherwise => "unknown"
+};
+observe result6;  // Should print: unknown
+
+observe "=== All Pattern Matching Tests Complete ===";
+
+}
+
+Relax

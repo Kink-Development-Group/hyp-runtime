@@ -1,0 +1,24 @@
+Focus {
+
+observe "=== Testing Variable Scoping ===";
+
+// Test 1: Simple assignment
+induce x: number = 10;
+observe x;  // 10
+x = 20;
+observe x;  // 20
+
+// Test 2: Assignment in a block
+induce y: number = 5;
+observe y;  // 5
+
+if (true) {
+    y = 15;
+    observe y;  // 15
+}
+
+observe y;  // Should still be 15
+
+}
+
+Relax

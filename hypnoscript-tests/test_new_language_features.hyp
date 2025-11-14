@@ -1,0 +1,57 @@
+// HypnoScript Test File for New Language Features
+// Tests: embed, pendulum, suspend, murmur, await, nullish operators, optional chaining
+
+Focus {
+    // Test 1: embed variable declaration
+    embed deepMemory: number = 42;
+    observe "Deep memory value: " + deepMemory;
+
+    // Test 2: Pendulum loop (for-loop style)
+    observe "=== Pendulum Loop Test ===";
+    induce sum: number = 0;
+    pendulum (induce i: number = 0; i < 5; i = i + 1) {
+        sum = sum + i;
+        murmur "Iteration: " + i;
+    }
+    observe "Sum from pendulum: " + sum;
+
+    // Test 3: Nullish coalescing (lucidFallback)
+    induce maybeValue: number = 0;
+    induce defaulted: number = maybeValue lucidFallback 100;
+    observe "Nullish coalescing result: " + defaulted;
+
+    // Test 4: Optional chaining (dreamReach)
+    session TestSession {
+        expose value: number;
+
+        suggestion constructor(val: number) {
+            this.value = val;
+        }
+    }
+
+    induce obj = TestSession(999);
+    observe "Optional chaining test: " + obj.value;
+
+    // Test 5: Murmur output
+    murmur "This is a quiet debug message";
+
+    // Test 6: Multiple output types
+    observe "Standard output";
+    whisper "Whispered output";
+    command "COMMAND OUTPUT";
+    murmur "Debug output";
+
+    // Test 7: Oscillate
+    induce flag: boolean = false;
+    observe "Flag before oscillate: " + flag;
+    oscillate flag;
+    observe "Flag after oscillate: " + flag;
+
+    // Test 8: Anchor
+    induce original: number = 100;
+    anchor saved = original;
+    original = 200;
+    observe "Original changed to: " + original;
+    observe "Anchored value: " + saved;
+
+} Relax
