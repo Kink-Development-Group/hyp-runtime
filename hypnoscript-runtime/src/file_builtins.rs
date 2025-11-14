@@ -1,9 +1,42 @@
 use std::fs;
 use std::io::{self, BufRead, BufReader, Write};
 use std::path::Path;
+use crate::builtin_trait::BuiltinModule;
+use crate::localization::LocalizedMessage;
 
 /// File I/O builtin functions
+///
+/// Provides comprehensive file system operations including reading, writing,
+/// directory management, and file metadata queries.
 pub struct FileBuiltins;
+
+impl BuiltinModule for FileBuiltins {
+    fn module_name() -> &'static str {
+        "File"
+    }
+
+    fn description() -> &'static str {
+        "File I/O and file system operations"
+    }
+
+    fn description_localized(locale: Option<&str>) -> String {
+        let locale = crate::localization::detect_locale(locale);
+        let msg = LocalizedMessage::new("File I/O and file system operations")
+            .with_translation("de", "Datei-I/O- und Dateisystemoperationen")
+            .with_translation("fr", "Opérations d'E/S de fichiers et de système de fichiers")
+            .with_translation("es", "Operaciones de E/S de archivos y sistema de archivos");
+        msg.resolve(&locale).to_string()
+    }
+
+    fn function_names() -> &'static [&'static str] {
+        &[
+            "ReadFile", "WriteFile", "AppendFile", "ReadLines", "WriteLines",
+            "FileExists", "IsFile", "IsDirectory", "DeleteFile", "CreateDirectory",
+            "ListDirectory", "GetFileSize", "GetFileExtension", "GetFileName",
+            "GetParentDirectory", "JoinPath", "CopyFile", "MoveFile",
+        ]
+    }
+}
 
 impl FileBuiltins {
     /// Ensure the parent directory of a path exists

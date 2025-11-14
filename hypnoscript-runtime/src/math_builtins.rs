@@ -1,7 +1,42 @@
 use std::f64;
+use crate::builtin_trait::BuiltinModule;
+use crate::localization::LocalizedMessage;
 
 /// Mathematical builtin functions
+///
+/// Provides comprehensive mathematical operations including trigonometry,
+/// algebra, number theory, and statistical functions.
 pub struct MathBuiltins;
+
+impl BuiltinModule for MathBuiltins {
+    fn module_name() -> &'static str {
+        "Math"
+    }
+
+    fn description() -> &'static str {
+        "Mathematical functions including trigonometry, algebra, and number theory"
+    }
+
+    fn description_localized(locale: Option<&str>) -> String {
+        let locale = crate::localization::detect_locale(locale);
+        let msg = LocalizedMessage::new("Mathematical functions including trigonometry, algebra, and number theory")
+            .with_translation("de", "Mathematische Funktionen inkl. Trigonometrie, Algebra und Zahlentheorie")
+            .with_translation("fr", "Fonctions mathématiques y compris trigonométrie, algèbre et théorie des nombres")
+            .with_translation("es", "Funciones matemáticas incluyendo trigonometría, álgebra y teoría de números");
+        msg.resolve(&locale).to_string()
+    }
+
+    fn function_names() -> &'static [&'static str] {
+        &[
+            "Sin", "Cos", "Tan", "Asin", "Acos", "Atan", "Atan2",
+            "Sinh", "Cosh", "Tanh", "Asinh", "Acosh", "Atanh",
+            "Sqrt", "Cbrt", "Pow", "Log", "Log2", "Log10", "Exp", "Exp2",
+            "Abs", "Floor", "Ceil", "Round", "Min", "Max", "Hypot",
+            "Factorial", "Gcd", "Lcm", "IsPrime", "Fibonacci",
+            "Clamp", "Sign", "ToDegrees", "ToRadians",
+        ]
+    }
+}
 
 impl MathBuiltins {
     /// Sine function

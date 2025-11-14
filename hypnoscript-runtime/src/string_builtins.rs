@@ -60,12 +60,13 @@ impl StringBuiltins {
     ///
     /// # Example
     /// ```rust
+    /// use hypnoscript_runtime::StringBuiltins;
     /// assert_eq!(StringBuiltins::length("hello"), 5);
     /// assert_eq!(StringBuiltins::length(""), 0);
     /// assert_eq!(StringBuiltins::length("🎯"), 1); // Unicode emoji
     /// ```
     pub fn length(s: &str) -> usize {
-        s.len()
+        s.chars().count()
     }
 
     /// Convert to uppercase

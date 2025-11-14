@@ -1,5 +1,42 @@
+use crate::builtin_trait::BuiltinModule;
+use crate::localization::LocalizedMessage;
+
 /// Array/Vector builtin functions
+///
+/// Provides comprehensive array operations including functional programming
+/// patterns (map, filter, reduce), aggregations, and transformations.
 pub struct ArrayBuiltins;
+
+impl BuiltinModule for ArrayBuiltins {
+    fn module_name() -> &'static str {
+        "Array"
+    }
+
+    fn description() -> &'static str {
+        "Array manipulation and functional programming operations"
+    }
+
+    fn description_localized(locale: Option<&str>) -> String {
+        let locale = crate::localization::detect_locale(locale);
+        let msg = LocalizedMessage::new("Array manipulation and functional programming operations")
+            .with_translation("de", "Array-Manipulation und funktionale Programmieroperationen")
+            .with_translation("fr", "Manipulation de tableaux et opérations de programmation fonctionnelle")
+            .with_translation("es", "Manipulación de arrays y operaciones de programación funcional");
+        msg.resolve(&locale).to_string()
+    }
+
+    fn function_names() -> &'static [&'static str] {
+        &[
+            "Length", "IsEmpty", "Get", "IndexOf", "Contains", "Reverse",
+            "Sum", "Average", "Min", "Max", "Sort",
+            "First", "Last", "Take", "Skip", "Slice",
+            "Join", "Count", "Distinct",
+            "Map", "Filter", "Reduce", "Find", "FindIndex",
+            "Every", "Some", "Flatten", "Zip",
+            "Partition", "GroupBy", "Chunk", "Windows",
+        ]
+    }
+}
 
 impl ArrayBuiltins {
     /// Get array length
@@ -317,6 +354,29 @@ impl ArrayBuiltins {
 
         result
     }
+
+    /// Windows: Create sliding windows of size n
+    ///
+    /// # Arguments
+    /// * `arr` - The source array
+    /// * `size` - Window size
+    ///
+    /// # Returns
+    /// Vector of windows (each window is a Vec)
+    ///
+    /// # Example
+    /// ```rust
+    /// use hypnoscript_runtime::ArrayBuiltins;
+    /// let arr = [1, 2, 3, 4, 5];
+    /// let windows = ArrayBuiltins::windows(&arr, 3);
+    /// // Returns: [[1, 2, 3], [2, 3, 4], [3, 4, 5]]
+    /// ```
+    pub fn windows<T: Clone>(arr: &[T], size: usize) -> Vec<Vec<T>> {
+        if size == 0 || size > arr.len() {
+            return Vec::new();
+        }
+        arr.windows(size).map(|w| w.to_vec()).collect()
+    }
 }
 
 #[cfg(test)]
@@ -440,5 +500,23 @@ mod tests {
             ArrayBuiltins::interleave(&arr1, &arr2),
             vec![1, 10, 2, 20, 3, 30]
         );
+    }
+
+    #[test]
+    fn test_windows() {
+        let arr = [1, 2, 3, 4, 5];
+        let windows = ArrayBuiltins::windows(&arr, 3);
+        assert_eq!(
+            windows,
+            vec![vec![1, 2, 3], vec![2, 3, 4], vec![3, 4, 5]]
+        );
+    }
+
+    #[test]
+    fn test_module_metadata() {
+        assert_eq!(ArrayBuiltins::module_name(), "Array");
+        assert!(!ArrayBuiltins::function_names().is_empty());
+        assert!(ArrayBuiltins::function_names().contains(&"Partition"));
+        assert!(ArrayBuiltins::function_names().contains(&"GroupBy"));
     }
 }

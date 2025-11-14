@@ -67,6 +67,7 @@ impl AdvancedStringBuiltins {
     ///
     /// # Example
     /// ```rust
+    /// use hypnoscript_runtime::AdvancedStringBuiltins;
     /// let distance = AdvancedStringBuiltins::levenshtein_distance("kitten", "sitting");
     /// assert_eq!(distance, 3);
     /// ```

@@ -1,5 +1,6 @@
 use std::thread;
 use std::time::Duration;
+use crate::builtin_trait::BuiltinModule;
 use crate::localization::LocalizedMessage;
 
 /// Core I/O and hypnotic builtin functions
@@ -7,6 +8,33 @@ use crate::localization::LocalizedMessage;
 /// This module provides essential I/O operations and hypnotic-themed functions
 /// with internationalization support.
 pub struct CoreBuiltins;
+
+impl BuiltinModule for CoreBuiltins {
+    fn module_name() -> &'static str {
+        "Core"
+    }
+
+    fn description() -> &'static str {
+        "Core I/O, conversion, and hypnotic induction functions"
+    }
+
+    fn description_localized(locale: Option<&str>) -> String {
+        let locale = crate::localization::detect_locale(locale);
+        let msg = LocalizedMessage::new("Core I/O, conversion, and hypnotic induction functions")
+            .with_translation("de", "Kern-I/O-, Konvertierungs- und hypnotische Induktionsfunktionen")
+            .with_translation("fr", "Fonctions de base I/O, conversion et induction hypnotique")
+            .with_translation("es", "Funciones básicas de I/O, conversión e inducción hipnótica");
+        msg.resolve(&locale).to_string()
+    }
+
+    fn function_names() -> &'static [&'static str] {
+        &[
+            "observe", "whisper", "command", "drift",
+            "DeepTrance", "HypnoticCountdown", "TranceInduction", "HypnoticVisualization",
+            "ToInt", "ToDouble", "ToString", "ToBoolean",
+        ]
+    }
+}
 
 impl CoreBuiltins {
     /// Output a value with newline (observe)

@@ -70,6 +70,7 @@ impl DictionaryBuiltins {
     ///
     /// # Example
     /// ```rust
+    /// use hypnoscript_runtime::DictionaryBuiltins;
     /// let dict = DictionaryBuiltins::create();
     /// assert_eq!(dict, "{}");
     /// ```
@@ -88,6 +89,7 @@ impl DictionaryBuiltins {
     ///
     /// # Example
     /// ```rust
+    /// use hypnoscript_runtime::DictionaryBuiltins;
     /// let dict = r#"{"name": "Alice", "age": 30}"#;
     /// let name = DictionaryBuiltins::get(dict, "name").unwrap();
     /// assert_eq!(name, "Alice");
@@ -117,6 +119,7 @@ impl DictionaryBuiltins {
     ///
     /// # Example
     /// ```rust
+    /// use hypnoscript_runtime::DictionaryBuiltins;
     /// let dict = "{}";
     /// let updated = DictionaryBuiltins::set(dict, "name", "Bob").unwrap();
     /// assert!(updated.contains("Bob"));
