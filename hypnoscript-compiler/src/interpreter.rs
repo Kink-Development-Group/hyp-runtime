@@ -10,18 +10,27 @@ use std::collections::{HashMap, HashSet};
 use std::rc::Rc;
 use thiserror::Error;
 
+/// Interpreter errors that can occur during program execution.
+///
+/// These errors represent runtime failures in HypnoScript programs,
+/// including type mismatches, undefined variables, and control flow errors.
 #[derive(Error, Debug)]
 pub enum InterpreterError {
     #[error("Runtime error: {0}")]
     Runtime(String),
+
     #[error("Break statement outside of loop")]
     BreakOutsideLoop,
+
     #[error("Continue statement outside of loop")]
     ContinueOutsideLoop,
+
     #[error("Return from function: {0:?}")]
     Return(Value),
+
     #[error("Variable '{0}' not found")]
     UndefinedVariable(String),
+
     #[error("Type error: {0}")]
     TypeError(String),
 }
@@ -38,7 +47,30 @@ enum ScopeLayer {
     Shared,
 }
 
-/// Represents a callable suggestion within the interpreter.
+/// Represents a callable suggestion (function) within the interpreter.
+///
+/// HypnoScript functions can be:
+/// - Global suggestions (top-level functions)
+/// - Session methods (instance methods)
+/// - Static session methods (`dominant` keyword)
+/// - Constructors (special session methods)
+/// - Triggers (event-driven callbacks)
+///
+/// # Examples
+///
+/// ```hyp
+/// // Global suggestion
+/// suggestion greet(name: string) {
+///     awaken "Hello, " + name;
+/// }
+///
+/// // Session method
+/// session Calculator {
+///     suggestion add(a: number, b: number) {
+///         awaken a + b;
+///     }
+/// }
+/// ```
 #[derive(Debug, Clone)]
 pub struct FunctionValue {
     name: String,
@@ -102,6 +134,18 @@ impl PartialEq for FunctionValue {
 impl Eq for FunctionValue {}
 
 /// Definition of a session field (instance scope).
+///
+/// Session fields represent instance-level variables in HypnoScript sessions (classes).
+/// They can have visibility modifiers (`expose`/`conceal`) and optional type annotations.
+///
+/// # Examples
+///
+/// ```hyp
+/// session Person {
+///     expose name: string = "Unknown";
+///     conceal age: number = 0;
+/// }
+/// ```
 #[derive(Debug, Clone)]
 struct SessionFieldDefinition {
     name: String,
@@ -112,6 +156,33 @@ struct SessionFieldDefinition {
 }
 
 /// Definition of a session method.
+///
+/// Session methods represent callable functions within HypnoScript sessions.
+/// They can be:
+/// - Instance methods (default)
+/// - Static methods (`dominant` keyword)
+/// - Constructors (special methods with `constructor` keyword)
+///
+/// # Examples
+///
+/// ```hyp
+/// session Calculator {
+///     // Constructor
+///     constructor(initial: number) {
+///         induce this.value = initial;
+///     }
+///
+///     // Instance method
+///     expose suggestion add(n: number) {
+///         induce this.value = this.value + n;
+///     }
+///
+///     // Static method
+///     dominant suggestion createDefault() {
+///         awaken Calculator(0);
+///     }
+/// }
+/// ```
 #[derive(Debug, Clone)]
 struct SessionMethodDefinition {
     name: String,
@@ -123,6 +194,21 @@ struct SessionMethodDefinition {
 }
 
 /// Runtime data for a static field, including its initializer AST.
+///
+/// Static fields are initialized once and shared across all session instances.
+/// They are declared with the `dominant` keyword in HypnoScript.
+///
+/// # Examples
+///
+/// ```hyp
+/// session Counter {
+///     dominant instanceCount: number = 0;
+///
+///     constructor() {
+///         induce Counter.instanceCount = Counter.instanceCount + 1;
+///     }
+/// }
+/// ```
 #[derive(Debug, Clone)]
 struct SessionStaticField {
     definition: SessionFieldDefinition,
@@ -131,6 +217,39 @@ struct SessionStaticField {
 }
 
 /// Stores metadata and static members for a session (class-like construct).
+///
+/// Sessions are HypnoScript's OOP construct, similar to classes in other languages.
+/// They support:
+/// - Instance and static fields
+/// - Instance and static methods
+/// - Constructors
+/// - Visibility modifiers (`expose`/`conceal`)
+///
+/// # Examples
+///
+/// ```hyp
+/// session BankAccount {
+///     conceal balance: number = 0;
+///     dominant totalAccounts: number = 0;
+///
+///     constructor(initialBalance: number) {
+///         induce this.balance = initialBalance;
+///         induce BankAccount.totalAccounts = BankAccount.totalAccounts + 1;
+///     }
+///
+///     expose suggestion deposit(amount: number) {
+///         induce this.balance = this.balance + amount;
+///     }
+///
+///     expose suggestion getBalance() {
+///         awaken this.balance;
+///     }
+///
+///     dominant suggestion getTotalAccounts() {
+///         awaken BankAccount.totalAccounts;
+///     }
+/// }
+/// ```
 #[derive(Debug)]
 pub struct SessionDefinition {
     name: String,
@@ -310,6 +429,27 @@ impl SessionDefinition {
 }
 
 /// Runtime representation of a session instance.
+///
+/// Each instantiated session creates a `SessionInstance` that holds:
+/// - A reference to the session definition (metadata)
+/// - Instance-specific field values
+///
+/// # Examples
+///
+/// ```hyp
+/// session Person {
+///     expose name: string = "Unknown";
+///     expose age: number = 0;
+///
+///     constructor(n: string, a: number) {
+///         induce this.name = n;
+///         induce this.age = a;
+///     }
+/// }
+///
+/// // Creates a SessionInstance
+/// induce person = Person("Alice", 30);
+/// ```
 #[derive(Debug)]
 pub struct SessionInstance {
     definition: Rc<SessionDefinition>,
@@ -350,7 +490,25 @@ struct ExecutionContextFrame {
     session_name: Option<String>,
 }
 
-/// Simple Promise/Future wrapper for async operations
+/// Simple Promise/Future wrapper for async operations.
+///
+/// Promises represent asynchronous computations in HypnoScript.
+/// They are created by `mesmerize` suggestions and resolved with `await` or `surrenderTo`.
+///
+/// # Examples
+///
+/// ```hyp
+/// // Async suggestion returns a Promise
+/// mesmerize suggestion fetchData() {
+///     induce data = "some data";
+///     awaken data;
+/// }
+///
+/// entrance {
+///     induce result = await fetchData();
+///     observe result;
+/// }
+/// ```
 #[derive(Debug, Clone)]
 pub struct Promise {
     /// The resolved value (if completed)
@@ -385,7 +543,35 @@ impl Promise {
     }
 }
 
-/// Runtime value in HypnoScript
+/// Runtime value in HypnoScript.
+///
+/// Represents all possible runtime values in the HypnoScript interpreter.
+/// This includes primitives, collections, functions, sessions, and async values.
+///
+/// # Variants
+///
+/// - `Number(f64)` - Numeric values (e.g., `42`, `3.14`)
+/// - `String(String)` - Text values (e.g., `"Hello"`)
+/// - `Boolean(bool)` - Boolean values (`true`/`false`)
+/// - `Array(Vec<Value>)` - Arrays (e.g., `[1, 2, 3]`)
+/// - `Function(FunctionValue)` - Callable suggestions
+/// - `Session(Rc<SessionDefinition>)` - Session type (class constructor)
+/// - `Instance(Rc<RefCell<SessionInstance>>)` - Session instance
+/// - `Promise(Rc<RefCell<Promise>>)` - Async promise from `mesmerize`
+/// - `Record(RecordValue)` - Record/struct from `tranceify`
+/// - `Null` - Null value
+///
+/// # Examples
+///
+/// ```hyp
+/// induce num: number = 42;                    // Value::Number
+/// induce text: string = "Hello";              // Value::String
+/// induce flag: boolean = true;                // Value::Boolean
+/// induce list: number[] = [1, 2, 3];          // Value::Array
+/// induce account = BankAccount(100);          // Value::Instance
+/// induce promise = mesmerize getData();       // Value::Promise
+/// induce nothing: null = null;                // Value::Null
+/// ```
 #[derive(Debug, Clone)]
 pub enum Value {
     Number(f64),
@@ -400,7 +586,24 @@ pub enum Value {
     Null,
 }
 
-/// A record instance (from tranceify declarations)
+/// A record instance (from tranceify declarations).
+///
+/// Records are user-defined structured data types in HypnoScript,
+/// similar to structs in other languages.
+///
+/// # Examples
+///
+/// ```hyp
+/// tranceify Point {
+///     x: number,
+///     y: number
+/// }
+///
+/// entrance {
+///     induce p = Point { x: 10, y: 20 };
+///     observe p.x;  // 10
+/// }
+/// ```
 #[derive(Debug, Clone)]
 pub struct RecordValue {
     pub type_name: String,
@@ -496,6 +699,52 @@ impl std::fmt::Display for Value {
     }
 }
 
+/// The HypnoScript interpreter.
+///
+/// Executes HypnoScript AST nodes using a tree-walking interpretation strategy.
+/// Supports:
+/// - Variable scopes (global, shared, local)
+/// - Functions and triggers
+/// - Sessions (OOP)
+/// - Pattern matching (`entrain`/`when`)
+/// - Async execution (`mesmerize`/`await`)
+/// - Channels for inter-task communication
+/// - 180+ builtin functions
+///
+/// # Architecture
+///
+/// The interpreter maintains:
+/// - `globals`: Top-level variables in `Focus { ... } Relax` scope
+/// - `shared`: Variables declared with `sharedTrance` (module-level)
+/// - `locals`: Stack of local scopes (function calls, loops, blocks)
+/// - `const_globals`/`const_locals`: Tracks immutable variables (`freeze`)
+/// - `execution_context`: Call stack for session method dispatch
+/// - `tranceify_types`: Record type definitions
+/// - `async_runtime`: Optional async task executor
+/// - `channel_registry`: Optional channel system for message passing
+///
+/// # Examples
+///
+/// ```rust
+/// use hypnoscript_compiler::Interpreter;
+/// use hypnoscript_lexer_parser::Parser;
+/// use hypnoscript_lexer_parser::Lexer;
+///
+/// let source = r#"
+///     Focus {
+///         entrance {
+///             observe "Hello, World!";
+///         }
+///     } Relax;
+/// "#;
+///
+/// let mut lexer = Lexer::new(source);
+/// let tokens = lexer.tokenize().unwrap();
+/// let mut parser = Parser::new(tokens);
+/// let ast = parser.parse_program().unwrap();
+/// let mut interpreter = Interpreter::new();
+/// interpreter.interpret(&ast).unwrap();
+/// ```
 pub struct Interpreter {
     globals: HashMap<String, Value>,
     shared: HashMap<String, Value>,

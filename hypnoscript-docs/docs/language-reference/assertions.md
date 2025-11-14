@@ -508,7 +508,7 @@ Focus {
         suggestion safeAssert(condition: boolean, message: string) {
             try {
                 assert condition message;
-                return true;
+                awaken true;
             } catch (error) {
                 ArrayPush(assertionErrors, error);
                 return false;

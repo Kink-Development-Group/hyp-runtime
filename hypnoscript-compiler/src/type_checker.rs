@@ -4,6 +4,9 @@ use hypnoscript_lexer_parser::ast::{
 };
 use std::collections::HashMap;
 
+/// Session field metadata for type checking.
+///
+/// Stores type information and visibility for session fields during static analysis.
 #[derive(Debug, Clone)]
 struct SessionFieldInfo {
     ty: HypnoType,
@@ -11,6 +14,9 @@ struct SessionFieldInfo {
     is_static: bool,
 }
 
+/// Session method metadata for type checking.
+///
+/// Stores type signatures, visibility, and modifiers for session methods.
 #[derive(Debug, Clone)]
 struct SessionMethodInfo {
     parameter_types: Vec<HypnoType>,
@@ -20,6 +26,10 @@ struct SessionMethodInfo {
     is_constructor: bool,
 }
 
+/// Complete session metadata for type checking.
+///
+/// Aggregates all type information about a session including fields, methods,
+/// and constructor signatures.
 #[derive(Debug, Clone)]
 struct SessionInfo {
     name: String,
@@ -43,7 +53,18 @@ impl SessionInfo {
     }
 }
 
-/// Tranceify (record/struct) type definition
+/// Tranceify (record/struct) type definition for type checking.
+///
+/// Stores field names and types for user-defined record types.
+///
+/// # Examples
+///
+/// ```hyp
+/// tranceify Point {
+///     x: number,
+///     y: number
+/// }
+/// ```
 #[derive(Debug, Clone)]
 struct TranceifyInfo {
     #[allow(dead_code)]
@@ -60,7 +81,49 @@ impl TranceifyInfo {
     }
 }
 
-/// Type checker for HypnoScript programs
+/// Type checker for HypnoScript programs.
+///
+/// Performs static type analysis on HypnoScript AST to catch type errors before runtime.
+/// Supports:
+/// - Type inference
+/// - Generic type checking
+/// - Session (OOP) type validation
+/// - Function signature checking
+/// - Pattern matching exhaustiveness (basic)
+///
+/// # Type System Features
+///
+/// - **Primitive types**: `number`, `string`, `boolean`, `null`
+/// - **Collection types**: Arrays (`number[]`, `string[]`, etc.)
+/// - **Function types**: `suggestion(param: type) -> returnType`
+/// - **Session types**: User-defined classes with fields and methods
+/// - **Record types**: User-defined structs (`tranceify`)
+/// - **Generic types**: `T`, `U`, etc. with constraints
+/// - **Optional types**: `lucid` modifier for nullable types
+///
+/// # Examples
+///
+/// ```rust
+/// use hypnoscript_compiler::TypeChecker;
+/// use hypnoscript_lexer_parser::Parser;
+/// use hypnoscript_lexer_parser::Lexer;
+///
+/// let source = r#"
+///     Focus {
+///         entrance {
+///             induce x: number = 42;
+///             induce y: string = "Hello";
+///         }
+///     } Relax;
+/// "#;
+///
+/// let mut lexer = Lexer::new(source);
+/// let tokens = lexer.tokenize().unwrap();
+/// let mut parser = Parser::new(tokens);
+/// let ast = parser.parse_program().unwrap();
+/// let mut checker = TypeChecker::new();
+/// checker.check(&ast).unwrap();
+/// ```
 pub struct TypeChecker {
     // Type environment for variables
     type_env: HashMap<String, HypnoType>,

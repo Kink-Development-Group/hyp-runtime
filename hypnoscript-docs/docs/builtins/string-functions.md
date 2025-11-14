@@ -466,9 +466,9 @@ Focus {
 
 ```hyp
 Focus {
-    Trance validateEmail(email) {
+    suggestion validateEmail(email) {
         if (IsEmpty(email)) {
-            return false;
+            awaken false;
         }
 
         if (!Contains(email, "@")) {
@@ -549,9 +549,9 @@ if (EqualsIgnoreCase(input, "ja")) {
 }
 
 // Sichere String-Operationen
-Trance safeSubstring(str, start, length) {
+suggestion safeSubstring(str, start, length) {
     if (IsEmpty(str) || start < 0 || length <= 0) {
-        return "";
+        awaken "";
     }
     if (start >= Length(str)) {
         return "";

@@ -4,7 +4,43 @@ use crate::ast::{
 };
 use crate::token::{Token, TokenType};
 
-/// Parser for HypnoScript language
+/// Parser for HypnoScript language.
+///
+/// Converts a stream of tokens into an Abstract Syntax Tree (AST).
+/// Uses recursive descent parsing with operator precedence for expressions.
+///
+/// # Supported Language Constructs
+///
+/// - **Program structure**: `Focus { ... } Relax`
+/// - **Variables**: `induce`, `implant`, `embed`, `freeze`
+/// - **Functions**: `suggestion`, `trigger`, `imperative suggestion`
+/// - **Sessions (OOP)**: `session`, `constructor`, `expose`, `conceal`, `dominant`
+/// - **Records**: `tranceify` declarations
+/// - **Control flow**: `if`/`else`, `while`, `loop`, `pendulum`, `snap`, `sink`
+/// - **Pattern matching**: `entrain`/`when`/`otherwise`
+/// - **Async**: `mesmerize`, `await`, `surrenderTo`
+/// - **Operators**: Standard + hypnotic synonyms
+/// - **Nullish operators**: `lucidFallback` (`??`), `dreamReach` (`?.`)
+///
+/// # Examples
+///
+/// ```rust
+/// use hypnoscript_lexer_parser::{Parser, Lexer};
+///
+/// let source = r#"
+///     Focus {
+///         entrance {
+///             induce x = 42;
+///             observe x;
+///         }
+///     } Relax;
+/// "#;
+///
+/// let mut lexer = Lexer::new(source);
+/// let tokens = lexer.tokenize().unwrap();
+/// let mut parser = Parser::new(tokens);
+/// let ast = parser.parse_program().unwrap();
+/// ```
 pub struct Parser {
     tokens: Vec<Token>,
     current: usize,

@@ -112,9 +112,9 @@ Focus {
 
 ```hyp
 Focus {
-    Trance safeRead(path) {
+    suggestion safeRead(path) {
         try {
-            return ReadFile(path);
+            awaken ReadFile(path);
         } catch (error) {
             return "Fehler beim Lesen: " + error;
         }

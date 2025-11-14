@@ -206,17 +206,17 @@ Focus {
 
 ```hyp
 Focus {
-    Trance calculateArea(width, height) {
-        return width * height;
+    suggestion calculateArea(width, height) {
+        awaken width * height;
     }
 
-    Trance isEven(number) {
-        return number % 2 == 0;
+    suggestion isEven(number) {
+        awaken number % 2 == 0;
     }
 
-    Trance getMax(a, b) {
+    suggestion getMax(a, b) {
         if (a > b) {
-            return a;
+            awaken a;
         } else {
             return b;
         }
@@ -517,12 +517,12 @@ Focus {
 ```hyp
 Focus {
     // Funktionen am Anfang definieren
-    Trance calculateSum(a, b) {
-        return a + b;
+    suggestion calculateSum(a, b) {
+        awaken a + b;
     }
 
-    Trance validateInput(value) {
-        return value > 0 && value <= 100;
+    suggestion validateInput(value) {
+        awaken value > 0 && value <= 100;
     }
 
     entrance {
