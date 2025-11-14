@@ -116,14 +116,14 @@ impl Parser {
             return self.parse_while_statement();
         }
 
-        // Loop
+        // Loop (modern for-loop syntax)
         if self.match_token(&TokenType::Loop) {
-            return self.parse_loop_statement();
+            return self.parse_loop_statement("loop", false, false);
         }
 
-        // Pendulum loop (bidirectional/for-loop style)
+        // Pendulum loop (alias for loop syntax, header required)
         if self.match_token(&TokenType::Pendulum) {
-            return self.parse_pendulum_statement();
+            return self.parse_loop_statement("pendulum", true, true);
         }
 
         // Suspend statement (infinite pause)
@@ -392,28 +392,110 @@ impl Parser {
         Ok(AstNode::WhileStatement { condition, body })
     }
 
-    /// Parse loop statement
-    fn parse_loop_statement(&mut self) -> Result<AstNode, String> {
-        self.consume(&TokenType::LBrace, "Expected '{' after 'loop'")?;
-        let body = self.parse_block_statements()?;
-        self.consume(&TokenType::RBrace, "Expected '}' after loop block")?;
+    /// Parse loop/pendulum statements (C-style for loop)
+    fn parse_loop_statement(
+        &mut self,
+        keyword: &str,
+        require_header: bool,
+        require_condition: bool,
+    ) -> Result<AstNode, String> {
+        let has_header = if self.match_token(&TokenType::LParen) {
+            true
+        } else {
+            if require_header {
+                return Err(format!("Expected '(' after '{}'", keyword));
+            }
+            false
+        };
 
-        Ok(AstNode::LoopStatement { body })
+        let (init, condition, update) = if has_header {
+            self.parse_loop_header(keyword, require_condition)?
+        } else {
+            (None, None, None)
+        };
+
+        self.consume(
+            &TokenType::LBrace,
+            &format!("Expected '{{' after '{}' loop header", keyword),
+        )?;
+        let body = self.parse_block_statements()?;
+        self.consume(&TokenType::RBrace, &format!("Expected '}}' after '{}' loop block", keyword))?;
+
+        Ok(AstNode::LoopStatement {
+            init,
+            condition,
+            update,
+            body,
+        })
     }
 
-    /// Parse pendulum statement (bidirectional loop, like for-loop)
-    /// Syntax: pendulum (init; condition; update) { body }
-    fn parse_pendulum_statement(&mut self) -> Result<AstNode, String> {
-        self.consume(&TokenType::LParen, "Expected '(' after 'pendulum'")?;
-
-        // Parse init (optional variable declaration or expression)
+    fn parse_loop_header(
+        &mut self,
+        keyword: &str,
+        require_condition: bool,
+    ) -> Result<
+        (
+            Option<Box<AstNode>>,
+            Option<Box<AstNode>>,
+            Option<Box<AstNode>>,
+        ),
+        String,
+    > {
+        // Parse init (variable declaration or expression)
         let init = if self.check(&TokenType::Semicolon) {
             None
-        } else if self.match_token(&TokenType::Induce)
+        } else if let Some(init_stmt) = self.parse_loop_init_statement()? {
+            Some(init_stmt)
+        } else {
+            None
+        };
+
+        self.consume(
+            &TokenType::Semicolon,
+            &format!("Expected ';' after '{}' loop initializer", keyword),
+        )?;
+
+        // Parse condition (optional for legacy loop syntax)
+        let condition = if self.check(&TokenType::Semicolon) {
+            None
+        } else {
+            Some(Box::new(self.parse_expression()?))
+        };
+
+        if require_condition && condition.is_none() {
+            return Err(format!(
+                "{} loop requires a condition expression",
+                keyword
+            ));
+        }
+
+        self.consume(
+            &TokenType::Semicolon,
+            &format!("Expected ';' after '{}' loop condition", keyword),
+        )?;
+
+        // Parse update (optional expression)
+        let update = if self.check(&TokenType::RParen) {
+            None
+        } else {
+            let expr = self.parse_expression()?;
+            Some(Box::new(AstNode::ExpressionStatement(Box::new(expr))))
+        };
+
+        self.consume(
+            &TokenType::RParen,
+            &format!("Expected ')' after '{}' loop clauses", keyword),
+        )?;
+
+        Ok((init, condition, update))
+    }
+
+    fn parse_loop_init_statement(&mut self) -> Result<Option<Box<AstNode>>, String> {
+        if self.match_token(&TokenType::Induce)
             || self.match_token(&TokenType::Implant)
             || self.match_token(&TokenType::Embed)
+            || self.match_token(&TokenType::Freeze)
         {
-            // Parse variable declaration without trailing semicolon
             let is_constant = self.previous().token_type == TokenType::Freeze;
             let name = self
                 .consume(&TokenType::Identifier, "Expected variable name")?
@@ -433,46 +515,20 @@ impl Parser {
                 None
             };
 
-            Some(Box::new(AstNode::VariableDeclaration {
+            return Ok(Some(Box::new(AstNode::VariableDeclaration {
                 name,
                 type_annotation,
                 initializer,
                 is_constant,
-            }))
-        } else {
-            let expr = self.parse_expression()?;
-            Some(Box::new(expr))
-        };
+            })));
+        }
 
-        self.consume(&TokenType::Semicolon, "Expected ';' after pendulum init")?;
+        if self.check(&TokenType::Semicolon) {
+            return Ok(None);
+        }
 
-        // Parse condition
-        let condition = Box::new(self.parse_expression()?);
-
-        self.consume(
-            &TokenType::Semicolon,
-            "Expected ';' after pendulum condition",
-        )?;
-
-        // Parse update (optional expression)
-        let update = if self.check(&TokenType::RParen) {
-            None
-        } else {
-            Some(Box::new(self.parse_expression()?))
-        };
-
-        self.consume(&TokenType::RParen, "Expected ')' after pendulum clauses")?;
-
-        self.consume(&TokenType::LBrace, "Expected '{' after pendulum header")?;
-        let body = self.parse_block_statements()?;
-        self.consume(&TokenType::RBrace, "Expected '}' after pendulum block")?;
-
-        Ok(AstNode::PendulumStatement {
-            init,
-            condition,
-            update,
-            body,
-        })
+        let expr = self.parse_expression()?;
+        Ok(Some(Box::new(AstNode::ExpressionStatement(Box::new(expr)))))
     }
 
     /// Parse function declaration

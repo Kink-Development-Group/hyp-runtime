@@ -114,10 +114,20 @@ loop {
     observe "Endlosschleife";
     snap; // beendet die Schleife
 }
+
+loop (induce i: number = 0; i < 3; i = i + 1) {
+    observe "Loop-Iteration " + i;
+}
+
+pendulum (induce tick: number = 10; tick underMyControl 15; tick = tick + 1) {
+    observe "Pendulum tick " + tick;
+}
 ```
 
 - `snap` ist Synonym für `break`.
 - `sink` ist Synonym für `continue`.
+- `loop` akzeptiert optional einen Kopf `loop (init; condition; update)` und fällt ohne Klammern auf die klassische Endlosschleife zurück.
+- `pendulum` ist ein Alias für die Kopf-Variante und verlangt stets eine Bedingung.
 - `deepFocus` kann nach der If-Bedingung stehen: `if (x > 0) deepFocus { ... }`.
 
 ## 6. Funktionen und Trigger
@@ -161,11 +171,11 @@ Alle verfügbaren Builtins listet `hypnoscript builtins` auf.
 
 ## 8. Häufige Fragen
 
-| Frage                            | Antwort                                                                                                                                     |
-| -------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------- |
-| Warum endet alles mit `Relax`?   | Der Relax-Block markiert das sichere Ausleiten – er ist fester Bestandteil der Grammatik.                                                   |
-| Muss ich Typannotationen setzen? | Nein, aber sie verbessern Fehlermeldungen und die Autovervollständigung.                                                                    |
-| Gibt es for-Schleifen?           | Nein. Nutze `while` oder `loop { ... snap; }` sowie Array-Builtins wie `ArrayForEach` existiert nicht – lieber eigene Funktionen schreiben. |
+| Frage                            | Antwort                                                                                                                                          |
+| -------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------ |
+| Warum endet alles mit `Relax`?   | Der Relax-Block markiert das sichere Ausleiten – er ist fester Bestandteil der Grammatik.                                                        |
+| Muss ich Typannotationen setzen? | Nein, aber sie verbessern Fehlermeldungen und die Autovervollständigung.                                                                         |
+| Gibt es for-Schleifen?           | Ja, `loop (induce i = 0; i < n; i = i + 1) { ... }` bildet eine klassische for-Schleife ab; ohne Kopf bleibt `loop { ... }` eine Endlosschleife. |
 
 ## 9. Wie geht es weiter?
 

@@ -1213,9 +1213,32 @@ impl TypeChecker {
                 }
             }
 
-            AstNode::LoopStatement { body } => {
+            AstNode::LoopStatement {
+                init,
+                condition,
+                update,
+                body,
+            } => {
+                if let Some(init_stmt) = init.as_ref() {
+                    self.check_statement(init_stmt);
+                }
+
+                if let Some(cond_expr) = condition.as_ref() {
+                    let cond_type = self.infer_type(cond_expr);
+                    if cond_type.base_type != HypnoBaseType::Boolean {
+                        self.errors.push(format!(
+                            "Loop condition must be boolean, got {}",
+                            cond_type
+                        ));
+                    }
+                }
+
                 for stmt in body {
                     self.check_statement(stmt);
+                }
+
+                if let Some(update_stmt) = update.as_ref() {
+                    self.check_statement(update_stmt);
                 }
             }
 

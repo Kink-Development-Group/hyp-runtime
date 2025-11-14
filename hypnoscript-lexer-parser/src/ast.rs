@@ -91,15 +91,15 @@ pub enum AstNode {
         body: Vec<AstNode>,
     },
 
-    /// pendulum: Bidirectional loop (like for-loop with init, condition, update)
-    PendulumStatement {
-        init: Option<Box<AstNode>>,
-        condition: Box<AstNode>,
-        update: Option<Box<AstNode>>,
-        body: Vec<AstNode>,
-    },
-
+    /// Loop statement supporting both `loop` and `pendulum` keywords.
+    /// When `init`, `condition`, and `update` are provided, the construct behaves like
+    /// a traditional C-style `for` loop. Leaving all three clauses empty represents the
+    /// legacy infinite `loop { ... }` form. `pendulum` is treated as syntactic sugar for
+    /// the same structure.
     LoopStatement {
+        init: Option<Box<AstNode>>,
+        condition: Option<Box<AstNode>>,
+        update: Option<Box<AstNode>>,
         body: Vec<AstNode>,
     },
 
@@ -243,7 +243,6 @@ impl AstNode {
                 | AstNode::IfStatement { .. }
                 | AstNode::DeepFocusStatement { .. }
                 | AstNode::WhileStatement { .. }
-                | AstNode::PendulumStatement { .. }
                 | AstNode::LoopStatement { .. }
                 | AstNode::SuspendStatement
                 | AstNode::ReturnStatement(_)

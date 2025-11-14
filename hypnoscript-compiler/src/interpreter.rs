@@ -692,43 +692,29 @@ impl Interpreter {
                 Ok(())
             }
 
-            AstNode::LoopStatement { body } => {
-                loop {
-                    match self.execute_block(body) {
-                        Err(InterpreterError::BreakOutsideLoop) => break,
-                        Err(InterpreterError::ContinueOutsideLoop) => continue,
-                        Err(e) => return Err(e),
-                        Ok(()) => {}
-                    }
-                }
-                Ok(())
-            }
-
-            AstNode::PendulumStatement {
+            AstNode::LoopStatement {
                 init,
                 condition,
                 update,
                 body,
             } => {
-                // Execute init (if present)
-                if let Some(init_node) = init {
-                    self.execute_statement(init_node)?;
+                if let Some(init_stmt) = init.as_ref() {
+                    self.execute_statement(init_stmt)?;
                 }
 
-                // Loop while condition is true
                 loop {
-                    let cond_value = self.evaluate_expression(condition)?;
-                    if !cond_value.is_truthy() {
-                        break;
+                    if let Some(cond_expr) = condition.as_ref() {
+                        let cond_value = self.evaluate_expression(cond_expr)?;
+                        if !cond_value.is_truthy() {
+                            break;
+                        }
                     }
 
-                    // Execute body without creating new scope (to preserve variable modifications)
-                    match self.execute_pendulum_body(body) {
+                    match self.execute_loop_body(body) {
                         Err(InterpreterError::BreakOutsideLoop) => break,
                         Err(InterpreterError::ContinueOutsideLoop) => {
-                            // Execute update before continuing
-                            if let Some(update_node) = update {
-                                self.evaluate_expression(update_node)?;
+                            if let Some(update_stmt) = update.as_ref() {
+                                self.execute_statement(update_stmt)?;
                             }
                             continue;
                         }
@@ -736,9 +722,8 @@ impl Interpreter {
                         Ok(()) => {}
                     }
 
-                    // Execute update
-                    if let Some(update_node) = update {
-                        self.evaluate_expression(update_node)?;
+                    if let Some(update_stmt) = update.as_ref() {
+                        self.execute_statement(update_stmt)?;
                     }
                 }
                 Ok(())
@@ -789,9 +774,9 @@ impl Interpreter {
         result
     }
 
-    /// Execute pendulum loop body without creating a new scope
-    /// This allows variables to persist across loop iterations
-    fn execute_pendulum_body(&mut self, statements: &[AstNode]) -> Result<(), InterpreterError> {
+    /// Execute loop bodies without creating a new scope so variables
+    /// persist across iterations (matching HypnoScript semantics)
+    fn execute_loop_body(&mut self, statements: &[AstNode]) -> Result<(), InterpreterError> {
         for stmt in statements {
             self.execute_statement(stmt)?;
         }

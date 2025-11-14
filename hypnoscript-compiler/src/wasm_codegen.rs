@@ -18,6 +18,8 @@ pub struct WasmCodeGenerator {
     function_map: HashMap<String, usize>,
     session_map: HashMap<String, SessionInfo>,
     indent_level: usize,
+    break_labels: Vec<String>,
+    continue_labels: Vec<String>,
 }
 
 /// Session-Informationen für WASM-Generierung
@@ -46,6 +48,8 @@ impl WasmCodeGenerator {
             function_map: HashMap::new(),
             session_map: HashMap::new(),
             indent_level: 0,
+            break_labels: Vec::new(),
+            continue_labels: Vec::new(),
         }
     }
 
@@ -57,6 +61,8 @@ impl WasmCodeGenerator {
         self.variable_map.clear();
         self.function_map.clear();
         self.session_map.clear();
+        self.break_labels.clear();
+        self.continue_labels.clear();
 
         self.emit_line("(module");
         self.indent_level += 1;
@@ -222,15 +228,20 @@ impl WasmCodeGenerator {
 
             AstNode::WhileStatement { condition, body } => {
                 let loop_label = self.next_label();
-                self.emit_line(&format!("(block ${}_end", loop_label));
+                let break_label = format!("${}_end", loop_label);
+                let continue_label = format!("${}_start", loop_label);
+                self.break_labels.push(break_label.clone());
+                self.continue_labels.push(continue_label.clone());
+
+                self.emit_line(&format!("(block {}", break_label));
                 self.indent_level += 1;
-                self.emit_line(&format!("(loop ${}_start", loop_label));
+                self.emit_line(&format!("(loop {}", continue_label));
                 self.indent_level += 1;
 
                 // Check condition
                 self.emit_expression(condition);
                 self.emit_line("i32.eqz");
-                self.emit_line(&format!("br_if ${}_end", loop_label));
+                self.emit_line(&format!("br_if {}", break_label));
 
                 // Emit body
                 for stmt in body {
@@ -238,41 +249,84 @@ impl WasmCodeGenerator {
                 }
 
                 // Loop back
-                self.emit_line(&format!("br ${}_start", loop_label));
+                self.emit_line(&format!("br {}", continue_label));
 
                 self.indent_level -= 1;
                 self.emit_line(")");
                 self.indent_level -= 1;
                 self.emit_line(")");
+
+                self.continue_labels.pop();
+                self.break_labels.pop();
             }
 
-            AstNode::LoopStatement { body } => {
+            AstNode::LoopStatement {
+                init,
+                condition,
+                update,
+                body,
+            } => {
+                if let Some(init_stmt) = init.as_ref() {
+                    self.emit_statement(init_stmt);
+                }
+
                 let loop_label = self.next_label();
-                self.emit_line(&format!("(block ${}_end", loop_label));
+                let break_label = format!("${}_end", loop_label);
+                let start_label = format!("${}_start", loop_label);
+                let continue_label = format!("${}_continue", loop_label);
+                self.break_labels.push(break_label.clone());
+                self.continue_labels.push(continue_label.clone());
+
+                self.emit_line(&format!("(block {}", break_label));
                 self.indent_level += 1;
-                self.emit_line(&format!("(loop ${}_start", loop_label));
+                self.emit_line(&format!("(loop {}", start_label));
                 self.indent_level += 1;
 
+                if let Some(cond_expr) = condition.as_ref() {
+                    self.emit_expression(cond_expr);
+                    self.emit_line("i32.eqz");
+                    self.emit_line(&format!("br_if {}", break_label));
+                }
+
+                self.emit_line(&format!("(block {}", continue_label));
+                self.indent_level += 1;
                 for stmt in body {
                     self.emit_statement(stmt);
                 }
+                self.indent_level -= 1;
+                self.emit_line(")");
 
-                self.emit_line(&format!("br ${}_start", loop_label));
+                if let Some(update_stmt) = update.as_ref() {
+                    self.emit_statement(update_stmt);
+                }
+
+                self.emit_line(&format!("br {}", start_label));
 
                 self.indent_level -= 1;
                 self.emit_line(")");
                 self.indent_level -= 1;
                 self.emit_line(")");
+
+                self.continue_labels.pop();
+                self.break_labels.pop();
             }
 
             AstNode::BreakStatement => {
                 self.emit_line(";; break");
-                self.emit_line("br 1");
+                if let Some(label) = self.break_labels.last() {
+                    self.emit_line(&format!("br {}", label));
+                } else {
+                    self.emit_line(";; warning: break outside loop ignored");
+                }
             }
 
             AstNode::ContinueStatement => {
                 self.emit_line(";; continue");
-                self.emit_line("br 0");
+                if let Some(label) = self.continue_labels.last() {
+                    self.emit_line(&format!("br {}", label));
+                } else {
+                    self.emit_line(";; warning: continue outside loop ignored");
+                }
             }
 
             AstNode::ExpressionStatement(expr) => {
