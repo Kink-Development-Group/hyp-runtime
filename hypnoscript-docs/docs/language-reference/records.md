@@ -93,7 +93,7 @@ Focus {
             inStock: true,
             metadata: {
                 version: "1.0.0",
-                releaseDate: "2024-01-15"
+                releaseDate: "2025-01-15"
             }
         };
 

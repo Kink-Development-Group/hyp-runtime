@@ -39,7 +39,7 @@ impl SystemBuiltins {
         }
 
         // SAFETY: Environment variable names/values are validated above to satisfy
-        // the platform-specific requirements of `std::env::set_var` on the 2024
+        // the platform-specific requirements of `std::env::set_var` on the 2025
         // edition, which now enforces these preconditions in an unsafe API.
         unsafe {
             env::set_var(name, value);

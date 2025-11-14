@@ -113,7 +113,7 @@ jobs:
 
           [package.metadata.deb]
           maintainer = "HypnoScript Team"
-          copyright = "2024, HypnoScript Team"
+          copyright = "2025, HypnoScript Team"
           license-file = ["LICENSE", "0"]
           extended-description = """\
           HypnoScript is a programming language designed for hypnotic induction and trance work.
@@ -239,6 +239,8 @@ jobs:
     env:
       RUST_DOC_SRC: target/doc
       RUST_DOC_OUTPUT: rust-docs
+      VITEPRESS_DIST: hypnoscript-docs/docs/.vitepress/dist
+      RUST_API_SUBDIR: rust-api
 
     steps:
       - name: Checkout
@@ -279,13 +281,13 @@ jobs:
 
       - name: Copy Rust docs into site
         run: |
-          mkdir -p hypnoscript-docs/docs/.vitepress/dist/rust-api
-          cp -r "${RUST_DOC_OUTPUT}/." hypnoscript-docs/docs/.vitepress/dist/rust-api/
+          mkdir -p "${VITEPRESS_DIST}/${RUST_API_SUBDIR}"
+          cp -r "${RUST_DOC_OUTPUT}/." "${VITEPRESS_DIST}/${RUST_API_SUBDIR}/"
 
       - name: Upload documentation artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          path: hypnoscript-docs/docs/.vitepress/dist
+          path: ${{ env.VITEPRESS_DIST }}
 
       - name: Deploy documentation
         id: deployment

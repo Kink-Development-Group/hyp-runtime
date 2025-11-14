@@ -302,10 +302,21 @@ fetch_latest_version() {
 
   local tag
   if [[ $INCLUDE_PRERELEASE -eq 1 ]]; then
-    tag=$(printf '%s' "$json" | sed -n 's/.*"tag_name":"\([^"]*\)"[^}]*"prerelease":false.*/\1/p' | head -n1)
-    [[ -n "$tag" ]] || tag=$(printf '%s' "$json" | sed -n 's/.*"tag_name":"\([^"]*\)".*/\1/p' | head -n1)
+    # When including prereleases, get the first non-draft release
+    if command -v jq >/dev/null 2>&1; then
+      tag=$(printf '%s' "$json" | jq -r '[.[] | select(.draft == false)] | .[0].tag_name // empty' 2>/dev/null)
+    else
+      # Fallback: try to match non-prerelease first, then any release
+      tag=$(printf '%s' "$json" | sed -n 's/.*"tag_name":"\([^"]*\)"[^}]*"prerelease":false.*/\1/p' | head -n1)
+      [[ -n "$tag" ]] || tag=$(printf '%s' "$json" | sed -n 's/.*"tag_name":"\([^"]*\)".*/\1/p' | head -n1)
+    fi
   else
-    tag=$(printf '%s' "$json" | sed -n 's/.*"tag_name":"\([^"]*\)".*/\1/p' | head -n1)
+    # When not including prereleases, get latest stable release
+    if command -v jq >/dev/null 2>&1; then
+      tag=$(printf '%s' "$json" | jq -r '.tag_name // empty' 2>/dev/null)
+    else
+      tag=$(printf '%s' "$json" | sed -n 's/.*"tag_name":"\([^"]*\)".*/\1/p' | head -n1)
+    fi
   fi
 
   if [[ -z "$tag" ]]; then
@@ -487,9 +498,17 @@ else
   curl -fsSL ${CURL_AUTH_HEADERS[@]+"${CURL_AUTH_HEADERS[@]}"} -o "$TMPDIR/$ASSET" "$DOWNLOAD_URL"
   if curl -fsSL ${CURL_AUTH_HEADERS[@]+"${CURL_AUTH_HEADERS[@]}"} -o "$TMPDIR/$ASSET.sha256" "$CHECKSUM_URL" 2>/dev/null; then
     if command -v sha256sum >/dev/null 2>&1; then
-      (cd "$TMPDIR" && sha256sum -c "$ASSET.sha256")
+      info "Verifying checksum with sha256sum..."
+      if ! (cd "$TMPDIR" && sha256sum -c "$ASSET.sha256"); then
+        error "Checksum verification failed! The downloaded file may be corrupted or tampered with."
+        exit 1
+      fi
     elif command -v shasum >/dev/null 2>&1; then
-      (cd "$TMPDIR" && shasum -a 256 -c "$ASSET.sha256")
+      info "Verifying checksum with shasum..."
+      if ! (cd "$TMPDIR" && shasum -a 256 -c "$ASSET.sha256"); then
+        error "Checksum verification failed! The downloaded file may be corrupted or tampered with."
+        exit 1
+      fi
     else
       warn "Skipping checksum verification (sha256sum/shasum not available)"
     fi

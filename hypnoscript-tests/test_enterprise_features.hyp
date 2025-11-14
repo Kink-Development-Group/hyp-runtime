@@ -149,8 +149,8 @@ Focus {
     observe "  Formatted DateTime: " + FormatDateTime("yyyy-MM-dd HH:mm:ss");
     observe "  Day of Week: " + GetDayOfWeek();
     observe "  Day of Year: " + GetDayOfYear();
-    observe "  Is 2024 Leap Year: " + IsLeapYear(2024);
-    observe "  Days in February 2024: " + GetDaysInMonth(2024, 2);
+    observe "  Is 2025 Leap Year: " + IsLeapYear(2025);
+    observe "  Days in February 2025: " + GetDaysInMonth(2025, 2);
 
     // ===== ERWEITERTE SYSTEM-FUNKTIONEN =====;
     observe "=== Advanced System Functions ===";

@@ -18,6 +18,7 @@ use std::{
 const GITHUB_OWNER: &str = "Kink-Development-Group";
 const GITHUB_REPO: &str = "hyp-runtime";
 const GITHUB_API: &str = "https://api.github.com";
+const DEFAULT_TIMEOUT_SECS: u64 = 20;
 #[cfg(not(target_os = "windows"))]
 const INSTALLER_FALLBACK_URL: &str =
     "https://kink-development-group.github.io/hyp-runtime/install.sh";
@@ -341,8 +342,13 @@ impl InstallerScript {
 }
 
 fn build_agent() -> Agent {
+    let timeout_secs = env::var("HYP_UPDATE_TIMEOUT")
+        .ok()
+        .and_then(|s| s.parse::<u64>().ok())
+        .unwrap_or(DEFAULT_TIMEOUT_SECS);
+
     AgentBuilder::new()
-        .timeout(Duration::from_secs(20))
+        .timeout(Duration::from_secs(timeout_secs))
         .user_agent(&format!("hypnoscript-cli/{}", env!("CARGO_PKG_VERSION")))
         .build()
 }
@@ -415,7 +421,10 @@ fn handle_self_update(
     }
 
     Err(anyhow!(
-        "Self-update is not currently supported on Windows. Please download the latest release manually."
+        "Self-update is not currently supported on Windows. Please download the latest release manually from:\n\
+         https://github.com/{}/{}/releases",
+        GITHUB_OWNER,
+        GITHUB_REPO
     ))
 }
 
@@ -454,7 +463,8 @@ fn handle_self_update(
     // Try to determine the current installation prefix from metadata or binary location.
     // If both fail, install_prefix will be None, and the installer will use its default
     // prefix (/usr/local/bin), which is the correct fallback behavior.
-    let install_prefix = install_prefix_from_metadata(&metadata).or_else(derive_prefix_from_binary);
+    let install_prefix =
+        install_prefix_from_metadata(&metadata).or_else(|| derive_prefix_from_binary());
 
     let installer = match find_shared_installer(metadata.as_ref()) {
         Some(path) => InstallerScript::shared(path),

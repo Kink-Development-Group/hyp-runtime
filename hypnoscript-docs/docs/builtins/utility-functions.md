@@ -140,7 +140,7 @@ induce t3 = TypeOf([1,2,3]); // "array"
 Gibt das aktuelle Datum und die aktuelle Uhrzeit als String zurück.
 
 ```hyp
-induce now = Now(); // "2024-05-01T12:34:56Z"
+induce now = Now(); // "2025-05-01T12:34:56Z"
 ```
 
 ### Timestamp()
