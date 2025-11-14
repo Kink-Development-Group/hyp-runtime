@@ -11,7 +11,7 @@ $ErrorActionPreference = "Stop"
 
 # Konfiguration
 $NAME = "hypnoscript"
-$VERSION = "1.0.0"
+$VERSION = "1.0.0-rc2"
 $ARCH = "amd64"
 
 # Projektverzeichnis ermitteln
