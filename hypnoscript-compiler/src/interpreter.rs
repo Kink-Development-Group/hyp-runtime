@@ -1,12 +1,12 @@
 use hypnoscript_lexer_parser::ast::{
-    AstNode, Pattern, SessionField, SessionMember, SessionMethod, SessionVisibility,
+    AstNode, Pattern, SessionField, SessionMember, SessionMethod, SessionVisibility, VariableStorage,
 };
 use hypnoscript_runtime::{
     ArrayBuiltins, CoreBuiltins, FileBuiltins, HashingBuiltins, MathBuiltins, StatisticsBuiltins,
     StringBuiltins, SystemBuiltins, TimeBuiltins, ValidationBuiltins,
 };
 use std::cell::RefCell;
-use std::collections::HashMap;
+use std::collections::{HashMap, HashSet};
 use std::rc::Rc;
 use thiserror::Error;
 
@@ -29,6 +29,13 @@ pub enum InterpreterError {
 /// Provide a simple locale-aware message while we prepare full i18n plumbing.
 fn localized(en: &str, de: &str) -> String {
     format!("{} (DE: {})", en, de)
+}
+
+#[derive(Clone, Copy, Debug)]
+enum ScopeLayer {
+    Local,
+    Global,
+    Shared,
 }
 
 /// Represents a callable suggestion within the interpreter.
@@ -467,7 +474,10 @@ impl std::fmt::Display for Value {
 
 pub struct Interpreter {
     globals: HashMap<String, Value>,
+    shared: HashMap<String, Value>,
+    const_globals: HashSet<String>,
     locals: Vec<HashMap<String, Value>>,
+    const_locals: Vec<HashSet<String>>,
     execution_context: Vec<ExecutionContextFrame>,
 
     /// Optional async runtime for true async execution
@@ -487,7 +497,10 @@ impl Interpreter {
     pub fn new() -> Self {
         Self {
             globals: HashMap::new(),
+            shared: HashMap::new(),
+            const_globals: HashSet::new(),
             locals: Vec::new(),
+            const_locals: Vec::new(),
             execution_context: Vec::new(),
             async_runtime: None,
             channel_registry: None,
@@ -502,7 +515,10 @@ impl Interpreter {
 
         Ok(Self {
             globals: HashMap::new(),
+            shared: HashMap::new(),
+            const_globals: HashSet::new(),
             locals: Vec::new(),
+            const_locals: Vec::new(),
             execution_context: Vec::new(),
             async_runtime: Some(std::sync::Arc::new(runtime)),
             channel_registry: Some(std::sync::Arc::new(registry)),
@@ -541,21 +557,23 @@ impl Interpreter {
                 name,
                 type_annotation: _,
                 initializer,
-                is_constant: _,
+                is_constant,
+                storage,
             } => {
                 let value = if let Some(init) = initializer {
                     self.evaluate_expression(init)?
                 } else {
                     Value::Null
                 };
-                self.set_variable(name.clone(), value);
+                self.define_variable(*storage, name.clone(), value, *is_constant);
                 Ok(())
             }
 
             AstNode::AnchorDeclaration { name, source } => {
                 // Anchor saves the current value of a variable
                 let value = self.evaluate_expression(source)?;
-                self.set_variable(name.clone(), value);
+                let scope = self.resolve_assignment_scope(name);
+                self.set_variable(name.clone(), value, scope)?;
                 Ok(())
             }
 
@@ -567,7 +585,7 @@ impl Interpreter {
             } => {
                 let param_names: Vec<String> = parameters.iter().map(|p| p.name.clone()).collect();
                 let func = FunctionValue::new_global(name.clone(), param_names, body.clone());
-                self.set_variable(name.clone(), Value::Function(func));
+                self.define_variable(VariableStorage::Local, name.clone(), Value::Function(func), false);
                 Ok(())
             }
 
@@ -580,13 +598,18 @@ impl Interpreter {
                 // Triggers are handled like functions
                 let param_names: Vec<String> = parameters.iter().map(|p| p.name.clone()).collect();
                 let func = FunctionValue::new_global(name.clone(), param_names, body.clone());
-                self.set_variable(name.clone(), Value::Function(func));
+                self.define_variable(VariableStorage::Local, name.clone(), Value::Function(func), false);
                 Ok(())
             }
 
             AstNode::SessionDeclaration { name, members } => {
                 let session = self.build_session_definition(name, members)?;
-                self.set_variable(name.clone(), Value::Session(session.clone()));
+                self.define_variable(
+                    VariableStorage::Local,
+                    name.clone(),
+                    Value::Session(session.clone()),
+                    false,
+                );
                 self.initialize_static_fields(session)?;
                 Ok(())
             }
@@ -629,7 +652,8 @@ impl Interpreter {
                     match self.get_variable(name) {
                         Ok(value) => match value {
                             Value::Boolean(b) => {
-                                self.set_variable(name.clone(), Value::Boolean(!b));
+                                let scope = self.resolve_assignment_scope(name);
+                                self.set_variable(name.clone(), Value::Boolean(!b), scope)?;
                                 Ok(())
                             }
                             _ => Err(InterpreterError::Runtime(format!(
@@ -833,7 +857,8 @@ impl Interpreter {
             AstNode::AssignmentExpression { target, value } => match target.as_ref() {
                 AstNode::Identifier(name) => {
                     let val = self.evaluate_expression(value)?;
-                    self.set_variable(name.clone(), val.clone());
+                    let scope = self.resolve_assignment_scope(name);
+                    self.set_variable(name.clone(), val.clone(), scope)?;
                     Ok(val)
                 }
                 AstNode::MemberExpression { object, property } => {
@@ -1212,11 +1237,21 @@ impl Interpreter {
         self.push_scope();
 
         if let Some(instance) = function.this_binding() {
-            self.set_variable("this".to_string(), Value::Instance(instance));
+            self.define_variable(
+                VariableStorage::Local,
+                "this".to_string(),
+                Value::Instance(instance),
+                true,
+            );
         }
 
         for (param, arg) in function.parameters.iter().zip(args.iter()) {
-            self.set_variable(param.clone(), arg.clone());
+            self.define_variable(
+                VariableStorage::Local,
+                param.clone(),
+                arg.clone(),
+                false,
+            );
         }
 
         let result = (|| {
@@ -1403,7 +1438,12 @@ impl Interpreter {
             session_name: Some(definition.name().to_string()),
         });
         self.push_scope();
-        self.set_variable("this".to_string(), Value::Instance(instance.clone()));
+        self.define_variable(
+            VariableStorage::Local,
+            "this".to_string(),
+            Value::Instance(instance.clone()),
+            true,
+        );
 
         let result = (|| {
             for field_name in definition.field_order().to_vec() {
@@ -2507,17 +2547,139 @@ impl Interpreter {
 
     fn push_scope(&mut self) {
         self.locals.push(HashMap::new());
+        self.const_locals.push(HashSet::new());
     }
 
     fn pop_scope(&mut self) {
         self.locals.pop();
+        self.const_locals.pop();
     }
 
-    fn set_variable(&mut self, name: String, value: Value) {
-        if let Some(scope) = self.locals.last_mut() {
-            scope.insert(name, value);
-        } else {
+    fn define_variable(
+        &mut self,
+        storage: VariableStorage,
+        name: String,
+        value: Value,
+        is_constant: bool,
+    ) {
+        match storage {
+            VariableStorage::SharedTrance => {
+                self.shared.insert(name.clone(), value);
+                if is_constant {
+                    self.const_globals.insert(name);
+                } else {
+                    self.const_globals.remove(&name);
+                }
+            }
+            VariableStorage::Local => {
+                if let Some(scope) = self.locals.last_mut() {
+                    scope.insert(name.clone(), value);
+                    if let Some(const_scope) = self.const_locals.last_mut() {
+                        if is_constant {
+                            const_scope.insert(name);
+                        } else {
+                            const_scope.remove(&name);
+                        }
+                    }
+                } else {
+                    self.globals.insert(name.clone(), value);
+                    if is_constant {
+                        self.const_globals.insert(name);
+                    } else {
+                        self.const_globals.remove(&name);
+                    }
+                }
+            }
+        }
+    }
+
+    fn set_variable(
+        &mut self,
+        name: String,
+        value: Value,
+        scope_hint: ScopeLayer,
+    ) -> Result<(), InterpreterError> {
+        let check_const = |is_const: bool| -> Result<(), InterpreterError> {
+            if is_const {
+                return Err(InterpreterError::Runtime(localized(
+                    &format!("Cannot reassign constant variable '{}'", name),
+                    &format!("Konstante Variable '{}' kann nicht neu zugewiesen werden", name),
+                )));
+            }
+            Ok(())
+        };
+
+        match scope_hint {
+            ScopeLayer::Local => {
+                if let Some((scope, consts)) =
+                    self.locals.last_mut().zip(self.const_locals.last())
+                {
+                    if scope.contains_key(&name) {
+                        check_const(consts.contains(&name))?;
+                        scope.insert(name, value);
+                        return Ok(());
+                    }
+                }
+            }
+            ScopeLayer::Global => {
+                if self.globals.contains_key(&name) {
+                    check_const(self.const_globals.contains(&name))?;
+                    self.globals.insert(name, value);
+                    return Ok(());
+                }
+            }
+            ScopeLayer::Shared => {
+                if self.shared.contains_key(&name) {
+                    check_const(self.const_globals.contains(&name))?;
+                    self.shared.insert(name, value);
+                    return Ok(());
+                }
+            }
+        }
+
+        for idx in (0..self.locals.len()).rev() {
+            if self.locals[idx].contains_key(&name) {
+                let is_const = self
+                    .const_locals
+                    .get(idx)
+                    .map(|set| set.contains(&name))
+                    .unwrap_or(false);
+                check_const(is_const)?;
+                self.locals[idx].insert(name.clone(), value);
+                return Ok(());
+            }
+        }
+
+        if self.globals.contains_key(&name) {
+            check_const(self.const_globals.contains(&name))?;
             self.globals.insert(name, value);
+            return Ok(());
+        }
+
+        if self.shared.contains_key(&name) {
+            check_const(self.const_globals.contains(&name))?;
+            self.shared.insert(name, value);
+            return Ok(());
+        }
+
+        if let Some(scope) = self.locals.last_mut() {
+            scope.insert(name.clone(), value);
+            return Ok(());
+        }
+
+        self.globals.insert(name.clone(), value);
+        Ok(())
+    }
+
+    fn resolve_assignment_scope(&self, name: &str) -> ScopeLayer {
+        if self.locals.iter().rev().any(|scope| scope.contains_key(name)) {
+            ScopeLayer::Local
+        } else if self.shared.contains_key(name) {
+            ScopeLayer::Shared
+        } else if self.globals.contains_key(name) {
+            ScopeLayer::Global
+        } else {
+            ScopeLayer::Local
         }
     }
 
@@ -2529,11 +2691,15 @@ impl Interpreter {
             }
         }
 
-        // Search in global scope
-        self.globals
-            .get(name)
-            .cloned()
-            .ok_or_else(|| InterpreterError::UndefinedVariable(name.to_string()))
+        if let Some(value) = self.globals.get(name) {
+            return Ok(value.clone());
+        }
+
+        if let Some(value) = self.shared.get(name) {
+            return Ok(value.clone());
+        }
+
+        Err(InterpreterError::UndefinedVariable(name.to_string()))
     }
 }
 

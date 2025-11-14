@@ -1,6 +1,6 @@
 use crate::ast::{
     AstNode, EntrainCase, Parameter, Pattern, RecordFieldPattern, SessionField, SessionMember,
-    SessionMethod, SessionVisibility,
+    SessionMethod, SessionVisibility, VariableStorage,
 };
 use crate::token::{Token, TokenType};
 
@@ -93,12 +93,24 @@ impl Parser {
     /// Parse a single statement
     fn parse_statement(&mut self) -> Result<AstNode, String> {
         // Variable declaration - induce, implant, embed, freeze
+        if self.match_token(&TokenType::SharedTrance) {
+            if self.match_token(&TokenType::Induce)
+                || self.match_token(&TokenType::Implant)
+                || self.match_token(&TokenType::Embed)
+                || self.match_token(&TokenType::Freeze)
+            {
+                return self.parse_var_declaration(VariableStorage::SharedTrance);
+            }
+
+            return Err("'sharedTrance' must be followed by induce/implant/embed/freeze".to_string());
+        }
+
         if self.match_token(&TokenType::Induce)
             || self.match_token(&TokenType::Implant)
             || self.match_token(&TokenType::Embed)
             || self.match_token(&TokenType::Freeze)
         {
-            return self.parse_var_declaration();
+            return self.parse_var_declaration(VariableStorage::Local);
         }
 
         // Anchor declaration - saves variable state
@@ -197,7 +209,7 @@ impl Parser {
     /// - induce: standard variable (like let/var)
     /// - implant: alternative variable declaration
     /// - freeze: constant (like const)
-    fn parse_var_declaration(&mut self) -> Result<AstNode, String> {
+    fn parse_var_declaration(&mut self, storage: VariableStorage) -> Result<AstNode, String> {
         // Determine if this is a constant (freeze) or variable (induce/implant)
         let is_constant = self.previous().token_type == TokenType::Freeze;
 
@@ -229,6 +241,7 @@ impl Parser {
             type_annotation,
             initializer,
             is_constant,
+            storage,
         })
     }
 
@@ -520,6 +533,7 @@ impl Parser {
                 type_annotation,
                 initializer,
                 is_constant,
+                storage: VariableStorage::Local,
             })));
         }
 

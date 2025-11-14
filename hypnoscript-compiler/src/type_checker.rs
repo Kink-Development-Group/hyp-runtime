@@ -1085,6 +1085,7 @@ impl TypeChecker {
                 type_annotation,
                 initializer,
                 is_constant,
+                storage: _,
             } => {
                 let expected_type = self.parse_type_annotation(type_annotation.as_deref());
 

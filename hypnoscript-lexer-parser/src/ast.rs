@@ -29,6 +29,7 @@ pub enum AstNode {
         type_annotation: Option<String>,
         initializer: Option<Box<AstNode>>,
         is_constant: bool, // true for 'freeze', false for 'induce'/'implant'
+        storage: VariableStorage,
     },
 
     /// Anchor statement: saves the current value of a variable for later restoration
@@ -189,6 +190,15 @@ pub enum AstNode {
         object: Box<AstNode>,
         index: Box<AstNode>,
     },
+}
+
+/// Storage location for variable bindings
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
+pub enum VariableStorage {
+    /// Regular lexical storage (respecting current scope)
+    Local,
+    /// Module-level shared trance storage (globally accessible)
+    SharedTrance,
 }
 
 /// Function parameter
