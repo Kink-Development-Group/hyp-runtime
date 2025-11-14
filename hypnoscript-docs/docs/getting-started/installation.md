@@ -43,6 +43,54 @@ cargo install --path hypnoscript-cli
 
 Die fertig gebaute CLI liegt anschließend unter `./target/release/hypnoscript` bzw. nach der Installation im Cargo-Bin-Verzeichnis (`~/.cargo/bin` bzw. `%USERPROFILE%\.cargo\bin`).
 
+## Automatischer Installer (empfohlen für Releases)
+
+Für Produktionssysteme oder schnelle Tests kannst du den offiziellen Installer verwenden. Das Skript erkennt dein Betriebssystem (Linux / macOS), lädt automatisch die passende Runtime aus dem aktuellen Release und aktualisiert bestehende Installationen. Seit der aktuellen Release-Serie wird das `install.sh`-Skript automatisch in jedes Release-Archiv sowie in die Dokumentations-Assets kopiert – du erhältst also immer dieselbe, signierte Quelle, egal ob du das Archiv manuell entpackst oder den Online-Aufruf verwendest.
+
+```bash
+curl -fsSL https://kink-development-group.github.io/hyp-runtime/install.sh | bash
+```
+
+Der Installer bietet jetzt eine einheitliche Workflow-Erfahrung:
+
+- ✅ **Auto-Detection** für Architektur, Plattform und vorhandene Installationen
+- ♻️ **Update & Re-Install** ohne erneutes Herunterladen kompletter Archive
+- 🧹 **Cleanup/Uninstall** inklusive Metadaten (`installation.json`)
+- 📦 **Offline-Support** via Release-Archiv (enthaltenes `share/hypnoscript/install.sh`)
+
+Wichtige Optionen im Überblick:
+
+| Option                 | Beschreibung                                                   |
+| ---------------------- | -------------------------------------------------------------- |
+| `--prefix <pfad>`      | Zielverzeichnis (Standard: `/usr/local/bin`)                   |
+| `--check`              | Nur auf Updates prüfen (Exit-Code `0` = aktuell, `2` = Update) |
+| `--version <v>`        | Konkrete Version installieren                                  |
+| `--include-prerelease` | Auch Vorabversionen berücksichtigen                            |
+| `--force`              | Installation erzwingen, selbst wenn Version bereits vorhanden  |
+| `--quiet`              | Installer-Ausgabe minimieren (nur Fehler)                      |
+| `--no-sudo`            | Nie automatisch `sudo` anfordern                               |
+| `--uninstall`          | Installierte Runtime (Binary & Metadaten) entfernen            |
+
+Das Skript kann jederzeit erneut ausgeführt werden. Erkennt es eine neue Version, wird automatisch ein Update eingespielt.
+
+### Updates & Deinstallation
+
+Die CLI bringt einen integrierten `self-update`-Befehl mit, der die wichtigsten Installer-Optionen abbildet:
+
+- **Updates prüfen:** `hypnoscript self-update --check`
+- **Aktualisieren:** `hypnoscript self-update`
+- **Vorabversionen zulassen:** `hypnoscript self-update --include-prerelease`
+- **Neuinstallation erzwingen:** `hypnoscript self-update --force`
+- **Quiet/No-Sudo-Modus:** `hypnoscript self-update --quiet --no-sudo`
+
+> **Hinweis:** Unter Windows steht derzeit nur die Prüffunktion zur Verfügung. Die eigentliche Installation muss weiterhin manuell aus dem Release erfolgen.
+
+Für vollständige Deinstallation verwendest du weiterhin das Installer-Skript mit `--uninstall`:
+
+```bash
+curl -fsSL https://kink-development-group.github.io/hyp-runtime/install.sh | bash -s -- --uninstall
+```
+
 ## Vorbereitete Release-Pakete verwenden
 
 Wenn du nicht selbst bauen möchtest, findest du unter [GitHub Releases](https://github.com/Kink-Development-Group/hyp-runtime/releases) signierte Artefakte für Windows, macOS und Linux. Nach dem Entpacken kannst du die enthaltene Binärdatei direkt ausführen.
@@ -62,7 +110,7 @@ hypnoscript run test.hyp
 Erwartete Ausgabe (gekürzt):
 
 ```text
-HypnoScript v1.0.0 (Rust Edition)
+HypnoScript v1.0.0
 Installation erfolgreich!
 ```
 

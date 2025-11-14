@@ -4,10 +4,14 @@
   "private": true,
   "type": "module",
   "scripts": {
+    "predev": "node ./scripts/sync-installer.mjs",
     "dev": "vitepress dev docs",
+    "prebuild": "node ./scripts/sync-installer.mjs",
     "build": "vitepress build docs",
+    "prepreview": "node ./scripts/sync-installer.mjs",
     "preview": "vitepress preview docs",
-    "serve": "vitepress preview docs"
+    "serve": "vitepress preview docs",
+    "sync-installer": "node ./scripts/sync-installer.mjs"
   },
   "dependencies": {
     "vue": "^3.4.21"

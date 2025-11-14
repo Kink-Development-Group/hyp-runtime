@@ -3,8 +3,8 @@ name: Rust Build & Release HypnoScript
 on:
   push:
     tags:
-      - 'v*.*.*'
-      - 'rust-v*.*.*'
+      - "v*.*.*"
+      - "rust-v*.*.*"
 
 jobs:
   build-release:
@@ -66,11 +66,14 @@ jobs:
           if [ "${{ runner.os }}" == "Windows" ]; then
             cp target/${{ matrix.target }}/release/${{ matrix.artifact_name }} dist/${{ matrix.asset_name }}
             cd dist
+            # Note: install.sh excluded from Windows archives as self-update is not supported on Windows
             7z a ../${{ matrix.asset_name }}.zip ${{ matrix.asset_name }}
           else
             cp target/${{ matrix.target }}/release/${{ matrix.artifact_name }} dist/${{ matrix.asset_name }}
+            cp install.sh dist/install.sh
+            chmod +x dist/install.sh
             cd dist
-            tar -czf ../${{ matrix.asset_name }}.tar.gz ${{ matrix.asset_name }}
+            tar -czf ../${{ matrix.asset_name }}.tar.gz ${{ matrix.asset_name }} install.sh
           fi
 
       - name: Compute SHA256
@@ -91,7 +94,7 @@ jobs:
 
   build-deb-package:
     runs-on: ubuntu-latest
-    
+
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -107,10 +110,10 @@ jobs:
       - name: Create Cargo.toml metadata for debian package
         run: |
           cat >> hypnoscript-cli/Cargo.toml << 'EOF'
-          
+
           [package.metadata.deb]
           maintainer = "HypnoScript Team"
-          copyright = "2024, HypnoScript Team"
+          copyright = "2025, HypnoScript Team"
           license-file = ["LICENSE", "0"]
           extended-description = """\
           HypnoScript is a programming language designed for hypnotic induction and trance work.
@@ -141,6 +144,12 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
+      - name: Stage installer script
+        run: |
+          mkdir -p artifacts/installer
+          cp install.sh artifacts/installer/install.sh
+          chmod +x artifacts/installer/install.sh
+
       - name: Download all artifacts
         uses: actions/download-artifact@v4
         with:
@@ -156,9 +165,9 @@ jobs:
             artifacts/**/*
           body: |
             # HypnoScript Rust Release
-            
+
             This release contains the Rust-based HypnoScript runtime and CLI tools.
-            
+
             ## Features
             - ✅ Complete HypnoScript language implementation
             - ✅ Full compiler (Lexer, Parser, Type Checker, Interpreter, WASM Codegen)
@@ -166,7 +175,7 @@ jobs:
             - ✅ Cross-platform support (Windows, Linux, macOS)
             - ✅ Native performance (no GC overhead)
             - ✅ Memory safe by design
-            
+
             ## Downloads
             Choose the appropriate binary for your platform:
             - **Linux x64**: hypnoscript-linux-x64.tar.gz
@@ -175,34 +184,40 @@ jobs:
             - **macOS x64**: hypnoscript-macos-x64.tar.gz
             - **macOS ARM64**: hypnoscript-macos-arm64.tar.gz
             - **Debian/Ubuntu**: hypnoscript_*.deb
-            
+
             ## Installation
-            
+
+            ### Automatisches Setup (Linux/macOS)
+            ```bash
+            curl -fsSL https://kink-development-group.github.io/hyp-runtime/install.sh | bash
+            ```
+            Das Skript erkennt System & Architektur, verifiziert Checksums und aktualisiert vorhandene Installationen.
+
             ### Linux/macOS
             ```bash
             # Extract the archive
             tar -xzf hypnoscript-*.tar.gz
-            
+
             # Move to PATH
             sudo mv hypnoscript-* /usr/local/bin/hypnoscript-cli
-            
+
             # Test installation
             hypnoscript-cli version
             ```
-            
+
             ### Windows
             ```powershell
             # Extract the zip
             # Add to PATH or run directly
             .\hypnoscript-windows-x64.exe version
             ```
-            
+
             ### Debian/Ubuntu
             ```bash
             sudo dpkg -i hypnoscript_*.deb
             hypnoscript-cli version
             ```
-            
+
             ## Checksums
             SHA256 checksums are provided for all binaries. Verify with:
             ```bash
@@ -210,6 +225,73 @@ jobs:
             ```
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  update-docs:
+    needs: create-release
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pages: write
+      id-token: write
+    concurrency:
+      group: pages
+      cancel-in-progress: false
+    env:
+      RUST_DOC_SRC: target/doc
+      RUST_DOC_OUTPUT: rust-docs
+      VITEPRESS_DIST: hypnoscript-docs/docs/.vitepress/dist
+      RUST_API_SUBDIR: rust-api
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Rust
+        uses: actions-rust-lang/setup-rust-toolchain@v1
+        with:
+          toolchain: stable
+
+      - name: Build Rust documentation
+        run: cargo doc --no-deps --workspace --release
+
+      - name: Copy rustdoc output
+        run: |
+          mkdir -p "${RUST_DOC_OUTPUT}"
+          cp -r "${RUST_DOC_SRC}/." "${RUST_DOC_OUTPUT}/"
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "npm"
+          cache-dependency-path: hypnoscript-docs/package-lock.json
+
+      - name: Setup Pages
+        uses: actions/configure-pages@v4
+
+      - name: Install docs dependencies
+        working-directory: hypnoscript-docs
+        run: npm ci
+
+      - name: Build VitePress documentation
+        working-directory: hypnoscript-docs
+        run: npm run build
+
+      - name: Copy Rust docs into site
+        run: |
+          mkdir -p "${VITEPRESS_DIST}/${RUST_API_SUBDIR}"
+          cp -r "${RUST_DOC_OUTPUT}/." "${VITEPRESS_DIST}/${RUST_API_SUBDIR}/"
+
+      - name: Upload documentation artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: ${{ env.VITEPRESS_DIST }}
+
+      - name: Deploy documentation
+        id: deployment
+        uses: actions/deploy-pages@v4
 
   publish-crates:
     needs: create-release

@@ -71,11 +71,7 @@ impl MathBuiltins {
 
     /// Factorial
     pub fn factorial(n: i64) -> i64 {
-        if n <= 1 {
-            1
-        } else {
-            (2..=n).product()
-        }
+        if n <= 1 { 1 } else { (2..=n).product() }
     }
 
     /// Greatest Common Divisor

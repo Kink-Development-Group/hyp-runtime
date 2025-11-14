@@ -39,7 +39,7 @@ impl StatisticsBuiltins {
 
         counts
             .iter()
-            .max_by_key(|(_, &count)| count)
+            .max_by_key(|(_, count)| *count)
             .map(|(bits, _)| f64::from_bits(*bits))
             .unwrap_or(0.0)
     }

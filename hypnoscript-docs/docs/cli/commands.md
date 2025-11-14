@@ -1,6 +1,8 @@
 # CLI-Befehle
 
-Die HypnoScript CLI (Rust Edition) bietet alle wesentlichen Befehle für Entwicklung, Testing und Analyse von HypnoScript-Programmen.
+<!-- markdownlint-disable MD024 MD040 -->
+
+Die HypnoScript CLI bietet alle wesentlichen Befehle für Entwicklung, Testing und Analyse von HypnoScript-Programmen.
 
 ## Übersicht
 
@@ -10,15 +12,16 @@ hypnoscript <COMMAND> [OPTIONS]
 
 **Verfügbare Befehle:**
 
-| Befehl         | Beschreibung                       |
-| -------------- | ---------------------------------- |
-| `run`          | Führt ein HypnoScript-Programm aus |
-| `lex`          | Tokenisiert eine HypnoScript-Datei |
-| `parse`        | Zeigt den AST einer Datei          |
-| `check`        | Führt Type Checking durch          |
-| `compile-wasm` | Kompiliert zu WebAssembly (.wat)   |
-| `version`      | Zeigt Versionsinformationen        |
-| `builtins`     | Listet alle Builtin-Funktionen     |
+| Befehl         | Beschreibung                                |
+| -------------- | ------------------------------------------- |
+| `run`          | Führt ein HypnoScript-Programm aus          |
+| `lex`          | Tokenisiert eine HypnoScript-Datei          |
+| `parse`        | Zeigt den AST einer Datei                   |
+| `check`        | Führt Type Checking durch                   |
+| `compile-wasm` | Kompiliert zu WebAssembly (.wat)            |
+| `self-update`  | Prüft auf Updates und startet den Installer |
+| `version`      | Zeigt Versionsinformationen                 |
+| `builtins`     | Listet alle Builtin-Funktionen              |
 
 ## run - Programm ausführen
 
@@ -315,6 +318,51 @@ const bytes = fs.readFileSync('script.wasm');
 const module = await WebAssembly.instantiate(bytes);
 ```
 
+## self-update - Installer aus der CLI starten
+
+Steuert das neue Installationsskript direkt aus der CLI. Die CLI lädt bei Bedarf das `install.sh` aus den Release-Assets und führt es mit den gewünschten Optionen aus.
+
+### Syntax
+
+```bash
+hypnoscript self-update [OPTIONS]
+```
+
+### Optionen
+
+| Option                 | Beschreibung                                                             |
+| ---------------------- | ------------------------------------------------------------------------ |
+| `--check`              | Nur nach Updates suchen (Exit-Code `0` = aktuell, `2` = Update gefunden) |
+| `--include-prerelease` | Vorabversionen berücksichtigen                                           |
+| `--force`              | Installation erzwingen, selbst wenn Version bereits vorhanden ist        |
+| `--quiet`              | Ausgabe minimieren (nur Fehler)                                          |
+| `--no-sudo`            | Unterdrückt automatische `sudo`-Aufrufe für Systeme ohne Root-Zugriff    |
+
+### Verhalten
+
+1. **Versionen vergleichen:** Aktuelle CLI-Version vs. neueste Release-Tags (inkl. optionaler Prereleases)
+2. **Installer finden:** Verwendet vorhandene `installation.json`-Metadaten oder das lokale Release-Archiv (`share/hypnoscript/install.sh`)
+3. **Download-Fallback:** Lädt das Installer-Skript aus der Dokumentation, falls lokal keines gefunden wird
+4. **Ausführen:** Startet `install.sh` mit übergebenen Parametern und übergibt dem Benutzer die Ausgabe des Skripts
+
+> **Hinweis:** Auf Windows steht derzeit nur `--check` zur Verfügung. Für die eigentliche Installation nutze weiterhin das Release-Archiv.
+
+### Beispiele
+
+```bash
+# Nur prüfen, ob Updates verfügbar sind
+hypnoscript self-update --check
+
+# Prerelease-Version installieren
+hypnoscript self-update --include-prerelease
+
+# Update stumm und ohne sudo ausführen (z.B. CI oder eingeschränkte Shell)
+hypnoscript self-update --quiet --no-sudo
+
+# Installation neu erzwingen (z.B. beschädigte Installation reparieren)
+hypnoscript self-update --force
+```
+
 ## version - Versionsinformationen
 
 Zeigt Versionsinformationen und Features der HypnoScript CLI.
@@ -328,7 +376,7 @@ hypnoscript version
 ### Ausgabe
 
 ```
-HypnoScript v1.0.0 (Rust Edition)
+HypnoScript v1.0.0
 The Hypnotic Programming Language
 
 Migrated from C# to Rust for improved performance

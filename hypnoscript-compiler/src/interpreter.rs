@@ -1062,11 +1062,11 @@ impl Interpreter {
 
         let result = (|| {
             for field_name in definition.field_order().to_vec() {
-                if let Some(field_def) = definition.get_field_definition(&field_name) {
-                    if let Some(initializer) = &field_def.initializer {
-                        let value = self.evaluate_expression(initializer)?;
-                        instance.borrow_mut().set_field(&field_name, value);
-                    }
+                if let Some(field_def) = definition.get_field_definition(&field_name)
+                    && let Some(initializer) = &field_def.initializer
+                {
+                    let value = self.evaluate_expression(initializer)?;
+                    instance.borrow_mut().set_field(&field_name, value);
                 }
             }
             Ok(())
@@ -1910,7 +1910,8 @@ impl Interpreter {
                 SystemBuiltins::set_env_var(
                     &self.string_arg(args, 0, name)?,
                     &self.string_arg(args, 1, name)?,
-                );
+                )
+                .map_err(InterpreterError::Runtime)?;
                 Some(Value::Null)
             }
             "GetOperatingSystem" => Some(Value::String(SystemBuiltins::get_operating_system())),

@@ -124,8 +124,8 @@ Funktionen für Zeit- und Datumsverarbeitung.
 
 ```hyp
 induce timestamp: number = GetCurrentTime();  // Unix timestamp
-induce date: string = GetCurrentDate();  // "2024-01-15"
-induce year: number = GetYear();  // 2024
+induce date: string = GetCurrentDate();  // "2025-01-15"
+induce year: number = GetYear();  // 2025
 ```
 
 [→ Detaillierte Zeit/Datum-Funktionen](./time-date-functions)

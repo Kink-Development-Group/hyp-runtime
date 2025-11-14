@@ -245,7 +245,7 @@ impl Lexer {
                         return Err(format!(
                             "Unexpected character '{}' at line {}, column {}",
                             c, self.line, self.column
-                        ))
+                        ));
                     }
                 }
             }

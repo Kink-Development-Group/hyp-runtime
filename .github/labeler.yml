@@ -73,20 +73,20 @@
 
 'type:feature':
   - head-branch:
-      - '(?i)^(feature|feat)[-/].+'
+      - '^(?:[Ff][Ee][Aa][Tt][Uu][Rr][Ee]|[Ff][Ee][Aa][Tt])[-/].+'
 
 'type:task':
   - head-branch:
-      - '(?i)^(task|chore)[-/].+'
+      - '^(?:[Tt][Aa][Ss][Kk]|[Cc][Hh][Oo][Rr][Ee])[-/].+'
 
 'type:release':
   - head-branch:
-      - '(?i)^release[-/].+'
+      - '^[Rr][Ee][Ll][Ee][Aa][Ss][Ee][-/].+'
 
 'type:bugfix':
   - head-branch:
-      - '(?i)^(bugfix|fix)[-/].+'
+      - '^(?:[Bb][Uu][Gg][Ff][Ii][Xx]|[Ff][Ii][Xx])[-/].+'
 
 'type:hotfix':
   - head-branch:
-      - '(?i)^hotfix[-/].+'
+      - '^[Hh][Oo][Tt][Ff][Ii][Xx][-/].+'

@@ -59,9 +59,9 @@ if (Test-Path $licensePath) {
 }
 
 # Create VERSION file
-$version = "1.0.0-rc1"
+$version = "1.0.0-rc2"
 $versionFile = Join-Path $winDir "VERSION.txt"
-Set-Content -Path $versionFile -Value "HypnoScript Runtime v$version`nRust Edition`nBuilt: $(Get-Date -Format 'yyyy-MM-dd HH:mm:ss')"
+Set-Content -Path $versionFile -Value "HypnoScript Runtime v$version`n`nBuilt: $(Get-Date -Format 'yyyy-MM-dd HH:mm:ss')"
 
 # Create ZIP archive
 Write-Host "Creating ZIP archive..." -ForegroundColor Green

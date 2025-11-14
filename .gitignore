@@ -77,3 +77,4 @@ artifacts/
 # Rust
 target/
 Cargo.lock
+hypnoscript-docs/static/install.sh
