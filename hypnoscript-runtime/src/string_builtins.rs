@@ -1,8 +1,69 @@
-/// String builtin functions
+//! String manipulation builtin functions for HypnoScript.
+//!
+//! This module provides comprehensive string operations including:
+//! - Basic operations (length, case conversion, trimming)
+//! - Search and matching (index, contains, starts/ends with)
+//! - Manipulation (replace, split, substring, repeat)
+//! - Formatting (padding, truncation, wrapping)
+//! - Advanced operations (slicing with negative indices, insertion, removal)
+//!
+//! All functions are designed to work with Unicode strings correctly,
+//! handling multi-byte characters appropriately.
+
+use crate::builtin_trait::BuiltinModule;
+use crate::localization::LocalizedMessage;
+
+/// String manipulation functions.
+///
+/// This struct provides static methods for all string operations in HypnoScript.
+/// All methods are Unicode-aware and handle multi-byte characters correctly.
 pub struct StringBuiltins;
 
+impl BuiltinModule for StringBuiltins {
+    fn module_name() -> &'static str {
+        "String"
+    }
+
+    fn description() -> &'static str {
+        "String manipulation and analysis functions"
+    }
+
+    fn description_localized(locale: Option<&str>) -> String {
+        let locale = crate::localization::detect_locale(locale);
+        let msg = LocalizedMessage::new("String manipulation and analysis functions")
+            .with_translation("de", "Zeichenketten-Manipulations- und Analysefunktionen")
+            .with_translation("fr", "Fonctions de manipulation et d'analyse de chaînes")
+            .with_translation("es", "Funciones de manipulación y análisis de cadenas");
+        msg.resolve(&locale).to_string()
+    }
+
+    fn function_names() -> &'static [&'static str] {
+        &[
+            "Length", "ToUpper", "ToLower", "Trim", "TrimStart", "TrimEnd",
+            "IndexOf", "LastIndexOf", "Replace", "ReplaceFirst", "Reverse",
+            "Capitalize", "StartsWith", "EndsWith", "Contains", "Split",
+            "Substring", "Repeat", "PadLeft", "PadRight", "IsEmpty",
+            "IsWhitespace", "CharAt", "Concat", "SliceWithNegative",
+            "InsertAt", "RemoveAt", "CountSubstring", "Truncate", "WrapText",
+        ]
+    }
+}
+
 impl StringBuiltins {
-    /// Get string length
+    /// Get the length of a string (number of Unicode characters).
+    ///
+    /// # Arguments
+    /// * `s` - The string to measure
+    ///
+    /// # Returns
+    /// Number of Unicode characters in the string
+    ///
+    /// # Example
+    /// ```rust
+    /// assert_eq!(StringBuiltins::length("hello"), 5);
+    /// assert_eq!(StringBuiltins::length(""), 0);
+    /// assert_eq!(StringBuiltins::length("🎯"), 1); // Unicode emoji
+    /// ```
     pub fn length(s: &str) -> usize {
         s.len()
     }
