@@ -43,6 +43,23 @@ impl SessionInfo {
     }
 }
 
+/// Tranceify (record/struct) type definition
+#[derive(Debug, Clone)]
+struct TranceifyInfo {
+    #[allow(dead_code)]
+    name: String,
+    fields: HashMap<String, HypnoType>,
+}
+
+impl TranceifyInfo {
+    fn new(name: String) -> Self {
+        Self {
+            name,
+            fields: HashMap::new(),
+        }
+    }
+}
+
 /// Type checker for HypnoScript programs
 pub struct TypeChecker {
     // Type environment for variables
@@ -53,6 +70,8 @@ pub struct TypeChecker {
     current_function_return_type: Option<HypnoType>,
     // Session metadata cache
     sessions: HashMap<String, SessionInfo>,
+    // Tranceify (record/struct) type definitions
+    tranceify_types: HashMap<String, TranceifyInfo>,
     // Currently checked session context (if any)
     current_session: Option<String>,
     // Indicates whether we are inside a static method scope
@@ -75,6 +94,7 @@ impl TypeChecker {
             function_types: HashMap::new(),
             current_function_return_type: None,
             sessions: HashMap::new(),
+            tranceify_types: HashMap::new(),
             current_session: None,
             in_static_context: false,
             errors: Vec::new(),
@@ -454,17 +474,18 @@ impl TypeChecker {
         self.errors.clear();
 
         if let AstNode::Program(statements) = program {
-            // Collect session metadata before type evaluation
+            // First pass: collect type definitions (tranceify and sessions)
             for stmt in statements {
+                self.collect_tranceify_signature(stmt);
                 self.collect_session_signature(stmt);
             }
 
-            // First pass: collect function declarations
+            // Second pass: collect function declarations
             for stmt in statements {
                 self.collect_function_signature(stmt);
             }
 
-            // Second pass: type check all statements
+            // Third pass: type check all statements
             for stmt in statements {
                 self.check_statement(stmt);
             }
@@ -473,6 +494,20 @@ impl TypeChecker {
         }
 
         self.errors.clone()
+    }
+
+    /// Collect tranceify type signatures
+    fn collect_tranceify_signature(&mut self, stmt: &AstNode) {
+        if let AstNode::TranceifyDeclaration { name, fields } = stmt {
+            let mut info = TranceifyInfo::new(name.clone());
+
+            for field in fields {
+                let field_type = self.parse_type_annotation(Some(&field.type_annotation));
+                info.fields.insert(field.name.clone(), field_type);
+            }
+
+            self.tranceify_types.insert(name.clone(), info);
+        }
     }
 
     /// Collect function signatures (including triggers)
@@ -728,6 +763,30 @@ impl TypeChecker {
 
     fn infer_session_member(&mut self, object: &AstNode, property: &str) -> HypnoType {
         let object_type = self.infer_type(object);
+
+        // Check if this is a Record type (tranceify)
+        if object_type.base_type == HypnoBaseType::Record {
+            if let Some(type_name) = &object_type.name {
+                if let Some(tranceify_info) = self.tranceify_types.get(type_name) {
+                    if let Some(field_type) = tranceify_info.fields.get(property) {
+                        return field_type.clone();
+                    } else {
+                        self.errors.push(format!(
+                            "Record type '{}' has no field '{}'",
+                            type_name, property
+                        ));
+                        return HypnoType::unknown();
+                    }
+                } else {
+                    self.errors.push(format!(
+                        "Unknown record type '{}'",
+                        type_name
+                    ));
+                    return HypnoType::unknown();
+                }
+            }
+        }
+
         let Some((session_info, is_static_reference)) = self.session_lookup(&object_type) else {
             self.errors.push(format!(
                 "Cannot access member '{}' on value of type {}",
@@ -1088,11 +1147,15 @@ impl TypeChecker {
                 storage: _,
             } => {
                 let expected_type = self.parse_type_annotation(type_annotation.as_deref());
+                let mut final_type = expected_type.clone();
 
                 if let Some(init) = initializer {
                     let actual_type = self.infer_type(init);
 
-                    if !self.types_compatible(&expected_type, &actual_type) {
+                    // If no type annotation was provided, use the inferred type
+                    if expected_type.base_type == HypnoBaseType::Unknown {
+                        final_type = actual_type;
+                    } else if !self.types_compatible(&expected_type, &actual_type) {
                         self.errors.push(format!(
                             "Type mismatch for variable '{}': expected {}, got {}",
                             name, expected_type, actual_type
@@ -1103,7 +1166,7 @@ impl TypeChecker {
                         .push(format!("Constant variable '{}' must be initialized", name));
                 }
 
-                self.type_env.insert(name.clone(), expected_type);
+                self.type_env.insert(name.clone(), final_type);
             }
 
             AstNode::AnchorDeclaration { name, source } => {
@@ -1271,6 +1334,11 @@ impl TypeChecker {
                 self.in_static_context = prev_static;
             }
 
+            AstNode::TranceifyDeclaration { .. } => {
+                // Type signatures already collected in collect_tranceify_signature
+                // No additional checking needed here
+            }
+
             #[allow(clippy::collapsible_match)]
             AstNode::ReturnStatement(value) => {
                 if let Some(val) = value {
@@ -1422,6 +1490,27 @@ impl TypeChecker {
 
             AstNode::CallExpression { callee, arguments } => match callee.as_ref() {
                 AstNode::Identifier(func_name) => {
+                    // Special case: Length accepts both string and array
+                    if func_name == "Length" {
+                        if arguments.len() != 1 {
+                            self.errors.push(format!(
+                                "Function 'Length' expects 1 argument, got {}",
+                                arguments.len()
+                            ));
+                            return HypnoType::number();
+                        }
+
+                        let arg_type = self.infer_type(&arguments[0]);
+                        if arg_type.base_type != HypnoBaseType::String
+                            && arg_type.base_type != HypnoBaseType::Array {
+                            self.errors.push(format!(
+                                "Function 'Length' argument 1 type mismatch: expected String or Array, got {}",
+                                arg_type
+                            ));
+                        }
+                        return HypnoType::number();
+                    }
+
                     let func_sig = self.function_types.get(func_name).cloned();
 
                     if let Some((param_types, return_type)) = func_sig {
@@ -1626,6 +1715,53 @@ impl TypeChecker {
                 }
 
                 HypnoType::unknown()
+            }
+
+            AstNode::RecordLiteral { type_name, fields } => {
+                // Check if the tranceify type exists
+                let tranceify_info_opt = self.tranceify_types.get(type_name).cloned();
+
+                if let Some(tranceify_info) = tranceify_info_opt {
+                    // Verify all fields match the type definition
+                    for field_init in fields {
+                        if let Some(expected_type) = tranceify_info.fields.get(&field_init.name) {
+                            let actual_type = self.infer_type(&field_init.value);
+                            if !self.types_compatible(expected_type, &actual_type) {
+                                self.errors.push(format!(
+                                    "Field '{}' in record '{}' expects type {}, got {}",
+                                    field_init.name, type_name, expected_type, actual_type
+                                ));
+                            }
+                        } else {
+                            self.errors.push(format!(
+                                "Field '{}' does not exist in tranceify type '{}'",
+                                field_init.name, type_name
+                            ));
+                        }
+                    }
+
+                    // Check for missing fields
+                    for (field_name, _field_type) in &tranceify_info.fields {
+                        if !fields.iter().any(|f| &f.name == field_name) {
+                            self.errors.push(format!(
+                                "Missing field '{}' in record literal for type '{}'",
+                                field_name, type_name
+                            ));
+                        }
+                    }
+
+                    // Return a record type for the record literal
+                    HypnoType::create_record(
+                        type_name.clone(),
+                        tranceify_info.fields.clone(),
+                    )
+                } else {
+                    self.errors.push(format!(
+                        "Undefined tranceify type '{}' in record literal",
+                        type_name
+                    ));
+                    HypnoType::unknown()
+                }
             }
 
             _ => HypnoType::unknown(),

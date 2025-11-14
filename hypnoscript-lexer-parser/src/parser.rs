@@ -1,6 +1,6 @@
 use crate::ast::{
-    AstNode, EntrainCase, Parameter, Pattern, RecordFieldPattern, SessionField, SessionMember,
-    SessionMethod, SessionVisibility, VariableStorage,
+    AstNode, EntrainCase, Parameter, Pattern, RecordFieldInit, RecordFieldPattern, SessionField,
+    SessionMember, SessionMethod, SessionVisibility, TranceifyField, VariableStorage,
 };
 use crate::token::{Token, TokenType};
 
@@ -157,6 +157,11 @@ impl Parser {
         // Session declaration
         if self.match_token(&TokenType::Session) {
             return self.parse_session_declaration();
+        }
+
+        // Tranceify declaration (record/struct type)
+        if self.match_token(&TokenType::Tranceify) {
+            return self.parse_tranceify_declaration();
         }
 
         // Output statements
@@ -615,6 +620,79 @@ impl Parser {
         Ok(AstNode::SessionDeclaration { name, members })
     }
 
+    /// Parse tranceify declaration (record/struct type definition)
+    /// Example: tranceify Person { name: string; age: number; isInTrance: boolean; }
+    fn parse_tranceify_declaration(&mut self) -> Result<AstNode, String> {
+        let name = self
+            .consume(&TokenType::Identifier, "Expected tranceify type name")?
+            .lexeme
+            .clone();
+
+        self.consume(&TokenType::LBrace, "Expected '{' after tranceify name")?;
+
+        let mut fields = Vec::new();
+        while !self.check(&TokenType::RBrace) && !self.is_at_end() {
+            let field_name = self
+                .consume(&TokenType::Identifier, "Expected field name")?
+                .lexeme
+                .clone();
+
+            self.consume(&TokenType::Colon, "Expected ':' after field name")?;
+
+            let type_annotation = self.parse_type_annotation()?;
+
+            self.consume(&TokenType::Semicolon, "Expected ';' after field declaration")?;
+
+            fields.push(TranceifyField {
+                name: field_name,
+                type_annotation,
+            });
+        }
+
+        self.consume(&TokenType::RBrace, "Expected '}' after tranceify body")?;
+
+        Ok(AstNode::TranceifyDeclaration { name, fields })
+    }
+
+    /// Parse record literal (instance of a tranceify type)
+    /// Example: Person { name: "Alice", age: 30, isInTrance: true }
+    /// Note: The opening '{' has already been consumed
+    fn parse_record_literal(&mut self, type_name: String) -> Result<AstNode, String> {
+        let mut fields = Vec::new();
+
+        if !self.check(&TokenType::RBrace) {
+            loop {
+                let field_name = self
+                    .consume(&TokenType::Identifier, "Expected field name")?
+                    .lexeme
+                    .clone();
+
+                self.consume(&TokenType::Colon, "Expected ':' after field name")?;
+
+                let value = Box::new(self.parse_expression()?);
+
+                fields.push(RecordFieldInit {
+                    name: field_name,
+                    value,
+                });
+
+                if self.match_token(&TokenType::Comma) {
+                    // Allow trailing comma
+                    if self.check(&TokenType::RBrace) {
+                        break;
+                    }
+                    continue;
+                } else {
+                    break;
+                }
+            }
+        }
+
+        self.consume(&TokenType::RBrace, "Expected '}' after record fields")?;
+
+        Ok(AstNode::RecordLiteral { type_name, fields })
+    }
+
     /// Parse an individual session member (field or method)
     fn parse_session_member(&mut self) -> Result<SessionMember, String> {
         let mut is_static = false;
@@ -1055,10 +1133,18 @@ impl Parser {
             return Ok(AstNode::BooleanLiteral(false));
         }
 
-        // Identifier
+        // Identifier or Record Literal
         if self.check(&TokenType::Identifier) {
             let token = self.advance();
-            return Ok(AstNode::Identifier(token.lexeme.clone()));
+            let identifier = token.lexeme.clone();
+
+            // Check if this is a record literal (Type { field: value, ... })
+            if self.check(&TokenType::LBrace) {
+                self.advance(); // consume '{'
+                return self.parse_record_literal(identifier);
+            }
+
+            return Ok(AstNode::Identifier(identifier));
         }
 
         // Array literal

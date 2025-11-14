@@ -396,8 +396,24 @@ pub enum Value {
     Session(Rc<SessionDefinition>),
     Instance(Rc<RefCell<SessionInstance>>),
     Promise(Rc<RefCell<Promise>>),
+    Record(RecordValue),
     Null,
 }
+
+/// A record instance (from tranceify declarations)
+#[derive(Debug, Clone)]
+pub struct RecordValue {
+    pub type_name: String,
+    pub fields: HashMap<String, Value>,
+}
+
+impl PartialEq for RecordValue {
+    fn eq(&self, other: &Self) -> bool {
+        self.type_name == other.type_name && self.fields == other.fields
+    }
+}
+
+impl Eq for RecordValue {}
 
 impl PartialEq for Value {
     fn eq(&self, other: &Self) -> bool {
@@ -411,6 +427,7 @@ impl PartialEq for Value {
             (Value::Session(sa), Value::Session(sb)) => Rc::ptr_eq(sa, sb),
             (Value::Instance(ia), Value::Instance(ib)) => Rc::ptr_eq(ia, ib),
             (Value::Promise(pa), Value::Promise(pb)) => Rc::ptr_eq(pa, pb),
+            (Value::Record(ra), Value::Record(rb)) => ra == rb,
             _ => false,
         }
     }
@@ -426,7 +443,11 @@ impl Value {
             Value::Number(n) => *n != 0.0,
             Value::String(s) => !s.is_empty(),
             Value::Array(a) => !a.is_empty(),
-            Value::Function(_) | Value::Session(_) | Value::Instance(_) | Value::Promise(_) => true,
+            Value::Function(_)
+            | Value::Session(_)
+            | Value::Instance(_)
+            | Value::Promise(_)
+            | Value::Record(_) => true,
         }
     }
 
@@ -468,6 +489,9 @@ impl std::fmt::Display for Value {
                     write!(f, "<promise pending>")
                 }
             }
+            Value::Record(record) => {
+                write!(f, "<record {}>", record.type_name)
+            }
         }
     }
 }
@@ -479,6 +503,8 @@ pub struct Interpreter {
     locals: Vec<HashMap<String, Value>>,
     const_locals: Vec<HashSet<String>>,
     execution_context: Vec<ExecutionContextFrame>,
+    /// Tranceify type definitions (field names for each type)
+    tranceify_types: HashMap<String, Vec<String>>,
 
     /// Optional async runtime for true async execution
     pub async_runtime: Option<std::sync::Arc<crate::async_runtime::AsyncRuntime>>,
@@ -502,6 +528,7 @@ impl Interpreter {
             locals: Vec::new(),
             const_locals: Vec::new(),
             execution_context: Vec::new(),
+            tranceify_types: HashMap::new(),
             async_runtime: None,
             channel_registry: None,
         }
@@ -520,6 +547,7 @@ impl Interpreter {
             locals: Vec::new(),
             const_locals: Vec::new(),
             execution_context: Vec::new(),
+            tranceify_types: HashMap::new(),
             async_runtime: Some(std::sync::Arc::new(runtime)),
             channel_registry: Some(std::sync::Arc::new(registry)),
         })
@@ -611,6 +639,13 @@ impl Interpreter {
                     false,
                 );
                 self.initialize_static_fields(session)?;
+                Ok(())
+            }
+
+            AstNode::TranceifyDeclaration { name, fields } => {
+                // Register the tranceify type definition
+                let field_names: Vec<String> = fields.iter().map(|f| f.name.clone()).collect();
+                self.tranceify_types.insert(name.clone(), field_names);
                 Ok(())
             }
 
@@ -1013,6 +1048,28 @@ impl Interpreter {
                 }
             }
 
+            AstNode::RecordLiteral { type_name, fields } => {
+                // Check if the tranceify type is defined
+                if !self.tranceify_types.contains_key(type_name) {
+                    return Err(InterpreterError::Runtime(format!(
+                        "Undefined tranceify type '{}'",
+                        type_name
+                    )));
+                }
+
+                // Evaluate all field values
+                let mut field_values = HashMap::new();
+                for field_init in fields {
+                    let value = self.evaluate_expression(&field_init.value)?;
+                    field_values.insert(field_init.name.clone(), value);
+                }
+
+                Ok(Value::Record(RecordValue {
+                    type_name: type_name.clone(),
+                    fields: field_values,
+                }))
+            }
+
             _ => Err(InterpreterError::Runtime(format!(
                 "Unsupported expression: {:?}",
                 expr
@@ -1122,10 +1179,21 @@ impl Interpreter {
 
         match normalized.as_str() {
             "+" => {
-                if let (Value::String(s1), Value::String(s2)) = (left, right) {
-                    Ok(Value::String(format!("{}{}", s1, s2)))
-                } else {
-                    Ok(Value::Number(left.to_number()? + right.to_number()?))
+                // If either operand is a string, perform string concatenation
+                match (left, right) {
+                    (Value::String(s1), Value::String(s2)) => {
+                        Ok(Value::String(format!("{}{}", s1, s2)))
+                    }
+                    (Value::String(s), _) => {
+                        Ok(Value::String(format!("{}{}", s, right.to_string())))
+                    }
+                    (_, Value::String(s)) => {
+                        Ok(Value::String(format!("{}{}", left.to_string(), s)))
+                    }
+                    _ => {
+                        // Both are numeric, perform addition
+                        Ok(Value::Number(left.to_number()? + right.to_number()?))
+                    }
                 }
             }
             "-" => Ok(Value::Number(left.to_number()? - right.to_number()?)),
@@ -1579,6 +1647,17 @@ impl Interpreter {
                     ),
                 )))
             }
+            Value::Record(record) => {
+                // Access field from record
+                if let Some(field_value) = record.fields.get(property) {
+                    Ok(field_value.clone())
+                } else {
+                    Err(InterpreterError::Runtime(format!(
+                        "Record of type '{}' has no field '{}'",
+                        record.type_name, property
+                    )))
+                }
+            }
             other => Err(InterpreterError::Runtime(localized(
                 &format!("Cannot access member '{}' on value '{}'", property, other),
                 &format!(
@@ -1852,9 +1931,25 @@ impl Interpreter {
         args: &[Value],
     ) -> Result<Option<Value>, InterpreterError> {
         let result = match name {
-            "Length" => Some(Value::Number(
-                StringBuiltins::length(&self.string_arg(args, 0, name)?) as f64,
-            )),
+            "Length" => {
+                // Length works for both strings and arrays
+                if args.is_empty() {
+                    return Err(InterpreterError::Runtime(format!(
+                        "Function '{}' requires at least 1 argument",
+                        name
+                    )));
+                }
+                match &args[0] {
+                    Value::String(s) => Some(Value::Number(s.len() as f64)),
+                    Value::Array(arr) => Some(Value::Number(arr.len() as f64)),
+                    _ => {
+                        return Err(InterpreterError::TypeError(format!(
+                            "Function 'Length' expects string or array argument, got {}",
+                            args[0]
+                        )))
+                    }
+                }
+            }
             "ToUpper" => Some(Value::String(StringBuiltins::to_upper(
                 &self.string_arg(args, 0, name)?,
             ))),

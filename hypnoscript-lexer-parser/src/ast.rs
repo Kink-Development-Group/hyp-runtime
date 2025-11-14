@@ -60,6 +60,13 @@ pub enum AstNode {
         members: Vec<SessionMember>,
     },
 
+    /// tranceify: User-defined record/struct type
+    /// Example: tranceify Person { name: string; age: number; }
+    TranceifyDeclaration {
+        name: String,
+        fields: Vec<TranceifyField>,
+    },
+
     // Statements
     ExpressionStatement(Box<AstNode>),
 
@@ -190,6 +197,13 @@ pub enum AstNode {
         object: Box<AstNode>,
         index: Box<AstNode>,
     },
+
+    /// Record literal (instance of a tranceify type)
+    /// Example: Person { name: "Alice", age: 30 }
+    RecordLiteral {
+        type_name: String,
+        fields: Vec<RecordFieldInit>,
+    },
 }
 
 /// Storage location for variable bindings
@@ -238,6 +252,7 @@ impl AstNode {
                 | AstNode::OptionalChaining { .. }
                 | AstNode::OptionalIndexing { .. }
                 | AstNode::EntrainExpression { .. }
+                | AstNode::RecordLiteral { .. }
         )
     }
 
@@ -271,6 +286,7 @@ impl AstNode {
                 | AstNode::FunctionDeclaration { .. }
                 | AstNode::TriggerDeclaration { .. }
                 | AstNode::SessionDeclaration { .. }
+                | AstNode::TranceifyDeclaration { .. }
         )
     }
 }
@@ -348,4 +364,18 @@ pub struct EntrainCase {
     pub pattern: Pattern,
     pub guard: Option<Box<AstNode>>, // Optional if-condition
     pub body: Vec<AstNode>,
+}
+
+/// Field definition in a tranceify declaration
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+pub struct TranceifyField {
+    pub name: String,
+    pub type_annotation: String,
+}
+
+/// Field initialization in a record literal
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+pub struct RecordFieldInit {
+    pub name: String,
+    pub value: Box<AstNode>,
 }
