@@ -12,3 +12,11 @@ hypnoscript-lexer-parser = { path = "../hypnoscript-lexer-parser" }
 hypnoscript-runtime = { path = "../hypnoscript-runtime" }
 anyhow = { workspace = true }
 thiserror = { workspace = true }
+
+# Native code generation backend (Cranelift)
+cranelift = "0.110"
+cranelift-module = "0.110"
+cranelift-jit = "0.110"
+cranelift-object = "0.110"
+cranelift-native = "0.110"
+target-lexicon = "0.12"

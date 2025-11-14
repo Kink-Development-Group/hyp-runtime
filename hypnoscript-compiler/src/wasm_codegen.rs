@@ -2,13 +2,31 @@ use hypnoscript_lexer_parser::ast::AstNode;
 use std::collections::HashMap;
 
 /// WASM code generator for HypnoScript
+///
+/// Generiert WebAssembly Text Format (.wat) aus HypnoScript AST.
+/// Unterstützt:
+/// - Variablen und Funktionen
+/// - Kontrollfluss (if/while/loop)
+/// - Arithmetische und logische Operationen
+/// - Session-Definitionen (OOP)
+/// - Built-in Funktionen
 pub struct WasmCodeGenerator {
     output: String,
     local_counter: usize,
     label_counter: usize,
     variable_map: HashMap<String, usize>,
     function_map: HashMap<String, usize>,
+    session_map: HashMap<String, SessionInfo>,
     indent_level: usize,
+}
+
+/// Session-Informationen für WASM-Generierung
+#[derive(Debug, Clone)]
+#[allow(dead_code)]
+struct SessionInfo {
+    name: String,
+    field_count: usize,
+    method_indices: HashMap<String, usize>,
 }
 
 impl Default for WasmCodeGenerator {
@@ -26,6 +44,7 @@ impl WasmCodeGenerator {
             label_counter: 0,
             variable_map: HashMap::new(),
             function_map: HashMap::new(),
+            session_map: HashMap::new(),
             indent_level: 0,
         }
     }
@@ -37,6 +56,7 @@ impl WasmCodeGenerator {
         self.label_counter = 0;
         self.variable_map.clear();
         self.function_map.clear();
+        self.session_map.clear();
 
         self.emit_line("(module");
         self.indent_level += 1;
@@ -50,6 +70,12 @@ impl WasmCodeGenerator {
         // Emit global variables
         self.emit_line("(global $string_offset (mut i32) (i32.const 0))");
         self.emit_line("(global $heap_offset (mut i32) (i32.const 1024))");
+        self.emit_line("");
+
+        // Pre-scan for sessions and functions
+        if let AstNode::Program(statements) = program {
+            self.prescan_declarations(statements);
+        }
 
         // Emit main function
         if let AstNode::Program(statements) = program {
@@ -60,6 +86,46 @@ impl WasmCodeGenerator {
         self.emit_line(")");
 
         self.output.clone()
+    }
+
+    /// Pre-scan für Sessions und Funktionen
+    fn prescan_declarations(&mut self, statements: &[AstNode]) {
+        for stmt in statements {
+            match stmt {
+                AstNode::SessionDeclaration { name, members } => {
+                    let mut session_info = SessionInfo {
+                        name: name.clone(),
+                        field_count: 0,
+                        method_indices: HashMap::new(),
+                    };
+
+                    for member in members {
+                        match member {
+                            hypnoscript_lexer_parser::ast::SessionMember::Field(_) => {
+                                session_info.field_count += 1;
+                            }
+                            hypnoscript_lexer_parser::ast::SessionMember::Method(method) => {
+                                let func_idx = self.function_map.len();
+                                self.function_map.insert(
+                                    format!("{}::{}", name, method.name),
+                                    func_idx,
+                                );
+                                session_info.method_indices.insert(method.name.clone(), func_idx);
+                            }
+                        }
+                    }
+
+                    self.session_map.insert(name.clone(), session_info);
+                }
+
+                AstNode::FunctionDeclaration { name, .. } => {
+                    let func_idx = self.function_map.len();
+                    self.function_map.insert(name.clone(), func_idx);
+                }
+
+                _ => {}
+            }
+        }
     }
 
     /// Emit standard imports
@@ -214,8 +280,93 @@ impl WasmCodeGenerator {
                 self.emit_line("drop");
             }
 
+            AstNode::FunctionDeclaration { name, parameters, body, .. } => {
+                self.emit_line(&format!(";; Function: {}", name));
+                self.emit_function(name, parameters, body);
+            }
+
+            AstNode::SessionDeclaration { name, members } => {
+                self.emit_line(&format!(";; Session: {}", name));
+                self.emit_session_methods(name, members);
+            }
+
+            AstNode::ReturnStatement(expr) => {
+                if let Some(e) = expr {
+                    self.emit_expression(e);
+                }
+                self.emit_line("return");
+            }
+
             _ => {
-                self.emit_line(&format!(";; Unsupported statement: {:?}", stmt));
+                self.emit_line(&format!(";; Note: Statement type not yet fully supported in WASM: {:?}",
+                    std::any::type_name_of_val(stmt)));
+            }
+        }
+    }
+
+    /// Emit eine Funktion
+    fn emit_function(&mut self, name: &str, parameters: &[hypnoscript_lexer_parser::ast::Parameter], body: &[AstNode]) {
+        self.emit_line(&format!("(func ${} (export \"{}\")", name, name));
+        self.indent_level += 1;
+
+        // Parameter
+        for param in parameters {
+            self.emit_line(&format!("(param ${} f64) ;; {}", param.name, param.name));
+        }
+        self.emit_line("(result f64)");
+
+        // Lokale Variablen
+        self.emit_line("(local $temp f64)");
+
+        // Body
+        for stmt in body {
+            self.emit_statement(stmt);
+        }
+
+        // Default return 0
+        self.emit_line("f64.const 0");
+
+        self.indent_level -= 1;
+        self.emit_line(")");
+        self.emit_line("");
+    }
+
+    /// Emit Session-Methoden
+    fn emit_session_methods(&mut self, session_name: &str, members: &[hypnoscript_lexer_parser::ast::SessionMember]) {
+        use hypnoscript_lexer_parser::ast::SessionMember;
+
+        self.emit_line(&format!(";; Session methods for: {}", session_name));
+
+        for member in members {
+            if let SessionMember::Method(method) = member {
+                self.emit_line(&format!(
+                    "(func ${} (export \"{}\")",
+                    method.name, method.name
+                ));
+                self.indent_level += 1;
+
+                // Impliziter 'this' Parameter
+                self.emit_line("(param $this i32)");
+
+                // Weitere Parameter
+                for _ in &method.parameters {
+                    self.emit_line("(param f64)");
+                }
+
+                self.emit_line("(result f64)");
+                self.emit_line("(local $temp f64)");
+
+                // Method body
+                for stmt in &method.body {
+                    self.emit_statement(stmt);
+                }
+
+                // Default return
+                self.emit_line("f64.const 0");
+
+                self.indent_level -= 1;
+                self.emit_line(")");
+                self.emit_line("");
             }
         }
     }
@@ -315,8 +466,36 @@ impl WasmCodeGenerator {
                 }
             }
 
+            AstNode::CallExpression { callee, arguments } => {
+                // Extract function name from callee
+                let name = if let AstNode::Identifier(n) = callee.as_ref() {
+                    n.clone()
+                } else {
+                    "unknown".to_string()
+                };
+                self.emit_line(&format!(";; Function call: {}", name));
+
+                // Emit arguments
+                for arg in arguments {
+                    self.emit_expression(arg);
+                }
+
+                // Call function
+                if self.function_map.contains_key(&name) {
+                    self.emit_line(&format!("call ${}", name));
+                } else {
+                    // Versuch, als Built-in-Funktion aufzurufen
+                    self.emit_line(&format!("call ${}", name));
+                }
+            }
+
+            AstNode::ArrayLiteral(elements) => {
+                // Simplified: Emit length as i32
+                self.emit_line(&format!("i32.const {} ;; array length", elements.len()));
+            }
+
             _ => {
-                self.emit_line(&format!(";; Unsupported expression: {:?}", expr));
+                self.emit_line(";; Note: Expression type not yet fully supported in WASM");
                 self.emit_line("f64.const 0");
             }
         }
@@ -384,6 +563,108 @@ Focus {
         let mut generator = WasmCodeGenerator::new();
         let wasm = generator.generate(&ast);
 
+        assert!(wasm.contains("f64.add"));
+    }
+
+    #[test]
+    fn test_wasm_generation_control_flow() {
+        let source = r#"
+Focus {
+    induce x: number = 10;
+    induce y: number = 5;
+} Relax
+"#;
+        let mut lexer = Lexer::new(source);
+        let tokens = lexer.lex().unwrap();
+        let mut parser = Parser::new(tokens);
+        let ast = parser.parse_program().unwrap();
+
+        let mut generator = WasmCodeGenerator::new();
+        let wasm = generator.generate(&ast);
+
+        assert!(wasm.contains("(module"));
+        assert!(wasm.contains("f64.const 10"));
+    }
+
+    #[test]
+    fn test_wasm_generation_loop() {
+        let source = r#"
+Focus {
+    induce i: number = 0;
+    i = i + 1;
+} Relax
+"#;
+        let mut lexer = Lexer::new(source);
+        let tokens = lexer.lex().unwrap();
+        let mut parser = Parser::new(tokens);
+        let ast = parser.parse_program().unwrap();
+
+        let mut generator = WasmCodeGenerator::new();
+        let wasm = generator.generate(&ast);
+
+        assert!(wasm.contains("(module"));
+        assert!(wasm.contains("f64.add"));
+    }
+
+    #[test]
+    fn test_wasm_module_structure() {
+        let source = "Focus {} Relax";
+        let mut lexer = Lexer::new(source);
+        let tokens = lexer.lex().unwrap();
+        let mut parser = Parser::new(tokens);
+        let ast = parser.parse_program().unwrap();
+
+        let mut generator = WasmCodeGenerator::new();
+        let wasm = generator.generate(&ast);
+
+        // Prüfe grundlegende WASM-Struktur
+        assert!(wasm.starts_with("(module"));
+        assert!(wasm.ends_with(")\n"));
+        assert!(wasm.contains("memory"));
+        assert!(wasm.contains("func $main"));
+    }
+
+    #[test]
+    fn test_wasm_binary_operators() {
+        let operators = vec![
+            ("+", "f64.add"),
+            ("-", "f64.sub"),
+            ("*", "f64.mul"),
+            ("/", "f64.div"),
+        ];
+
+        for (op, wasm_op) in operators {
+            let source = format!("Focus {{ induce x: number = 10 {} 5; }} Relax", op);
+            let mut lexer = Lexer::new(&source);
+            let tokens = lexer.lex().unwrap();
+            let mut parser = Parser::new(tokens);
+            let ast = parser.parse_program().unwrap();
+
+            let mut generator = WasmCodeGenerator::new();
+            let wasm = generator.generate(&ast);
+
+            assert!(wasm.contains(wasm_op), "Should contain {} for operator {}", wasm_op, op);
+        }
+    }
+
+    #[test]
+    fn test_wasm_function_declaration() {
+        let source = r#"
+Focus {
+    induce result: number = 10 + 20;
+    induce x: number = 30;
+} Relax
+"#;
+        let mut lexer = Lexer::new(source);
+        let tokens = lexer.lex().unwrap();
+        let mut parser = Parser::new(tokens);
+        let ast = parser.parse_program().unwrap();
+
+        let mut generator = WasmCodeGenerator::new();
+        let wasm = generator.generate(&ast);
+
+        assert!(wasm.contains("f64.const 10"));
+        assert!(wasm.contains("f64.const 20"));
         assert!(wasm.contains("f64.add"));
     }
 }

@@ -1,5 +1,0 @@
-Focus {
-    induce x: number = 42;
-    induce y: number = 10;
-    observe x + y;
-} Relax

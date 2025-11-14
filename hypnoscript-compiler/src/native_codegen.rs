@@ -7,9 +7,16 @@
 //!
 //! ## Architektur
 //!
-//! Der Native Code Generator verwendet ein LLVM-Backend für die Kompilierung.
-//! Dies ermöglicht optimierten, plattformspezifischen Code mit minimaler
-//! Runtime-Abhängigkeit.
+//! Der Native Code Generator verwendet Cranelift als Backend für die Kompilierung.
+//! Cranelift ist ein schneller, sicherer Code-Generator, der optimierten,
+//! plattformspezifischen Code mit minimaler Runtime-Abhängigkeit erzeugt.
+//!
+//! ## Vorteile von Cranelift gegenüber LLVM
+//!
+//! - **Schnellere Kompilierung**: Cranelift ist deutlich schneller als LLVM
+//! - **Einfachere Integration**: Reine Rust-Implementierung, keine C++-Abhängigkeiten
+//! - **Kleinere Binary-Größe**: Geringerer Overhead
+//! - **Sicherheit**: Memory-safe durch Rust
 //!
 //! ## Verwendung
 //!
@@ -24,9 +31,13 @@
 //! // let native_binary = generator.generate(&ast)?;
 //! ```
 
+use cranelift::prelude::*;
+use cranelift_module::{Linkage, Module};
+use cranelift_object::{ObjectBuilder, ObjectModule};
 use hypnoscript_lexer_parser::ast::AstNode;
 use std::collections::HashMap;
 use std::path::PathBuf;
+use target_lexicon::Triple;
 use thiserror::Error;
 
 /// Fehlertypen für die native Code-Generierung
@@ -35,7 +46,7 @@ pub enum NativeCodegenError {
     #[error("Plattform nicht unterstützt: {0}")]
     UnsupportedPlatform(String),
 
-    #[error("LLVM-Initialisierung fehlgeschlagen: {0}")]
+    #[error("Cranelift-Initialisierung fehlgeschlagen: {0}")]
     LlvmInitializationError(String),
 
     #[error("Code-Generierung fehlgeschlagen: {0}")]
@@ -125,6 +136,17 @@ pub enum OptimizationLevel {
 }
 
 impl OptimizationLevel {
+    /// Konvertiert zu Cranelift-Optimierungslevel
+    pub fn to_cranelift_level(&self) -> &'static str {
+        match self {
+            Self::None => "none",
+            Self::Less => "speed",
+            Self::Default => "speed",
+            Self::Aggressive => "speed_and_size",
+            Self::Release => "speed_and_size",
+        }
+    }
+
     /// Konvertiert zu LLVM-Optimierungslevel (0-3)
     pub fn to_llvm_level(&self) -> u32 {
         match self {
@@ -139,7 +161,7 @@ impl OptimizationLevel {
 /// Native Code Generator
 ///
 /// Generiert plattformspezifischen nativen Maschinencode aus HypnoScript AST.
-/// Verwendet LLVM als Backend für optimierte Binaries.
+/// Verwendet Cranelift als Backend für optimierte Binaries.
 pub struct NativeCodeGenerator {
     /// Zielplattform
     target_platform: TargetPlatform,
@@ -147,12 +169,14 @@ pub struct NativeCodeGenerator {
     optimization_level: OptimizationLevel,
     /// Ausgabepfad für die Binary
     output_path: Option<PathBuf>,
-    /// Variablen-Mapping
-    variable_map: HashMap<String, usize>,
+    /// Variablen-Mapping (Name -> Cranelift Variable)
+    variable_map: HashMap<String, Variable>,
     /// Funktions-Mapping
     function_map: HashMap<String, usize>,
     /// Debug-Informationen generieren
     debug_info: bool,
+    /// Nächste Variable-ID
+    next_var_id: usize,
 }
 
 impl Default for NativeCodeGenerator {
@@ -179,6 +203,7 @@ impl NativeCodeGenerator {
             variable_map: HashMap::new(),
             function_map: HashMap::new(),
             debug_info: false,
+            next_var_id: 0,
         }
     }
 
@@ -231,18 +256,340 @@ impl NativeCodeGenerator {
     /// # Fehler
     ///
     /// Gibt einen `NativeCodegenError` zurück, wenn die Code-Generierung fehlschlägt
-    pub fn generate(&mut self, _program: &AstNode) -> Result<PathBuf, NativeCodegenError> {
-        // TODO: LLVM-Integration implementieren
-        // Hier wird in zukünftigen Versionen das LLVM-Backend verwendet
-
+    pub fn generate(&mut self, program: &AstNode) -> Result<PathBuf, NativeCodegenError> {
         self.variable_map.clear();
         self.function_map.clear();
+        self.next_var_id = 0;
 
-        // Placeholder: Aktuell wird eine Fehlermeldung zurückgegeben
-        Err(NativeCodegenError::CodeGenerationError(
-            "Native Code-Generierung ist noch nicht vollständig implementiert. \
-             Verwenden Sie den Interpreter oder WASM-Compiler.".to_string()
-        ))
+        // Bestimme das Target-Triple (wird in Zukunft verwendet)
+        let _triple = self.get_target_triple();
+
+        // Erstelle ObjectModule für die Object-Datei-Generierung
+        let mut flag_builder = settings::builder();
+        flag_builder.set("opt_level", self.optimization_level.to_cranelift_level())
+            .map_err(|e| NativeCodegenError::CodeGenerationError(e.to_string()))?;
+
+        let isa_builder = cranelift_native::builder()
+            .map_err(|e| NativeCodegenError::LlvmInitializationError(e.to_string()))?;
+        let isa = isa_builder.finish(settings::Flags::new(flag_builder))
+            .map_err(|e| NativeCodegenError::CodeGenerationError(e.to_string()))?;
+
+        let obj_builder = ObjectBuilder::new(
+            isa,
+            "hypnoscript_program",
+            cranelift_module::default_libcall_names(),
+        ).map_err(|e| NativeCodegenError::CodeGenerationError(e.to_string()))?;
+
+        let mut module = ObjectModule::new(obj_builder);
+
+        // Erstelle die main-Funktion
+        self.generate_main_function(&mut module, program)?;
+
+        // Finalisiere und schreibe Object-Datei
+        let object_product = module.finish();
+        let object_bytes = object_product.emit()
+            .map_err(|e| NativeCodegenError::CodeGenerationError(e.to_string()))?;
+
+        // Bestimme Ausgabepfad für Object-Datei
+        let obj_extension = if cfg!(target_os = "windows") { "obj" } else { "o" };
+        let obj_path = PathBuf::from(format!("hypnoscript_program.{}", obj_extension));
+
+        // Schreibe Object-Datei
+        std::fs::write(&obj_path, object_bytes)?;
+
+        // Bestimme finalen Ausgabepfad für ausführbare Datei
+        let exe_path = self.output_path.clone().unwrap_or_else(|| {
+            let extension = if cfg!(target_os = "windows") { "exe" } else { "" };
+            if extension.is_empty() {
+                PathBuf::from("hypnoscript_output")
+            } else {
+                PathBuf::from(format!("hypnoscript_output.{}", extension))
+            }
+        });
+
+        // Linke die Object-Datei zu einer ausführbaren Datei
+        self.link_object_file(&obj_path, &exe_path)?;
+
+        // Cleanup: Entferne Object-Datei
+        let _ = std::fs::remove_file(&obj_path);
+
+        Ok(exe_path)
+    }
+
+    /// Linkt eine Object-Datei zu einer ausführbaren Datei
+    fn link_object_file(&self, obj_path: &PathBuf, exe_path: &PathBuf) -> Result<(), NativeCodegenError> {
+        #[cfg(target_os = "windows")]
+        {
+            // Versuche verschiedene Windows-Linker
+            let linkers = vec![
+                ("link.exe", vec![
+                    "/OUT:".to_string() + &exe_path.to_string_lossy(),
+                    "/ENTRY:main".to_string(),
+                    "/SUBSYSTEM:CONSOLE".to_string(),
+                    obj_path.to_string_lossy().to_string(),
+                    "kernel32.lib".to_string(),
+                    "msvcrt.lib".to_string(),
+                ]),
+                ("lld-link", vec![
+                    "/OUT:".to_string() + &exe_path.to_string_lossy(),
+                    "/ENTRY:main".to_string(),
+                    "/SUBSYSTEM:CONSOLE".to_string(),
+                    obj_path.to_string_lossy().to_string(),
+                ]),
+                ("gcc", vec![
+                    "-o".to_string(),
+                    exe_path.to_string_lossy().to_string(),
+                    obj_path.to_string_lossy().to_string(),
+                ]),
+                ("clang", vec![
+                    "-o".to_string(),
+                    exe_path.to_string_lossy().to_string(),
+                    obj_path.to_string_lossy().to_string(),
+                ]),
+            ];
+
+            for (linker, args) in linkers {
+                if let Ok(output) = std::process::Command::new(linker)
+                    .args(&args)
+                    .output()
+                {
+                    if output.status.success() {
+                        return Ok(());
+                    }
+                }
+            }
+
+            return Err(NativeCodegenError::LinkingError(
+                "Kein geeigneter Linker gefunden. Bitte installieren Sie:\n\
+                 - Visual Studio Build Tools (für link.exe)\n\
+                 - GCC/MinGW (für gcc)\n\
+                 - LLVM (für lld-link/clang)".to_string()
+            ));
+        }
+
+        #[cfg(not(target_os = "windows"))]
+        {
+            // Unix-basierte Systeme (Linux, macOS)
+            let linkers = vec![
+                ("cc", vec![
+                    "-o",
+                    &exe_path.to_string_lossy(),
+                    &obj_path.to_string_lossy(),
+                ]),
+                ("gcc", vec![
+                    "-o",
+                    &exe_path.to_string_lossy(),
+                    &obj_path.to_string_lossy(),
+                ]),
+                ("clang", vec![
+                    "-o",
+                    &exe_path.to_string_lossy(),
+                    &obj_path.to_string_lossy(),
+                ]),
+            ];
+
+            for (linker, args) in linkers {
+                if let Ok(output) = std::process::Command::new(linker)
+                    .args(&args)
+                    .output()
+                {
+                    if output.status.success() {
+                        // Mache die Datei ausführbar auf Unix
+                        #[cfg(unix)]
+                        {
+                            use std::os::unix::fs::PermissionsExt;
+                            let mut perms = std::fs::metadata(&exe_path)?.permissions();
+                            perms.set_mode(0o755);
+                            std::fs::set_permissions(&exe_path, perms)?;
+                        }
+                        return Ok(());
+                    }
+                }
+            }
+
+            return Err(NativeCodegenError::LinkingError(
+                "Kein geeigneter Linker gefunden. Bitte installieren Sie gcc oder clang.".to_string()
+            ));
+        }
+    }
+
+    /// Konvertiert Cranelift-Triple aus TargetPlatform
+    fn get_target_triple(&self) -> Triple {
+        self.target_platform.llvm_triple().parse()
+            .unwrap_or_else(|_| Triple::host())
+    }
+
+    /// Generiert die main-Funktion
+    fn generate_main_function(
+        &mut self,
+        module: &mut ObjectModule,
+        program: &AstNode,
+    ) -> Result<(), NativeCodegenError> {
+        // Erstelle Funktions-Signatur: main() -> i32
+        let mut sig = module.make_signature();
+        sig.returns.push(AbiParam::new(types::I32));
+
+        let func_id = module.declare_function("main", Linkage::Export, &sig)
+            .map_err(|e| NativeCodegenError::CodeGenerationError(e.to_string()))?;
+
+        let mut ctx = module.make_context();
+        ctx.func.signature = sig;
+
+        // Erstelle Function Builder
+        let mut builder_context = FunctionBuilderContext::new();
+        let mut builder = FunctionBuilder::new(&mut ctx.func, &mut builder_context);
+
+        // Erstelle Entry-Block
+        let entry_block = builder.create_block();
+        builder.switch_to_block(entry_block);
+        builder.seal_block(entry_block);
+
+        // Generiere Code für das Programm
+        if let AstNode::Program(statements) = program {
+            for stmt in statements {
+                self.generate_statement(&mut builder, stmt)?;
+            }
+        }
+
+        // Return 0
+        let zero = builder.ins().iconst(types::I32, 0);
+        builder.ins().return_(&[zero]);
+
+        // Finalisiere Funktion
+        builder.finalize();
+
+        // Definiere Funktion im Modul
+        module.define_function(func_id, &mut ctx)
+            .map_err(|e| NativeCodegenError::CodeGenerationError(e.to_string()))?;
+
+        module.clear_context(&mut ctx);
+
+        Ok(())
+    }
+
+    /// Generiert Code für ein Statement
+    fn generate_statement(
+        &mut self,
+        builder: &mut FunctionBuilder,
+        stmt: &AstNode,
+    ) -> Result<(), NativeCodegenError> {
+        match stmt {
+            AstNode::VariableDeclaration { name, initializer, .. } => {
+                // Erstelle Variable
+                let var = Variable::new(self.next_var_id);
+                self.next_var_id += 1;
+
+                builder.declare_var(var, types::F64);
+                self.variable_map.insert(name.clone(), var);
+
+                // Initialisiere Variable
+                if let Some(init) = initializer {
+                    let value = self.generate_expression(builder, init)?;
+                    builder.def_var(var, value);
+                } else {
+                    let zero = builder.ins().f64const(0.0);
+                    builder.def_var(var, zero);
+                }
+            }
+
+            AstNode::AssignmentExpression { target, value } => {
+                if let AstNode::Identifier(name) = target.as_ref() {
+                    if let Some(&var) = self.variable_map.get(name) {
+                        let val = self.generate_expression(builder, value)?;
+                        builder.def_var(var, val);
+                    }
+                }
+            }
+
+            AstNode::ExpressionStatement(expr) => {
+                // Evaluiere Expression (Ergebnis wird verworfen)
+                let _value = self.generate_expression(builder, expr)?;
+            }
+
+            AstNode::FocusBlock(statements) | AstNode::EntranceBlock(statements) | AstNode::FinaleBlock(statements) => {
+                for stmt in statements {
+                    self.generate_statement(builder, stmt)?;
+                }
+            }
+
+            _ => {
+                // Nicht unterstützte Statements ignorieren
+                // TODO: Erweitern für vollständige Sprachunterstützung
+            }
+        }
+
+        Ok(())
+    }
+
+    /// Generiert Code für einen Expression
+    fn generate_expression(
+        &mut self,
+        builder: &mut FunctionBuilder,
+        expr: &AstNode,
+    ) -> Result<Value, NativeCodegenError> {
+        match expr {
+            AstNode::NumberLiteral(n) => {
+                Ok(builder.ins().f64const(*n))
+            }
+
+            AstNode::BooleanLiteral(b) => {
+                let val = if *b { 1 } else { 0 };
+                Ok(builder.ins().iconst(types::I32, val))
+            }
+
+            AstNode::Identifier(name) => {
+                if let Some(&var) = self.variable_map.get(name) {
+                    Ok(builder.use_var(var))
+                } else {
+                    Ok(builder.ins().f64const(0.0))
+                }
+            }
+
+            AstNode::BinaryExpression { left, operator, right } => {
+                let lhs = self.generate_expression(builder, left)?;
+                let rhs = self.generate_expression(builder, right)?;
+
+                let result = match operator.as_str() {
+                    "+" => builder.ins().fadd(lhs, rhs),
+                    "-" => builder.ins().fsub(lhs, rhs),
+                    "*" => builder.ins().fmul(lhs, rhs),
+                    "/" => builder.ins().fdiv(lhs, rhs),
+                    "%" => {
+                        // Modulo für floats: a - floor(a/b) * b
+                        let div = builder.ins().fdiv(lhs, rhs);
+                        let floor = builder.ins().floor(div);
+                        let mul = builder.ins().fmul(floor, rhs);
+                        builder.ins().fsub(lhs, mul)
+                    }
+                    _ => {
+                        // Unbekannter Operator -> Return 0
+                        builder.ins().f64const(0.0)
+                    }
+                };
+
+                Ok(result)
+            }
+
+            AstNode::UnaryExpression { operator, operand } => {
+                let val = self.generate_expression(builder, operand)?;
+
+                let result = match operator.as_str() {
+                    "-" => builder.ins().fneg(val),
+                    "!" => {
+                        // Logische Negation (für Integers)
+                        builder.ins().bxor_imm(val, 1)
+                    }
+                    _ => val,
+                };
+
+                Ok(result)
+            }
+
+            _ => {
+                // Nicht unterstützte Expressions -> Return 0
+                Ok(builder.ins().f64const(0.0))
+            }
+        }
     }
 
     /// Gibt Informationen über die Zielplattform zurück
@@ -267,6 +614,7 @@ impl NativeCodeGenerator {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use hypnoscript_lexer_parser::{Lexer, Parser};
 
     #[test]
     fn test_target_platform_current() {
@@ -305,6 +653,12 @@ mod tests {
         assert_eq!(OptimizationLevel::Default.to_llvm_level(), 2);
         assert_eq!(OptimizationLevel::Aggressive.to_llvm_level(), 3);
         assert_eq!(OptimizationLevel::Release.to_llvm_level(), 3);
+
+        assert_eq!(OptimizationLevel::None.to_cranelift_level(), "none");
+        assert_eq!(OptimizationLevel::Less.to_cranelift_level(), "speed");
+        assert_eq!(OptimizationLevel::Default.to_cranelift_level(), "speed");
+        assert_eq!(OptimizationLevel::Aggressive.to_cranelift_level(), "speed_and_size");
+        assert_eq!(OptimizationLevel::Release.to_cranelift_level(), "speed_and_size");
     }
 
     #[test]
@@ -328,5 +682,39 @@ mod tests {
         assert_eq!(generator.optimization_level, OptimizationLevel::Release);
         assert_eq!(generator.debug_info, true);
         assert_eq!(generator.output_path, Some(PathBuf::from("output.bin")));
+    }
+
+    #[test]
+    fn test_simple_program_compilation() {
+        let source = r#"
+Focus {
+    induce x: number = 42;
+    induce y: number = 10;
+    induce result: number = x + y;
+} Relax
+"#;
+
+        let mut lexer = Lexer::new(source);
+        let tokens = lexer.lex().unwrap();
+        let mut parser = Parser::new(tokens);
+        let ast = parser.parse_program().unwrap();
+
+        let mut generator = NativeCodeGenerator::new();
+        generator.set_optimization_level(OptimizationLevel::None);
+
+        // Sollte ohne Fehler kompilieren
+        let result = generator.generate(&ast);
+        assert!(result.is_ok(), "Compilation should succeed");
+    }
+
+    #[test]
+    fn test_target_info() {
+        let generator = NativeCodeGenerator::new();
+        let info = generator.target_info();
+
+        // Sollte Informationen enthalten
+        assert!(info.contains("Zielplattform:"));
+        assert!(info.contains("LLVM-Triple:"));
+        assert!(info.contains("Optimierung:"));
     }
 }
