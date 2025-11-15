@@ -52,6 +52,12 @@ enum BlockContext {
     Regular,
 }
 
+type LoopHeaderComponents = (
+    Option<Box<AstNode>>,
+    Option<Box<AstNode>>,
+    Option<Box<AstNode>>,
+);
+
 impl Parser {
     /// Create a new parser
     pub fn new(tokens: Vec<Token>) -> Self {
@@ -507,21 +513,12 @@ impl Parser {
         &mut self,
         keyword: &str,
         require_condition: bool,
-    ) -> Result<
-        (
-            Option<Box<AstNode>>,
-            Option<Box<AstNode>>,
-            Option<Box<AstNode>>,
-        ),
-        String,
-    > {
+    ) -> Result<LoopHeaderComponents, String> {
         // Parse init (variable declaration or expression)
         let init = if self.check(&TokenType::Semicolon) {
             None
-        } else if let Some(init_stmt) = self.parse_loop_init_statement()? {
-            Some(init_stmt)
         } else {
-            None
+            self.parse_loop_init_statement()?
         };
 
         self.consume(

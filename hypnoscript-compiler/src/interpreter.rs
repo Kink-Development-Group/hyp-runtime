@@ -939,7 +939,7 @@ impl Interpreter {
             AstNode::MurmurStatement(expr) => {
                 let value = self.evaluate_expression(expr)?;
                 // Murmur is like whisper but even quieter (debug level)
-                CoreBuiltins::whisper(&format!("[DEBUG] {}", value.to_string()));
+                CoreBuiltins::whisper(&format!("[DEBUG] {}", value));
                 Ok(())
             }
 
@@ -1493,12 +1493,8 @@ impl Interpreter {
                     (Value::String(s1), Value::String(s2)) => {
                         Ok(Value::String(format!("{}{}", s1, s2)))
                     }
-                    (Value::String(s), _) => {
-                        Ok(Value::String(format!("{}{}", s, right.to_string())))
-                    }
-                    (_, Value::String(s)) => {
-                        Ok(Value::String(format!("{}{}", left.to_string(), s)))
-                    }
+                    (Value::String(s), _) => Ok(Value::String(format!("{}{}", s, right))),
+                    (_, Value::String(s)) => Ok(Value::String(format!("{}{}", left, s))),
                     _ => {
                         // Both are numeric, perform addition
                         Ok(Value::Number(left.to_number()? + right.to_number()?))
@@ -3014,12 +3010,11 @@ impl Interpreter {
         match scope_hint {
             ScopeLayer::Local => {
                 if let Some((scope, consts)) = self.locals.last_mut().zip(self.const_locals.last())
+                    && let Some(slot) = scope.get_mut(&name)
                 {
-                    if scope.contains_key(&name) {
-                        check_const(consts.contains(&name))?;
-                        scope.insert(name, value);
-                        return Ok(());
-                    }
+                    check_const(consts.contains(&name))?;
+                    *slot = value;
+                    return Ok(());
                 }
             }
             ScopeLayer::Global => {

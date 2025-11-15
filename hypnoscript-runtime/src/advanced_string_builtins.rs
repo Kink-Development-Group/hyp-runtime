@@ -97,11 +97,13 @@ impl AdvancedStringBuiltins {
         let mut matrix = vec![vec![0; len2 + 1]; len1 + 1];
 
         // Initialize first row and column
-        for i in 0..=len1 {
-            matrix[i][0] = i;
+        for (i, row) in matrix.iter_mut().enumerate() {
+            row[0] = i;
         }
-        for j in 0..=len2 {
-            matrix[0][j] = j;
+        if let Some(first_row) = matrix.first_mut() {
+            for (j, value) in first_row.iter_mut().enumerate() {
+                *value = j;
+            }
         }
 
         // Fill matrix
@@ -143,11 +145,13 @@ impl AdvancedStringBuiltins {
 
         let mut matrix = vec![vec![0; len2 + 1]; len1 + 1];
 
-        for i in 0..=len1 {
-            matrix[i][0] = i;
+        for (i, row) in matrix.iter_mut().enumerate() {
+            row[0] = i;
         }
-        for j in 0..=len2 {
-            matrix[0][j] = j;
+        if let Some(first_row) = matrix.first_mut() {
+            for (j, value) in first_row.iter_mut().enumerate() {
+                *value = j;
+            }
         }
 
         for i in 1..=len1 {
@@ -321,10 +325,10 @@ impl AdvancedStringBuiltins {
         let mut code = String::new();
 
         // Keep first letter
-        if let Some(&first) = chars.first() {
-            if first.is_alphabetic() {
-                code.push(first);
-            }
+        if let Some(&first) = chars.first()
+            && first.is_alphabetic()
+        {
+            code.push(first);
         }
 
         let mut prev_code = soundex_code(chars.first().copied().unwrap_or(' '));

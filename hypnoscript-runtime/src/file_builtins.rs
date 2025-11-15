@@ -195,10 +195,8 @@ impl FileBuiltins {
                 "Source path is not a directory",
             ));
         }
-        if let Some(parent) = target.parent() {
-            if !parent.as_os_str().is_empty() {
-                fs::create_dir_all(parent)?;
-            }
+        if let Some(parent) = target.parent().filter(|p| !p.as_os_str().is_empty()) {
+            fs::create_dir_all(parent)?;
         }
         fs::create_dir_all(target)?;
         copy_dir_contents(source, target)

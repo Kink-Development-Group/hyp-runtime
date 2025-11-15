@@ -106,9 +106,7 @@ impl BuiltinError {
                 .with_translation("de", "Index außerhalb des gültigen Bereichs: {}")
                 .with_translation("fr", "Index hors limites : {}")
                 .with_translation("es", "Índice fuera de límites: {}"),
-            _ => {
-                LocalizedMessage::new(&format!("Error in {}: {}", self.category, self.message_key))
-            }
+            _ => LocalizedMessage::new(format!("Error in {}: {}", self.category, self.message_key)),
         };
 
         let mut msg = base_msg.resolve(&locale).to_string();

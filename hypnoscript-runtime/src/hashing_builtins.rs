@@ -182,7 +182,7 @@ impl HashingBuiltins {
     /// Hex decode
     /// Converts hexadecimal string to bytes/string
     pub fn hex_decode(s: &str) -> Result<String, String> {
-        if s.len() % 2 != 0 {
+        if !s.len().is_multiple_of(2) {
             return Err("Hex string must have even length".to_string());
         }
 
