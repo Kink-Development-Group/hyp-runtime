@@ -1,6 +1,6 @@
 # winget-manifest.yaml
 PackageIdentifier: HypnoScript.HypnoScript
-PackageVersion: 1.0.0-rc2
+PackageVersion: 1.0.0
 PackageName: HypnoScript
 Publisher: HypnoScript Project
 License: MIT

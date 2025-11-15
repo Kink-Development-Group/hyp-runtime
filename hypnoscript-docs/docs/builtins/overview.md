@@ -176,6 +176,77 @@ if (FileExists("config.txt")) {
 
 [→ Detaillierte Datei-Funktionen](./file-functions)
 
+### 🧩 CLI & Automation
+
+Neue Builtins helfen beim Bau interaktiver Tools und Skripte.
+
+| Funktion         | Beschreibung                                          |
+| ---------------- | ----------------------------------------------------- |
+| `CliPrompt`      | Lokalisierte Texteingabe mit Defaultwerten            |
+| `CliConfirm`     | Ja/Nein-Bestätigung mit `Y/n` bzw. `J/n`-Hinweis      |
+| `ParseArguments` | Zerlegt CLI-Argumente in Flags und Positionsparameter |
+| `HasFlag`        | Prüft, ob ein Flag gesetzt wurde                      |
+| `FlagValue`      | Liest den Wert eines Flags (`--port 8080` → `8080`)   |
+
+**Beispiel:**
+
+```hyp
+induce args: string[] = GetArgs();
+if (HasFlag(args, "help")) {
+    observe "Nutze --port <PORT>";
+    Exit(0);
+}
+
+induce port = FlagValue(args, "port") ?? "8080";
+induce answer = CliPrompt("Service-Name", "demo", false, "de-DE");
+induce confirm = CliConfirm("Deployment starten?", true, "de-DE");
+```
+
+### 🌐 API- & Service-Funktionen
+
+Kombiniert HTTP-Clients mit Service-Health-Werkzeugen.
+
+| Funktion            | Beschreibung                                              |
+| ------------------- | --------------------------------------------------------- |
+| `HttpSend`          | Allgemeiner HTTP-Client (Methoden, Header, Auth, Timeout) |
+| `HttpGetJson`       | `GET` mit automatischem JSON-Parsing                      |
+| `HttpPostJson`      | `POST` JSON → JSON (inkl. Content-Type)                   |
+| `ServiceHealth`     | Erstellt Health-Report (Uptime, Latenz, P95, SLO)         |
+| `RetrySchedule`     | Liefert exponentiellen Backoff-Plan mit optionalem Jitter |
+| `CircuitShouldOpen` | Bewertet Fehlerfenster für Circuit-Breaker                |
+
+**Beispiel:**
+
+```hyp
+induce response = HttpGetJson("https://api.example.com/status");
+if (response.ok != true) {
+    observe "API meldet Fehler";
+}
+
+induce schedule: number[] = RetrySchedule(5, 250, 2.0, 50, 4000);
+observe "Versuche alle " + schedule[0] + "ms";
+```
+
+### 🧾 Datenformate (JSON & CSV)
+
+| Funktion           | Beschreibung                                  |
+| ------------------ | --------------------------------------------- |
+| `JsonPretty`       | Formatiert JSON für Logs                      |
+| `JsonQuery`        | Pfadabfrage (`data.items[0].name`)            |
+| `JsonMerge`        | Rekursive Zusammenführung zweier Dokumente    |
+| `ParseCsv`         | Liest CSV (Delimiter + Header konfigurierbar) |
+| `CsvSelectColumns` | Projiziert Spalten nach Namen                 |
+| `CsvToString`      | Baut wieder CSV-Text aus Tabellenstruktur     |
+
+**Beispiel:**
+
+```hyp
+induce payload = JsonPretty(ReadFile("response.json"));
+induce table = ParseCsv(ReadFile("data.csv"));
+induce namesOnly = CsvSelectColumns(table, ["name"]);
+WriteFile("names.csv", CsvToString(namesOnly));
+```
+
 ### ✅ Validierung
 
 Funktionen für Datenvalidierung.

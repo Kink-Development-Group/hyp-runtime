@@ -370,10 +370,10 @@ TriggerSystemEvent("customEvent", {"message": "Hallo Welt!"});
 
 ```hyp
 Focus {
-    Trance createBackup(sourcePath, backupDir) {
+    suggestion createBackup(sourcePath, backupDir) {
         if (!FileExists(sourcePath)) {
             observe "Quelldatei existiert nicht: " + sourcePath;
-            return false;
+            awaken false;
         }
 
         if (!DirectoryExists(backupDir)) {
@@ -545,9 +545,9 @@ Focus {
 ### Fehlerbehandlung
 
 ```hyp
-Trance safeFileOperation(operation) {
+suggestion safeFileOperation(operation) {
     try {
-        return operation();
+        awaken operation();
     } catch (error) {
         observe "Fehler: " + error;
         return false;
@@ -579,8 +579,8 @@ if (FileExists(tempFile)) {
 
 ```hyp
 // Pfad-Validierung
-Trance isValidPath(path) {
-    if (Contains(path, "..")) return false;
+suggestion isValidPath(path) {
+    if (Contains(path, "..")) awaken false;
     if (Contains(path, "\\")) return false;
     return true;
 }

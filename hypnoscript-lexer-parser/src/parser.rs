@@ -1,13 +1,62 @@
 use crate::ast::{
-    AstNode, Parameter, SessionField, SessionMember, SessionMethod, SessionVisibility,
+    AstNode, EntrainCase, Parameter, Pattern, RecordFieldInit, RecordFieldPattern, SessionField,
+    SessionMember, SessionMethod, SessionVisibility, TranceifyField, VariableStorage,
 };
 use crate::token::{Token, TokenType};
 
-/// Parser for HypnoScript language
+/// Parser for HypnoScript language.
+///
+/// Converts a stream of tokens into an Abstract Syntax Tree (AST).
+/// Uses recursive descent parsing with operator precedence for expressions.
+///
+/// # Supported Language Constructs
+///
+/// - **Program structure**: `Focus { ... } Relax`
+/// - **Variables**: `induce`, `implant`, `embed`, `freeze`
+/// - **Functions**: `suggestion`, `trigger`, `imperative suggestion`
+/// - **Sessions (OOP)**: `session`, `constructor`, `expose`, `conceal`, `dominant`
+/// - **Records**: `tranceify` declarations
+/// - **Control flow**: `if`/`else`, `while`, `loop`, `pendulum`, `snap`, `sink`
+/// - **Pattern matching**: `entrain`/`when`/`otherwise`
+/// - **Async**: `mesmerize`, `await`, `surrenderTo`
+/// - **Operators**: Standard + hypnotic synonyms
+/// - **Nullish operators**: `lucidFallback` (`??`), `dreamReach` (`?.`)
+///
+/// # Examples
+///
+/// ```rust
+/// use hypnoscript_lexer_parser::{Parser, Lexer};
+///
+/// let source = r#"
+///     Focus {
+///         entrance {
+///             induce x = 42;
+///             observe x;
+///         }
+///     } Relax;
+/// "#;
+///
+/// let mut lexer = Lexer::new(source);
+/// let tokens = lexer.lex().unwrap();
+/// let mut parser = Parser::new(tokens);
+/// let ast = parser.parse_program().unwrap();
+/// ```
 pub struct Parser {
     tokens: Vec<Token>,
     current: usize,
 }
+
+#[derive(Copy, Clone, Debug, Eq, PartialEq)]
+enum BlockContext {
+    Program,
+    Regular,
+}
+
+type LoopHeaderComponents = (
+    Option<Box<AstNode>>,
+    Option<Box<AstNode>>,
+    Option<Box<AstNode>>,
+);
 
 impl Parser {
     /// Create a new parser
@@ -29,7 +78,7 @@ impl Parser {
         }
 
         // Parse program body
-        let statements = self.parse_block_statements()?;
+        let statements = self.parse_block_statements(BlockContext::Program)?;
 
         // Expect closing brace
         if !self.match_token(&TokenType::RBrace) {
@@ -46,19 +95,22 @@ impl Parser {
     }
 
     /// Parse block statements
-    fn parse_block_statements(&mut self) -> Result<Vec<AstNode>, String> {
+    fn parse_block_statements(&mut self, context: BlockContext) -> Result<Vec<AstNode>, String> {
         let mut statements = Vec::new();
 
         while !self.is_at_end() && !self.check(&TokenType::RBrace) && !self.check(&TokenType::Relax)
         {
             // entrance block (constructor/setup)
             if self.match_token(&TokenType::Entrance) {
+                if context != BlockContext::Program {
+                    return Err("'entrance' blocks are only allowed at the top level".to_string());
+                }
                 if !self.match_token(&TokenType::LBrace) {
                     return Err("Expected '{' after 'entrance'".to_string());
                 }
                 let mut entrance_statements = Vec::new();
                 while !self.is_at_end() && !self.check(&TokenType::RBrace) {
-                    entrance_statements.push(self.parse_statement()?);
+                    entrance_statements.push(self.parse_statement(BlockContext::Regular)?);
                 }
                 if !self.match_token(&TokenType::RBrace) {
                     return Err("Expected '}' after entrance block".to_string());
@@ -69,12 +121,15 @@ impl Parser {
 
             // finale block (destructor/cleanup)
             if self.match_token(&TokenType::Finale) {
+                if context != BlockContext::Program {
+                    return Err("'finale' blocks are only allowed at the top level".to_string());
+                }
                 if !self.match_token(&TokenType::LBrace) {
                     return Err("Expected '{' after 'finale'".to_string());
                 }
                 let mut finale_statements = Vec::new();
                 while !self.is_at_end() && !self.check(&TokenType::RBrace) {
-                    finale_statements.push(self.parse_statement()?);
+                    finale_statements.push(self.parse_statement(BlockContext::Regular)?);
                 }
                 if !self.match_token(&TokenType::RBrace) {
                     return Err("Expected '}' after finale block".to_string());
@@ -83,20 +138,35 @@ impl Parser {
                 continue;
             }
 
-            statements.push(self.parse_statement()?);
+            statements.push(self.parse_statement(context)?);
         }
 
         Ok(statements)
     }
 
     /// Parse a single statement
-    fn parse_statement(&mut self) -> Result<AstNode, String> {
-        // Variable declaration - induce, implant, freeze
+    fn parse_statement(&mut self, context: BlockContext) -> Result<AstNode, String> {
+        // Variable declaration - induce, implant, embed, freeze
+        if self.match_token(&TokenType::SharedTrance) {
+            if self.match_token(&TokenType::Induce)
+                || self.match_token(&TokenType::Implant)
+                || self.match_token(&TokenType::Embed)
+                || self.match_token(&TokenType::Freeze)
+            {
+                return self.parse_var_declaration(VariableStorage::SharedTrance);
+            }
+
+            return Err(
+                "'sharedTrance' must be followed by induce/implant/embed/freeze".to_string(),
+            );
+        }
+
         if self.match_token(&TokenType::Induce)
             || self.match_token(&TokenType::Implant)
+            || self.match_token(&TokenType::Embed)
             || self.match_token(&TokenType::Freeze)
         {
-            return self.parse_var_declaration();
+            return self.parse_var_declaration(VariableStorage::Local);
         }
 
         // Anchor declaration - saves variable state
@@ -114,9 +184,20 @@ impl Parser {
             return self.parse_while_statement();
         }
 
-        // Loop
+        // Loop (modern for-loop syntax)
         if self.match_token(&TokenType::Loop) {
-            return self.parse_loop_statement();
+            return self.parse_loop_statement("loop", false, false);
+        }
+
+        // Pendulum loop (alias for loop syntax, header required)
+        if self.match_token(&TokenType::Pendulum) {
+            return self.parse_loop_statement("pendulum", true, true);
+        }
+
+        // Suspend statement (infinite pause)
+        if self.match_token(&TokenType::Suspend) {
+            self.consume(&TokenType::Semicolon, "Expected ';' after 'suspend'")?;
+            return Ok(AstNode::SuspendStatement);
         }
 
         // Function declaration
@@ -126,12 +207,20 @@ impl Parser {
 
         // Trigger declaration (event handler/callback)
         if self.match_token(&TokenType::Trigger) {
+            if context != BlockContext::Program {
+                return Err("Triggers can only be declared at the top level".to_string());
+            }
             return self.parse_trigger_declaration();
         }
 
         // Session declaration
         if self.match_token(&TokenType::Session) {
             return self.parse_session_declaration();
+        }
+
+        // Tranceify declaration (record/struct type)
+        if self.match_token(&TokenType::Tranceify) {
+            return self.parse_tranceify_declaration();
         }
 
         // Output statements
@@ -145,6 +234,11 @@ impl Parser {
 
         if self.match_token(&TokenType::Command) {
             return self.parse_command_statement();
+        }
+
+        // Murmur statement (quiet/debug output)
+        if self.match_token(&TokenType::Murmur) {
+            return self.parse_murmur_statement();
         }
 
         // Return statement
@@ -179,7 +273,7 @@ impl Parser {
     /// - induce: standard variable (like let/var)
     /// - implant: alternative variable declaration
     /// - freeze: constant (like const)
-    fn parse_var_declaration(&mut self) -> Result<AstNode, String> {
+    fn parse_var_declaration(&mut self, storage: VariableStorage) -> Result<AstNode, String> {
         // Determine if this is a constant (freeze) or variable (induce/implant)
         let is_constant = self.previous().token_type == TokenType::Freeze;
 
@@ -211,6 +305,7 @@ impl Parser {
             type_annotation,
             initializer,
             is_constant,
+            storage,
         })
     }
 
@@ -261,6 +356,13 @@ impl Parser {
         Ok(AstNode::CommandStatement(Box::new(expr)))
     }
 
+    /// Parse murmur statement (quiet/debug output)
+    fn parse_murmur_statement(&mut self) -> Result<AstNode, String> {
+        let expr = self.parse_expression()?;
+        self.consume(&TokenType::Semicolon, "Expected ';' after murmur")?;
+        Ok(AstNode::MurmurStatement(Box::new(expr)))
+    }
+
     /// Parse trigger declaration (event handler/callback)
     fn parse_trigger_declaration(&mut self) -> Result<AstNode, String> {
         let name = self
@@ -309,7 +411,7 @@ impl Parser {
 
         // Parse body
         self.consume(&TokenType::LBrace, "Expected '{' before trigger body")?;
-        let body = self.parse_block_statements()?;
+        let body = self.parse_block_statements(BlockContext::Regular)?;
         self.consume(&TokenType::RBrace, "Expected '}' after trigger body")?;
 
         Ok(AstNode::TriggerDeclaration {
@@ -330,7 +432,7 @@ impl Parser {
         self.match_token(&TokenType::DeepFocus);
 
         self.consume(&TokenType::LBrace, "Expected '{' after if condition")?;
-        let then_branch = self.parse_block_statements()?;
+        let then_branch = self.parse_block_statements(BlockContext::Regular)?;
         self.consume(&TokenType::RBrace, "Expected '}' after if block")?;
 
         let else_branch = if self.match_token(&TokenType::Else) {
@@ -339,7 +441,7 @@ impl Parser {
                 Some(vec![self.parse_if_statement()?])
             } else {
                 self.consume(&TokenType::LBrace, "Expected '{' after 'else'")?;
-                let else_statements = self.parse_block_statements()?;
+                let else_statements = self.parse_block_statements(BlockContext::Regular)?;
                 self.consume(&TokenType::RBrace, "Expected '}' after else block")?;
                 Some(else_statements)
             }
@@ -361,19 +463,141 @@ impl Parser {
         self.consume(&TokenType::RParen, "Expected ')' after while condition")?;
 
         self.consume(&TokenType::LBrace, "Expected '{' after while condition")?;
-        let body = self.parse_block_statements()?;
+        let body = self.parse_block_statements(BlockContext::Regular)?;
         self.consume(&TokenType::RBrace, "Expected '}' after while block")?;
 
         Ok(AstNode::WhileStatement { condition, body })
     }
 
-    /// Parse loop statement
-    fn parse_loop_statement(&mut self) -> Result<AstNode, String> {
-        self.consume(&TokenType::LBrace, "Expected '{' after 'loop'")?;
-        let body = self.parse_block_statements()?;
-        self.consume(&TokenType::RBrace, "Expected '}' after loop block")?;
+    /// Parse loop/pendulum statements (C-style for loop)
+    fn parse_loop_statement(
+        &mut self,
+        keyword: &str,
+        require_header: bool,
+        require_condition: bool,
+    ) -> Result<AstNode, String> {
+        let has_header = if self.match_token(&TokenType::LParen) {
+            true
+        } else {
+            if require_header {
+                return Err(format!("Expected '(' after '{}'", keyword));
+            }
+            false
+        };
 
-        Ok(AstNode::LoopStatement { body })
+        let (init, condition, update) = if has_header {
+            self.parse_loop_header(keyword, require_condition)?
+        } else {
+            (None, None, None)
+        };
+
+        self.consume(
+            &TokenType::LBrace,
+            &format!("Expected '{{' after '{}' loop header", keyword),
+        )?;
+        let body = self.parse_block_statements(BlockContext::Regular)?;
+        self.consume(
+            &TokenType::RBrace,
+            &format!("Expected '}}' after '{}' loop block", keyword),
+        )?;
+
+        Ok(AstNode::LoopStatement {
+            init,
+            condition,
+            update,
+            body,
+        })
+    }
+
+    fn parse_loop_header(
+        &mut self,
+        keyword: &str,
+        require_condition: bool,
+    ) -> Result<LoopHeaderComponents, String> {
+        // Parse init (variable declaration or expression)
+        let init = if self.check(&TokenType::Semicolon) {
+            None
+        } else {
+            self.parse_loop_init_statement()?
+        };
+
+        self.consume(
+            &TokenType::Semicolon,
+            &format!("Expected ';' after '{}' loop initializer", keyword),
+        )?;
+
+        // Parse condition (optional for legacy loop syntax)
+        let condition = if self.check(&TokenType::Semicolon) {
+            None
+        } else {
+            Some(Box::new(self.parse_expression()?))
+        };
+
+        if require_condition && condition.is_none() {
+            return Err(format!("{} loop requires a condition expression", keyword));
+        }
+
+        self.consume(
+            &TokenType::Semicolon,
+            &format!("Expected ';' after '{}' loop condition", keyword),
+        )?;
+
+        // Parse update (optional expression)
+        let update = if self.check(&TokenType::RParen) {
+            None
+        } else {
+            let expr = self.parse_expression()?;
+            Some(Box::new(AstNode::ExpressionStatement(Box::new(expr))))
+        };
+
+        self.consume(
+            &TokenType::RParen,
+            &format!("Expected ')' after '{}' loop clauses", keyword),
+        )?;
+
+        Ok((init, condition, update))
+    }
+
+    fn parse_loop_init_statement(&mut self) -> Result<Option<Box<AstNode>>, String> {
+        if self.match_token(&TokenType::Induce)
+            || self.match_token(&TokenType::Implant)
+            || self.match_token(&TokenType::Embed)
+            || self.match_token(&TokenType::Freeze)
+        {
+            let is_constant = self.previous().token_type == TokenType::Freeze;
+            let name = self
+                .consume(&TokenType::Identifier, "Expected variable name")?
+                .lexeme
+                .clone();
+
+            let type_annotation = if self.match_token(&TokenType::Colon) {
+                let type_token = self.advance();
+                Some(type_token.lexeme.clone())
+            } else {
+                None
+            };
+
+            let initializer = if self.match_token(&TokenType::Equals) {
+                Some(Box::new(self.parse_expression()?))
+            } else {
+                None
+            };
+
+            return Ok(Some(Box::new(AstNode::VariableDeclaration {
+                name,
+                type_annotation,
+                initializer,
+                is_constant,
+                storage: VariableStorage::Local,
+            })));
+        }
+
+        if self.check(&TokenType::Semicolon) {
+            return Ok(None);
+        }
+
+        let expr = self.parse_expression()?;
+        Ok(Some(Box::new(AstNode::ExpressionStatement(Box::new(expr)))))
     }
 
     /// Parse function declaration
@@ -416,7 +640,7 @@ impl Parser {
         };
 
         self.consume(&TokenType::LBrace, "Expected '{' after function signature")?;
-        let body = self.parse_block_statements()?;
+        let body = self.parse_block_statements(BlockContext::Regular)?;
         self.consume(&TokenType::RBrace, "Expected '}' after function body")?;
 
         Ok(AstNode::FunctionDeclaration {
@@ -444,6 +668,82 @@ impl Parser {
         self.consume(&TokenType::RBrace, "Expected '}' after session body")?;
 
         Ok(AstNode::SessionDeclaration { name, members })
+    }
+
+    /// Parse tranceify declaration (record/struct type definition)
+    /// Example: tranceify Person { name: string; age: number; isInTrance: boolean; }
+    fn parse_tranceify_declaration(&mut self) -> Result<AstNode, String> {
+        let name = self
+            .consume(&TokenType::Identifier, "Expected tranceify type name")?
+            .lexeme
+            .clone();
+
+        self.consume(&TokenType::LBrace, "Expected '{' after tranceify name")?;
+
+        let mut fields = Vec::new();
+        while !self.check(&TokenType::RBrace) && !self.is_at_end() {
+            let field_name = self
+                .consume(&TokenType::Identifier, "Expected field name")?
+                .lexeme
+                .clone();
+
+            self.consume(&TokenType::Colon, "Expected ':' after field name")?;
+
+            let type_annotation = self.parse_type_annotation()?;
+
+            self.consume(
+                &TokenType::Semicolon,
+                "Expected ';' after field declaration",
+            )?;
+
+            fields.push(TranceifyField {
+                name: field_name,
+                type_annotation,
+            });
+        }
+
+        self.consume(&TokenType::RBrace, "Expected '}' after tranceify body")?;
+
+        Ok(AstNode::TranceifyDeclaration { name, fields })
+    }
+
+    /// Parse record literal (instance of a tranceify type)
+    /// Example: Person { name: "Alice", age: 30, isInTrance: true }
+    /// Note: The opening '{' has already been consumed
+    fn parse_record_literal(&mut self, type_name: String) -> Result<AstNode, String> {
+        let mut fields = Vec::new();
+
+        if !self.check(&TokenType::RBrace) {
+            loop {
+                let field_name = self
+                    .consume(&TokenType::Identifier, "Expected field name")?
+                    .lexeme
+                    .clone();
+
+                self.consume(&TokenType::Colon, "Expected ':' after field name")?;
+
+                let value = Box::new(self.parse_expression()?);
+
+                fields.push(RecordFieldInit {
+                    name: field_name,
+                    value,
+                });
+
+                if self.match_token(&TokenType::Comma) {
+                    // Allow trailing comma
+                    if self.check(&TokenType::RBrace) {
+                        break;
+                    }
+                    continue;
+                } else {
+                    break;
+                }
+            }
+        }
+
+        self.consume(&TokenType::RBrace, "Expected '}' after record fields")?;
+
+        Ok(AstNode::RecordLiteral { type_name, fields })
     }
 
     /// Parse an individual session member (field or method)
@@ -578,7 +878,7 @@ impl Parser {
         };
 
         self.consume(&TokenType::LBrace, "Expected '{' after method signature")?;
-        let body = self.parse_block_statements()?;
+        let body = self.parse_block_statements(BlockContext::Regular)?;
         self.consume(&TokenType::RBrace, "Expected '}' after method body")?;
 
         Ok(SessionMember::Method(SessionMethod {
@@ -620,7 +920,7 @@ impl Parser {
 
     /// Parse assignment
     fn parse_assignment(&mut self) -> Result<AstNode, String> {
-        let expr = self.parse_logical_or()?;
+        let expr = self.parse_nullish_coalescing()?;
 
         if self.match_token(&TokenType::Equals) {
             let value = Box::new(self.parse_assignment()?);
@@ -631,6 +931,21 @@ impl Parser {
         }
 
         Ok(expr)
+    }
+
+    /// Parse nullish coalescing (?? or lucidFallback)
+    fn parse_nullish_coalescing(&mut self) -> Result<AstNode, String> {
+        let mut left = self.parse_logical_or()?;
+
+        while self.match_tokens(&[TokenType::QuestionQuestion, TokenType::LucidFallback]) {
+            let right = Box::new(self.parse_logical_or()?);
+            left = AstNode::NullishCoalescing {
+                left: Box::new(left),
+                right,
+            };
+        }
+
+        Ok(left)
     }
 
     /// Parse logical OR
@@ -754,6 +1069,12 @@ impl Parser {
 
     /// Parse unary
     fn parse_unary(&mut self) -> Result<AstNode, String> {
+        // Handle await/surrenderTo
+        if self.match_tokens(&[TokenType::Await, TokenType::SurrenderTo]) {
+            let expression = Box::new(self.parse_unary()?);
+            return Ok(AstNode::AwaitExpression { expression });
+        }
+
         if self.match_tokens(&[TokenType::Bang, TokenType::Minus]) {
             let operator = self.previous().lexeme.clone();
             let operand = Box::new(self.parse_unary()?);
@@ -770,6 +1091,25 @@ impl Parser {
         loop {
             if self.match_token(&TokenType::LParen) {
                 expr = self.finish_call(expr)?;
+            } else if self.match_tokens(&[TokenType::QuestionDot, TokenType::DreamReach]) {
+                // Optional chaining (?. or dreamReach)
+                if self.check(&TokenType::Identifier) {
+                    let property = self.advance().lexeme.clone();
+                    expr = AstNode::OptionalChaining {
+                        object: Box::new(expr),
+                        property,
+                    };
+                } else if self.match_token(&TokenType::LBracket) {
+                    // Optional indexing ?.[
+                    let index = Box::new(self.parse_expression()?);
+                    self.consume(&TokenType::RBracket, "Expected ']' after optional index")?;
+                    expr = AstNode::OptionalIndexing {
+                        object: Box::new(expr),
+                        index,
+                    };
+                } else {
+                    return Err("Expected property name or '[' after '?.'".to_string());
+                }
             } else if self.match_token(&TokenType::Dot) {
                 let property = self
                     .consume(&TokenType::Identifier, "Expected property name after '.'")?
@@ -817,6 +1157,11 @@ impl Parser {
 
     /// Parse primary expression
     fn parse_primary(&mut self) -> Result<AstNode, String> {
+        // Entrain (pattern matching) expression
+        if self.check(&TokenType::Entrain) {
+            return self.parse_entrain_expression();
+        }
+
         // Number literal
         if self.check(&TokenType::NumberLiteral) {
             let token = self.advance();
@@ -841,10 +1186,25 @@ impl Parser {
             return Ok(AstNode::BooleanLiteral(false));
         }
 
-        // Identifier
+        // Identifier or Record Literal
         if self.check(&TokenType::Identifier) {
             let token = self.advance();
-            return Ok(AstNode::Identifier(token.lexeme.clone()));
+            let identifier = token.lexeme.clone();
+
+            // Check if this is a record literal (Type { field: value, ... })
+            if self.check(&TokenType::LBrace) {
+                let next_token_type = self.peek_next().map(|tok| &tok.token_type);
+
+                if matches!(
+                    next_token_type,
+                    Some(TokenType::Identifier) | Some(TokenType::RBrace)
+                ) {
+                    self.advance(); // consume '{'
+                    return self.parse_record_literal(identifier);
+                }
+            }
+
+            return Ok(AstNode::Identifier(identifier));
         }
 
         // Array literal
@@ -870,6 +1230,203 @@ impl Parser {
         }
 
         Err(format!("Unexpected token: {:?}", self.peek()))
+    }
+
+    /// Parse entrain (pattern matching) expression
+    fn parse_entrain_expression(&mut self) -> Result<AstNode, String> {
+        self.consume(&TokenType::Entrain, "Expected 'entrain'")?;
+        let subject = Box::new(self.parse_expression()?);
+        self.consume(&TokenType::LBrace, "Expected '{' after entrain subject")?;
+
+        let mut cases = Vec::new();
+        let mut default_case = None;
+
+        while !self.check(&TokenType::RBrace) && !self.is_at_end() {
+            if self.match_token(&TokenType::Otherwise) {
+                self.consume(&TokenType::Arrow, "Expected '=>' after 'otherwise'")?;
+                default_case = Some(self.parse_entrain_body()?);
+                self.match_token(&TokenType::Comma);
+                self.match_token(&TokenType::Semicolon);
+                break;
+            }
+
+            self.consume(&TokenType::When, "Expected 'when' or 'otherwise'")?;
+            let pattern = self.parse_pattern()?;
+
+            let guard = if self.match_token(&TokenType::If) {
+                Some(Box::new(self.parse_expression()?))
+            } else {
+                None
+            };
+
+            self.consume(&TokenType::Arrow, "Expected '=>' after pattern")?;
+            let body = self.parse_entrain_body()?;
+
+            cases.push(EntrainCase {
+                pattern,
+                guard,
+                body,
+            });
+
+            // Optional comma or semicolon between cases
+            self.match_token(&TokenType::Comma);
+            self.match_token(&TokenType::Semicolon);
+        }
+
+        self.consume(&TokenType::RBrace, "Expected '}' after entrain cases")?;
+
+        Ok(AstNode::EntrainExpression {
+            subject,
+            cases,
+            default: default_case,
+        })
+    }
+
+    /// Parse pattern for matching
+    fn parse_pattern(&mut self) -> Result<Pattern, String> {
+        // Literal patterns
+        if self.check(&TokenType::NumberLiteral) {
+            let token = self.advance();
+            let value = token
+                .lexeme
+                .parse::<f64>()
+                .map_err(|_| format!("Invalid number: {}", token.lexeme))?;
+            return Ok(Pattern::Literal(Box::new(AstNode::NumberLiteral(value))));
+        }
+
+        if self.check(&TokenType::StringLiteral) {
+            let token = self.advance();
+            return Ok(Pattern::Literal(Box::new(AstNode::StringLiteral(
+                token.lexeme.clone(),
+            ))));
+        }
+
+        if self.match_token(&TokenType::True) {
+            return Ok(Pattern::Literal(Box::new(AstNode::BooleanLiteral(true))));
+        }
+
+        if self.match_token(&TokenType::False) {
+            return Ok(Pattern::Literal(Box::new(AstNode::BooleanLiteral(false))));
+        }
+
+        // Array pattern: [first, second, ...rest]
+        if self.match_token(&TokenType::LBracket) {
+            let mut elements = Vec::new();
+            let mut rest = None;
+
+            if !self.check(&TokenType::RBracket) {
+                loop {
+                    if self.match_token(&TokenType::DotDotDot) {
+                        // Rest pattern
+                        if self.check(&TokenType::Identifier) {
+                            rest = Some(self.advance().lexeme.clone());
+                        }
+                        break;
+                    }
+
+                    elements.push(self.parse_pattern()?);
+
+                    if !self.match_token(&TokenType::Comma) {
+                        break;
+                    }
+                }
+            }
+
+            self.consume(&TokenType::RBracket, "Expected ']' after array pattern")?;
+            return Ok(Pattern::Array { elements, rest });
+        }
+
+        // Record pattern or identifier with type annotation
+        if self.check(&TokenType::Identifier) {
+            let name = self.advance().lexeme.clone();
+
+            // Check for type annotation: name: Type
+            if self.match_token(&TokenType::Colon) {
+                let type_annotation = self.parse_type_annotation()?;
+                return Ok(Pattern::Typed {
+                    name: Some(name),
+                    type_annotation,
+                });
+            }
+
+            // Check for record pattern: TypeName { field1, field2 }
+            if self.match_token(&TokenType::LBrace) {
+                let type_name = name.clone();
+                let mut fields = Vec::new();
+
+                if !self.check(&TokenType::RBrace) {
+                    loop {
+                        let field_name = self
+                            .consume(
+                                &TokenType::Identifier,
+                                "Expected field name in record pattern",
+                            )?
+                            .lexeme
+                            .clone();
+
+                        let pattern = if self.match_token(&TokenType::Colon) {
+                            Some(Box::new(self.parse_pattern()?))
+                        } else {
+                            None
+                        };
+
+                        fields.push(RecordFieldPattern {
+                            name: field_name,
+                            pattern,
+                        });
+
+                        if !self.match_token(&TokenType::Comma) {
+                            break;
+                        }
+                    }
+                }
+
+                self.consume(&TokenType::RBrace, "Expected '}' after record pattern")?;
+                return Ok(Pattern::Record { type_name, fields });
+            }
+
+            // Simple identifier binding
+            return Ok(Pattern::Identifier(name));
+        }
+
+        Err(format!("Expected pattern, got {:?}", self.peek()))
+    }
+
+    /// Parse body of an entrain case (can be block or single expression)
+    fn parse_entrain_body(&mut self) -> Result<Vec<AstNode>, String> {
+        if self.match_token(&TokenType::LBrace) {
+            let mut statements = Vec::new();
+            while !self.check(&TokenType::RBrace) && !self.is_at_end() {
+                statements.push(self.parse_statement(BlockContext::Regular)?);
+            }
+            self.consume(&TokenType::RBrace, "Expected '}' after block")?;
+            Ok(statements)
+        } else {
+            // Single expression
+            Ok(vec![self.parse_expression()?])
+        }
+    }
+
+    /// Parse type annotation (returns the type as a string)
+    fn parse_type_annotation(&mut self) -> Result<String, String> {
+        // Accept identifiers and type keywords (number, string, boolean)
+        let type_name = match self.peek().token_type {
+            TokenType::Identifier => self.advance().lexeme.clone(),
+            TokenType::Number => {
+                self.advance();
+                "number".to_string()
+            }
+            TokenType::String => {
+                self.advance();
+                "string".to_string()
+            }
+            TokenType::Boolean => {
+                self.advance();
+                "boolean".to_string()
+            }
+            _ => return Err(format!("Expected type annotation, got {:?}", self.peek())),
+        };
+        Ok(type_name)
     }
 
     // Helper methods
@@ -917,6 +1474,14 @@ impl Parser {
 
     fn previous(&self) -> Token {
         self.tokens[self.current - 1].clone()
+    }
+
+    fn peek_next(&self) -> Option<&Token> {
+        if self.current + 1 >= self.tokens.len() {
+            None
+        } else {
+            Some(&self.tokens[self.current + 1])
+        }
     }
 
     fn consume(&mut self, token_type: &TokenType, message: &str) -> Result<Token, String> {
@@ -980,5 +1545,79 @@ Focus {
         let mut parser = Parser::new(tokens);
         let ast = parser.parse_program();
         assert!(ast.is_ok());
+    }
+
+    #[test]
+    fn test_parse_entrain_with_record_pattern() {
+        let source = r#"
+Focus {
+    tranceify HypnoGuest {
+        name: string;
+        isInTrance: boolean;
+        depth: number;
+    }
+
+    entrance {
+        induce guest = HypnoGuest {
+            name: "Luna",
+            isInTrance: true,
+            depth: 7,
+        };
+
+        induce status: string = entrain guest {
+            when HypnoGuest { name: alias } => alias;
+            otherwise => "Unknown";
+        };
+
+        observe status;
+    }
+} Relax
+"#;
+
+        let mut lexer = Lexer::new(source);
+        let tokens = lexer.lex().unwrap();
+        let mut parser = Parser::new(tokens);
+        let ast = parser.parse_program();
+        assert!(ast.is_ok(), "parse failed: {:?}", ast.err());
+    }
+
+    #[test]
+    fn test_trigger_inside_function_is_rejected() {
+        let source = r#"
+Focus {
+    suggestion inner() {
+        trigger localTrigger = suggestion() {
+            observe "Nope";
+        };
+    }
+} Relax
+"#;
+        let mut lexer = Lexer::new(source);
+        let tokens = lexer.lex().unwrap();
+        let mut parser = Parser::new(tokens);
+        let ast = parser.parse_program();
+        assert!(ast.is_err());
+        let error = ast.err().unwrap();
+        assert!(error.contains("Triggers can only be declared at the top level"));
+    }
+
+    #[test]
+    fn test_entrance_inside_function_is_rejected() {
+        let source = r#"
+Focus {
+    suggestion wrong() {
+        entrance {
+            observe "Nope";
+        }
+    }
+} Relax
+"#;
+        let mut lexer = Lexer::new(source);
+        let tokens = lexer.lex().unwrap();
+        let mut parser = Parser::new(tokens);
+        let ast = parser.parse_program();
+        assert!(ast.is_err());
+        let error = ast.err().unwrap();
+        assert!(error.contains("'entrance' blocks are only allowed at the top level"));
     }
 }

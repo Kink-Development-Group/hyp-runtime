@@ -1,7 +1,51 @@
+use crate::builtin_trait::BuiltinModule;
+use crate::localization::LocalizedMessage;
 use chrono::{Datelike, Local, NaiveDate, Timelike};
 
 /// Time and date builtin functions
+///
+/// Provides comprehensive date/time operations including formatting,
+/// calculations, and calendar functions.
 pub struct TimeBuiltins;
+
+impl BuiltinModule for TimeBuiltins {
+    fn module_name() -> &'static str {
+        "Time"
+    }
+
+    fn description() -> &'static str {
+        "Date and time functions for timestamps, formatting, and calendar operations"
+    }
+
+    fn description_localized(locale: Option<&str>) -> String {
+        let locale = crate::localization::detect_locale(locale);
+        let msg = LocalizedMessage::new("Date and time functions for timestamps, formatting, and calendar operations")
+            .with_translation("de", "Datums- und Zeitfunktionen für Zeitstempel, Formatierung und Kalenderoperationen")
+            .with_translation("fr", "Fonctions de date et heure pour les horodatages, le formatage et les opérations calendaires")
+            .with_translation("es", "Funciones de fecha y hora para marcas de tiempo, formato y operaciones de calendario");
+        msg.resolve(&locale).to_string()
+    }
+
+    fn function_names() -> &'static [&'static str] {
+        &[
+            "GetCurrentTime",
+            "GetCurrentDate",
+            "GetCurrentTimeString",
+            "GetCurrentDateTime",
+            "FormatDateTime",
+            "GetDayOfWeek",
+            "GetDayOfYear",
+            "IsLeapYear",
+            "GetDaysInMonth",
+            "GetYear",
+            "GetMonth",
+            "GetDay",
+            "GetHour",
+            "GetMinute",
+            "GetSecond",
+        ]
+    }
+}
 
 impl TimeBuiltins {
     /// Get current Unix timestamp

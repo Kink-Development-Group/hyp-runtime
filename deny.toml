@@ -74,6 +74,7 @@ ignore = [
     #{ id = "RUSTSEC-0000-0000", reason = "you can specify a reason the advisory is ignored" },
     #"a-crate-that-is-yanked@0.1.1", # you can also ignore yanked crate versions if you wish
     #{ crate = "a-crate-that-is-yanked@0.1.1", reason = "you can specify why you are ignoring the yanked crate" },
+    { id = "RUSTSEC-2020-0168", reason = "mach crate is only pulled in transitively via cranelift on macOS, and upstream region/mach2 migration is being tracked in issue #214; no maintained alternative released yet" },
 ]
 # If this is true, then cargo deny will use the git executable to fetch advisory database.
 # If this is false, then it uses a built-in git library.
@@ -119,6 +120,7 @@ exceptions = [
     # list
     #{ allow = ["Zlib"], crate = "adler32" },
     { crate = "android_system_properties", allow = ["Apache-2.0", "MIT"] },
+    { crate = "webpki-roots", allow = ["MPL-2.0"] },
 ]
 
 # Some crates don't have (easily) machine readable licensing information,

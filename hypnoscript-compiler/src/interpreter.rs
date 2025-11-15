@@ -1,27 +1,37 @@
 use hypnoscript_lexer_parser::ast::{
-    AstNode, SessionField, SessionMember, SessionMethod, SessionVisibility,
+    AstNode, Pattern, SessionField, SessionMember, SessionMethod, SessionVisibility,
+    VariableStorage,
 };
 use hypnoscript_runtime::{
     ArrayBuiltins, CoreBuiltins, FileBuiltins, HashingBuiltins, MathBuiltins, StatisticsBuiltins,
     StringBuiltins, SystemBuiltins, TimeBuiltins, ValidationBuiltins,
 };
 use std::cell::RefCell;
-use std::collections::HashMap;
+use std::collections::{HashMap, HashSet};
 use std::rc::Rc;
 use thiserror::Error;
 
+/// Interpreter errors that can occur during program execution.
+///
+/// These errors represent runtime failures in HypnoScript programs,
+/// including type mismatches, undefined variables, and control flow errors.
 #[derive(Error, Debug)]
 pub enum InterpreterError {
     #[error("Runtime error: {0}")]
     Runtime(String),
+
     #[error("Break statement outside of loop")]
     BreakOutsideLoop,
+
     #[error("Continue statement outside of loop")]
     ContinueOutsideLoop,
+
     #[error("Return from function: {0:?}")]
     Return(Value),
+
     #[error("Variable '{0}' not found")]
     UndefinedVariable(String),
+
     #[error("Type error: {0}")]
     TypeError(String),
 }
@@ -31,7 +41,37 @@ fn localized(en: &str, de: &str) -> String {
     format!("{} (DE: {})", en, de)
 }
 
-/// Represents a callable suggestion within the interpreter.
+#[derive(Clone, Copy, Debug)]
+enum ScopeLayer {
+    Local,
+    Global,
+    Shared,
+}
+
+/// Represents a callable suggestion (function) within the interpreter.
+///
+/// HypnoScript functions can be:
+/// - Global suggestions (top-level functions)
+/// - Session methods (instance methods)
+/// - Static session methods (`dominant` keyword)
+/// - Constructors (special session methods)
+/// - Triggers (event-driven callbacks)
+///
+/// # Examples
+///
+/// ```hyp
+/// // Global suggestion
+/// suggestion greet(name: string) {
+///     awaken "Hello, " + name;
+/// }
+///
+/// // Session method
+/// session Calculator {
+///     suggestion add(a: number, b: number) {
+///         awaken a + b;
+///     }
+/// }
+/// ```
 #[derive(Debug, Clone)]
 pub struct FunctionValue {
     name: String,
@@ -95,6 +135,18 @@ impl PartialEq for FunctionValue {
 impl Eq for FunctionValue {}
 
 /// Definition of a session field (instance scope).
+///
+/// Session fields represent instance-level variables in HypnoScript sessions (classes).
+/// They can have visibility modifiers (`expose`/`conceal`) and optional type annotations.
+///
+/// # Examples
+///
+/// ```hyp
+/// session Person {
+///     expose name: string = "Unknown";
+///     conceal age: number = 0;
+/// }
+/// ```
 #[derive(Debug, Clone)]
 struct SessionFieldDefinition {
     name: String,
@@ -105,6 +157,33 @@ struct SessionFieldDefinition {
 }
 
 /// Definition of a session method.
+///
+/// Session methods represent callable functions within HypnoScript sessions.
+/// They can be:
+/// - Instance methods (default)
+/// - Static methods (`dominant` keyword)
+/// - Constructors (special methods with `constructor` keyword)
+///
+/// # Examples
+///
+/// ```hyp
+/// session Calculator {
+///     // Constructor
+///     constructor(initial: number) {
+///         induce this.value = initial;
+///     }
+///
+///     // Instance method
+///     expose suggestion add(n: number) {
+///         induce this.value = this.value + n;
+///     }
+///
+///     // Static method
+///     dominant suggestion createDefault() {
+///         awaken Calculator(0);
+///     }
+/// }
+/// ```
 #[derive(Debug, Clone)]
 struct SessionMethodDefinition {
     name: String,
@@ -116,6 +195,21 @@ struct SessionMethodDefinition {
 }
 
 /// Runtime data for a static field, including its initializer AST.
+///
+/// Static fields are initialized once and shared across all session instances.
+/// They are declared with the `dominant` keyword in HypnoScript.
+///
+/// # Examples
+///
+/// ```hyp
+/// session Counter {
+///     dominant instanceCount: number = 0;
+///
+///     constructor() {
+///         induce Counter.instanceCount = Counter.instanceCount + 1;
+///     }
+/// }
+/// ```
 #[derive(Debug, Clone)]
 struct SessionStaticField {
     definition: SessionFieldDefinition,
@@ -124,6 +218,39 @@ struct SessionStaticField {
 }
 
 /// Stores metadata and static members for a session (class-like construct).
+///
+/// Sessions are HypnoScript's OOP construct, similar to classes in other languages.
+/// They support:
+/// - Instance and static fields
+/// - Instance and static methods
+/// - Constructors
+/// - Visibility modifiers (`expose`/`conceal`)
+///
+/// # Examples
+///
+/// ```hyp
+/// session BankAccount {
+///     conceal balance: number = 0;
+///     dominant totalAccounts: number = 0;
+///
+///     constructor(initialBalance: number) {
+///         induce this.balance = initialBalance;
+///         induce BankAccount.totalAccounts = BankAccount.totalAccounts + 1;
+///     }
+///
+///     expose suggestion deposit(amount: number) {
+///         induce this.balance = this.balance + amount;
+///     }
+///
+///     expose suggestion getBalance() {
+///         awaken this.balance;
+///     }
+///
+///     dominant suggestion getTotalAccounts() {
+///         awaken BankAccount.totalAccounts;
+///     }
+/// }
+/// ```
 #[derive(Debug)]
 pub struct SessionDefinition {
     name: String,
@@ -303,6 +430,27 @@ impl SessionDefinition {
 }
 
 /// Runtime representation of a session instance.
+///
+/// Each instantiated session creates a `SessionInstance` that holds:
+/// - A reference to the session definition (metadata)
+/// - Instance-specific field values
+///
+/// # Examples
+///
+/// ```hyp
+/// session Person {
+///     expose name: string = "Unknown";
+///     expose age: number = 0;
+///
+///     constructor(n: string, a: number) {
+///         induce this.name = n;
+///         induce this.age = a;
+///     }
+/// }
+///
+/// // Creates a SessionInstance
+/// induce person = Person("Alice", 30);
+/// ```
 #[derive(Debug)]
 pub struct SessionInstance {
     definition: Rc<SessionDefinition>,
@@ -343,7 +491,88 @@ struct ExecutionContextFrame {
     session_name: Option<String>,
 }
 
-/// Runtime value in HypnoScript
+/// Simple Promise/Future wrapper for async operations.
+///
+/// Promises represent asynchronous computations in HypnoScript.
+/// They are created by `mesmerize` suggestions and resolved with `await` or `surrenderTo`.
+///
+/// # Examples
+///
+/// ```hyp
+/// // Async suggestion returns a Promise
+/// mesmerize suggestion fetchData() {
+///     induce data = "some data";
+///     awaken data;
+/// }
+///
+/// entrance {
+///     induce result = await fetchData();
+///     observe result;
+/// }
+/// ```
+#[derive(Debug, Clone)]
+pub struct Promise {
+    /// The resolved value (if completed)
+    value: Option<Value>,
+    /// Whether the promise is resolved
+    resolved: bool,
+}
+
+impl Promise {
+    #[allow(dead_code)]
+    fn new() -> Self {
+        Self {
+            value: None,
+            resolved: false,
+        }
+    }
+
+    #[allow(dead_code)]
+    fn resolve(value: Value) -> Self {
+        Self {
+            value: Some(value),
+            resolved: true,
+        }
+    }
+
+    fn is_resolved(&self) -> bool {
+        self.resolved
+    }
+
+    fn get_value(&self) -> Option<Value> {
+        self.value.clone()
+    }
+}
+
+/// Runtime value in HypnoScript.
+///
+/// Represents all possible runtime values in the HypnoScript interpreter.
+/// This includes primitives, collections, functions, sessions, and async values.
+///
+/// # Variants
+///
+/// - `Number(f64)` - Numeric values (e.g., `42`, `3.14`)
+/// - `String(String)` - Text values (e.g., `"Hello"`)
+/// - `Boolean(bool)` - Boolean values (`true`/`false`)
+/// - `Array(Vec<Value>)` - Arrays (e.g., `[1, 2, 3]`)
+/// - `Function(FunctionValue)` - Callable suggestions
+/// - `Session(Rc<SessionDefinition>)` - Session type (class constructor)
+/// - `Instance(Rc<RefCell<SessionInstance>>)` - Session instance
+/// - `Promise(Rc<RefCell<Promise>>)` - Async promise from `mesmerize`
+/// - `Record(RecordValue)` - Record/struct from `tranceify`
+/// - `Null` - Null value
+///
+/// # Examples
+///
+/// ```hyp
+/// induce num: number = 42;                    // Value::Number
+/// induce text: string = "Hello";              // Value::String
+/// induce flag: boolean = true;                // Value::Boolean
+/// induce list: number[] = [1, 2, 3];          // Value::Array
+/// induce account = BankAccount(100);          // Value::Instance
+/// induce promise = mesmerize getData();       // Value::Promise
+/// induce nothing: null = null;                // Value::Null
+/// ```
 #[derive(Debug, Clone)]
 pub enum Value {
     Number(f64),
@@ -353,8 +582,42 @@ pub enum Value {
     Function(FunctionValue),
     Session(Rc<SessionDefinition>),
     Instance(Rc<RefCell<SessionInstance>>),
+    Promise(Rc<RefCell<Promise>>),
+    Record(RecordValue),
     Null,
 }
+
+/// A record instance (from tranceify declarations).
+///
+/// Records are user-defined structured data types in HypnoScript,
+/// similar to structs in other languages.
+///
+/// # Examples
+///
+/// ```hyp
+/// tranceify Point {
+///     x: number,
+///     y: number
+/// }
+///
+/// entrance {
+///     induce p = Point { x: 10, y: 20 };
+///     observe p.x;  // 10
+/// }
+/// ```
+#[derive(Debug, Clone)]
+pub struct RecordValue {
+    pub type_name: String,
+    pub fields: HashMap<String, Value>,
+}
+
+impl PartialEq for RecordValue {
+    fn eq(&self, other: &Self) -> bool {
+        self.type_name == other.type_name && self.fields == other.fields
+    }
+}
+
+impl Eq for RecordValue {}
 
 impl PartialEq for Value {
     fn eq(&self, other: &Self) -> bool {
@@ -367,6 +630,8 @@ impl PartialEq for Value {
             (Value::Function(fa), Value::Function(fb)) => fa == fb,
             (Value::Session(sa), Value::Session(sb)) => Rc::ptr_eq(sa, sb),
             (Value::Instance(ia), Value::Instance(ib)) => Rc::ptr_eq(ia, ib),
+            (Value::Promise(pa), Value::Promise(pb)) => Rc::ptr_eq(pa, pb),
+            (Value::Record(ra), Value::Record(rb)) => ra == rb,
             _ => false,
         }
     }
@@ -382,7 +647,11 @@ impl Value {
             Value::Number(n) => *n != 0.0,
             Value::String(s) => !s.is_empty(),
             Value::Array(a) => !a.is_empty(),
-            Value::Function(_) | Value::Session(_) | Value::Instance(_) => true,
+            Value::Function(_)
+            | Value::Session(_)
+            | Value::Instance(_)
+            | Value::Promise(_)
+            | Value::Record(_) => true,
         }
     }
 
@@ -417,14 +686,81 @@ impl std::fmt::Display for Value {
                 let name = instance.borrow().definition_name().to_string();
                 write!(f, "<session-instance {}>", name)
             }
+            Value::Promise(promise) => {
+                if promise.borrow().is_resolved() {
+                    write!(f, "<promise resolved>")
+                } else {
+                    write!(f, "<promise pending>")
+                }
+            }
+            Value::Record(record) => {
+                write!(f, "<record {}>", record.type_name)
+            }
         }
     }
 }
 
+/// The HypnoScript interpreter.
+///
+/// Executes HypnoScript AST nodes using a tree-walking interpretation strategy.
+/// Supports:
+/// - Variable scopes (global, shared, local)
+/// - Functions and triggers
+/// - Sessions (OOP)
+/// - Pattern matching (`entrain`/`when`)
+/// - Async execution (`mesmerize`/`await`)
+/// - Channels for inter-task communication
+/// - 180+ builtin functions
+///
+/// # Architecture
+///
+/// The interpreter maintains:
+/// - `globals`: Top-level variables in `Focus { ... } Relax` scope
+/// - `shared`: Variables declared with `sharedTrance` (module-level)
+/// - `locals`: Stack of local scopes (function calls, loops, blocks)
+/// - `const_globals`/`const_locals`: Tracks immutable variables (`freeze`)
+/// - `execution_context`: Call stack for session method dispatch
+/// - `tranceify_types`: Record type definitions
+/// - `async_runtime`: Optional async task executor
+/// - `channel_registry`: Optional channel system for message passing
+///
+/// # Examples
+///
+/// ```rust
+/// use hypnoscript_compiler::Interpreter;
+/// use hypnoscript_lexer_parser::Parser;
+/// use hypnoscript_lexer_parser::Lexer;
+///
+/// let source = r#"
+///     Focus {
+///         entrance {
+///             observe "Hello, World!";
+///         }
+///     } Relax;
+/// "#;
+///
+/// let mut lexer = Lexer::new(source);
+/// let tokens = lexer.lex().unwrap();
+/// let mut parser = Parser::new(tokens);
+/// let ast = parser.parse_program().unwrap();
+/// let mut interpreter = Interpreter::new();
+/// interpreter.execute_program(ast).unwrap();
+/// ```
 pub struct Interpreter {
     globals: HashMap<String, Value>,
+    shared: HashMap<String, Value>,
+    const_globals: HashSet<String>,
     locals: Vec<HashMap<String, Value>>,
+    const_locals: Vec<HashSet<String>>,
     execution_context: Vec<ExecutionContextFrame>,
+    /// Tranceify type definitions (field names for each type)
+    tranceify_types: HashMap<String, Vec<String>>,
+
+    /// Optional async runtime for true async execution
+    pub async_runtime: Option<std::sync::Arc<crate::async_runtime::AsyncRuntime>>,
+
+    /// Optional channel registry for inter-task communication
+    pub channel_registry: Option<std::sync::Arc<crate::channel_system::ChannelRegistry>>,
 }
 
 impl Default for Interpreter {
@@ -437,9 +773,49 @@ impl Interpreter {
     pub fn new() -> Self {
         Self {
             globals: HashMap::new(),
+            shared: HashMap::new(),
+            const_globals: HashSet::new(),
             locals: Vec::new(),
+            const_locals: Vec::new(),
             execution_context: Vec::new(),
+            tranceify_types: HashMap::new(),
+            async_runtime: None,
+            channel_registry: None,
         }
+    }
+
+    /// Create interpreter with async runtime support
+    pub fn with_async_runtime() -> Result<Self, InterpreterError> {
+        let runtime = crate::async_runtime::AsyncRuntime::new().map_err(|e| {
+            InterpreterError::Runtime(format!("Failed to create async runtime: {}", e))
+        })?;
+        let registry = crate::channel_system::ChannelRegistry::new();
+
+        Ok(Self {
+            globals: HashMap::new(),
+            shared: HashMap::new(),
+            const_globals: HashSet::new(),
+            locals: Vec::new(),
+            const_locals: Vec::new(),
+            execution_context: Vec::new(),
+            tranceify_types: HashMap::new(),
+            async_runtime: Some(std::sync::Arc::new(runtime)),
+            channel_registry: Some(std::sync::Arc::new(registry)),
+        })
+    }
+
+    /// Enable async runtime for existing interpreter
+    pub fn enable_async_runtime(&mut self) -> Result<(), InterpreterError> {
+        if self.async_runtime.is_none() {
+            let runtime = crate::async_runtime::AsyncRuntime::new().map_err(|e| {
+                InterpreterError::Runtime(format!("Failed to create async runtime: {}", e))
+            })?;
+            let registry = crate::channel_system::ChannelRegistry::new();
+
+            self.async_runtime = Some(std::sync::Arc::new(runtime));
+            self.channel_registry = Some(std::sync::Arc::new(registry));
+        }
+        Ok(())
     }
 
     pub fn execute_program(&mut self, program: AstNode) -> Result<(), InterpreterError> {
@@ -461,21 +837,23 @@ impl Interpreter {
                 name,
                 type_annotation: _,
                 initializer,
-                is_constant: _,
+                is_constant,
+                storage,
             } => {
                 let value = if let Some(init) = initializer {
                     self.evaluate_expression(init)?
                 } else {
                     Value::Null
                 };
-                self.set_variable(name.clone(), value);
+                self.define_variable(*storage, name.clone(), value, *is_constant);
                 Ok(())
             }
 
             AstNode::AnchorDeclaration { name, source } => {
                 // Anchor saves the current value of a variable
                 let value = self.evaluate_expression(source)?;
-                self.set_variable(name.clone(), value);
+                let scope = self.resolve_assignment_scope(name);
+                self.set_variable(name.clone(), value, scope)?;
                 Ok(())
             }
 
@@ -487,7 +865,12 @@ impl Interpreter {
             } => {
                 let param_names: Vec<String> = parameters.iter().map(|p| p.name.clone()).collect();
                 let func = FunctionValue::new_global(name.clone(), param_names, body.clone());
-                self.set_variable(name.clone(), Value::Function(func));
+                self.define_variable(
+                    VariableStorage::Local,
+                    name.clone(),
+                    Value::Function(func),
+                    false,
+                );
                 Ok(())
             }
 
@@ -500,14 +883,31 @@ impl Interpreter {
                 // Triggers are handled like functions
                 let param_names: Vec<String> = parameters.iter().map(|p| p.name.clone()).collect();
                 let func = FunctionValue::new_global(name.clone(), param_names, body.clone());
-                self.set_variable(name.clone(), Value::Function(func));
+                self.define_variable(
+                    VariableStorage::Local,
+                    name.clone(),
+                    Value::Function(func),
+                    false,
+                );
                 Ok(())
             }
 
             AstNode::SessionDeclaration { name, members } => {
                 let session = self.build_session_definition(name, members)?;
-                self.set_variable(name.clone(), Value::Session(session.clone()));
+                self.define_variable(
+                    VariableStorage::Local,
+                    name.clone(),
+                    Value::Session(session.clone()),
+                    false,
+                );
                 self.initialize_static_fields(session)?;
+                Ok(())
+            }
+
+            AstNode::TranceifyDeclaration { name, fields } => {
+                // Register the tranceify type definition
+                let field_names: Vec<String> = fields.iter().map(|f| f.name.clone()).collect();
+                self.tranceify_types.insert(name.clone(), field_names);
                 Ok(())
             }
 
@@ -536,13 +936,21 @@ impl Interpreter {
                 Ok(())
             }
 
+            AstNode::MurmurStatement(expr) => {
+                let value = self.evaluate_expression(expr)?;
+                // Murmur is like whisper but even quieter (debug level)
+                CoreBuiltins::whisper(&format!("[DEBUG] {}", value));
+                Ok(())
+            }
+
             AstNode::OscillateStatement { target } => {
                 // Toggle a boolean variable
                 if let AstNode::Identifier(name) = target.as_ref() {
                     match self.get_variable(name) {
                         Ok(value) => match value {
                             Value::Boolean(b) => {
-                                self.set_variable(name.clone(), Value::Boolean(!b));
+                                let scope = self.resolve_assignment_scope(name);
+                                self.set_variable(name.clone(), Value::Boolean(!b), scope)?;
                                 Ok(())
                             }
                             _ => Err(InterpreterError::Runtime(format!(
@@ -605,15 +1013,48 @@ impl Interpreter {
                 Ok(())
             }
 
-            AstNode::LoopStatement { body } => {
+            AstNode::LoopStatement {
+                init,
+                condition,
+                update,
+                body,
+            } => {
+                if let Some(init_stmt) = init.as_ref() {
+                    self.execute_statement(init_stmt)?;
+                }
+
                 loop {
-                    match self.execute_block(body) {
+                    if let Some(cond_expr) = condition.as_ref() {
+                        let cond_value = self.evaluate_expression(cond_expr)?;
+                        if !cond_value.is_truthy() {
+                            break;
+                        }
+                    }
+
+                    match self.execute_loop_body(body) {
                         Err(InterpreterError::BreakOutsideLoop) => break,
-                        Err(InterpreterError::ContinueOutsideLoop) => continue,
+                        Err(InterpreterError::ContinueOutsideLoop) => {
+                            if let Some(update_stmt) = update.as_ref() {
+                                self.execute_statement(update_stmt)?;
+                            }
+                            continue;
+                        }
                         Err(e) => return Err(e),
                         Ok(()) => {}
                     }
+
+                    if let Some(update_stmt) = update.as_ref() {
+                        self.execute_statement(update_stmt)?;
+                    }
                 }
+                Ok(())
+            }
+
+            AstNode::SuspendStatement => {
+                // Suspend is an infinite pause - in practice, this should wait for external input
+                // For now, we'll just log a warning
+                CoreBuiltins::whisper("[SUSPEND] Program suspended - press Ctrl+C to exit");
+                std::thread::sleep(std::time::Duration::from_secs(3600)); // Sleep for 1 hour
                 Ok(())
             }
 
@@ -652,6 +1093,15 @@ impl Interpreter {
         })();
         self.pop_scope();
         result
+    }
+
+    /// Execute loop bodies without creating a new scope so variables
+    /// persist across iterations (matching HypnoScript semantics)
+    fn execute_loop_body(&mut self, statements: &[AstNode]) -> Result<(), InterpreterError> {
+        for stmt in statements {
+            self.execute_statement(stmt)?;
+        }
+        Ok(())
     }
 
     fn evaluate_expression(&mut self, expr: &AstNode) -> Result<Value, InterpreterError> {
@@ -704,7 +1154,8 @@ impl Interpreter {
             AstNode::AssignmentExpression { target, value } => match target.as_ref() {
                 AstNode::Identifier(name) => {
                     let val = self.evaluate_expression(value)?;
-                    self.set_variable(name.clone(), val.clone());
+                    let scope = self.resolve_assignment_scope(name);
+                    self.set_variable(name.clone(), val.clone(), scope)?;
                     Ok(val)
                 }
                 AstNode::MemberExpression { object, property } => {
@@ -735,11 +1186,296 @@ impl Interpreter {
                 }
             }
 
+            AstNode::AwaitExpression { expression } => {
+                // Evaluate the expression - it might return a Promise
+                let value = self.evaluate_expression(expression)?;
+
+                // If it's a Promise, await it (resolve it)
+                if let Value::Promise(promise_ref) = value {
+                    let promise = promise_ref.borrow();
+                    if promise.is_resolved() {
+                        // Promise is already resolved, return its value
+                        Ok(promise.get_value().unwrap_or(Value::Null))
+                    } else {
+                        // Promise not yet resolved - in a real async system, we'd wait
+                        // For now, return null (could simulate delay here)
+                        drop(promise); // Release borrow before potentially waiting
+
+                        // Simulate async operation with small delay
+                        std::thread::sleep(std::time::Duration::from_millis(10));
+
+                        // Re-check if resolved after wait
+                        let promise = promise_ref.borrow();
+                        Ok(promise.get_value().unwrap_or(Value::Null))
+                    }
+                } else {
+                    // Not a promise, just return the value
+                    Ok(value)
+                }
+            }
+
+            AstNode::NullishCoalescing { left, right } => {
+                let left_val = self.evaluate_expression(left)?;
+                if matches!(left_val, Value::Null) {
+                    self.evaluate_expression(right)
+                } else {
+                    Ok(left_val)
+                }
+            }
+
+            AstNode::OptionalChaining { object, property } => {
+                let obj = self.evaluate_expression(object)?;
+                if matches!(obj, Value::Null) {
+                    Ok(Value::Null)
+                } else {
+                    self.resolve_member_value(obj, property)
+                }
+            }
+
+            AstNode::OptionalIndexing { object, index } => {
+                let obj = self.evaluate_expression(object)?;
+                if matches!(obj, Value::Null) {
+                    return Ok(Value::Null);
+                }
+
+                let idx = self.evaluate_expression(index)?;
+                if let Value::Array(arr) = obj {
+                    let i = idx.to_number()? as usize;
+                    Ok(arr.get(i).cloned().unwrap_or(Value::Null))
+                } else {
+                    Err(InterpreterError::TypeError(
+                        "Cannot index non-array".to_string(),
+                    ))
+                }
+            }
+
+            AstNode::EntrainExpression {
+                subject,
+                cases,
+                default,
+            } => {
+                let subject_value = self.evaluate_expression(subject)?;
+
+                // Try to match each case
+                for case in cases {
+                    if let Some(matched_env) = self.match_pattern(&case.pattern, &subject_value)? {
+                        self.push_scope();
+                        for (name, value) in &matched_env {
+                            self.define_variable(
+                                VariableStorage::Local,
+                                name.clone(),
+                                value.clone(),
+                                false,
+                            );
+                        }
+
+                        let case_result = (|| -> Result<Option<Value>, InterpreterError> {
+                            if let Some(guard) = &case.guard {
+                                let guard_result = self.evaluate_expression(guard)?;
+                                if !guard_result.is_truthy() {
+                                    return Ok(None);
+                                }
+                            }
+
+                            let value = self.execute_entrain_body(&case.body)?;
+                            Ok(Some(value))
+                        })();
+
+                        self.pop_scope();
+
+                        match case_result? {
+                            Some(value) => return Ok(value),
+                            None => continue,
+                        }
+                    }
+                }
+
+                // No case matched - try default
+                if let Some(default_body) = default {
+                    self.push_scope();
+                    let result = self.execute_entrain_body(default_body);
+                    self.pop_scope();
+                    result
+                } else {
+                    Err(InterpreterError::Runtime(
+                        "No pattern matched and no default case provided".to_string(),
+                    ))
+                }
+            }
+
+            AstNode::RecordLiteral { type_name, fields } => {
+                // Check if the tranceify type is defined
+                if !self.tranceify_types.contains_key(type_name) {
+                    return Err(InterpreterError::Runtime(format!(
+                        "Undefined tranceify type '{}'",
+                        type_name
+                    )));
+                }
+
+                // Evaluate all field values
+                let mut field_values = HashMap::new();
+                for field_init in fields {
+                    let value = self.evaluate_expression(&field_init.value)?;
+                    field_values.insert(field_init.name.clone(), value);
+                }
+
+                Ok(Value::Record(RecordValue {
+                    type_name: type_name.clone(),
+                    fields: field_values,
+                }))
+            }
+
             _ => Err(InterpreterError::Runtime(format!(
                 "Unsupported expression: {:?}",
                 expr
             ))),
         }
+    }
+
+    /// Match a pattern against a value, returning bindings if successful
+    fn match_pattern(
+        &mut self,
+        pattern: &Pattern,
+        value: &Value,
+    ) -> Result<Option<std::collections::HashMap<String, Value>>, InterpreterError> {
+        use std::collections::HashMap;
+
+        match pattern {
+            Pattern::Literal(lit_node) => {
+                let lit_value = self.evaluate_expression(lit_node)?;
+                if self.values_equal(&lit_value, value) {
+                    Ok(Some(HashMap::new()))
+                } else {
+                    Ok(None)
+                }
+            }
+
+            Pattern::Identifier(name) => {
+                let mut bindings = HashMap::new();
+                bindings.insert(name.clone(), value.clone());
+                Ok(Some(bindings))
+            }
+
+            Pattern::Typed {
+                name,
+                type_annotation,
+            } => {
+                // Check type match
+                let type_matches = match type_annotation.to_lowercase().as_str() {
+                    "number" => matches!(value, Value::Number(_)),
+                    "string" => matches!(value, Value::String(_)),
+                    "boolean" => matches!(value, Value::Boolean(_)),
+                    "array" => matches!(value, Value::Array(_)),
+                    _ => true, // Unknown types always match for now
+                };
+
+                if !type_matches {
+                    return Ok(None);
+                }
+
+                let mut bindings = HashMap::new();
+                if let Some(name) = name {
+                    bindings.insert(name.clone(), value.clone());
+                }
+                Ok(Some(bindings))
+            }
+
+            Pattern::Array { elements, rest } => {
+                if let Value::Array(arr) = value {
+                    let mut bindings = HashMap::new();
+
+                    // Match array elements
+                    for (i, elem_pattern) in elements.iter().enumerate() {
+                        if i >= arr.len() {
+                            return Ok(None); // Not enough elements
+                        }
+
+                        if let Some(elem_bindings) = self.match_pattern(elem_pattern, &arr[i])? {
+                            bindings.extend(elem_bindings);
+                        } else {
+                            return Ok(None);
+                        }
+                    }
+
+                    // Handle rest pattern
+                    if let Some(rest_name) = rest {
+                        let rest_elements: Vec<Value> =
+                            arr.iter().skip(elements.len()).cloned().collect();
+                        bindings.insert(rest_name.clone(), Value::Array(rest_elements));
+                    } else if arr.len() > elements.len() {
+                        return Ok(None); // Too many elements and no rest pattern
+                    }
+
+                    Ok(Some(bindings))
+                } else {
+                    Ok(None)
+                }
+            }
+
+            Pattern::Record { type_name, fields } => {
+                if let Value::Record(record) = value {
+                    if &record.type_name != type_name {
+                        return Ok(None);
+                    }
+
+                    let mut bindings = HashMap::new();
+                    for field_pattern in fields {
+                        let field_value = match record.fields.get(&field_pattern.name) {
+                            Some(value) => value.clone(),
+                            None => return Ok(None),
+                        };
+
+                        if let Some(sub_pattern) = &field_pattern.pattern {
+                            if let Some(sub_bindings) =
+                                self.match_pattern(sub_pattern, &field_value)?
+                            {
+                                bindings.extend(sub_bindings);
+                            } else {
+                                return Ok(None);
+                            }
+                        } else {
+                            bindings.insert(field_pattern.name.clone(), field_value);
+                        }
+                    }
+
+                    Ok(Some(bindings))
+                } else {
+                    Ok(None)
+                }
+            }
+        }
+    }
+
+    fn execute_entrain_body(&mut self, body: &[AstNode]) -> Result<Value, InterpreterError> {
+        let mut last_value = Value::Null;
+
+        for node in body {
+            match node {
+                AstNode::ExpressionStatement(expr) => {
+                    last_value = self.evaluate_expression(expr)?;
+                }
+                _ if node.is_expression() => {
+                    last_value = self.evaluate_expression(node)?;
+                }
+                _ => match self.execute_statement(node) {
+                    Ok(()) => {
+                        last_value = Value::Null;
+                    }
+                    Err(InterpreterError::Return(value)) => {
+                        return Err(InterpreterError::Return(value));
+                    }
+                    Err(InterpreterError::BreakOutsideLoop) => {
+                        return Err(InterpreterError::BreakOutsideLoop);
+                    }
+                    Err(InterpreterError::ContinueOutsideLoop) => {
+                        return Err(InterpreterError::ContinueOutsideLoop);
+                    }
+                    Err(err) => return Err(err),
+                },
+            }
+        }
+
+        Ok(last_value)
     }
 
     fn evaluate_binary_op(
@@ -752,10 +1488,17 @@ impl Interpreter {
 
         match normalized.as_str() {
             "+" => {
-                if let (Value::String(s1), Value::String(s2)) = (left, right) {
-                    Ok(Value::String(format!("{}{}", s1, s2)))
-                } else {
-                    Ok(Value::Number(left.to_number()? + right.to_number()?))
+                // If either operand is a string, perform string concatenation
+                match (left, right) {
+                    (Value::String(s1), Value::String(s2)) => {
+                        Ok(Value::String(format!("{}{}", s1, s2)))
+                    }
+                    (Value::String(s), _) => Ok(Value::String(format!("{}{}", s, right))),
+                    (_, Value::String(s)) => Ok(Value::String(format!("{}{}", left, s))),
+                    _ => {
+                        // Both are numeric, perform addition
+                        Ok(Value::Number(left.to_number()? + right.to_number()?))
+                    }
                 }
             }
             "-" => Ok(Value::Number(left.to_number()? - right.to_number()?)),
@@ -867,11 +1610,16 @@ impl Interpreter {
         self.push_scope();
 
         if let Some(instance) = function.this_binding() {
-            self.set_variable("this".to_string(), Value::Instance(instance));
+            self.define_variable(
+                VariableStorage::Local,
+                "this".to_string(),
+                Value::Instance(instance),
+                true,
+            );
         }
 
         for (param, arg) in function.parameters.iter().zip(args.iter()) {
-            self.set_variable(param.clone(), arg.clone());
+            self.define_variable(VariableStorage::Local, param.clone(), arg.clone(), false);
         }
 
         let result = (|| {
@@ -1058,7 +1806,12 @@ impl Interpreter {
             session_name: Some(definition.name().to_string()),
         });
         self.push_scope();
-        self.set_variable("this".to_string(), Value::Instance(instance.clone()));
+        self.define_variable(
+            VariableStorage::Local,
+            "this".to_string(),
+            Value::Instance(instance.clone()),
+            true,
+        );
 
         let result = (|| {
             for field_name in definition.field_order().to_vec() {
@@ -1193,6 +1946,17 @@ impl Interpreter {
                         property
                     ),
                 )))
+            }
+            Value::Record(record) => {
+                // Access field from record
+                if let Some(field_value) = record.fields.get(property) {
+                    Ok(field_value.clone())
+                } else {
+                    Err(InterpreterError::Runtime(format!(
+                        "Record of type '{}' has no field '{}'",
+                        record.type_name, property
+                    )))
+                }
             }
             other => Err(InterpreterError::Runtime(localized(
                 &format!("Cannot access member '{}' on value '{}'", property, other),
@@ -1467,9 +2231,25 @@ impl Interpreter {
         args: &[Value],
     ) -> Result<Option<Value>, InterpreterError> {
         let result = match name {
-            "Length" => Some(Value::Number(
-                StringBuiltins::length(&self.string_arg(args, 0, name)?) as f64,
-            )),
+            "Length" => {
+                // Length works for both strings and arrays
+                if args.is_empty() {
+                    return Err(InterpreterError::Runtime(format!(
+                        "Function '{}' requires at least 1 argument",
+                        name
+                    )));
+                }
+                match &args[0] {
+                    Value::String(s) => Some(Value::Number(s.len() as f64)),
+                    Value::Array(arr) => Some(Value::Number(arr.len() as f64)),
+                    _ => {
+                        return Err(InterpreterError::TypeError(format!(
+                            "Function 'Length' expects string or array argument, got {}",
+                            args[0]
+                        )));
+                    }
+                }
+            }
             "ToUpper" => Some(Value::String(StringBuiltins::to_upper(
                 &self.string_arg(args, 0, name)?,
             ))),
@@ -2162,17 +2942,145 @@ impl Interpreter {
 
     fn push_scope(&mut self) {
         self.locals.push(HashMap::new());
+        self.const_locals.push(HashSet::new());
     }
 
     fn pop_scope(&mut self) {
         self.locals.pop();
+        self.const_locals.pop();
     }
 
-    fn set_variable(&mut self, name: String, value: Value) {
-        if let Some(scope) = self.locals.last_mut() {
-            scope.insert(name, value);
-        } else {
+    fn define_variable(
+        &mut self,
+        storage: VariableStorage,
+        name: String,
+        value: Value,
+        is_constant: bool,
+    ) {
+        match storage {
+            VariableStorage::SharedTrance => {
+                self.shared.insert(name.clone(), value);
+                if is_constant {
+                    self.const_globals.insert(name);
+                } else {
+                    self.const_globals.remove(&name);
+                }
+            }
+            VariableStorage::Local => {
+                if let Some(scope) = self.locals.last_mut() {
+                    scope.insert(name.clone(), value);
+                    if let Some(const_scope) = self.const_locals.last_mut() {
+                        if is_constant {
+                            const_scope.insert(name);
+                        } else {
+                            const_scope.remove(&name);
+                        }
+                    }
+                } else {
+                    self.globals.insert(name.clone(), value);
+                    if is_constant {
+                        self.const_globals.insert(name);
+                    } else {
+                        self.const_globals.remove(&name);
+                    }
+                }
+            }
+        }
+    }
+
+    fn set_variable(
+        &mut self,
+        name: String,
+        value: Value,
+        scope_hint: ScopeLayer,
+    ) -> Result<(), InterpreterError> {
+        let check_const = |is_const: bool| -> Result<(), InterpreterError> {
+            if is_const {
+                return Err(InterpreterError::Runtime(localized(
+                    &format!("Cannot reassign constant variable '{}'", name),
+                    &format!(
+                        "Konstante Variable '{}' kann nicht neu zugewiesen werden",
+                        name
+                    ),
+                )));
+            }
+            Ok(())
+        };
+
+        match scope_hint {
+            ScopeLayer::Local => {
+                if let Some((scope, consts)) = self.locals.last_mut().zip(self.const_locals.last())
+                    && let Some(slot) = scope.get_mut(&name)
+                {
+                    check_const(consts.contains(&name))?;
+                    *slot = value;
+                    return Ok(());
+                }
+            }
+            ScopeLayer::Global => {
+                if self.globals.contains_key(&name) {
+                    check_const(self.const_globals.contains(&name))?;
+                    self.globals.insert(name, value);
+                    return Ok(());
+                }
+            }
+            ScopeLayer::Shared => {
+                if self.shared.contains_key(&name) {
+                    check_const(self.const_globals.contains(&name))?;
+                    self.shared.insert(name, value);
+                    return Ok(());
+                }
+            }
+        }
+
+        for idx in (0..self.locals.len()).rev() {
+            if self.locals[idx].contains_key(&name) {
+                let is_const = self
+                    .const_locals
+                    .get(idx)
+                    .map(|set| set.contains(&name))
+                    .unwrap_or(false);
+                check_const(is_const)?;
+                self.locals[idx].insert(name.clone(), value);
+                return Ok(());
+            }
+        }
+
+        if self.globals.contains_key(&name) {
+            check_const(self.const_globals.contains(&name))?;
             self.globals.insert(name, value);
+            return Ok(());
+        }
+
+        if self.shared.contains_key(&name) {
+            check_const(self.const_globals.contains(&name))?;
+            self.shared.insert(name, value);
+            return Ok(());
+        }
+
+        if let Some(scope) = self.locals.last_mut() {
+            scope.insert(name.clone(), value);
+            return Ok(());
+        }
+
+        self.globals.insert(name.clone(), value);
+        Ok(())
+    }
+
+    fn resolve_assignment_scope(&self, name: &str) -> ScopeLayer {
+        if self
+            .locals
+            .iter()
+            .rev()
+            .any(|scope| scope.contains_key(name))
+        {
+            ScopeLayer::Local
+        } else if self.shared.contains_key(name) {
+            ScopeLayer::Shared
+        } else if self.globals.contains_key(name) {
+            ScopeLayer::Global
+        } else {
+            ScopeLayer::Local
         }
     }
 
@@ -2184,11 +3092,15 @@ impl Interpreter {
             }
         }
 
-        // Search in global scope
-        self.globals
-            .get(name)
-            .cloned()
-            .ok_or_else(|| InterpreterError::UndefinedVariable(name.to_string()))
+        if let Some(value) = self.globals.get(name) {
+            return Ok(value.clone());
+        }
+
+        if let Some(value) = self.shared.get(name) {
+            return Ok(value.clone());
+        }
+
+        Err(InterpreterError::UndefinedVariable(name.to_string()))
     }
 }
 
@@ -2208,8 +3120,17 @@ Focus {
 "#;
         let mut lexer = Lexer::new(source);
         let tokens = lexer.lex().unwrap();
-        let mut parser = Parser::new(tokens);
-        let ast = parser.parse_program().unwrap();
+        let mut parser = Parser::new(tokens.clone());
+        let ast = match parser.parse_program() {
+            Ok(ast) => ast,
+            Err(err) => {
+                eprintln!("parse error: {err}");
+                for token in tokens {
+                    eprintln!("token: {:?}", token);
+                }
+                panic!("failed to parse test program");
+            }
+        };
 
         let mut interpreter = Interpreter::new();
         let result = interpreter.execute_program(ast);
@@ -2228,8 +3149,17 @@ Focus {
 "#;
         let mut lexer = Lexer::new(source);
         let tokens = lexer.lex().unwrap();
-        let mut parser = Parser::new(tokens);
-        let ast = parser.parse_program().unwrap();
+        let mut parser = Parser::new(tokens.clone());
+        let ast = match parser.parse_program() {
+            Ok(ast) => ast,
+            Err(err) => {
+                eprintln!("parse error: {err}");
+                for token in tokens {
+                    eprintln!("token: {:?}", token);
+                }
+                panic!("failed to parse test program");
+            }
+        };
 
         let mut interpreter = Interpreter::new();
         let result = interpreter.execute_program(ast);
@@ -2269,7 +3199,9 @@ Focus {
         let ast = parser.parse_program().unwrap();
 
         let mut interpreter = Interpreter::new();
-        interpreter.execute_program(ast).unwrap();
+        if let Err(err) = interpreter.execute_program(ast) {
+            panic!("interpreter error: {err:?}");
+        }
 
         let current = interpreter.get_variable("current").unwrap();
         assert_eq!(current, Value::Number(7.0));
@@ -2297,7 +3229,9 @@ Focus {
         let ast = parser.parse_program().unwrap();
 
         let mut interpreter = Interpreter::new();
-        interpreter.execute_program(ast).unwrap();
+        if let Err(err) = interpreter.execute_program(ast) {
+            panic!("interpreter error: {err:?}");
+        }
 
         assert_eq!(
             interpreter.get_variable("eq").unwrap(),
@@ -2387,5 +3321,99 @@ Focus {
 
         let result = interpreter.get_variable("activeVersion").unwrap();
         assert_eq!(result, Value::String("2.5".to_string()));
+    }
+
+    #[test]
+    fn test_entrain_record_pattern_matching_with_guard() {
+        let source = r#"
+Focus {
+    tranceify HypnoGuest {
+        name: string;
+        isInTrance: boolean;
+        depth: number;
+    }
+
+    entrance {
+        induce guest = HypnoGuest {
+            name: "Luna",
+            isInTrance: true,
+            depth: 7
+        };
+
+        induce status: string = entrain guest {
+            when HypnoGuest { name: alias } => alias;
+            otherwise => "Unknown";
+        };
+    }
+} Relax
+"#;
+
+        let mut lexer = Lexer::new(source);
+        let tokens = lexer.lex().unwrap();
+        let mut parser = Parser::new(tokens.clone());
+        let ast = match parser.parse_program() {
+            Ok(ast) => ast,
+            Err(err) => {
+                eprintln!("parse error: {err}");
+                for token in tokens {
+                    eprintln!("token: {:?}", token);
+                }
+                panic!("failed to parse test program");
+            }
+        };
+
+        let mut interpreter = Interpreter::new();
+        if let Err(err) = interpreter.execute_program(ast) {
+            panic!("interpreter error: {err:?}");
+        }
+
+        let status = interpreter.get_variable("status").unwrap();
+        assert_eq!(status, Value::String("Luna".to_string()));
+    }
+
+    #[test]
+    fn test_entrain_record_pattern_default_scope_cleanup() {
+        let source = r#"
+Focus {
+    tranceify HypnoGuest {
+        depth: number;
+    }
+
+    entrance {
+        induce guest = HypnoGuest { depth: 2 };
+
+        induce outcome = entrain guest {
+            when HypnoGuest { depth: stage } => stage;
+            otherwise => "fallback";
+        };
+    }
+} Relax
+"#;
+
+        let mut lexer = Lexer::new(source);
+        let tokens = lexer.lex().unwrap();
+        let mut parser = Parser::new(tokens.clone());
+        let ast = match parser.parse_program() {
+            Ok(ast) => ast,
+            Err(err) => {
+                eprintln!("parse error: {err}");
+                for token in tokens {
+                    eprintln!("token: {:?}", token);
+                }
+                panic!("failed to parse test program");
+            }
+        };
+
+        let mut interpreter = Interpreter::new();
+        if let Err(err) = interpreter.execute_program(ast) {
+            panic!("interpreter error: {err:?}");
+        }
+
+        let outcome = interpreter.get_variable("outcome").unwrap();
+        assert_eq!(outcome, Value::Number(2.0));
+        assert!(matches!(
+            interpreter.get_variable("stage"),
+            Err(InterpreterError::UndefinedVariable(_))
+        ));
     }
 }

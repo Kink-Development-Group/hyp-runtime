@@ -78,3 +78,13 @@ artifacts/
 target/
 Cargo.lock
 hypnoscript-docs/static/install.sh
+
+# Compile
+*.o
+*.obj
+*.exe
+*.dll
+*.so
+*.dylib
+*.wasm
+*.wat

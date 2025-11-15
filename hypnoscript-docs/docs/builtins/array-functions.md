@@ -403,16 +403,16 @@ for (induce i = 0; i < ArrayLength(chunks); induce i = i + 1) {
 
 ```hyp
 // Sichere Array-Zugriffe
-Trance safeArrayGet(arr, index) {
+suggestion safeArrayGet(arr, index) {
     if (index < 0 || index >= ArrayLength(arr)) {
-        return null;
+        awaken null;
     }
     return ArrayGet(arr, index);
 }
 
 // Array-Validierung
-Trance isValidArray(arr) {
-    return arr != null && ArrayLength(arr) > 0;
+suggestion isValidArray(arr) {
+    awaken arr != null && ArrayLength(arr) > 0;
 }
 ```
 

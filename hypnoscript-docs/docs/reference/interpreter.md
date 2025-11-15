@@ -179,8 +179,8 @@ observe "Ausführungszeit: " + executionTime + " ms";
 
 ```hyp
 // Eigene Funktionen definieren
-Trance customFunction(param) {
-    return param * 2;
+suggestion customFunction(param) {
+    awaken param * 2;
 }
 
 // Verwenden
@@ -214,9 +214,9 @@ for (induce i = 0; i < 1000000; induce i = i + 1) {
 
 ```hyp
 // Robuste Fehlerbehandlung
-Trance safeArrayAccess(arr, index) {
+suggestion safeArrayAccess(arr, index) {
     if (index < 0 || index >= Length(arr)) {
-        return null;
+        awaken null;
     }
     return ArrayGet(arr, index);
 }
@@ -260,9 +260,9 @@ while (condition) {
 
 ```hyp
 // Rekursion begrenzen
-Trance factorial(n, depth = 0) {
+suggestion factorial(n, depth = 0) {
     if (depth > 1000) {
-        return null; // Stack Overflow vermeiden
+        awaken null; // Stack Overflow vermeiden
     }
     if (n <= 1) return 1;
     return n * factorial(n - 1, depth + 1);

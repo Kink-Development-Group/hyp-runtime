@@ -207,10 +207,10 @@ Focus {
 
 ```hyp
 Focus {
-    Trance calculateSum(a, b) {
+    suggestion calculateSum(a, b) {
         // Breakpoint hier setzen
         induce sum = a + b;
-        return sum;
+        awaken sum;
     }
 
     entrance {
@@ -412,7 +412,7 @@ Focus {
 ```hyp
 // 2. Strukturiertes Debug-Logging
 Focus {
-    Trance debugLog(message, data) {
+    suggestion debugLog(message, data) {
         induce timestamp = Now();
         observe "[" + timestamp + "] DEBUG: " + message + " = " + data;
     }

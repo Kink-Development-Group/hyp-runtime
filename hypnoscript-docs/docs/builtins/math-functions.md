@@ -729,14 +729,14 @@ Focus {
 
 ```hyp
 Focus {
-    Trance calculateCompoundInterest(principal, rate, time, compounds) {
-        return principal * Pow(1 + rate / compounds, compounds * time);
+    suggestion calculateCompoundInterest(principal, rate, time, compounds) {
+        awaken principal * Pow(1 + rate / compounds, compounds * time);
     }
 
-    Trance calculateLoanPayment(principal, rate, years) {
+    suggestion calculateLoanPayment(principal, rate, years) {
         induce monthlyRate = rate / 12 / 100;
         induce numberOfPayments = years * 12;
-        return principal * (monthlyRate * Pow(1 + monthlyRate, numberOfPayments)) /
+        awaken principal * (monthlyRate * Pow(1 + monthlyRate, numberOfPayments)) /
                (Pow(1 + monthlyRate, numberOfPayments) - 1);
     }
 
@@ -844,33 +844,33 @@ observe "Zahl: " + formatted; // 123,456,789
 // Caching von Konstanten
 induce PI_OVER_180 = PI / 180;
 
-Trance degreesToRadians(degrees) {
-    return degrees * PI_OVER_180;
+suggestion degreesToRadians(degrees) {
+    awaken degrees * PI_OVER_180;
 }
 
 // Vermeide wiederholte Berechnungen
-Trance calculateDistance(x1, y1, x2, y2) {
+suggestion calculateDistance(x1, y1, x2, y2) {
     induce dx = x2 - x1;
     induce dy = y2 - y1;
-    return Sqrt(dx * dx + dy * dy);
+    awaken Sqrt(dx * dx + dy * dy);
 }
 ```
 
 ### Fehlerbehandlung
 
 ```hyp
-Trance safeDivision(numerator, denominator) {
+suggestion safeDivision(numerator, denominator) {
     if (denominator == 0) {
         observe "Fehler: Division durch Null!";
-        return 0;
+        awaken 0;
     }
     return numerator / denominator;
 }
 
-Trance safeLog(x) {
+suggestion safeLog(x) {
     if (x <= 0) {
         observe "Fehler: Logarithmus nur für positive Zahlen!";
-        return 0;
+        awaken 0;
     }
     return Log(x);
 }

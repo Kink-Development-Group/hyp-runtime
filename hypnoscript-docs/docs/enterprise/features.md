@@ -56,7 +56,7 @@ Focus {
 ```hyp
 // Audit-Trail
 Focus {
-    Trance logAuditEvent(event, user, details) {
+    suggestion logAuditEvent(event, user, details) {
         induce auditEntry = {
             timestamp: Now(),
             event: event,
@@ -104,11 +104,11 @@ Focus {
 ```hyp
 // Multi-Level Caching
 Focus {
-    Trance getCachedData(key) {
+    suggestion getCachedData(key) {
         // L1 Cache (Memory)
         induce l1Result = GetFromMemoryCache(key);
         if (IsDefined(l1Result)) {
-            return l1Result;
+            awaken l1Result;
         }
 
         // L2 Cache (Redis)
@@ -182,14 +182,14 @@ Focus {
 ```hyp
 // Trace-Propagation
 Focus {
-    Trance processWithTracing(operation, data) {
+    suggestion processWithTracing(operation, data) {
         induce traceId = GetCurrentTraceId();
         induce spanId = CreateSpan(operation);
 
         try {
             induce result = ExecuteOperation(operation, data);
             CompleteSpan(spanId, "success");
-            return result;
+            awaken result;
         } catch (error) {
             CompleteSpan(spanId, "error", error);
             throw error;
@@ -363,12 +363,12 @@ Focus {
 ```hyp
 // API Rate Limiting
 Focus {
-    Trance checkRateLimit(clientId, endpoint) {
+    suggestion checkRateLimit(clientId, endpoint) {
         induce key = "rate_limit:" + clientId + ":" + endpoint;
         induce currentCount = GetFromCache(key);
 
         if (currentCount >= 100) { // 100 requests per minute
-            return false;
+            awaken false;
         }
 
         IncrementCache(key, 60); // 60 seconds TTL

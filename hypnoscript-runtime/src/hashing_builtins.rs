@@ -1,7 +1,10 @@
 use std::collections::hash_map::DefaultHasher;
 use std::hash::{Hash, Hasher};
 
-/// Hashing and utility builtin functions
+/// Hashing, cryptography and utility builtin functions
+///
+/// This module provides various hashing algorithms, encoding functions,
+/// and string utilities for HypnoScript.
 pub struct HashingBuiltins;
 
 impl HashingBuiltins {
@@ -83,6 +86,135 @@ impl HashingBuiltins {
             .collect::<Vec<_>>()
             .join(" ")
     }
+
+    // --- Cryptographic Hash Functions ---
+
+    /// SHA-256 hash
+    /// Returns hex-encoded SHA-256 hash of the input string
+    pub fn sha256(s: &str) -> String {
+        use sha2::{Digest, Sha256};
+        let mut hasher = Sha256::new();
+        hasher.update(s.as_bytes());
+        format!("{:x}", hasher.finalize())
+    }
+
+    /// SHA-512 hash
+    /// Returns hex-encoded SHA-512 hash of the input string
+    pub fn sha512(s: &str) -> String {
+        use sha2::{Digest, Sha512};
+        let mut hasher = Sha512::new();
+        hasher.update(s.as_bytes());
+        format!("{:x}", hasher.finalize())
+    }
+
+    /// MD5 hash
+    /// Returns hex-encoded MD5 hash of the input string
+    /// Note: MD5 is NOT cryptographically secure, use for checksums only
+    pub fn md5(s: &str) -> String {
+        let digest = md5::compute(s.as_bytes());
+        format!("{:x}", digest)
+    }
+
+    // --- Encoding Functions ---
+
+    /// Base64 encode
+    /// Encodes a string to Base64
+    pub fn base64_encode(s: &str) -> String {
+        use base64::{Engine as _, engine::general_purpose};
+        general_purpose::STANDARD.encode(s.as_bytes())
+    }
+
+    /// Base64 decode
+    /// Decodes a Base64 string, returns Result
+    pub fn base64_decode(s: &str) -> Result<String, String> {
+        use base64::{Engine as _, engine::general_purpose};
+        general_purpose::STANDARD
+            .decode(s.as_bytes())
+            .map_err(|e| format!("Base64 decode error: {}", e))
+            .and_then(|bytes| {
+                String::from_utf8(bytes).map_err(|e| format!("UTF-8 decode error: {}", e))
+            })
+    }
+
+    /// URL encode (percent encoding)
+    /// Encodes a string for use in URLs
+    pub fn url_encode(s: &str) -> String {
+        s.chars()
+            .map(|c| match c {
+                'A'..='Z' | 'a'..='z' | '0'..='9' | '-' | '_' | '.' | '~' => c.to_string(),
+                ' ' => "+".to_string(),
+                _ => format!("%{:02X}", c as u8),
+            })
+            .collect()
+    }
+
+    /// URL decode (percent decoding)
+    /// Decodes a URL-encoded string
+    pub fn url_decode(s: &str) -> Result<String, String> {
+        let mut result = String::new();
+        let mut chars = s.chars().peekable();
+
+        while let Some(c) = chars.next() {
+            match c {
+                '%' => {
+                    let hex: String = chars.by_ref().take(2).collect();
+                    if hex.len() != 2 {
+                        return Err("Invalid URL encoding".to_string());
+                    }
+                    let byte = u8::from_str_radix(&hex, 16)
+                        .map_err(|_| "Invalid hex in URL encoding".to_string())?;
+                    result.push(byte as char);
+                }
+                '+' => result.push(' '),
+                _ => result.push(c),
+            }
+        }
+
+        Ok(result)
+    }
+
+    /// Hex encode
+    /// Converts bytes to hexadecimal string
+    pub fn hex_encode(s: &str) -> String {
+        s.as_bytes().iter().map(|b| format!("{:02x}", b)).collect()
+    }
+
+    /// Hex decode
+    /// Converts hexadecimal string to bytes/string
+    pub fn hex_decode(s: &str) -> Result<String, String> {
+        if !s.len().is_multiple_of(2) {
+            return Err("Hex string must have even length".to_string());
+        }
+
+        let bytes: Result<Vec<u8>, _> = (0..s.len())
+            .step_by(2)
+            .map(|i| u8::from_str_radix(&s[i..i + 2], 16))
+            .collect();
+
+        bytes
+            .map_err(|e| format!("Hex decode error: {}", e))
+            .and_then(|b| String::from_utf8(b).map_err(|e| format!("UTF-8 error: {}", e)))
+    }
+
+    // --- UUID Generation ---
+
+    /// Generate a random UUID (version 4)
+    /// Returns a new random UUID string
+    pub fn uuid_v4() -> String {
+        uuid::Uuid::new_v4().to_string()
+    }
+
+    /// Generate a UUID with custom seed (deterministic)
+    /// Useful for testing or reproducible UUIDs
+    pub fn uuid_from_seed(seed: u64) -> String {
+        // Create a deterministic UUID from seed
+        let bytes = seed.to_le_bytes();
+        let mut uuid_bytes = [0u8; 16];
+        for i in 0..16 {
+            uuid_bytes[i] = bytes[i % 8];
+        }
+        uuid::Uuid::from_bytes(uuid_bytes).to_string()
+    }
 }
 
 #[cfg(test)]
@@ -140,5 +272,68 @@ mod tests {
             HashingBuiltins::title_case("the quick brown fox"),
             "The Quick Brown Fox"
         );
+    }
+
+    #[test]
+    fn test_sha256() {
+        let hash = HashingBuiltins::sha256("hello");
+        // SHA-256 of "hello"
+        assert_eq!(
+            hash,
+            "2cf24dba5fb0a30e26e83b2ac5b9e29e1b161e5c1fa7425e73043362938b9824"
+        );
+    }
+
+    #[test]
+    fn test_sha512() {
+        let hash = HashingBuiltins::sha512("test");
+        assert_eq!(hash.len(), 128); // SHA-512 produces 128 hex characters
+    }
+
+    #[test]
+    fn test_md5() {
+        let hash = HashingBuiltins::md5("hello");
+        // MD5 of "hello"
+        assert_eq!(hash, "5d41402abc4b2a76b9719d911017c592");
+    }
+
+    #[test]
+    fn test_base64() {
+        let encoded = HashingBuiltins::base64_encode("Hello, World!");
+        assert_eq!(encoded, "SGVsbG8sIFdvcmxkIQ==");
+
+        let decoded = HashingBuiltins::base64_decode(&encoded).unwrap();
+        assert_eq!(decoded, "Hello, World!");
+    }
+
+    #[test]
+    fn test_url_encoding() {
+        let encoded = HashingBuiltins::url_encode("hello world!");
+        assert!(encoded.contains("+") || encoded.contains("%20"));
+
+        let decoded = HashingBuiltins::url_decode(&encoded).unwrap();
+        assert_eq!(decoded, "hello world!");
+    }
+
+    #[test]
+    fn test_hex_encoding() {
+        let encoded = HashingBuiltins::hex_encode("ABC");
+        assert_eq!(encoded, "414243");
+
+        let decoded = HashingBuiltins::hex_decode(&encoded).unwrap();
+        assert_eq!(decoded, "ABC");
+    }
+
+    #[test]
+    fn test_uuid() {
+        let uuid1 = HashingBuiltins::uuid_v4();
+        let uuid2 = HashingBuiltins::uuid_v4();
+        assert_ne!(uuid1, uuid2); // Random UUIDs should differ
+        assert_eq!(uuid1.len(), 36); // Standard UUID format
+
+        // Deterministic UUID from seed
+        let uuid_seed1 = HashingBuiltins::uuid_from_seed(12345);
+        let uuid_seed2 = HashingBuiltins::uuid_from_seed(12345);
+        assert_eq!(uuid_seed1, uuid_seed2); // Same seed = same UUID
     }
 }

@@ -1,0 +1,126 @@
+// Test for tranceify records (custom data structures)
+// This tests the complete implementation of the tranceify feature
+
+Focus {
+    // ===== BASIC TRANCEIFY =====
+    observe "Testing basic tranceify declarations...";
+
+    // Define a simple tranceify type
+    tranceify Person {
+        name: string;
+        age: number;
+        isInTrance: boolean;
+    }
+
+    // Create a record instance
+    induce person1 = Person {
+        name: "Alice",
+        age: 30,
+        isInTrance: true
+    };
+
+    // Access record fields
+    observe "Name: " + person1.name;
+    observe "Age: " + person1.age;
+    observe "In Trance: " + person1.isInTrance;
+
+    // ===== COMPLEX TRANCEIFY =====
+    observe "Testing complex tranceify with more fields...";
+
+    tranceify HypnoSession {
+        sessionId: number;
+        patientName: string;
+        tranceDepth: number;
+        suggestions: string;
+        duration: number;
+        isSuccessful: boolean;
+    }
+
+    induce session1 = HypnoSession {
+        sessionId: 42,
+        patientName: "Bob",
+        tranceDepth: 8.5,
+        suggestions: "You are feeling very relaxed",
+        duration: 45,
+        isSuccessful: true
+    };
+
+    observe "Session ID: " + session1.sessionId;
+    observe "Patient: " + session1.patientName;
+    observe "Trance Depth: " + session1.tranceDepth;
+    observe "Suggestions: " + session1.suggestions;
+
+    // ===== MULTIPLE INSTANCES =====
+    observe "Testing multiple instances of same type...";
+
+    induce person2 = Person {
+        name: "Charlie",
+        age: 25,
+        isInTrance: false
+    };
+
+    induce person3 = Person {
+        name: "Diana",
+        age: 35,
+        isInTrance: true
+    };
+
+    observe "Person 2: " + person2.name + ", Age: " + person2.age;
+    observe "Person 3: " + person3.name + ", Age: " + person3.age;
+
+    // ===== RECORDS IN ARRAYS =====
+    observe "Testing records in arrays...";
+
+    induce people: array = [person1, person2, person3];
+    observe "Total people: " + Length(people);
+
+    // ===== NESTED RECORDS =====
+    observe "Testing nested record types...";
+
+    tranceify Address {
+        street: string;
+        city: string;
+        zipCode: number;
+    }
+
+    tranceify Employee {
+        name: string;
+        employeeId: number;
+        salary: number;
+    }
+
+    induce addr1 = Address {
+        street: "Main St 123",
+        city: "Hypnoville",
+        zipCode: 12345
+    };
+
+    induce emp1 = Employee {
+        name: "Eve",
+        employeeId: 1001,
+        salary: 75000
+    };
+
+    observe "Employee: " + emp1.name + " (ID: " + emp1.employeeId + ")";
+    observe "Address: " + addr1.street + ", " + addr1.city;
+
+    // ===== RECORDS WITH NUMERIC CALCULATIONS =====
+    observe "Testing calculations with record fields...";
+
+    tranceify Rectangle {
+        width: number;
+        height: number;
+    }
+
+    induce rect1 = Rectangle {
+        width: 10,
+        height: 20
+    };
+
+    induce area: number = rect1.width * rect1.height;
+    observe "Rectangle area: " + area;
+
+    // ===== FINAL SUCCESS MESSAGE =====
+    observe "All tranceify tests completed successfully!";
+
+} Relax

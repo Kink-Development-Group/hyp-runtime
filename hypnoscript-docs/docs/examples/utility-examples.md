@@ -69,8 +69,8 @@ Focus {
 
 ```hyp
 Focus {
-    Trance safeDivide(a, b) {
-        return Try(a / b, "Fehler: Division durch Null");
+    suggestion safeDivide(a, b) {
+        awaken Try(a / b, "Fehler: Division durch Null");
     }
     entrance {
         observe safeDivide(10, 2); // 5

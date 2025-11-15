@@ -12,3 +12,17 @@ hypnoscript-lexer-parser = { path = "../hypnoscript-lexer-parser" }
 hypnoscript-runtime = { path = "../hypnoscript-runtime" }
 anyhow = { workspace = true }
 thiserror = { workspace = true }
+
+# Async Runtime
+tokio = { version = "1.41", features = ["full"] }
+futures = "0.3"
+async-trait = "0.1"
+num_cpus = "1.16"
+
+# Native code generation backend (Cranelift)
+cranelift = "0.110"
+cranelift-module = "0.110"
+cranelift-jit = "0.110"
+cranelift-object = "0.110"
+cranelift-native = "0.110"
+target-lexicon = "0.12"
