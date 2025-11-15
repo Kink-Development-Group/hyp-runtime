@@ -122,8 +122,8 @@ jobs:
           priority = "optional"
           assets = [
               ["target/release/hypnoscript-cli", "usr/bin/", "755"],
-              ["README.md", "usr/share/doc/hypnoscript/", "644"],
-              ["RUST_README.md", "usr/share/doc/hypnoscript/", "644"],
+              ["../README.md", "usr/share/doc/hypnoscript/", "644"],
+              ["../RUST_README.md", "usr/share/doc/hypnoscript/", "644"],
           ]
           EOF
 
