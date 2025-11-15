@@ -3,10 +3,10 @@
 //! Provides a Tokio-based async runtime with thread pool, event loop,
 //! and coordination primitives for true asynchronous execution.
 
+use std::collections::HashMap;
 use std::sync::Arc;
 use tokio::runtime::{Builder, Runtime};
-use tokio::sync::{mpsc, broadcast, RwLock, Mutex};
-use std::collections::HashMap;
+use tokio::sync::{Mutex, RwLock, broadcast, mpsc};
 
 /// Async runtime manager for HypnoScript
 ///
@@ -127,7 +127,10 @@ impl AsyncRuntime {
         });
 
         // Store task handle
-        let task_handle = TaskHandle { id: task_id, handle };
+        let task_handle = TaskHandle {
+            id: task_id,
+            handle,
+        };
         self.runtime.block_on(async {
             self.tasks.write().await.insert(task_id, task_handle);
         });
@@ -181,7 +184,8 @@ impl AsyncRuntime {
     pub async fn await_task(&self, task_id: TaskId) -> Result<TaskResult, String> {
         let _handle = {
             let tasks = self.tasks.read().await;
-            tasks.get(&task_id)
+            tasks
+                .get(&task_id)
                 .ok_or_else(|| format!("Task {} not found", task_id))?
                 .handle
                 .abort_handle()
@@ -287,20 +291,14 @@ mod tests {
         let runtime = AsyncRuntime::new().unwrap();
 
         // Should complete
-        let result = runtime.block_on(async_timeout(
-            Duration::from_millis(100),
-            async { 42 }
-        ));
+        let result = runtime.block_on(async_timeout(Duration::from_millis(100), async { 42 }));
         assert_eq!(result, Ok(42));
 
         // Should timeout
-        let result = runtime.block_on(async_timeout(
-            Duration::from_millis(10),
-            async {
-                tokio::time::sleep(Duration::from_millis(100)).await;
-                42
-            }
-        ));
+        let result = runtime.block_on(async_timeout(Duration::from_millis(10), async {
+            tokio::time::sleep(Duration::from_millis(100)).await;
+            42
+        }));
         assert!(result.is_err());
     }
 }

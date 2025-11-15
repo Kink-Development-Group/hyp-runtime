@@ -1,7 +1,7 @@
-use std::thread;
-use std::time::Duration;
 use crate::builtin_trait::BuiltinModule;
 use crate::localization::LocalizedMessage;
+use std::thread;
+use std::time::Duration;
 
 /// Core I/O and hypnotic builtin functions
 ///
@@ -21,17 +21,35 @@ impl BuiltinModule for CoreBuiltins {
     fn description_localized(locale: Option<&str>) -> String {
         let locale = crate::localization::detect_locale(locale);
         let msg = LocalizedMessage::new("Core I/O, conversion, and hypnotic induction functions")
-            .with_translation("de", "Kern-I/O-, Konvertierungs- und hypnotische Induktionsfunktionen")
-            .with_translation("fr", "Fonctions de base I/O, conversion et induction hypnotique")
-            .with_translation("es", "Funciones básicas de I/O, conversión e inducción hipnótica");
+            .with_translation(
+                "de",
+                "Kern-I/O-, Konvertierungs- und hypnotische Induktionsfunktionen",
+            )
+            .with_translation(
+                "fr",
+                "Fonctions de base I/O, conversion et induction hypnotique",
+            )
+            .with_translation(
+                "es",
+                "Funciones básicas de I/O, conversión e inducción hipnótica",
+            );
         msg.resolve(&locale).to_string()
     }
 
     fn function_names() -> &'static [&'static str] {
         &[
-            "observe", "whisper", "command", "drift",
-            "DeepTrance", "HypnoticCountdown", "TranceInduction", "HypnoticVisualization",
-            "ToInt", "ToDouble", "ToString", "ToBoolean",
+            "observe",
+            "whisper",
+            "command",
+            "drift",
+            "DeepTrance",
+            "HypnoticCountdown",
+            "TranceInduction",
+            "HypnoticVisualization",
+            "ToInt",
+            "ToDouble",
+            "ToString",
+            "ToBoolean",
         ]
     }
 }
@@ -101,8 +119,14 @@ impl CoreBuiltins {
             .with_translation("es", "Te sientes muy somnoliento... {}");
 
         let trance_msg = LocalizedMessage::new("You are now in a deep hypnotic state.")
-            .with_translation("de", "Du befindest dich jetzt in einem tiefen hypnotischen Zustand.")
-            .with_translation("fr", "Vous êtes maintenant dans un état hypnotique profond.")
+            .with_translation(
+                "de",
+                "Du befindest dich jetzt in einem tiefen hypnotischen Zustand.",
+            )
+            .with_translation(
+                "fr",
+                "Vous êtes maintenant dans un état hypnotique profond.",
+            )
             .with_translation("es", "Ahora estás en un estado hipnótico profundo.");
 
         for i in (1..=from).rev() {
@@ -122,20 +146,40 @@ impl CoreBuiltins {
     pub fn trance_induction_localized(subject_name: &str, locale: Option<&str>) {
         let locale = crate::localization::detect_locale(locale);
 
-        let welcome_msg = LocalizedMessage::new("Welcome {}, you are about to enter a deep trance...")
-            .with_translation("de", "Willkommen {}, du wirst gleich in eine tiefe Trance eintreten...")
-            .with_translation("fr", "Bienvenue {}, vous êtes sur le point d'entrer en transe profonde...")
-            .with_translation("es", "Bienvenido {}, estás a punto de entrar en un trance profundo...");
+        let welcome_msg =
+            LocalizedMessage::new("Welcome {}, you are about to enter a deep trance...")
+                .with_translation(
+                    "de",
+                    "Willkommen {}, du wirst gleich in eine tiefe Trance eintreten...",
+                )
+                .with_translation(
+                    "fr",
+                    "Bienvenue {}, vous êtes sur le point d'entrer en transe profonde...",
+                )
+                .with_translation(
+                    "es",
+                    "Bienvenido {}, estás a punto de entrar en un trance profundo...",
+                );
 
         let breath_msg = LocalizedMessage::new("Take a deep breath and relax...")
             .with_translation("de", "Atme tief ein und entspanne dich...")
             .with_translation("fr", "Prenez une profonde inspiration et détendez-vous...")
             .with_translation("es", "Respira profundo y relájate...");
 
-        let relaxed_msg = LocalizedMessage::new("With each breath, you feel more and more relaxed...")
-            .with_translation("de", "Mit jedem Atemzug fühlst du dich mehr und mehr entspannt...")
-            .with_translation("fr", "À chaque respiration, vous vous sentez de plus en plus détendu...")
-            .with_translation("es", "Con cada respiración, te sientes más y más relajado...");
+        let relaxed_msg =
+            LocalizedMessage::new("With each breath, you feel more and more relaxed...")
+                .with_translation(
+                    "de",
+                    "Mit jedem Atemzug fühlst du dich mehr und mehr entspannt...",
+                )
+                .with_translation(
+                    "fr",
+                    "À chaque respiration, vous vous sentez de plus en plus détendu...",
+                )
+                .with_translation(
+                    "es",
+                    "Con cada respiración, te sientes más y más relajado...",
+                );
 
         let clear_msg = LocalizedMessage::new("Your mind is becoming clear and focused...")
             .with_translation("de", "Dein Geist wird klar und fokussiert...")
@@ -172,8 +216,14 @@ impl CoreBuiltins {
             .with_translation("es", "Los colores son vívidos, los sonidos son claros...");
 
         let peace_msg = LocalizedMessage::new("You feel completely at peace in this place...")
-            .with_translation("de", "Du fühlst dich an diesem Ort vollkommen im Frieden...")
-            .with_translation("fr", "Vous vous sentez complètement en paix dans cet endroit...")
+            .with_translation(
+                "de",
+                "Du fühlst dich an diesem Ort vollkommen im Frieden...",
+            )
+            .with_translation(
+                "fr",
+                "Vous vous sentez complètement en paix dans cet endroit...",
+            )
             .with_translation("es", "Te sientes completamente en paz en este lugar...");
 
         Self::observe(&imagine_msg.resolve(&locale).replace("{}", scene));

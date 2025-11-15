@@ -266,19 +266,22 @@ impl NativeCodeGenerator {
 
         // Erstelle ObjectModule für die Object-Datei-Generierung
         let mut flag_builder = settings::builder();
-        flag_builder.set("opt_level", self.optimization_level.to_cranelift_level())
+        flag_builder
+            .set("opt_level", self.optimization_level.to_cranelift_level())
             .map_err(|e| NativeCodegenError::CodeGenerationError(e.to_string()))?;
 
         let isa_builder = cranelift_native::builder()
             .map_err(|e| NativeCodegenError::LlvmInitializationError(e.to_string()))?;
-        let isa = isa_builder.finish(settings::Flags::new(flag_builder))
+        let isa = isa_builder
+            .finish(settings::Flags::new(flag_builder))
             .map_err(|e| NativeCodegenError::CodeGenerationError(e.to_string()))?;
 
         let obj_builder = ObjectBuilder::new(
             isa,
             "hypnoscript_program",
             cranelift_module::default_libcall_names(),
-        ).map_err(|e| NativeCodegenError::CodeGenerationError(e.to_string()))?;
+        )
+        .map_err(|e| NativeCodegenError::CodeGenerationError(e.to_string()))?;
 
         let mut module = ObjectModule::new(obj_builder);
 
@@ -287,11 +290,16 @@ impl NativeCodeGenerator {
 
         // Finalisiere und schreibe Object-Datei
         let object_product = module.finish();
-        let object_bytes = object_product.emit()
+        let object_bytes = object_product
+            .emit()
             .map_err(|e| NativeCodegenError::CodeGenerationError(e.to_string()))?;
 
         // Bestimme Ausgabepfad für Object-Datei
-        let obj_extension = if cfg!(target_os = "windows") { "obj" } else { "o" };
+        let obj_extension = if cfg!(target_os = "windows") {
+            "obj"
+        } else {
+            "o"
+        };
         let obj_path = PathBuf::from(format!("hypnoscript_program.{}", obj_extension));
 
         // Schreibe Object-Datei
@@ -299,7 +307,11 @@ impl NativeCodeGenerator {
 
         // Bestimme finalen Ausgabepfad für ausführbare Datei
         let exe_path = self.output_path.clone().unwrap_or_else(|| {
-            let extension = if cfg!(target_os = "windows") { "exe" } else { "" };
+            let extension = if cfg!(target_os = "windows") {
+                "exe"
+            } else {
+                ""
+            };
             if extension.is_empty() {
                 PathBuf::from("hypnoscript_output")
             } else {
@@ -317,42 +329,55 @@ impl NativeCodeGenerator {
     }
 
     /// Linkt eine Object-Datei zu einer ausführbaren Datei
-    fn link_object_file(&self, obj_path: &PathBuf, exe_path: &PathBuf) -> Result<(), NativeCodegenError> {
+    fn link_object_file(
+        &self,
+        obj_path: &PathBuf,
+        exe_path: &PathBuf,
+    ) -> Result<(), NativeCodegenError> {
         #[cfg(target_os = "windows")]
         {
             // Versuche verschiedene Windows-Linker
             let linkers = vec![
-                ("link.exe", vec![
-                    "/OUT:".to_string() + &exe_path.to_string_lossy(),
-                    "/ENTRY:main".to_string(),
-                    "/SUBSYSTEM:CONSOLE".to_string(),
-                    obj_path.to_string_lossy().to_string(),
-                    "kernel32.lib".to_string(),
-                    "msvcrt.lib".to_string(),
-                ]),
-                ("lld-link", vec![
-                    "/OUT:".to_string() + &exe_path.to_string_lossy(),
-                    "/ENTRY:main".to_string(),
-                    "/SUBSYSTEM:CONSOLE".to_string(),
-                    obj_path.to_string_lossy().to_string(),
-                ]),
-                ("gcc", vec![
-                    "-o".to_string(),
-                    exe_path.to_string_lossy().to_string(),
-                    obj_path.to_string_lossy().to_string(),
-                ]),
-                ("clang", vec![
-                    "-o".to_string(),
-                    exe_path.to_string_lossy().to_string(),
-                    obj_path.to_string_lossy().to_string(),
-                ]),
+                (
+                    "link.exe",
+                    vec![
+                        "/OUT:".to_string() + &exe_path.to_string_lossy(),
+                        "/ENTRY:main".to_string(),
+                        "/SUBSYSTEM:CONSOLE".to_string(),
+                        obj_path.to_string_lossy().to_string(),
+                        "kernel32.lib".to_string(),
+                        "msvcrt.lib".to_string(),
+                    ],
+                ),
+                (
+                    "lld-link",
+                    vec![
+                        "/OUT:".to_string() + &exe_path.to_string_lossy(),
+                        "/ENTRY:main".to_string(),
+                        "/SUBSYSTEM:CONSOLE".to_string(),
+                        obj_path.to_string_lossy().to_string(),
+                    ],
+                ),
+                (
+                    "gcc",
+                    vec![
+                        "-o".to_string(),
+                        exe_path.to_string_lossy().to_string(),
+                        obj_path.to_string_lossy().to_string(),
+                    ],
+                ),
+                (
+                    "clang",
+                    vec![
+                        "-o".to_string(),
+                        exe_path.to_string_lossy().to_string(),
+                        obj_path.to_string_lossy().to_string(),
+                    ],
+                ),
             ];
 
             for (linker, args) in linkers {
-                if let Ok(output) = std::process::Command::new(linker)
-                    .args(&args)
-                    .output()
-                {
+                if let Ok(output) = std::process::Command::new(linker).args(&args).output() {
                     if output.status.success() {
                         return Ok(());
                     }
@@ -363,7 +388,8 @@ impl NativeCodeGenerator {
                 "Kein geeigneter Linker gefunden. Bitte installieren Sie:\n\
                  - Visual Studio Build Tools (für link.exe)\n\
                  - GCC/MinGW (für gcc)\n\
-                 - LLVM (für lld-link/clang)".to_string()
+                 - LLVM (für lld-link/clang)"
+                    .to_string(),
             ));
         }
 
@@ -371,28 +397,34 @@ impl NativeCodeGenerator {
         {
             // Unix-basierte Systeme (Linux, macOS)
             let linkers = vec![
-                ("cc", vec![
-                    "-o",
-                    &exe_path.to_string_lossy(),
-                    &obj_path.to_string_lossy(),
-                ]),
-                ("gcc", vec![
-                    "-o",
-                    &exe_path.to_string_lossy(),
-                    &obj_path.to_string_lossy(),
-                ]),
-                ("clang", vec![
-                    "-o",
-                    &exe_path.to_string_lossy(),
-                    &obj_path.to_string_lossy(),
-                ]),
+                (
+                    "cc",
+                    vec![
+                        "-o",
+                        &exe_path.to_string_lossy(),
+                        &obj_path.to_string_lossy(),
+                    ],
+                ),
+                (
+                    "gcc",
+                    vec![
+                        "-o",
+                        &exe_path.to_string_lossy(),
+                        &obj_path.to_string_lossy(),
+                    ],
+                ),
+                (
+                    "clang",
+                    vec![
+                        "-o",
+                        &exe_path.to_string_lossy(),
+                        &obj_path.to_string_lossy(),
+                    ],
+                ),
             ];
 
             for (linker, args) in linkers {
-                if let Ok(output) = std::process::Command::new(linker)
-                    .args(&args)
-                    .output()
-                {
+                if let Ok(output) = std::process::Command::new(linker).args(&args).output() {
                     if output.status.success() {
                         // Mache die Datei ausführbar auf Unix
                         #[cfg(unix)]
@@ -408,14 +440,17 @@ impl NativeCodeGenerator {
             }
 
             return Err(NativeCodegenError::LinkingError(
-                "Kein geeigneter Linker gefunden. Bitte installieren Sie gcc oder clang.".to_string()
+                "Kein geeigneter Linker gefunden. Bitte installieren Sie gcc oder clang."
+                    .to_string(),
             ));
         }
     }
 
     /// Konvertiert Cranelift-Triple aus TargetPlatform
     fn get_target_triple(&self) -> Triple {
-        self.target_platform.llvm_triple().parse()
+        self.target_platform
+            .llvm_triple()
+            .parse()
             .unwrap_or_else(|_| Triple::host())
     }
 
@@ -429,7 +464,8 @@ impl NativeCodeGenerator {
         let mut sig = module.make_signature();
         sig.returns.push(AbiParam::new(types::I32));
 
-        let func_id = module.declare_function("main", Linkage::Export, &sig)
+        let func_id = module
+            .declare_function("main", Linkage::Export, &sig)
             .map_err(|e| NativeCodegenError::CodeGenerationError(e.to_string()))?;
 
         let mut ctx = module.make_context();
@@ -459,7 +495,8 @@ impl NativeCodeGenerator {
         builder.finalize();
 
         // Definiere Funktion im Modul
-        module.define_function(func_id, &mut ctx)
+        module
+            .define_function(func_id, &mut ctx)
             .map_err(|e| NativeCodegenError::CodeGenerationError(e.to_string()))?;
 
         module.clear_context(&mut ctx);
@@ -474,7 +511,9 @@ impl NativeCodeGenerator {
         stmt: &AstNode,
     ) -> Result<(), NativeCodegenError> {
         match stmt {
-            AstNode::VariableDeclaration { name, initializer, .. } => {
+            AstNode::VariableDeclaration {
+                name, initializer, ..
+            } => {
                 // Erstelle Variable
                 let var = Variable::new(self.next_var_id);
                 self.next_var_id += 1;
@@ -506,7 +545,9 @@ impl NativeCodeGenerator {
                 let _value = self.generate_expression(builder, expr)?;
             }
 
-            AstNode::FocusBlock(statements) | AstNode::EntranceBlock(statements) | AstNode::FinaleBlock(statements) => {
+            AstNode::FocusBlock(statements)
+            | AstNode::EntranceBlock(statements)
+            | AstNode::FinaleBlock(statements) => {
                 for stmt in statements {
                     self.generate_statement(builder, stmt)?;
                 }
@@ -528,9 +569,7 @@ impl NativeCodeGenerator {
         expr: &AstNode,
     ) -> Result<Value, NativeCodegenError> {
         match expr {
-            AstNode::NumberLiteral(n) => {
-                Ok(builder.ins().f64const(*n))
-            }
+            AstNode::NumberLiteral(n) => Ok(builder.ins().f64const(*n)),
 
             AstNode::BooleanLiteral(b) => {
                 let val = if *b { 1 } else { 0 };
@@ -545,7 +584,11 @@ impl NativeCodeGenerator {
                 }
             }
 
-            AstNode::BinaryExpression { left, operator, right } => {
+            AstNode::BinaryExpression {
+                left,
+                operator,
+                right,
+            } => {
                 let lhs = self.generate_expression(builder, left)?;
                 let rhs = self.generate_expression(builder, right)?;
 
@@ -657,8 +700,14 @@ mod tests {
         assert_eq!(OptimizationLevel::None.to_cranelift_level(), "none");
         assert_eq!(OptimizationLevel::Less.to_cranelift_level(), "speed");
         assert_eq!(OptimizationLevel::Default.to_cranelift_level(), "speed");
-        assert_eq!(OptimizationLevel::Aggressive.to_cranelift_level(), "speed_and_size");
-        assert_eq!(OptimizationLevel::Release.to_cranelift_level(), "speed_and_size");
+        assert_eq!(
+            OptimizationLevel::Aggressive.to_cranelift_level(),
+            "speed_and_size"
+        );
+        assert_eq!(
+            OptimizationLevel::Release.to_cranelift_level(),
+            "speed_and_size"
+        );
     }
 
     #[test]

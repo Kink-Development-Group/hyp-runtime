@@ -39,12 +39,36 @@ impl BuiltinModule for StringBuiltins {
 
     fn function_names() -> &'static [&'static str] {
         &[
-            "Length", "ToUpper", "ToLower", "Trim", "TrimStart", "TrimEnd",
-            "IndexOf", "LastIndexOf", "Replace", "ReplaceFirst", "Reverse",
-            "Capitalize", "StartsWith", "EndsWith", "Contains", "Split",
-            "Substring", "Repeat", "PadLeft", "PadRight", "IsEmpty",
-            "IsWhitespace", "CharAt", "Concat", "SliceWithNegative",
-            "InsertAt", "RemoveAt", "CountSubstring", "Truncate", "WrapText",
+            "Length",
+            "ToUpper",
+            "ToLower",
+            "Trim",
+            "TrimStart",
+            "TrimEnd",
+            "IndexOf",
+            "LastIndexOf",
+            "Replace",
+            "ReplaceFirst",
+            "Reverse",
+            "Capitalize",
+            "StartsWith",
+            "EndsWith",
+            "Contains",
+            "Split",
+            "Substring",
+            "Repeat",
+            "PadLeft",
+            "PadRight",
+            "IsEmpty",
+            "IsWhitespace",
+            "CharAt",
+            "Concat",
+            "SliceWithNegative",
+            "InsertAt",
+            "RemoveAt",
+            "CountSubstring",
+            "Truncate",
+            "WrapText",
         ]
     }
 }
@@ -377,7 +401,10 @@ mod tests {
 
     #[test]
     fn test_insert_at() {
-        assert_eq!(StringBuiltins::insert_at("hello", 5, " world"), "hello world");
+        assert_eq!(
+            StringBuiltins::insert_at("hello", 5, " world"),
+            "hello world"
+        );
         assert_eq!(StringBuiltins::insert_at("test", 2, "XX"), "teXXst");
     }
 

@@ -27,7 +27,7 @@ pub mod validation_builtins;
 pub use advanced_string_builtins::AdvancedStringBuiltins;
 pub use api_builtins::{ApiBuiltins, ApiRequest, ApiResponse};
 pub use array_builtins::ArrayBuiltins;
-pub use builtin_trait::{BuiltinModule, BuiltinError, BuiltinResult};
+pub use builtin_trait::{BuiltinError, BuiltinModule, BuiltinResult};
 pub use cli_builtins::{CliBuiltins, ParsedArguments};
 pub use collection_builtins::CollectionBuiltins;
 pub use core_builtins::CoreBuiltins;

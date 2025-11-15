@@ -1,7 +1,7 @@
-use regex::Regex;
-use std::sync::OnceLock;
 use crate::builtin_trait::BuiltinModule;
 use crate::localization::LocalizedMessage;
+use regex::Regex;
+use std::sync::OnceLock;
 
 /// Validation builtin functions
 ///
@@ -33,9 +33,16 @@ impl BuiltinModule for ValidationBuiltins {
 
     fn function_names() -> &'static [&'static str] {
         &[
-            "IsValidEmail", "IsValidUrl", "IsValidPhoneNumber",
-            "IsAlphanumeric", "IsAlphabetic", "IsNumeric",
-            "IsLowercase", "IsUppercase", "IsInRange", "MatchesPattern",
+            "IsValidEmail",
+            "IsValidUrl",
+            "IsValidPhoneNumber",
+            "IsAlphanumeric",
+            "IsAlphabetic",
+            "IsNumeric",
+            "IsLowercase",
+            "IsUppercase",
+            "IsInRange",
+            "MatchesPattern",
         ]
     }
 }

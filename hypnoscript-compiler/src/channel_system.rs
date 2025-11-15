@@ -6,10 +6,10 @@
 //! - Watch (Single Producer Multiple Consumer with state)
 //! - Oneshot (Single Producer Single Consumer, one-time)
 
-use tokio::sync::{mpsc, broadcast, watch};
 use std::collections::HashMap;
 use std::sync::Arc;
 use tokio::sync::RwLock;
+use tokio::sync::{broadcast, mpsc, watch};
 
 /// Channel identifier
 pub type ChannelId = String;
@@ -81,7 +81,8 @@ impl MpscChannel {
     }
 
     pub async fn send(&self, message: ChannelMessage) -> Result<(), String> {
-        self.tx.send(message)
+        self.tx
+            .send(message)
             .map_err(|e| format!("Failed to send message: {}", e))
     }
 
@@ -111,7 +112,8 @@ impl BroadcastChannel {
     }
 
     pub async fn send(&self, message: ChannelMessage) -> Result<(), String> {
-        self.tx.send(message)
+        self.tx
+            .send(message)
             .map(|_| ())
             .map_err(|e| format!("Failed to broadcast message: {}", e))
     }
@@ -138,7 +140,8 @@ impl WatchChannel {
     }
 
     pub async fn send(&self, message: ChannelMessage) -> Result<(), String> {
-        self.tx.send(Some(message))
+        self.tx
+            .send(Some(message))
             .map_err(|e| format!("Failed to send watch message: {}", e))
     }
 
@@ -205,9 +208,9 @@ impl ChannelRegistry {
     /// Get Broadcast channel
     pub async fn get_broadcast(&self, id: &ChannelId) -> Option<BroadcastChannel> {
         let channels = self.broadcast_channels.read().await;
-        channels.get(id).map(|ch| BroadcastChannel {
-            tx: ch.tx.clone(),
-        })
+        channels
+            .get(id)
+            .map(|ch| BroadcastChannel { tx: ch.tx.clone() })
     }
 
     /// Get Watch channel
@@ -221,28 +224,40 @@ impl ChannelRegistry {
 
     /// Send to MPSC channel
     pub async fn send_mpsc(&self, id: &ChannelId, message: ChannelMessage) -> Result<(), String> {
-        let channel = self.get_mpsc(id).await
+        let channel = self
+            .get_mpsc(id)
+            .await
             .ok_or_else(|| format!("MPSC channel '{}' not found", id))?;
         channel.send(message).await
     }
 
     /// Send to Broadcast channel
-    pub async fn send_broadcast(&self, id: &ChannelId, message: ChannelMessage) -> Result<(), String> {
-        let channel = self.get_broadcast(id).await
+    pub async fn send_broadcast(
+        &self,
+        id: &ChannelId,
+        message: ChannelMessage,
+    ) -> Result<(), String> {
+        let channel = self
+            .get_broadcast(id)
+            .await
             .ok_or_else(|| format!("Broadcast channel '{}' not found", id))?;
         channel.send(message).await
     }
 
     /// Send to Watch channel
     pub async fn send_watch(&self, id: &ChannelId, message: ChannelMessage) -> Result<(), String> {
-        let channel = self.get_watch(id).await
+        let channel = self
+            .get_watch(id)
+            .await
             .ok_or_else(|| format!("Watch channel '{}' not found", id))?;
         channel.send(message).await
     }
 
     /// Receive from MPSC channel
     pub async fn receive_mpsc(&self, id: &ChannelId) -> Result<Option<ChannelMessage>, String> {
-        let channel = self.get_mpsc(id).await
+        let channel = self
+            .get_mpsc(id)
+            .await
             .ok_or_else(|| format!("MPSC channel '{}' not found", id))?;
         Ok(channel.receive().await)
     }
@@ -318,13 +333,23 @@ mod tests {
         let registry = ChannelRegistry::new();
 
         // Create MPSC channel
-        registry.create_mpsc("test-mpsc".to_string(), 10).await.unwrap();
+        registry
+            .create_mpsc("test-mpsc".to_string(), 10)
+            .await
+            .unwrap();
 
         // Send and receive
         let message = ChannelMessage::new(Value::Number(100.0));
-        registry.send_mpsc(&"test-mpsc".to_string(), message).await.unwrap();
+        registry
+            .send_mpsc(&"test-mpsc".to_string(), message)
+            .await
+            .unwrap();
 
-        let received = registry.receive_mpsc(&"test-mpsc".to_string()).await.unwrap().unwrap();
+        let received = registry
+            .receive_mpsc(&"test-mpsc".to_string())
+            .await
+            .unwrap()
+            .unwrap();
         assert!(matches!(received.payload, Value::Number(n) if n == 100.0));
     }
 }

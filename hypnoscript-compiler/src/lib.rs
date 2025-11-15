@@ -146,12 +146,20 @@ pub mod wasm_codegen;
 
 // Re-export commonly used types
 pub use async_builtins::AsyncBuiltins;
-pub use async_promise::{AsyncPromise, promise_all, promise_race, promise_any, promise_delay, promise_from_async};
-pub use async_runtime::{AsyncRuntime, TaskId, TaskResult, RuntimeEvent, async_delay, async_timeout};
-pub use channel_system::{ChannelRegistry, ChannelMessage, ChannelType, MpscChannel, BroadcastChannel, WatchChannel};
+pub use async_promise::{
+    AsyncPromise, promise_all, promise_any, promise_delay, promise_from_async, promise_race,
+};
+pub use async_runtime::{
+    AsyncRuntime, RuntimeEvent, TaskId, TaskResult, async_delay, async_timeout,
+};
+pub use channel_system::{
+    BroadcastChannel, ChannelMessage, ChannelRegistry, ChannelType, MpscChannel, WatchChannel,
+};
 pub use interpreter::{Interpreter, InterpreterError, Value};
-pub use native_codegen::{NativeCodeGenerator, NativeCodegenError, OptimizationLevel, TargetPlatform};
-pub use optimizer::{Optimizer, OptimizationConfig, OptimizationError, OptimizationStats};
+pub use native_codegen::{
+    NativeCodeGenerator, NativeCodegenError, OptimizationLevel, TargetPlatform,
+};
+pub use optimizer::{OptimizationConfig, OptimizationError, OptimizationStats, Optimizer};
 pub use type_checker::TypeChecker;
-pub use wasm_binary::{WasmBinaryGenerator, WasmBinaryError};
+pub use wasm_binary::{WasmBinaryError, WasmBinaryGenerator};
 pub use wasm_codegen::WasmCodeGenerator;

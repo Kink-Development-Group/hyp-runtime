@@ -112,11 +112,11 @@ impl WasmCodeGenerator {
                             }
                             hypnoscript_lexer_parser::ast::SessionMember::Method(method) => {
                                 let func_idx = self.function_map.len();
-                                self.function_map.insert(
-                                    format!("{}::{}", name, method.name),
-                                    func_idx,
-                                );
-                                session_info.method_indices.insert(method.name.clone(), func_idx);
+                                self.function_map
+                                    .insert(format!("{}::{}", name, method.name), func_idx);
+                                session_info
+                                    .method_indices
+                                    .insert(method.name.clone(), func_idx);
                             }
                         }
                     }
@@ -334,7 +334,12 @@ impl WasmCodeGenerator {
                 self.emit_line("drop");
             }
 
-            AstNode::FunctionDeclaration { name, parameters, body, .. } => {
+            AstNode::FunctionDeclaration {
+                name,
+                parameters,
+                body,
+                ..
+            } => {
                 self.emit_line(&format!(";; Function: {}", name));
                 self.emit_function(name, parameters, body);
             }
@@ -352,14 +357,21 @@ impl WasmCodeGenerator {
             }
 
             _ => {
-                self.emit_line(&format!(";; Note: Statement type not yet fully supported in WASM: {:?}",
-                    std::any::type_name_of_val(stmt)));
+                self.emit_line(&format!(
+                    ";; Note: Statement type not yet fully supported in WASM: {:?}",
+                    std::any::type_name_of_val(stmt)
+                ));
             }
         }
     }
 
     /// Emit eine Funktion
-    fn emit_function(&mut self, name: &str, parameters: &[hypnoscript_lexer_parser::ast::Parameter], body: &[AstNode]) {
+    fn emit_function(
+        &mut self,
+        name: &str,
+        parameters: &[hypnoscript_lexer_parser::ast::Parameter],
+        body: &[AstNode],
+    ) {
         self.emit_line(&format!("(func ${} (export \"{}\")", name, name));
         self.indent_level += 1;
 
@@ -386,7 +398,11 @@ impl WasmCodeGenerator {
     }
 
     /// Emit Session-Methoden
-    fn emit_session_methods(&mut self, session_name: &str, members: &[hypnoscript_lexer_parser::ast::SessionMember]) {
+    fn emit_session_methods(
+        &mut self,
+        session_name: &str,
+        members: &[hypnoscript_lexer_parser::ast::SessionMember],
+    ) {
         use hypnoscript_lexer_parser::ast::SessionMember;
 
         self.emit_line(&format!(";; Session methods for: {}", session_name));
@@ -697,7 +713,12 @@ Focus {
             let mut generator = WasmCodeGenerator::new();
             let wasm = generator.generate(&ast);
 
-            assert!(wasm.contains(wasm_op), "Should contain {} for operator {}", wasm_op, op);
+            assert!(
+                wasm.contains(wasm_op),
+                "Should contain {} for operator {}",
+                wasm_op,
+                op
+            );
         }
     }
 

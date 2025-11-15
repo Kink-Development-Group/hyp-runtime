@@ -62,7 +62,11 @@ impl BuiltinError {
     /// * `category` - Error category (e.g., "validation", "io").
     /// * `message_key` - Message key for localization.
     /// * `context` - Additional context values for message formatting.
-    pub fn new(category: &'static str, message_key: impl Into<String>, context: Vec<String>) -> Self {
+    pub fn new(
+        category: &'static str,
+        message_key: impl Into<String>,
+        context: Vec<String>,
+    ) -> Self {
         Self {
             category,
             message_key: message_key.into(),
@@ -102,7 +106,9 @@ impl BuiltinError {
                 .with_translation("de", "Index außerhalb des gültigen Bereichs: {}")
                 .with_translation("fr", "Index hors limites : {}")
                 .with_translation("es", "Índice fuera de límites: {}"),
-            _ => LocalizedMessage::new(&format!("Error in {}: {}", self.category, self.message_key)),
+            _ => {
+                LocalizedMessage::new(&format!("Error in {}: {}", self.category, self.message_key))
+            }
         };
 
         let mut msg = base_msg.resolve(&locale).to_string();

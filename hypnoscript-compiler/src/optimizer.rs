@@ -249,12 +249,18 @@ impl Optimizer {
                 Ok(AstNode::Program(optimized_stmts?))
             }
 
-            AstNode::BinaryExpression { left, operator, right } => {
+            AstNode::BinaryExpression {
+                left,
+                operator,
+                right,
+            } => {
                 let left_opt = self.constant_folding_pass(left)?;
                 let right_opt = self.constant_folding_pass(right)?;
 
                 // Try to fold if both sides are constants
-                if let (AstNode::NumberLiteral(l), AstNode::NumberLiteral(r)) = (&left_opt, &right_opt) {
+                if let (AstNode::NumberLiteral(l), AstNode::NumberLiteral(r)) =
+                    (&left_opt, &right_opt)
+                {
                     let result = match operator.as_str() {
                         "+" => Some(l + r),
                         "-" => Some(l - r),

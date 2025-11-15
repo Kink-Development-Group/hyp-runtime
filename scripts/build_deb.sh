@@ -5,7 +5,7 @@ set -e
 # Erstellt Linux-Binary und .deb-Paket für HypnoScript (Rust-Implementation)
 
 NAME=hypnoscript
-VERSION=1.0.0-rc3
+VERSION=1.0.0-rc4
 ARCH=amd64
 
 # Projektverzeichnis ermitteln

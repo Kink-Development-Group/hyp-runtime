@@ -1,8 +1,8 @@
+use crate::builtin_trait::BuiltinModule;
+use crate::localization::LocalizedMessage;
 use std::fs;
 use std::io::{self, BufRead, BufReader, Write};
 use std::path::Path;
-use crate::builtin_trait::BuiltinModule;
-use crate::localization::LocalizedMessage;
 
 /// File I/O builtin functions
 ///
@@ -23,17 +23,34 @@ impl BuiltinModule for FileBuiltins {
         let locale = crate::localization::detect_locale(locale);
         let msg = LocalizedMessage::new("File I/O and file system operations")
             .with_translation("de", "Datei-I/O- und Dateisystemoperationen")
-            .with_translation("fr", "Opérations d'E/S de fichiers et de système de fichiers")
+            .with_translation(
+                "fr",
+                "Opérations d'E/S de fichiers et de système de fichiers",
+            )
             .with_translation("es", "Operaciones de E/S de archivos y sistema de archivos");
         msg.resolve(&locale).to_string()
     }
 
     fn function_names() -> &'static [&'static str] {
         &[
-            "ReadFile", "WriteFile", "AppendFile", "ReadLines", "WriteLines",
-            "FileExists", "IsFile", "IsDirectory", "DeleteFile", "CreateDirectory",
-            "ListDirectory", "GetFileSize", "GetFileExtension", "GetFileName",
-            "GetParentDirectory", "JoinPath", "CopyFile", "MoveFile",
+            "ReadFile",
+            "WriteFile",
+            "AppendFile",
+            "ReadLines",
+            "WriteLines",
+            "FileExists",
+            "IsFile",
+            "IsDirectory",
+            "DeleteFile",
+            "CreateDirectory",
+            "ListDirectory",
+            "GetFileSize",
+            "GetFileExtension",
+            "GetFileName",
+            "GetParentDirectory",
+            "JoinPath",
+            "CopyFile",
+            "MoveFile",
         ]
     }
 }

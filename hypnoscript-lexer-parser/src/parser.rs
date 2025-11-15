@@ -150,7 +150,9 @@ impl Parser {
                 return self.parse_var_declaration(VariableStorage::SharedTrance);
             }
 
-            return Err("'sharedTrance' must be followed by induce/implant/embed/freeze".to_string());
+            return Err(
+                "'sharedTrance' must be followed by induce/implant/embed/freeze".to_string(),
+            );
         }
 
         if self.match_token(&TokenType::Induce)
@@ -488,7 +490,10 @@ impl Parser {
             &format!("Expected '{{' after '{}' loop header", keyword),
         )?;
         let body = self.parse_block_statements(BlockContext::Regular)?;
-        self.consume(&TokenType::RBrace, &format!("Expected '}}' after '{}' loop block", keyword))?;
+        self.consume(
+            &TokenType::RBrace,
+            &format!("Expected '}}' after '{}' loop block", keyword),
+        )?;
 
         Ok(AstNode::LoopStatement {
             init,
@@ -532,10 +537,7 @@ impl Parser {
         };
 
         if require_condition && condition.is_none() {
-            return Err(format!(
-                "{} loop requires a condition expression",
-                keyword
-            ));
+            return Err(format!("{} loop requires a condition expression", keyword));
         }
 
         self.consume(
@@ -692,7 +694,10 @@ impl Parser {
 
             let type_annotation = self.parse_type_annotation()?;
 
-            self.consume(&TokenType::Semicolon, "Expected ';' after field declaration")?;
+            self.consume(
+                &TokenType::Semicolon,
+                "Expected ';' after field declaration",
+            )?;
 
             fields.push(TranceifyField {
                 name: field_name,
@@ -1191,8 +1196,15 @@ impl Parser {
 
             // Check if this is a record literal (Type { field: value, ... })
             if self.check(&TokenType::LBrace) {
-                self.advance(); // consume '{'
-                return self.parse_record_literal(identifier);
+                let next_token_type = self.peek_next().map(|tok| &tok.token_type);
+
+                if matches!(
+                    next_token_type,
+                    Some(TokenType::Identifier) | Some(TokenType::RBrace)
+                ) {
+                    self.advance(); // consume '{'
+                    return self.parse_record_literal(identifier);
+                }
             }
 
             return Ok(AstNode::Identifier(identifier));
@@ -1236,6 +1248,8 @@ impl Parser {
             if self.match_token(&TokenType::Otherwise) {
                 self.consume(&TokenType::Arrow, "Expected '=>' after 'otherwise'")?;
                 default_case = Some(self.parse_entrain_body()?);
+                self.match_token(&TokenType::Comma);
+                self.match_token(&TokenType::Semicolon);
                 break;
             }
 
@@ -1340,8 +1354,36 @@ impl Parser {
 
             // Check for record pattern: TypeName { field1, field2 }
             if self.match_token(&TokenType::LBrace) {
-                let type_name = name;
-                let fields = self.parse_record_field_patterns()?;
+                let type_name = name.clone();
+                let mut fields = Vec::new();
+
+                if !self.check(&TokenType::RBrace) {
+                    loop {
+                        let field_name = self
+                            .consume(
+                                &TokenType::Identifier,
+                                "Expected field name in record pattern",
+                            )?
+                            .lexeme
+                            .clone();
+
+                        let pattern = if self.match_token(&TokenType::Colon) {
+                            Some(Box::new(self.parse_pattern()?))
+                        } else {
+                            None
+                        };
+
+                        fields.push(RecordFieldPattern {
+                            name: field_name,
+                            pattern,
+                        });
+
+                        if !self.match_token(&TokenType::Comma) {
+                            break;
+                        }
+                    }
+                }
+
                 self.consume(&TokenType::RBrace, "Expected '}' after record pattern")?;
                 return Ok(Pattern::Record { type_name, fields });
             }
@@ -1351,31 +1393,6 @@ impl Parser {
         }
 
         Err(format!("Expected pattern, got {:?}", self.peek()))
-    }
-
-    /// Parse record field patterns for destructuring
-    fn parse_record_field_patterns(&mut self) -> Result<Vec<RecordFieldPattern>, String> {
-        let mut fields = Vec::new();
-
-        if !self.check(&TokenType::RBrace) {
-            loop {
-                let name = self.consume(&TokenType::Identifier, "Expected field name")?.lexeme.clone();
-
-                let pattern = if self.match_token(&TokenType::Colon) {
-                    Some(Box::new(self.parse_pattern()?))
-                } else {
-                    None
-                };
-
-                fields.push(RecordFieldPattern { name, pattern });
-
-                if !self.match_token(&TokenType::Comma) {
-                    break;
-                }
-            }
-        }
-
-        Ok(fields)
     }
 
     /// Parse body of an entrain case (can be block or single expression)
@@ -1462,6 +1479,14 @@ impl Parser {
         self.tokens[self.current - 1].clone()
     }
 
+    fn peek_next(&self) -> Option<&Token> {
+        if self.current + 1 >= self.tokens.len() {
+            None
+        } else {
+            Some(&self.tokens[self.current + 1])
+        }
+    }
+
     fn consume(&mut self, token_type: &TokenType, message: &str) -> Result<Token, String> {
         if self.check(token_type) {
             Ok(self.advance())
@@ -1523,6 +1548,40 @@ Focus {
         let mut parser = Parser::new(tokens);
         let ast = parser.parse_program();
         assert!(ast.is_ok());
+    }
+
+    #[test]
+    fn test_parse_entrain_with_record_pattern() {
+        let source = r#"
+Focus {
+    tranceify HypnoGuest {
+        name: string;
+        isInTrance: boolean;
+        depth: number;
+    }
+
+    entrance {
+        induce guest = HypnoGuest {
+            name: "Luna",
+            isInTrance: true,
+            depth: 7,
+        };
+
+        induce status: string = entrain guest {
+            when HypnoGuest { name: alias } => alias;
+            otherwise => "Unknown";
+        };
+
+        observe status;
+    }
+} Relax
+"#;
+
+        let mut lexer = Lexer::new(source);
+        let tokens = lexer.lex().unwrap();
+        let mut parser = Parser::new(tokens);
+        let ast = parser.parse_program();
+        assert!(ast.is_ok(), "parse failed: {:?}", ast.err());
     }
 
     #[test]

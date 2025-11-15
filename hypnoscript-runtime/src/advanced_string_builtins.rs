@@ -29,10 +29,20 @@ impl BuiltinModule for AdvancedStringBuiltins {
 
     fn description_localized(locale: Option<&str>) -> String {
         let locale = crate::localization::detect_locale(locale);
-        let msg = LocalizedMessage::new("Advanced string similarity and phonetic analysis functions")
-            .with_translation("de", "Erweiterte String-Ähnlichkeits- und phonetische Analysefunktionen")
-            .with_translation("fr", "Fonctions avancées de similarité de chaînes et d'analyse phonétique")
-            .with_translation("es", "Funciones avanzadas de similitud de cadenas y análisis fonético");
+        let msg =
+            LocalizedMessage::new("Advanced string similarity and phonetic analysis functions")
+                .with_translation(
+                    "de",
+                    "Erweiterte String-Ähnlichkeits- und phonetische Analysefunktionen",
+                )
+                .with_translation(
+                    "fr",
+                    "Fonctions avancées de similarité de chaînes et d'analyse phonétique",
+                )
+                .with_translation(
+                    "es",
+                    "Funciones avanzadas de similitud de cadenas y análisis fonético",
+                );
         msg.resolve(&locale).to_string()
     }
 
@@ -149,7 +159,11 @@ impl AdvancedStringBuiltins {
                     .min(matrix[i - 1][j - 1] + cost); // substitution
 
                 // Transposition
-                if i > 1 && j > 1 && chars1[i - 1] == chars2[j - 2] && chars1[i - 2] == chars2[j - 1] {
+                if i > 1
+                    && j > 1
+                    && chars1[i - 1] == chars2[j - 2]
+                    && chars1[i - 2] == chars2[j - 1]
+                {
                     matrix[i][j] = matrix[i][j].min(matrix[i - 2][j - 2] + cost);
                 }
             }
@@ -449,9 +463,15 @@ mod tests {
 
     #[test]
     fn test_levenshtein_distance() {
-        assert_eq!(AdvancedStringBuiltins::levenshtein_distance("kitten", "sitting"), 3);
+        assert_eq!(
+            AdvancedStringBuiltins::levenshtein_distance("kitten", "sitting"),
+            3
+        );
         assert_eq!(AdvancedStringBuiltins::levenshtein_distance("", "test"), 4);
-        assert_eq!(AdvancedStringBuiltins::levenshtein_distance("same", "same"), 0);
+        assert_eq!(
+            AdvancedStringBuiltins::levenshtein_distance("same", "same"),
+            0
+        );
     }
 
     #[test]
@@ -471,9 +491,18 @@ mod tests {
 
     #[test]
     fn test_hamming_distance() {
-        assert_eq!(AdvancedStringBuiltins::hamming_distance("1011101", "1001001"), Some(2));
-        assert_eq!(AdvancedStringBuiltins::hamming_distance("test", "best"), Some(1));
-        assert_eq!(AdvancedStringBuiltins::hamming_distance("test", "testing"), None);
+        assert_eq!(
+            AdvancedStringBuiltins::hamming_distance("1011101", "1001001"),
+            Some(2)
+        );
+        assert_eq!(
+            AdvancedStringBuiltins::hamming_distance("test", "best"),
+            Some(1)
+        );
+        assert_eq!(
+            AdvancedStringBuiltins::hamming_distance("test", "testing"),
+            None
+        );
     }
 
     #[test]
@@ -498,7 +527,10 @@ mod tests {
 
     #[test]
     fn test_similarity_ratio() {
-        assert_eq!(AdvancedStringBuiltins::similarity_ratio("same", "same"), 1.0);
+        assert_eq!(
+            AdvancedStringBuiltins::similarity_ratio("same", "same"),
+            1.0
+        );
         let ratio = AdvancedStringBuiltins::similarity_ratio("kitten", "sitting");
         assert!(ratio > 0.5 && ratio < 0.6);
     }

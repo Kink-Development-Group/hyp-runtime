@@ -118,11 +118,12 @@ impl TranceifyInfo {
 /// "#;
 ///
 /// let mut lexer = Lexer::new(source);
-/// let tokens = lexer.tokenize().unwrap();
+/// let tokens = lexer.lex().unwrap();
 /// let mut parser = Parser::new(tokens);
 /// let ast = parser.parse_program().unwrap();
 /// let mut checker = TypeChecker::new();
-/// checker.check(&ast).unwrap();
+/// let errors = checker.check_program(&ast);
+/// assert!(errors.is_empty());
 /// ```
 pub struct TypeChecker {
     // Type environment for variables
@@ -841,10 +842,8 @@ impl TypeChecker {
                         return HypnoType::unknown();
                     }
                 } else {
-                    self.errors.push(format!(
-                        "Unknown record type '{}'",
-                        type_name
-                    ));
+                    self.errors
+                        .push(format!("Unknown record type '{}'", type_name));
                     return HypnoType::unknown();
                 }
             }
@@ -1353,10 +1352,8 @@ impl TypeChecker {
                 if let Some(cond_expr) = condition.as_ref() {
                     let cond_type = self.infer_type(cond_expr);
                     if cond_type.base_type != HypnoBaseType::Boolean {
-                        self.errors.push(format!(
-                            "Loop condition must be boolean, got {}",
-                            cond_type
-                        ));
+                        self.errors
+                            .push(format!("Loop condition must be boolean, got {}", cond_type));
                     }
                 }
 
@@ -1565,7 +1562,8 @@ impl TypeChecker {
 
                         let arg_type = self.infer_type(&arguments[0]);
                         if arg_type.base_type != HypnoBaseType::String
-                            && arg_type.base_type != HypnoBaseType::Array {
+                            && arg_type.base_type != HypnoBaseType::Array
+                        {
                             self.errors.push(format!(
                                 "Function 'Length' argument 1 type mismatch: expected String or Array, got {}",
                                 arg_type
@@ -1814,10 +1812,7 @@ impl TypeChecker {
                     }
 
                     // Return a record type for the record literal
-                    HypnoType::create_record(
-                        type_name.clone(),
-                        tranceify_info.fields.clone(),
-                    )
+                    HypnoType::create_record(type_name.clone(), tranceify_info.fields.clone())
                 } else {
                     self.errors.push(format!(
                         "Undefined tranceify type '{}' in record literal",

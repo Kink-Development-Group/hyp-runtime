@@ -120,14 +120,14 @@ impl HashingBuiltins {
     /// Base64 encode
     /// Encodes a string to Base64
     pub fn base64_encode(s: &str) -> String {
-        use base64::{engine::general_purpose, Engine as _};
+        use base64::{Engine as _, engine::general_purpose};
         general_purpose::STANDARD.encode(s.as_bytes())
     }
 
     /// Base64 decode
     /// Decodes a Base64 string, returns Result
     pub fn base64_decode(s: &str) -> Result<String, String> {
-        use base64::{engine::general_purpose, Engine as _};
+        use base64::{Engine as _, engine::general_purpose};
         general_purpose::STANDARD
             .decode(s.as_bytes())
             .map_err(|e| format!("Base64 decode error: {}", e))
@@ -176,10 +176,7 @@ impl HashingBuiltins {
     /// Hex encode
     /// Converts bytes to hexadecimal string
     pub fn hex_encode(s: &str) -> String {
-        s.as_bytes()
-            .iter()
-            .map(|b| format!("{:02x}", b))
-            .collect()
+        s.as_bytes().iter().map(|b| format!("{:02x}", b)).collect()
     }
 
     /// Hex decode

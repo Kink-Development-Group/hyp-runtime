@@ -1,5 +1,6 @@
 use hypnoscript_lexer_parser::ast::{
-    AstNode, Pattern, SessionField, SessionMember, SessionMethod, SessionVisibility, VariableStorage,
+    AstNode, Pattern, SessionField, SessionMember, SessionMethod, SessionVisibility,
+    VariableStorage,
 };
 use hypnoscript_runtime::{
     ArrayBuiltins, CoreBuiltins, FileBuiltins, HashingBuiltins, MathBuiltins, StatisticsBuiltins,
@@ -739,11 +740,11 @@ impl std::fmt::Display for Value {
 /// "#;
 ///
 /// let mut lexer = Lexer::new(source);
-/// let tokens = lexer.tokenize().unwrap();
+/// let tokens = lexer.lex().unwrap();
 /// let mut parser = Parser::new(tokens);
 /// let ast = parser.parse_program().unwrap();
 /// let mut interpreter = Interpreter::new();
-/// interpreter.interpret(&ast).unwrap();
+/// interpreter.execute_program(ast).unwrap();
 /// ```
 pub struct Interpreter {
     globals: HashMap<String, Value>,
@@ -785,8 +786,9 @@ impl Interpreter {
 
     /// Create interpreter with async runtime support
     pub fn with_async_runtime() -> Result<Self, InterpreterError> {
-        let runtime = crate::async_runtime::AsyncRuntime::new()
-            .map_err(|e| InterpreterError::Runtime(format!("Failed to create async runtime: {}", e)))?;
+        let runtime = crate::async_runtime::AsyncRuntime::new().map_err(|e| {
+            InterpreterError::Runtime(format!("Failed to create async runtime: {}", e))
+        })?;
         let registry = crate::channel_system::ChannelRegistry::new();
 
         Ok(Self {
@@ -805,8 +807,9 @@ impl Interpreter {
     /// Enable async runtime for existing interpreter
     pub fn enable_async_runtime(&mut self) -> Result<(), InterpreterError> {
         if self.async_runtime.is_none() {
-            let runtime = crate::async_runtime::AsyncRuntime::new()
-                .map_err(|e| InterpreterError::Runtime(format!("Failed to create async runtime: {}", e)))?;
+            let runtime = crate::async_runtime::AsyncRuntime::new().map_err(|e| {
+                InterpreterError::Runtime(format!("Failed to create async runtime: {}", e))
+            })?;
             let registry = crate::channel_system::ChannelRegistry::new();
 
             self.async_runtime = Some(std::sync::Arc::new(runtime));
@@ -862,7 +865,12 @@ impl Interpreter {
             } => {
                 let param_names: Vec<String> = parameters.iter().map(|p| p.name.clone()).collect();
                 let func = FunctionValue::new_global(name.clone(), param_names, body.clone());
-                self.define_variable(VariableStorage::Local, name.clone(), Value::Function(func), false);
+                self.define_variable(
+                    VariableStorage::Local,
+                    name.clone(),
+                    Value::Function(func),
+                    false,
+                );
                 Ok(())
             }
 
@@ -875,7 +883,12 @@ impl Interpreter {
                 // Triggers are handled like functions
                 let param_names: Vec<String> = parameters.iter().map(|p| p.name.clone()).collect();
                 let func = FunctionValue::new_global(name.clone(), param_names, body.clone());
-                self.define_variable(VariableStorage::Local, name.clone(), Value::Function(func), false);
+                self.define_variable(
+                    VariableStorage::Local,
+                    name.clone(),
+                    Value::Function(func),
+                    false,
+                );
                 Ok(())
             }
 
@@ -1246,50 +1259,43 @@ impl Interpreter {
                 // Try to match each case
                 for case in cases {
                     if let Some(matched_env) = self.match_pattern(&case.pattern, &subject_value)? {
-                        // Check guard condition if present
-                        if let Some(guard) = &case.guard {
-                            // Temporarily add pattern bindings to globals
-                            for (name, value) in &matched_env {
-                                self.globals.insert(name.clone(), value.clone());
-                            }
-
-                            let guard_result = self.evaluate_expression(guard)?;
-
-                            // Remove pattern bindings
-                            for (name, _) in &matched_env {
-                                self.globals.remove(name);
-                            }
-
-                            if !guard_result.is_truthy() {
-                                continue;
-                            }
+                        self.push_scope();
+                        for (name, value) in &matched_env {
+                            self.define_variable(
+                                VariableStorage::Local,
+                                name.clone(),
+                                value.clone(),
+                                false,
+                            );
                         }
 
-                        // Pattern matched and guard passed - execute body
-                        for (name, value) in matched_env {
-                            self.globals.insert(name, value);
-                        }
-
-                        let mut result = Value::Null;
-                        for stmt in &case.body {
-                            // Case bodies can contain both statements and expressions
-                            match stmt {
-                                // Try to evaluate as expression first
-                                _ => result = self.evaluate_expression(stmt)?,
+                        let case_result = (|| -> Result<Option<Value>, InterpreterError> {
+                            if let Some(guard) = &case.guard {
+                                let guard_result = self.evaluate_expression(guard)?;
+                                if !guard_result.is_truthy() {
+                                    return Ok(None);
+                                }
                             }
-                        }
 
-                        return Ok(result);
+                            let value = self.execute_entrain_body(&case.body)?;
+                            Ok(Some(value))
+                        })();
+
+                        self.pop_scope();
+
+                        match case_result? {
+                            Some(value) => return Ok(value),
+                            None => continue,
+                        }
                     }
                 }
 
                 // No case matched - try default
                 if let Some(default_body) = default {
-                    let mut result = Value::Null;
-                    for stmt in default_body {
-                        result = self.evaluate_expression(stmt)?;
-                    }
-                    Ok(result)
+                    self.push_scope();
+                    let result = self.execute_entrain_body(default_body);
+                    self.pop_scope();
+                    result
                 } else {
                     Err(InterpreterError::Runtime(
                         "No pattern matched and no default case provided".to_string(),
@@ -1393,7 +1399,8 @@ impl Interpreter {
 
                     // Handle rest pattern
                     if let Some(rest_name) = rest {
-                        let rest_elements: Vec<Value> = arr.iter().skip(elements.len()).cloned().collect();
+                        let rest_elements: Vec<Value> =
+                            arr.iter().skip(elements.len()).cloned().collect();
                         bindings.insert(rest_name.clone(), Value::Array(rest_elements));
                     } else if arr.len() > elements.len() {
                         return Ok(None); // Too many elements and no rest pattern
@@ -1406,17 +1413,70 @@ impl Interpreter {
             }
 
             Pattern::Record { type_name, fields } => {
-                // For now, we'll match against objects (which we don't have yet)
-                // This is a placeholder for when we implement records/objects
-                let _ = (type_name, fields);
-                Err(InterpreterError::Runtime(
-                    "Record pattern matching not yet fully implemented".to_string(),
-                ))
+                if let Value::Record(record) = value {
+                    if &record.type_name != type_name {
+                        return Ok(None);
+                    }
+
+                    let mut bindings = HashMap::new();
+                    for field_pattern in fields {
+                        let field_value = match record.fields.get(&field_pattern.name) {
+                            Some(value) => value.clone(),
+                            None => return Ok(None),
+                        };
+
+                        if let Some(sub_pattern) = &field_pattern.pattern {
+                            if let Some(sub_bindings) =
+                                self.match_pattern(sub_pattern, &field_value)?
+                            {
+                                bindings.extend(sub_bindings);
+                            } else {
+                                return Ok(None);
+                            }
+                        } else {
+                            bindings.insert(field_pattern.name.clone(), field_value);
+                        }
+                    }
+
+                    Ok(Some(bindings))
+                } else {
+                    Ok(None)
+                }
             }
         }
     }
 
+    fn execute_entrain_body(&mut self, body: &[AstNode]) -> Result<Value, InterpreterError> {
+        let mut last_value = Value::Null;
 
+        for node in body {
+            match node {
+                AstNode::ExpressionStatement(expr) => {
+                    last_value = self.evaluate_expression(expr)?;
+                }
+                _ if node.is_expression() => {
+                    last_value = self.evaluate_expression(node)?;
+                }
+                _ => match self.execute_statement(node) {
+                    Ok(()) => {
+                        last_value = Value::Null;
+                    }
+                    Err(InterpreterError::Return(value)) => {
+                        return Err(InterpreterError::Return(value));
+                    }
+                    Err(InterpreterError::BreakOutsideLoop) => {
+                        return Err(InterpreterError::BreakOutsideLoop);
+                    }
+                    Err(InterpreterError::ContinueOutsideLoop) => {
+                        return Err(InterpreterError::ContinueOutsideLoop);
+                    }
+                    Err(err) => return Err(err),
+                },
+            }
+        }
+
+        Ok(last_value)
+    }
 
     fn evaluate_binary_op(
         &self,
@@ -1563,12 +1623,7 @@ impl Interpreter {
         }
 
         for (param, arg) in function.parameters.iter().zip(args.iter()) {
-            self.define_variable(
-                VariableStorage::Local,
-                param.clone(),
-                arg.clone(),
-                false,
-            );
+            self.define_variable(VariableStorage::Local, param.clone(), arg.clone(), false);
         }
 
         let result = (|| {
@@ -2195,7 +2250,7 @@ impl Interpreter {
                         return Err(InterpreterError::TypeError(format!(
                             "Function 'Length' expects string or array argument, got {}",
                             args[0]
-                        )))
+                        )));
                     }
                 }
             }
@@ -2947,7 +3002,10 @@ impl Interpreter {
             if is_const {
                 return Err(InterpreterError::Runtime(localized(
                     &format!("Cannot reassign constant variable '{}'", name),
-                    &format!("Konstante Variable '{}' kann nicht neu zugewiesen werden", name),
+                    &format!(
+                        "Konstante Variable '{}' kann nicht neu zugewiesen werden",
+                        name
+                    ),
                 )));
             }
             Ok(())
@@ -2955,8 +3013,7 @@ impl Interpreter {
 
         match scope_hint {
             ScopeLayer::Local => {
-                if let Some((scope, consts)) =
-                    self.locals.last_mut().zip(self.const_locals.last())
+                if let Some((scope, consts)) = self.locals.last_mut().zip(self.const_locals.last())
                 {
                     if scope.contains_key(&name) {
                         check_const(consts.contains(&name))?;
@@ -3016,7 +3073,12 @@ impl Interpreter {
     }
 
     fn resolve_assignment_scope(&self, name: &str) -> ScopeLayer {
-        if self.locals.iter().rev().any(|scope| scope.contains_key(name)) {
+        if self
+            .locals
+            .iter()
+            .rev()
+            .any(|scope| scope.contains_key(name))
+        {
             ScopeLayer::Local
         } else if self.shared.contains_key(name) {
             ScopeLayer::Shared
@@ -3063,8 +3125,17 @@ Focus {
 "#;
         let mut lexer = Lexer::new(source);
         let tokens = lexer.lex().unwrap();
-        let mut parser = Parser::new(tokens);
-        let ast = parser.parse_program().unwrap();
+        let mut parser = Parser::new(tokens.clone());
+        let ast = match parser.parse_program() {
+            Ok(ast) => ast,
+            Err(err) => {
+                eprintln!("parse error: {err}");
+                for token in tokens {
+                    eprintln!("token: {:?}", token);
+                }
+                panic!("failed to parse test program");
+            }
+        };
 
         let mut interpreter = Interpreter::new();
         let result = interpreter.execute_program(ast);
@@ -3083,8 +3154,17 @@ Focus {
 "#;
         let mut lexer = Lexer::new(source);
         let tokens = lexer.lex().unwrap();
-        let mut parser = Parser::new(tokens);
-        let ast = parser.parse_program().unwrap();
+        let mut parser = Parser::new(tokens.clone());
+        let ast = match parser.parse_program() {
+            Ok(ast) => ast,
+            Err(err) => {
+                eprintln!("parse error: {err}");
+                for token in tokens {
+                    eprintln!("token: {:?}", token);
+                }
+                panic!("failed to parse test program");
+            }
+        };
 
         let mut interpreter = Interpreter::new();
         let result = interpreter.execute_program(ast);
@@ -3124,7 +3204,9 @@ Focus {
         let ast = parser.parse_program().unwrap();
 
         let mut interpreter = Interpreter::new();
-        interpreter.execute_program(ast).unwrap();
+        if let Err(err) = interpreter.execute_program(ast) {
+            panic!("interpreter error: {err:?}");
+        }
 
         let current = interpreter.get_variable("current").unwrap();
         assert_eq!(current, Value::Number(7.0));
@@ -3152,7 +3234,9 @@ Focus {
         let ast = parser.parse_program().unwrap();
 
         let mut interpreter = Interpreter::new();
-        interpreter.execute_program(ast).unwrap();
+        if let Err(err) = interpreter.execute_program(ast) {
+            panic!("interpreter error: {err:?}");
+        }
 
         assert_eq!(
             interpreter.get_variable("eq").unwrap(),
@@ -3242,5 +3326,99 @@ Focus {
 
         let result = interpreter.get_variable("activeVersion").unwrap();
         assert_eq!(result, Value::String("2.5".to_string()));
+    }
+
+    #[test]
+    fn test_entrain_record_pattern_matching_with_guard() {
+        let source = r#"
+Focus {
+    tranceify HypnoGuest {
+        name: string;
+        isInTrance: boolean;
+        depth: number;
+    }
+
+    entrance {
+        induce guest = HypnoGuest {
+            name: "Luna",
+            isInTrance: true,
+            depth: 7
+        };
+
+        induce status: string = entrain guest {
+            when HypnoGuest { name: alias } => alias;
+            otherwise => "Unknown";
+        };
+    }
+} Relax
+"#;
+
+        let mut lexer = Lexer::new(source);
+        let tokens = lexer.lex().unwrap();
+        let mut parser = Parser::new(tokens.clone());
+        let ast = match parser.parse_program() {
+            Ok(ast) => ast,
+            Err(err) => {
+                eprintln!("parse error: {err}");
+                for token in tokens {
+                    eprintln!("token: {:?}", token);
+                }
+                panic!("failed to parse test program");
+            }
+        };
+
+        let mut interpreter = Interpreter::new();
+        if let Err(err) = interpreter.execute_program(ast) {
+            panic!("interpreter error: {err:?}");
+        }
+
+        let status = interpreter.get_variable("status").unwrap();
+        assert_eq!(status, Value::String("Luna".to_string()));
+    }
+
+    #[test]
+    fn test_entrain_record_pattern_default_scope_cleanup() {
+        let source = r#"
+Focus {
+    tranceify HypnoGuest {
+        depth: number;
+    }
+
+    entrance {
+        induce guest = HypnoGuest { depth: 2 };
+
+        induce outcome = entrain guest {
+            when HypnoGuest { depth: stage } => stage;
+            otherwise => "fallback";
+        };
+    }
+} Relax
+"#;
+
+        let mut lexer = Lexer::new(source);
+        let tokens = lexer.lex().unwrap();
+        let mut parser = Parser::new(tokens.clone());
+        let ast = match parser.parse_program() {
+            Ok(ast) => ast,
+            Err(err) => {
+                eprintln!("parse error: {err}");
+                for token in tokens {
+                    eprintln!("token: {:?}", token);
+                }
+                panic!("failed to parse test program");
+            }
+        };
+
+        let mut interpreter = Interpreter::new();
+        if let Err(err) = interpreter.execute_program(ast) {
+            panic!("interpreter error: {err:?}");
+        }
+
+        let outcome = interpreter.get_variable("outcome").unwrap();
+        assert_eq!(outcome, Value::Number(2.0));
+        assert!(matches!(
+            interpreter.get_variable("stage"),
+            Err(InterpreterError::UndefinedVariable(_))
+        ));
     }
 }
