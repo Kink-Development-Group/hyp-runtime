@@ -138,6 +138,8 @@ jobs:
   create-release:
     needs: [build-release, build-deb-package]
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
 
     steps:
       - name: Checkout
