@@ -4,16 +4,16 @@ sidebar_position: 5
 
 # Funktionen
 
-Funktionen in HypnoScript werden mit dem Schlüsselwort `Trance` definiert und ermöglichen die Modularisierung und Wiederverwendung von Code.
+Funktionen in HypnoScript werden mit dem Schlüsselwort `suggestion` definiert und ermöglichen die Modularisierung und Wiederverwendung von Code.
 
 ## Funktionsdefinition
 
 ### Grundlegende Syntax
 
 ```hyp
-Trance funktionsName(parameter1, parameter2) {
+suggestion funktionsName(parameter1: type1, parameter2: type2): returnType {
     // Funktionskörper
-    return wert; // Optional
+    awaken wert; // Return-Statement
 }
 ```
 
@@ -21,7 +21,7 @@ Trance funktionsName(parameter1, parameter2) {
 
 ```hyp
 Focus {
-    Trance begruessung() {
+    suggestion begruessung() {
         observe "Hallo, HypnoScript!";
     }
 
@@ -35,7 +35,7 @@ Focus {
 
 ```hyp
 Focus {
-    Trance begruesse(name) {
+    suggestion begruesse(name) {
         observe "Hallo, " + name + "!";
     }
 
@@ -50,12 +50,12 @@ Focus {
 
 ```hyp
 Focus {
-    Trance addiere(a, b) {
-        return a + b;
+    suggestion addiere(a, b) {
+        awaken a + b;
     }
 
-    Trance istGerade(zahl) {
-        return zahl % 2 == 0;
+    suggestion istGerade(zahl) {
+        awaken zahl % 2 == 0;
     }
 
     entrance {
@@ -74,12 +74,12 @@ Focus {
 
 ```hyp
 Focus {
-    Trance rechteckFlaeche(breite, hoehe) {
-        return breite * hoehe;
+    suggestion rechteckFlaeche(breite, hoehe) {
+        awaken breite * hoehe;
     }
 
-    Trance personInfo(name, alter, stadt) {
-        return "Name: " + name + ", Alter: " + alter + ", Stadt: " + stadt;
+    suggestion personInfo(name, alter, stadt) {
+        awaken "Name: " + name + ", Alter: " + alter + ", Stadt: " + stadt;
     }
 
     entrance {
@@ -96,7 +96,7 @@ Focus {
 
 ```hyp
 Focus {
-    Trance begruesse(name, titel = "Herr/Frau") {
+    suggestion begruesse(name, titel = "Herr/Frau") {
         observe titel + " " + name + ", willkommen!";
     }
 
@@ -111,17 +111,17 @@ Focus {
 
 ```hyp
 Focus {
-    Trance fakultaet(n) {
+    suggestion fakultaet(n) {
         if (n <= 1) {
-            return 1;
+            awaken 1;
         } else {
             return n * fakultaet(n - 1);
         }
     }
 
-    Trance fibonacci(n) {
+    suggestion fibonacci(n) {
         if (n <= 1) {
-            return n;
+            awaken n;
         } else {
             return fibonacci(n - 1) + fibonacci(n - 2);
         }
@@ -141,7 +141,7 @@ Focus {
 
 ```hyp
 Focus {
-    Trance arraySumme(zahlen) {
+    suggestion arraySumme(zahlen) {
         induce summe = 0;
         for (induce i = 0; i < ArrayLength(zahlen); induce i = i + 1) {
             induce summe = summe + ArrayGet(zahlen, i);
@@ -149,9 +149,9 @@ Focus {
         return summe;
     }
 
-    Trance findeMaximum(zahlen) {
+    suggestion findeMaximum(zahlen) {
         if (ArrayLength(zahlen) == 0) {
-            return null;
+            awaken null;
         }
 
         induce max = ArrayGet(zahlen, 0);
@@ -164,7 +164,7 @@ Focus {
         return max;
     }
 
-    Trance filterGerade(zahlen) {
+    suggestion filterGerade(zahlen) {
         induce ergebnis = [];
         for (induce i = 0; i < ArrayLength(zahlen); induce i = i + 1) {
             induce zahl = ArrayGet(zahlen, i);
@@ -194,8 +194,8 @@ Focus {
 
 ```hyp
 Focus {
-    Trance erstellePerson(name, alter, stadt) {
-        return {
+    suggestion erstellePerson(name, alter, stadt) {
+        awaken {
             name: name,
             alter: alter,
             stadt: stadt,
@@ -203,12 +203,12 @@ Focus {
         };
     }
 
-    Trance personInfo(person) {
-        return person.name + " (" + person.alter + ") aus " + person.stadt;
+    suggestion personInfo(person) {
+        awaken person.name + " (" + person.alter + ") aus " + person.stadt;
     }
 
-    Trance istVolljaehrig(person) {
-        return person.volljaehrig;
+    suggestion istVolljaehrig(person) {
+        awaken person.volljaehrig;
     }
 
     entrance {
@@ -228,25 +228,25 @@ Focus {
 
 ```hyp
 Focus {
-    Trance validiereAlter(alter) {
-        return alter >= 0 && alter <= 150;
+    suggestion validiereAlter(alter) {
+        awaken alter >= 0 && alter <= 150;
     }
 
-    Trance validiereEmail(email) {
+    suggestion validiereEmail(email) {
         // Einfache E-Mail-Validierung
-        return Length(email) > 0 && email != null;
+        awaken Length(email) > 0 && email != null;
     }
 
-    Trance berechneBMI(gewicht, groesse) {
+    suggestion berechneBMI(gewicht, groesse) {
         if (groesse <= 0) {
-            return null;
+            awaken null;
         }
         return gewicht / (groesse * groesse);
     }
 
-    Trance bmiKategorie(bmi) {
+    suggestion bmiKategorie(bmi) {
         if (bmi == null) {
-            return "Ungültig";
+            awaken "Ungültig";
         } else if (bmi < 18.5) {
             return "Untergewicht";
         } else if (bmi < 25) {
@@ -283,9 +283,9 @@ Focus {
 
 ```hyp
 Focus {
-    Trance potenz(basis, exponent) {
+    suggestion potenz(basis, exponent) {
         if (exponent == 0) {
-            return 1;
+            awaken 1;
         }
 
         induce ergebnis = 1;
@@ -295,9 +295,9 @@ Focus {
         return ergebnis;
     }
 
-    Trance istPrimzahl(zahl) {
+    suggestion istPrimzahl(zahl) {
         if (zahl < 2) {
-            return false;
+            awaken false;
         }
 
         for (induce i = 2; i * i <= zahl; induce i = i + 1) {
@@ -308,7 +308,7 @@ Focus {
         return true;
     }
 
-    Trance ggT(a, b) {
+    suggestion ggT(a, b) {
         while (b != 0) {
             induce temp = b;
             induce b = a % b;
@@ -331,32 +331,32 @@ Focus {
 
 ```hyp
 // Gut - beschreibende Namen
-Trance berechneDurchschnitt(zahlen) { ... }
-Trance istGueltigeEmail(email) { ... }
-Trance formatiereDatum(datum) { ... }
+suggestion berechneDurchschnitt(zahlen) { ... }
+suggestion istGueltigeEmail(email) { ... }
+suggestion formatiereDatum(datum) { ... }
 
 // Schlecht - unklare Namen
-Trance calc(arr) { ... }
-Trance check(str) { ... }
-Trance format(d) { ... }
+suggestion calc(arr) { ... }
+suggestion check(str) { ... }
+suggestion format(d) { ... }
 ```
 
 ### Einzelverantwortlichkeit
 
 ```hyp
 // Gut - eine Funktion, eine Aufgabe
-Trance validiereAlter(alter) {
-    return alter >= 0 && alter <= 150;
+suggestion validiereAlter(alter) {
+    awaken alter >= 0 && alter <= 150;
 }
 
-Trance berechneAltersgruppe(alter) {
-    if (alter < 18) return "Jugendlich";
+suggestion berechneAltersgruppe(alter) {
+    if (alter < 18) awaken "Jugendlich";
     if (alter < 65) return "Erwachsen";
     return "Senior";
 }
 
 // Schlecht - zu viele Aufgaben in einer Funktion
-Trance verarbeitePerson(alter, name, email) {
+suggestion verarbeitePerson(alter, name, email) {
     // Validierung, Berechnung, Formatierung alles in einer Funktion
 }
 ```
@@ -365,18 +365,18 @@ Trance verarbeitePerson(alter, name, email) {
 
 ```hyp
 Focus {
-    Trance sichereDivision(a, b) {
+    suggestion sichereDivision(a, b) {
         if (b == 0) {
             observe "Fehler: Division durch Null!";
-            return null;
+            awaken null;
         }
         return a / b;
     }
 
-    Trance arrayElementSicher(arr, index) {
+    suggestion arrayElementSicher(arr, index) {
         if (index < 0 || index >= ArrayLength(arr)) {
             observe "Fehler: Index außerhalb des Bereichs!";
-            return null;
+            awaken null;
         }
         return ArrayGet(arr, index);
     }

@@ -92,26 +92,26 @@ pub enum TokenType {
     Label,
 
     // Standard operators
-    DoubleEquals,   // ==
-    NotEquals,      // !=
+    DoubleEquals, // ==
+    NotEquals,    // !=
     Greater,
-    GreaterEqual,   // >=
+    GreaterEqual, // >=
     Less,
-    LessEqual,      // <=
+    LessEqual, // <=
     Plus,
     Minus,
     Asterisk,
     Slash,
     Percent,
-    Bang,           // !
-    AmpAmp,         // &&
-    PipePipe,       // ||
-    QuestionMark,   // ?
-    QuestionDot,    // ?.
+    Bang,             // !
+    AmpAmp,           // &&
+    PipePipe,         // ||
+    QuestionMark,     // ?
+    QuestionDot,      // ?.
     QuestionQuestion, // ??
-    Pipe,           // | (for union types)
-    Ampersand,      // & (for intersection types)
-    Arrow,          // => (for pattern matching)
+    Pipe,             // | (for union types)
+    Ampersand,        // & (for intersection types)
+    Arrow,            // => (for pattern matching)
 
     // Literals and identifiers
     Identifier,
@@ -131,20 +131,20 @@ pub enum TokenType {
     False,
 
     // Delimiters and brackets
-    LParen,     // (
-    RParen,     // )
-    LBrace,     // {
-    RBrace,     // }
-    LBracket,   // [
-    RBracket,   // ]
-    LAngle,     // < (for generics)
-    RAngle,     // > (for generics)
+    LParen,   // (
+    RParen,   // )
+    LBrace,   // {
+    RBrace,   // }
+    LBracket, // [
+    RBracket, // ]
+    LAngle,   // < (for generics)
+    RAngle,   // > (for generics)
     Comma,
-    Colon,      // :
-    Semicolon,  // ;
-    Dot,        // .
-    DotDotDot,  // ... (spread operator)
-    Equals,     // =
+    Colon,     // :
+    Semicolon, // ;
+    Dot,       // .
+    DotDotDot, // ... (spread operator)
+    Equals,    // =
 
     // End of file
     Eof,

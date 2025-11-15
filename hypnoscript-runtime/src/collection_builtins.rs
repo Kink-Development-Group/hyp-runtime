@@ -4,10 +4,10 @@
 //! that complement the Array builtins. Includes set operations (union, intersection,
 //! difference), frequency counting, and other collection-oriented functions.
 
-use std::collections::{HashMap, HashSet};
-use std::hash::Hash;
 use crate::builtin_trait::BuiltinModule;
 use crate::localization::LocalizedMessage;
+use std::collections::{HashMap, HashSet};
+use std::hash::Hash;
 
 /// Collection operations and Set-like functions.
 ///
@@ -28,17 +28,32 @@ impl BuiltinModule for CollectionBuiltins {
         let locale = crate::localization::detect_locale(locale);
         let msg = LocalizedMessage::new("Set operations and advanced collection utilities")
             .with_translation("de", "Set-Operationen und erweiterte Collection-Utilities")
-            .with_translation("fr", "Opérations d'ensemble et utilitaires de collection avancés")
-            .with_translation("es", "Operaciones de conjunto y utilidades de colección avanzadas");
+            .with_translation(
+                "fr",
+                "Opérations d'ensemble et utilitaires de collection avancés",
+            )
+            .with_translation(
+                "es",
+                "Operaciones de conjunto y utilidades de colección avanzadas",
+            );
         msg.resolve(&locale).to_string()
     }
 
     fn function_names() -> &'static [&'static str] {
         &[
-            "Union", "Intersection", "Difference", "SymmetricDifference",
-            "IsSubset", "IsSuperset", "IsDisjoint",
-            "Frequency", "MostCommon", "LeastCommon",
-            "ToSet", "SetSize", "CartesianProduct",
+            "Union",
+            "Intersection",
+            "Difference",
+            "SymmetricDifference",
+            "IsSubset",
+            "IsSuperset",
+            "IsDisjoint",
+            "Frequency",
+            "MostCommon",
+            "LeastCommon",
+            "ToSet",
+            "SetSize",
+            "CartesianProduct",
         ]
     }
 }

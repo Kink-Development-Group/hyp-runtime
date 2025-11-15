@@ -2,9 +2,9 @@
 //!
 //! Provides async operations like delay, spawn, timeout, and channel operations
 
-use crate::interpreter::Value;
 use crate::async_runtime::{AsyncRuntime, TaskResult};
-use crate::channel_system::{ChannelRegistry, ChannelMessage};
+use crate::channel_system::{ChannelMessage, ChannelRegistry};
+use crate::interpreter::Value;
 use std::sync::Arc;
 use std::time::Duration;
 
@@ -54,7 +54,8 @@ impl AsyncBuiltins {
             // Simulate async work
             tokio::time::sleep(Duration::from_millis(100)).await;
             future_value
-        }).await
+        })
+        .await
     }
 
     /// Spawn async task (fire and forget)
@@ -116,12 +117,19 @@ impl AsyncBuiltins {
     ) -> Result<Value, String> {
         match channel_type.as_str() {
             "mpsc" => {
-                registry.create_mpsc(name.clone(), capacity as usize).await?;
+                registry
+                    .create_mpsc(name.clone(), capacity as usize)
+                    .await?;
                 Ok(Value::String(format!("Created MPSC channel: {}", name)))
             }
             "broadcast" => {
-                registry.create_broadcast(name.clone(), capacity as usize).await?;
-                Ok(Value::String(format!("Created Broadcast channel: {}", name)))
+                registry
+                    .create_broadcast(name.clone(), capacity as usize)
+                    .await?;
+                Ok(Value::String(format!(
+                    "Created Broadcast channel: {}",
+                    name
+                )))
             }
             "watch" => {
                 registry.create_watch(name.clone()).await?;
@@ -174,7 +182,10 @@ impl AsyncBuiltins {
                     Ok(Value::Null)
                 }
             }
-            _ => Err(format!("Receive not supported for channel type: {}", channel_type)),
+            _ => Err(format!(
+                "Receive not supported for channel type: {}",
+                channel_type
+            )),
         }
     }
 

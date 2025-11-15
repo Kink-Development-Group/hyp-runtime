@@ -10,10 +10,10 @@
 //! - JSON-based dictionary operations
 //! - Full i18n support for error messages
 
-use std::collections::HashMap;
 use serde_json::Value as JsonValue;
+use std::collections::HashMap;
 
-use crate::builtin_trait::{BuiltinModule, BuiltinError, BuiltinResult};
+use crate::builtin_trait::{BuiltinError, BuiltinModule, BuiltinResult};
 use crate::localization::LocalizedMessage;
 
 /// Dictionary/Map manipulation functions.
@@ -34,10 +34,20 @@ impl BuiltinModule for DictionaryBuiltins {
 
     fn description_localized(locale: Option<&str>) -> String {
         let locale = crate::localization::detect_locale(locale);
-        let msg = LocalizedMessage::new("Key-value collection operations for dictionaries and maps")
-            .with_translation("de", "Schlüssel-Wert-Sammlungsoperationen für Dictionaries und Maps")
-            .with_translation("fr", "Opérations de collection clé-valeur pour les dictionnaires et les cartes")
-            .with_translation("es", "Operaciones de colección clave-valor para diccionarios y mapas");
+        let msg =
+            LocalizedMessage::new("Key-value collection operations for dictionaries and maps")
+                .with_translation(
+                    "de",
+                    "Schlüssel-Wert-Sammlungsoperationen für Dictionaries und Maps",
+                )
+                .with_translation(
+                    "fr",
+                    "Opérations de collection clé-valeur pour les dictionnaires et les cartes",
+                )
+                .with_translation(
+                    "es",
+                    "Operaciones de colección clave-valor para diccionarios y mapas",
+                );
         msg.resolve(&locale).to_string()
     }
 

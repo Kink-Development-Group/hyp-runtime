@@ -1,6 +1,6 @@
-use chrono::{Datelike, Local, NaiveDate, Timelike};
 use crate::builtin_trait::BuiltinModule;
 use crate::localization::LocalizedMessage;
+use chrono::{Datelike, Local, NaiveDate, Timelike};
 
 /// Time and date builtin functions
 ///
@@ -28,9 +28,21 @@ impl BuiltinModule for TimeBuiltins {
 
     fn function_names() -> &'static [&'static str] {
         &[
-            "GetCurrentTime", "GetCurrentDate", "GetCurrentTimeString", "GetCurrentDateTime",
-            "FormatDateTime", "GetDayOfWeek", "GetDayOfYear", "IsLeapYear", "GetDaysInMonth",
-            "GetYear", "GetMonth", "GetDay", "GetHour", "GetMinute", "GetSecond",
+            "GetCurrentTime",
+            "GetCurrentDate",
+            "GetCurrentTimeString",
+            "GetCurrentDateTime",
+            "FormatDateTime",
+            "GetDayOfWeek",
+            "GetDayOfYear",
+            "IsLeapYear",
+            "GetDaysInMonth",
+            "GetYear",
+            "GetMonth",
+            "GetDay",
+            "GetHour",
+            "GetMinute",
+            "GetSecond",
         ]
     }
 }

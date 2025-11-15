@@ -1,6 +1,6 @@
 {
   "name": "hyp-runtime",
-  "version": "1.0.0-rc3",
+  "version": "1.0.0-rc4",
   "description": "Workspace documentation tooling for the HypnoScript Rust implementation.",
   "private": true,
   "scripts": {

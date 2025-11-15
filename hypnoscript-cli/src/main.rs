@@ -1,8 +1,8 @@
 use anyhow::{Result, anyhow};
 use clap::{Parser, Subcommand};
 use hypnoscript_compiler::{
-    Interpreter, TypeChecker, WasmCodeGenerator, WasmBinaryGenerator,
-    NativeCodeGenerator, TargetPlatform, OptimizationLevel, Optimizer
+    Interpreter, NativeCodeGenerator, OptimizationLevel, Optimizer, TargetPlatform, TypeChecker,
+    WasmBinaryGenerator, WasmCodeGenerator,
 };
 use hypnoscript_lexer_parser::{Lexer, Parser as HypnoParser};
 use semver::Version;
@@ -261,7 +261,11 @@ fn main() -> Result<()> {
             }
         }
 
-        Commands::CompileWasm { input, output, binary } => {
+        Commands::CompileWasm {
+            input,
+            output,
+            binary,
+        } => {
             let source = fs::read_to_string(&input)?;
             let mut lexer = Lexer::new(&source);
             let tokens = lexer.lex().map_err(into_anyhow)?;
@@ -287,7 +291,12 @@ fn main() -> Result<()> {
             }
         }
 
-        Commands::CompileNative { input, output, target, opt_level } => {
+        Commands::CompileNative {
+            input,
+            output,
+            target,
+            opt_level,
+        } => {
             let source = fs::read_to_string(&input)?;
             let mut lexer = Lexer::new(&source);
             let tokens = lexer.lex().map_err(into_anyhow)?;
@@ -335,7 +344,9 @@ fn main() -> Result<()> {
                 }
                 Err(e) => {
                     println!("⚠️  {}", e);
-                    println!("\nHinweis: Native Code-Generierung wird in einer zukünftigen Version implementiert.");
+                    println!(
+                        "\nHinweis: Native Code-Generierung wird in einer zukünftigen Version implementiert."
+                    );
                     println!("Verwenden Sie stattdessen:");
                     println!("  - 'hypnoscript run {}' für Interpretation", input);
                     println!("  - 'hypnoscript compile-wasm {}' für WebAssembly", input);
@@ -343,7 +354,11 @@ fn main() -> Result<()> {
             }
         }
 
-        Commands::Optimize { input, output, stats } => {
+        Commands::Optimize {
+            input,
+            output,
+            stats,
+        } => {
             let source = fs::read_to_string(&input)?;
             let mut lexer = Lexer::new(&source);
             let tokens = lexer.lex().map_err(into_anyhow)?;
@@ -359,11 +374,26 @@ fn main() -> Result<()> {
             if stats {
                 let opt_stats = optimizer.stats();
                 println!("\n📊 Optimization Statistics:");
-                println!("  - Constant folding:     {} optimizations", opt_stats.folded_constants);
-                println!("  - Dead code elimination: {} blocks removed", opt_stats.eliminated_dead_code);
-                println!("  - CSE:                  {} eliminations", opt_stats.eliminated_common_subexpr);
-                println!("  - Loop invariants:      {} moved", opt_stats.moved_loop_invariants);
-                println!("  - Function inlining:    {} functions", opt_stats.inlined_functions);
+                println!(
+                    "  - Constant folding:     {} optimizations",
+                    opt_stats.folded_constants
+                );
+                println!(
+                    "  - Dead code elimination: {} blocks removed",
+                    opt_stats.eliminated_dead_code
+                );
+                println!(
+                    "  - CSE:                  {} eliminations",
+                    opt_stats.eliminated_common_subexpr
+                );
+                println!(
+                    "  - Loop invariants:      {} moved",
+                    opt_stats.moved_loop_invariants
+                );
+                println!(
+                    "  - Function inlining:    {} functions",
+                    opt_stats.inlined_functions
+                );
             }
 
             // For now, just report that optimization was performed

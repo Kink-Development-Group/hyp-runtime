@@ -10,7 +10,7 @@ use tokio::sync::{Mutex, Notify};
 
 /// Async Promise state
 #[derive(Debug, Clone)]
-pub(crate) enum PromiseState<T> {
+pub enum PromiseState<T> {
     Pending,
     Resolved(T),
     Rejected(String),
@@ -177,7 +177,7 @@ pub async fn promise_any<T: Clone>(promises: Vec<AsyncPromise<T>>) -> Result<T, 
 
 /// Promise combinator: allSettled - wait for all to settle (resolve or reject)
 pub async fn promise_all_settled<T: Clone>(
-    promises: Vec<AsyncPromise<T>>
+    promises: Vec<AsyncPromise<T>>,
 ) -> Vec<Result<T, String>> {
     let mut results = Vec::new();
 
@@ -189,7 +189,10 @@ pub async fn promise_all_settled<T: Clone>(
 }
 
 /// Create a promise that resolves after a delay
-pub fn promise_delay<T: Clone + Send + 'static>(duration: std::time::Duration, value: T) -> AsyncPromise<T> {
+pub fn promise_delay<T: Clone + Send + 'static>(
+    duration: std::time::Duration,
+    value: T,
+) -> AsyncPromise<T> {
     let promise = AsyncPromise::new();
     let promise_clone = promise.clone();
 

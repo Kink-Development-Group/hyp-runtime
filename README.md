@@ -16,9 +16,14 @@ portiert und ab Version 1.0 ausschließlich in Rust weiterentwickelt.
 - 🌍 **Mehrsprachigkeit** – i18n-Unterstützung (EN, DE, FR, ES)
 - 🔐 **Kryptographie** – SHA-256, SHA-512, MD5, Base64, UUID
 - 🧬 **Funktionale Programmierung** – map, filter, reduce, compose, pipe
+- 🎭 **Hypnotische Operatoren** – 14 Synonyme wie `youAreFeelingVerySleepy`, `lookAtTheWatch`, `underMyControl`
+- 🎯 **Pattern Matching** – `entrain`/`when`/`otherwise` mit Destructuring, Guards und Type Patterns
+- 🔔 **Event-Driven** – `trigger` für Callbacks und Event-Handler
+- 💎 **Nullish Operators** – `lucidFallback` (`??`) und `dreamReach` (`?.`) für sichere Null-Behandlung
+- 🏛️ **OOP-Support** – Sessions mit `constructor`, `expose`/`conceal`, `dominant` (static)
 - 🖥️ **Erweiterte CLI** – `run`, `lex`, `parse`, `check`, `compile-wasm`, `compile-native`, `optimize`, `builtins`, `version`
-- ✅ **Umfangreiche Tests** – 70+ Tests über alle Compiler-Module
-- 📚 **Dokumentation** – Docusaurus + ausführliche Architektur-Docs
+- ✅ **Umfangreiche Tests** – 185+ Tests über alle Compiler-Module
+- 📚 **Dokumentation** – VitePress + ausführliche Architektur-Docs + vollständige Rustdoc
 - 🚀 **Performance** – Zero-cost abstractions, kein Garbage Collector, optimierter nativer Code
 
 ---
@@ -101,9 +106,30 @@ Focus {
     observe message;
     observe x;
 
-    if (x > 40) deepFocus {
+    // Hypnotischer Operator-Synonym
+    if (x yourEyesAreGettingHeavy 40) deepFocus {
         observe "X is greater than 40";
     }
+
+    // Pattern Matching mit entrain
+    induce result: string = entrain x {
+        when 0 => "zero"
+        when 42 => "answer to everything"
+        when n if n > 100 => "large number"
+        otherwise => "other"
+    };
+    observe result;
+
+    // Nullish Operators
+    induce maybeNull: number? = null;
+    induce defaulted: number = maybeNull lucidFallback 100;
+    observe defaulted;  // 100
+
+    // Trigger (Event Handler)
+    trigger onComplete = suggestion() {
+        observe "Task completed!";
+    };
+    onComplete();
 } Relax
 ```
 
@@ -182,8 +208,11 @@ cargo test --all
 - ✅ Optimizer: 6+ Tests
 - ✅ Native Generator: 5+ Tests
 - ✅ Runtime Builtins: 30+ Tests
+- ✅ Pattern Matching: Vollständige Abdeckung
+- ✅ Triggers: Vollständige Abdeckung
+- ✅ Nullish Operators: Vollständige Abdeckung
 
-**Gesamt: 100+ Tests**
+### Gesamt: 185+ Tests (alle bestanden)
 
 ### Compiler-Tests
 
@@ -257,6 +286,164 @@ Eine vollständige Liste liefert `hypnoscript-cli builtins` sowie die Dokumentat
 
 ---
 
+## 🎯 Erweiterte Sprachfeatures
+
+### 🎭 Hypnotische Operator-Synonyme
+
+HypnoScript bietet 14 hypnotische Aliase für Standard-Operatoren:
+
+| Standard | Hypnotisch                | Beschreibung       |
+| -------- | ------------------------- | ------------------ |
+| `==`     | `youAreFeelingVerySleepy` | Gleichheit         |
+| `!=`     | `youCannotResist`         | Ungleichheit       |
+| `>`      | `lookAtTheWatch`          | Größer als         |
+| `>=`     | `yourEyesAreGettingHeavy` | Größer gleich      |
+| `<`      | `fallUnderMySpell`        | Kleiner als        |
+| `<=`     | `goingDeeper`             | Kleiner gleich     |
+| `&&`     | `underMyControl`          | Logisches UND      |
+| `\|\|`   | `resistanceIsFutile`      | Logisches ODER     |
+| `!`      | `snapOutOfIt`             | Logisches NICHT    |
+| `??`     | `lucidFallback`           | Nullish Coalescing |
+| `?.`     | `dreamReach`              | Optional Chaining  |
+
+> ⚠️ **String-Konkatenation:** Wenn einer der Operanden beim `+`-Operator ein String ist, werden alle übrigen Werte automatisch in Strings konvertiert. Beispiele: `null + "text"` ergibt `"nulltext"`, `42 + "px"` ergibt `"42px"`. Prüfe den Typ vor dem Konkatenieren, wenn du solche impliziten Umwandlungen vermeiden möchtest.
+
+**Beispiel:**
+
+```hypnoscript
+induce age: number = 25;
+
+if (age yourEyesAreGettingHeavy 18 underMyControl age fallUnderMySpell 65) {
+    observe "Erwachsener im arbeitsfähigen Alter";
+}
+```
+
+📚 **Vollständige Dokumentation:** [`docs/language-reference/operator-synonyms.md`](hypnoscript-docs/docs/language-reference/operator-synonyms.md)
+
+### 🎯 Pattern Matching (`entrain`/`when`/`otherwise`)
+
+Leistungsstarkes Pattern Matching mit:
+
+- **Literal Patterns:** Direkter Wertevergleich
+- **Type Patterns:** Typ-basiertes Matching mit Binding
+- **Array Destructuring:** Spread-Operator, Nested Patterns
+- **Record Patterns:** Feldbasiertes Matching
+- **Guards:** Bedingte Patterns mit `if`
+- **Identifier Binding:** Variable Binding in Patterns
+
+**Beispiel:**
+
+```hypnoscript
+induce status: number = 404;
+
+induce message: string = entrain status {
+    when 200 => "OK"
+    when 404 => "Not Found"
+    when 500 => "Server Error"
+    when s if s yourEyesAreGettingHeavy 400 underMyControl s fallUnderMySpell 500 => "Client Error"
+    otherwise => "Unknown"
+};
+
+// Array Destructuring
+induce coords: array = [10, 20, 30];
+entrain coords {
+    when [x, y, z] => observe "3D Point: " + x + ", " + y + ", " + z
+    when [x, y] => observe "2D Point: " + x + ", " + y
+    otherwise => observe "Invalid coordinates"
+}
+```
+
+📚 **Vollständige Dokumentation:** [`docs/language-reference/pattern-matching.md`](hypnoscript-docs/docs/language-reference/pattern-matching.md)
+
+### 🔔 Triggers (Event-Driven Callbacks)
+
+Triggers sind Top-Level Event-Handler, die auf Ereignisse reagieren:
+
+**Syntax:**
+
+```hypnoscript
+trigger triggerName = suggestion(parameters) {
+    // Handler-Code
+};
+```
+
+**Beispiel:**
+
+```hypnoscript
+trigger onStartup = suggestion() {
+    observe "Application initialized";
+};
+
+trigger onError = suggestion(code: number, message: string) {
+    observe "Error " + code + ": " + message;
+};
+
+trigger onCleanup = suggestion() {
+    observe "Cleaning up resources...";
+};
+
+entrance {
+    onStartup();
+
+    if (someCondition) {
+        onError(404, "Resource not found");
+    }
+
+    onCleanup();
+}
+```
+
+**Anwendungsfälle:**
+
+- Event-Handler (Click, Load, Error)
+- Lifecycle-Hooks (Setup, Teardown)
+- Callbacks für Async-Operations
+- Observers für Zustandsänderungen
+
+📚 **Vollständige Dokumentation:** [`docs/language-reference/triggers.md`](hypnoscript-docs/docs/language-reference/triggers.md)
+
+### 💎 Nullish Operators
+
+**Nullish Coalescing (`lucidFallback` / `??`):**
+
+Liefert rechten Wert nur wenn linker Wert `null` oder `undefined` ist (nicht bei `0`, `false`, `""`):
+
+```hypnoscript
+induce value: number? = null;
+induce result: number = value lucidFallback 100;  // 100
+
+induce zero: number = 0;
+induce result2: number = zero lucidFallback 100;  // 0 (nicht 100!)
+```
+
+**Optional Chaining (`dreamReach` / `?.`):**
+
+Sichere Navigation durch verschachtelte Strukturen:
+
+```hypnoscript
+session User {
+    expose profile: Profile?;
+}
+
+session Profile {
+    expose name: string;
+}
+
+induce user: User? = getUser();
+induce name: string = user dreamReach profile dreamReach name lucidFallback "Anonymous";
+```
+
+**Vorteile:**
+
+- ✅ Vermeidung von Null-Pointer-Exceptions
+- ✅ Lesbarer als verschachtelte `if`-Checks
+- ✅ Funktionale Programmierung-Patterns
+- ✅ Zero-Cost Abstraction (Compiler-optimiert)
+
+📚 **Vollständige Dokumentation:** [`docs/language-reference/nullish-operators.md`](hypnoscript-docs/docs/language-reference/nullish-operators.md)
+
+---
+
 ## 📊 Performance-Vorteile
 
 Rust bietet mehrere Vorteile gegenüber C#:
@@ -326,6 +513,10 @@ mod tests {
 - ✅ Parser (100%)
 - ✅ AST (100%)
 - ✅ OOP/Sessions (100%)
+- ✅ Pattern Matching (`entrain`/`when`/`otherwise`) (100%)
+- ✅ Triggers (Event-Driven Callbacks) (100%)
+- ✅ Nullish Operators (`lucidFallback`, `dreamReach`) (100%)
+- ✅ Hypnotische Operator-Synonyme (14 Aliase) (100%)
 
 ### Runtime
 

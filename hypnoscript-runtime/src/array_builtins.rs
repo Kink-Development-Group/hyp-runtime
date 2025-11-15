@@ -19,21 +19,55 @@ impl BuiltinModule for ArrayBuiltins {
     fn description_localized(locale: Option<&str>) -> String {
         let locale = crate::localization::detect_locale(locale);
         let msg = LocalizedMessage::new("Array manipulation and functional programming operations")
-            .with_translation("de", "Array-Manipulation und funktionale Programmieroperationen")
-            .with_translation("fr", "Manipulation de tableaux et opérations de programmation fonctionnelle")
-            .with_translation("es", "Manipulación de arrays y operaciones de programación funcional");
+            .with_translation(
+                "de",
+                "Array-Manipulation und funktionale Programmieroperationen",
+            )
+            .with_translation(
+                "fr",
+                "Manipulation de tableaux et opérations de programmation fonctionnelle",
+            )
+            .with_translation(
+                "es",
+                "Manipulación de arrays y operaciones de programación funcional",
+            );
         msg.resolve(&locale).to_string()
     }
 
     fn function_names() -> &'static [&'static str] {
         &[
-            "Length", "IsEmpty", "Get", "IndexOf", "Contains", "Reverse",
-            "Sum", "Average", "Min", "Max", "Sort",
-            "First", "Last", "Take", "Skip", "Slice",
-            "Join", "Count", "Distinct",
-            "Map", "Filter", "Reduce", "Find", "FindIndex",
-            "Every", "Some", "Flatten", "Zip",
-            "Partition", "GroupBy", "Chunk", "Windows",
+            "Length",
+            "IsEmpty",
+            "Get",
+            "IndexOf",
+            "Contains",
+            "Reverse",
+            "Sum",
+            "Average",
+            "Min",
+            "Max",
+            "Sort",
+            "First",
+            "Last",
+            "Take",
+            "Skip",
+            "Slice",
+            "Join",
+            "Count",
+            "Distinct",
+            "Map",
+            "Filter",
+            "Reduce",
+            "Find",
+            "FindIndex",
+            "Every",
+            "Some",
+            "Flatten",
+            "Zip",
+            "Partition",
+            "GroupBy",
+            "Chunk",
+            "Windows",
         ]
     }
 }
@@ -251,7 +285,9 @@ impl ArrayBuiltins {
 
         for i in (1..result.len()).rev() {
             // Simple LCG for pseudo-random numbers
-            rng_state = rng_state.wrapping_mul(6364136223846793005).wrapping_add(1442695040888963407);
+            rng_state = rng_state
+                .wrapping_mul(6364136223846793005)
+                .wrapping_add(1442695040888963407);
             let j = (rng_state as usize) % (i + 1);
             result.swap(i, j);
         }
@@ -310,7 +346,10 @@ impl ArrayBuiltins {
 
         for item in arr {
             let key = key_fn(item);
-            groups.entry(key).or_insert_with(Vec::new).push(item.clone());
+            groups
+                .entry(key)
+                .or_insert_with(Vec::new)
+                .push(item.clone());
         }
 
         groups
@@ -506,10 +545,7 @@ mod tests {
     fn test_windows() {
         let arr = [1, 2, 3, 4, 5];
         let windows = ArrayBuiltins::windows(&arr, 3);
-        assert_eq!(
-            windows,
-            vec![vec![1, 2, 3], vec![2, 3, 4], vec![3, 4, 5]]
-        );
+        assert_eq!(windows, vec![vec![1, 2, 3], vec![2, 3, 4], vec![3, 4, 5]]);
     }
 
     #[test]
