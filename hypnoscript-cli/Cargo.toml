@@ -5,6 +5,8 @@ edition.workspace = true
 authors.workspace = true
 license.workspace = true
 repository.workspace = true
+description = "Command-line interface for the HypnoScript language runtime and development tooling."
+readme = "../README.md"
 
 [dependencies]
 hypnoscript-core = { path = "../hypnoscript-core" }
