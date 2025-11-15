@@ -114,7 +114,7 @@ jobs:
           [package.metadata.deb]
           maintainer = "HypnoScript Team"
           copyright = "2025, HypnoScript Team"
-          license-file = ["LICENSE", "0"]
+          license-file = ["../LICENSE", "0"]
           extended-description = """\
           HypnoScript is a programming language designed for hypnotic induction and trance work.
           This package provides the Rust-based runtime and CLI tools."""
