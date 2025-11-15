@@ -298,20 +298,22 @@ HypnoScript bietet 14 hypnotische Aliase für Standard-Operatoren:
 | `!=`     | `youCannotResist`         | Ungleichheit       |
 | `>`      | `lookAtTheWatch`          | Größer als         |
 | `>=`     | `yourEyesAreGettingHeavy` | Größer gleich      |
-| `<`      | `youAreGettingTired`      | Kleiner als        |
-| `<=`     | `sinkingDeeper`           | Kleiner gleich     |
+| `<`      | `fallUnderMySpell`        | Kleiner als        |
+| `<=`     | `goingDeeper`             | Kleiner gleich     |
 | `&&`     | `underMyControl`          | Logisches UND      |
 | `\|\|`   | `resistanceIsFutile`      | Logisches ODER     |
 | `!`      | `snapOutOfIt`             | Logisches NICHT    |
 | `??`     | `lucidFallback`           | Nullish Coalescing |
 | `?.`     | `dreamReach`              | Optional Chaining  |
 
+> ⚠️ **String-Konkatenation:** Wenn einer der Operanden beim `+`-Operator ein String ist, werden alle übrigen Werte automatisch in Strings konvertiert. Beispiele: `null + "text"` ergibt `"nulltext"`, `42 + "px"` ergibt `"42px"`. Prüfe den Typ vor dem Konkatenieren, wenn du solche impliziten Umwandlungen vermeiden möchtest.
+
 **Beispiel:**
 
 ```hypnoscript
 induce age: number = 25;
 
-if (age yourEyesAreGettingHeavy 18 underMyControl age youAreGettingTired 65) {
+if (age yourEyesAreGettingHeavy 18 underMyControl age fallUnderMySpell 65) {
     observe "Erwachsener im arbeitsfähigen Alter";
 }
 ```
@@ -338,7 +340,7 @@ induce message: string = entrain status {
     when 200 => "OK"
     when 404 => "Not Found"
     when 500 => "Server Error"
-    when s if s yourEyesAreGettingHeavy 400 underMyControl s youAreGettingTired 500 => "Client Error"
+    when s if s yourEyesAreGettingHeavy 400 underMyControl s fallUnderMySpell 500 => "Client Error"
     otherwise => "Unknown"
 };
 

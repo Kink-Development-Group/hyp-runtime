@@ -20,6 +20,8 @@ entrain <ausdruck> {
 }
 ```
 
+> **Hinweis:** Der `otherwise`-Fall akzeptiert optional ein nachgestelltes Komma oder Semikolon (z. B. `otherwise => wert,` oder `otherwise => wert;`). Für einen konsistenten Stil empfehlen wir, auf zusätzliche Trenner zu verzichten und – wie in den Beispielen – lediglich `otherwise => wert` zu verwenden.
+
 ## Pattern-Typen
 
 | Pattern-Typ       | Syntax                      | Beschreibung                  |

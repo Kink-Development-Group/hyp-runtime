@@ -19,9 +19,11 @@ induce text: string = "Hallo " + "Welt";  // "Hallo Welt"
 induce mixed: string = "Zahl: " + 42;     // "Zahl: 42"
 ```
 
+> ⚠️ **Achtung:** Sobald einer der Operanden ein String ist, werden alle anderen Werte implizit in Strings umgewandelt (intern via `to_string()`). Dadurch entstehen z. B. Ergebnisse wie `null + "text" -> "nulltext"` oder `42 + "px" -> "42px"`. Wenn du striktere Typkontrollen erwartest, konvertiere Werte explizit oder prüfe den Typ vor der Verwendung von `+`.
+
 ## Vergleichsoperatoren
 
-### Standard-Operatoren
+### Standard-Operatoren (Vergleich)
 
 | Operator | Bedeutung      | Beispiel | Ergebnis |
 | -------- | -------------- | -------- | -------- |
@@ -32,7 +34,7 @@ induce mixed: string = "Zahl: " + 42;     // "Zahl: 42"
 | >=       | Größer gleich  | 3 >= 2   | true     |
 | <=       | Kleiner gleich | 2 <= 2   | true     |
 
-### Hypnotische Synonyme
+### Hypnotische Synonyme (Vergleich)
 
 HypnoScript bietet hypnotische Synonyme für alle Vergleichsoperatoren:
 
@@ -55,7 +57,7 @@ HypnoScript bietet hypnotische Synonyme für alle Vergleichsoperatoren:
 
 ## Logische Operatoren
 
-### Standard-Operatoren
+### Standard-Operatoren (Logik)
 
 | Operator | Bedeutung | Beispiel        | Ergebnis |
 | -------- | --------- | --------------- | -------- |
@@ -63,7 +65,7 @@ HypnoScript bietet hypnotische Synonyme für alle Vergleichsoperatoren:
 | \|\|     | Oder      | true \|\| false | true     |
 | !        | Nicht     | !true           | false    |
 
-### Hypnotische Synonyme
+### Hypnotische Synonyme (Logik)
 
 | Hypnotisches Synonym | Standard | Bedeutung      |
 | -------------------- | -------- | -------------- |
