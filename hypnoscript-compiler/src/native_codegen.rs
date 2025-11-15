@@ -396,31 +396,16 @@ impl NativeCodeGenerator {
         #[cfg(not(target_os = "windows"))]
         {
             // Unix-basierte Systeme (Linux, macOS)
+            let exe_path_string = exe_path.to_string_lossy().into_owned();
+            let obj_path_string = obj_path.to_string_lossy().into_owned();
+
+            let exe_arg = exe_path_string.as_str();
+            let obj_arg = obj_path_string.as_str();
+
             let linkers = vec![
-                (
-                    "cc",
-                    vec![
-                        "-o",
-                        &exe_path.to_string_lossy(),
-                        &obj_path.to_string_lossy(),
-                    ],
-                ),
-                (
-                    "gcc",
-                    vec![
-                        "-o",
-                        &exe_path.to_string_lossy(),
-                        &obj_path.to_string_lossy(),
-                    ],
-                ),
-                (
-                    "clang",
-                    vec![
-                        "-o",
-                        &exe_path.to_string_lossy(),
-                        &obj_path.to_string_lossy(),
-                    ],
-                ),
+                ("cc", vec!["-o", exe_arg, obj_arg]),
+                ("gcc", vec!["-o", exe_arg, obj_arg]),
+                ("clang", vec!["-o", exe_arg, obj_arg]),
             ];
 
             for (linker, args) in linkers {
