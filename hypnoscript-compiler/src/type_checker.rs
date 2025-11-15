@@ -829,24 +829,24 @@ impl TypeChecker {
         let object_type = self.infer_type(object);
 
         // Check if this is a Record type (tranceify)
-        if object_type.base_type == HypnoBaseType::Record {
-            if let Some(type_name) = &object_type.name {
-                if let Some(tranceify_info) = self.tranceify_types.get(type_name) {
-                    if let Some(field_type) = tranceify_info.fields.get(property) {
-                        return field_type.clone();
-                    } else {
-                        self.errors.push(format!(
-                            "Record type '{}' has no field '{}'",
-                            type_name, property
-                        ));
-                        return HypnoType::unknown();
-                    }
-                } else {
-                    self.errors
-                        .push(format!("Unknown record type '{}'", type_name));
-                    return HypnoType::unknown();
+        if object_type.base_type == HypnoBaseType::Record
+            && let Some(type_name) = &object_type.name
+        {
+            if let Some(tranceify_info) = self.tranceify_types.get(type_name) {
+                if let Some(field_type) = tranceify_info.fields.get(property) {
+                    return field_type.clone();
                 }
+
+                self.errors.push(format!(
+                    "Record type '{}' has no field '{}'",
+                    type_name, property
+                ));
+            } else {
+                self.errors
+                    .push(format!("Unknown record type '{}'", type_name));
             }
+
+            return HypnoType::unknown();
         }
 
         let Some((session_info, is_static_reference)) = self.session_lookup(&object_type) else {
@@ -1741,38 +1741,38 @@ impl TypeChecker {
                 let _subject_type = self.infer_type(subject);
 
                 // Infer return type from cases
-                if let Some(first_case) = cases.first() {
-                    if let Some(first_stmt) = first_case.body.first() {
-                        let case_type = self.infer_type(first_stmt);
+                if let Some(first_case) = cases.first()
+                    && let Some(first_stmt) = first_case.body.first()
+                {
+                    let case_type = self.infer_type(first_stmt);
 
-                        // Check that all cases return compatible types
-                        for case in &cases[1..] {
-                            if let Some(stmt) = case.body.first() {
-                                let stmt_type = self.infer_type(stmt);
-                                if !self.types_compatible(&case_type, &stmt_type) {
-                                    self.errors.push(format!(
-                                        "Entrain cases must return same type, got {} and {}",
-                                        case_type, stmt_type
-                                    ));
-                                }
+                    // Check that all cases return compatible types
+                    for case in &cases[1..] {
+                        if let Some(stmt) = case.body.first() {
+                            let stmt_type = self.infer_type(stmt);
+                            if !self.types_compatible(&case_type, &stmt_type) {
+                                self.errors.push(format!(
+                                    "Entrain cases must return same type, got {} and {}",
+                                    case_type, stmt_type
+                                ));
                             }
                         }
-
-                        // Check default case if present
-                        if let Some(default_body) = default {
-                            if let Some(stmt) = default_body.first() {
-                                let default_type = self.infer_type(stmt);
-                                if !self.types_compatible(&case_type, &default_type) {
-                                    self.errors.push(format!(
-                                        "Entrain default case must return same type as other cases, got {} and {}",
-                                        case_type, default_type
-                                    ));
-                                }
-                            }
-                        }
-
-                        return case_type;
                     }
+
+                    // Check default case if present
+                    if let Some(default_body) = default
+                        && let Some(stmt) = default_body.first()
+                    {
+                        let default_type = self.infer_type(stmt);
+                        if !self.types_compatible(&case_type, &default_type) {
+                            self.errors.push(format!(
+                                "Entrain default case must return same type as other cases, got {} and {}",
+                                case_type, default_type
+                            ));
+                        }
+                    }
+
+                    return case_type;
                 }
 
                 HypnoType::unknown()
@@ -1802,7 +1802,7 @@ impl TypeChecker {
                     }
 
                     // Check for missing fields
-                    for (field_name, _field_type) in &tranceify_info.fields {
+                    for field_name in tranceify_info.fields.keys() {
                         if !fields.iter().any(|f| &f.name == field_name) {
                             self.errors.push(format!(
                                 "Missing field '{}' in record literal for type '{}'",

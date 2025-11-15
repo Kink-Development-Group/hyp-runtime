@@ -207,8 +207,10 @@ impl ApiBuiltins {
 
     /// Performs a GET request and parses the body as JSON.
     pub fn get_json(url: &str) -> Result<serde_json::Value, ApiError> {
-        let mut request = ApiRequest::default();
-        request.url = url.to_string();
+        let mut request = ApiRequest {
+            url: url.to_string(),
+            ..ApiRequest::default()
+        };
         request
             .headers
             .insert("Accept".to_string(), "application/json".to_string());
@@ -221,9 +223,11 @@ impl ApiBuiltins {
         url: &str,
         payload: &serde_json::Value,
     ) -> Result<serde_json::Value, ApiError> {
-        let mut request = ApiRequest::default();
-        request.method = ApiMethod::Post;
-        request.url = url.to_string();
+        let mut request = ApiRequest {
+            method: ApiMethod::Post,
+            url: url.to_string(),
+            ..ApiRequest::default()
+        };
         request
             .headers
             .insert("Accept".to_string(), "application/json".to_string());

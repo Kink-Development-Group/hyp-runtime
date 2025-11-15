@@ -235,7 +235,7 @@ impl ArrayBuiltins {
         F: Fn(&T) -> bool,
     {
         arr.iter()
-            .position(|x| predicate(x))
+            .position(predicate)
             .map(|i| i as i64)
             .unwrap_or(-1)
     }
@@ -346,10 +346,7 @@ impl ArrayBuiltins {
 
         for item in arr {
             let key = key_fn(item);
-            groups
-                .entry(key)
-                .or_insert_with(Vec::new)
-                .push(item.clone());
+            groups.entry(key).or_default().push(item.clone());
         }
 
         groups

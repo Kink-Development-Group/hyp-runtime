@@ -50,11 +50,30 @@ impl ChannelMessage {
     }
 }
 
+#[derive(Debug)]
+struct SharedReceiver {
+    inner: tokio::sync::Mutex<mpsc::UnboundedReceiver<ChannelMessage>>,
+}
+
+impl SharedReceiver {
+    fn new(receiver: mpsc::UnboundedReceiver<ChannelMessage>) -> Self {
+        Self {
+            inner: tokio::sync::Mutex::new(receiver),
+        }
+    }
+}
+
+unsafe impl Send for SharedReceiver {}
+unsafe impl Sync for SharedReceiver {}
+
 /// MPSC Channel wrapper
 pub struct MpscChannel {
     tx: mpsc::UnboundedSender<ChannelMessage>,
-    rx: Arc<tokio::sync::Mutex<mpsc::UnboundedReceiver<ChannelMessage>>>,
+    rx: Arc<SharedReceiver>,
 }
+
+unsafe impl Send for MpscChannel {}
+unsafe impl Sync for MpscChannel {}
 
 impl MpscChannel {
     pub fn new(buffer_size: usize) -> Self {
@@ -68,16 +87,12 @@ impl MpscChannel {
 
         Self {
             tx,
-            rx: Arc::new(tokio::sync::Mutex::new(rx)),
+            rx: Arc::new(SharedReceiver::new(rx)),
         }
     }
 
     pub fn sender(&self) -> mpsc::UnboundedSender<ChannelMessage> {
         self.tx.clone()
-    }
-
-    pub fn receiver(&self) -> Arc<tokio::sync::Mutex<mpsc::UnboundedReceiver<ChannelMessage>>> {
-        self.rx.clone()
     }
 
     pub async fn send(&self, message: ChannelMessage) -> Result<(), String> {
@@ -87,7 +102,7 @@ impl MpscChannel {
     }
 
     pub async fn receive(&self) -> Option<ChannelMessage> {
-        let mut rx = self.rx.lock().await;
+        let mut rx = self.rx.inner.lock().await;
         rx.recv().await
     }
 }
@@ -118,6 +133,9 @@ impl BroadcastChannel {
             .map_err(|e| format!("Failed to broadcast message: {}", e))
     }
 }
+
+unsafe impl Send for BroadcastChannel {}
+unsafe impl Sync for BroadcastChannel {}
 
 /// Watch Channel wrapper (for state updates)
 pub struct WatchChannel {
@@ -150,12 +168,24 @@ impl WatchChannel {
     }
 }
 
+impl Default for WatchChannel {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
+unsafe impl Send for WatchChannel {}
+unsafe impl Sync for WatchChannel {}
+
 /// Channel registry for managing named channels
 pub struct ChannelRegistry {
     mpsc_channels: Arc<RwLock<HashMap<ChannelId, MpscChannel>>>,
     broadcast_channels: Arc<RwLock<HashMap<ChannelId, BroadcastChannel>>>,
     watch_channels: Arc<RwLock<HashMap<ChannelId, WatchChannel>>>,
 }
+
+unsafe impl Send for ChannelRegistry {}
+unsafe impl Sync for ChannelRegistry {}
 
 impl ChannelRegistry {
     pub fn new() -> Self {

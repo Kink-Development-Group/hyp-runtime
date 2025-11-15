@@ -36,7 +36,7 @@ use cranelift_module::{Linkage, Module};
 use cranelift_object::{ObjectBuilder, ObjectModule};
 use hypnoscript_lexer_parser::ast::AstNode;
 use std::collections::HashMap;
-use std::path::PathBuf;
+use std::path::{Path, PathBuf};
 use target_lexicon::Triple;
 use thiserror::Error;
 
@@ -329,11 +329,7 @@ impl NativeCodeGenerator {
     }
 
     /// Linkt eine Object-Datei zu einer ausführbaren Datei
-    fn link_object_file(
-        &self,
-        obj_path: &PathBuf,
-        exe_path: &PathBuf,
-    ) -> Result<(), NativeCodegenError> {
+    fn link_object_file(&self, obj_path: &Path, exe_path: &Path) -> Result<(), NativeCodegenError> {
         #[cfg(target_os = "windows")]
         {
             // Versuche verschiedene Windows-Linker
@@ -377,72 +373,57 @@ impl NativeCodeGenerator {
             ];
 
             for (linker, args) in linkers {
-                if let Ok(output) = std::process::Command::new(linker).args(&args).output() {
-                    if output.status.success() {
-                        return Ok(());
-                    }
+                if let Ok(output) = std::process::Command::new(linker).args(&args).output()
+                    && output.status.success()
+                {
+                    return Ok(());
                 }
             }
 
-            return Err(NativeCodegenError::LinkingError(
+            Err(NativeCodegenError::LinkingError(
                 "Kein geeigneter Linker gefunden. Bitte installieren Sie:\n\
                  - Visual Studio Build Tools (für link.exe)\n\
                  - GCC/MinGW (für gcc)\n\
                  - LLVM (für lld-link/clang)"
                     .to_string(),
-            ));
+            ))
         }
 
         #[cfg(not(target_os = "windows"))]
         {
             // Unix-basierte Systeme (Linux, macOS)
+            let exe_path_string = exe_path.to_string_lossy().into_owned();
+            let obj_path_string = obj_path.to_string_lossy().into_owned();
+
+            let exe_arg = exe_path_string.as_str();
+            let obj_arg = obj_path_string.as_str();
+
             let linkers = vec![
-                (
-                    "cc",
-                    vec![
-                        "-o",
-                        &exe_path.to_string_lossy(),
-                        &obj_path.to_string_lossy(),
-                    ],
-                ),
-                (
-                    "gcc",
-                    vec![
-                        "-o",
-                        &exe_path.to_string_lossy(),
-                        &obj_path.to_string_lossy(),
-                    ],
-                ),
-                (
-                    "clang",
-                    vec![
-                        "-o",
-                        &exe_path.to_string_lossy(),
-                        &obj_path.to_string_lossy(),
-                    ],
-                ),
+                ("cc", vec!["-o", exe_arg, obj_arg]),
+                ("gcc", vec!["-o", exe_arg, obj_arg]),
+                ("clang", vec!["-o", exe_arg, obj_arg]),
             ];
 
             for (linker, args) in linkers {
-                if let Ok(output) = std::process::Command::new(linker).args(&args).output() {
-                    if output.status.success() {
-                        // Mache die Datei ausführbar auf Unix
-                        #[cfg(unix)]
-                        {
-                            use std::os::unix::fs::PermissionsExt;
-                            let mut perms = std::fs::metadata(&exe_path)?.permissions();
-                            perms.set_mode(0o755);
-                            std::fs::set_permissions(&exe_path, perms)?;
-                        }
-                        return Ok(());
+                if let Ok(output) = std::process::Command::new(linker).args(&args).output()
+                    && output.status.success()
+                {
+                    // Mache die Datei ausführbar auf Unix
+                    #[cfg(unix)]
+                    {
+                        use std::os::unix::fs::PermissionsExt;
+                        let mut perms = std::fs::metadata(exe_path)?.permissions();
+                        perms.set_mode(0o755);
+                        std::fs::set_permissions(exe_path, perms)?;
                     }
+                    return Ok(());
                 }
             }
 
-            return Err(NativeCodegenError::LinkingError(
+            Err(NativeCodegenError::LinkingError(
                 "Kein geeigneter Linker gefunden. Bitte installieren Sie gcc oder clang."
                     .to_string(),
-            ));
+            ))
         }
     }
 
@@ -532,11 +513,11 @@ impl NativeCodeGenerator {
             }
 
             AstNode::AssignmentExpression { target, value } => {
-                if let AstNode::Identifier(name) = target.as_ref() {
-                    if let Some(&var) = self.variable_map.get(name) {
-                        let val = self.generate_expression(builder, value)?;
-                        builder.def_var(var, val);
-                    }
+                if let AstNode::Identifier(name) = target.as_ref()
+                    && let Some(&var) = self.variable_map.get(name)
+                {
+                    let val = self.generate_expression(builder, value)?;
+                    builder.def_var(var, val);
                 }
             }
 
@@ -715,7 +696,7 @@ mod tests {
         let generator = NativeCodeGenerator::new();
         assert_eq!(generator.target_platform, TargetPlatform::current());
         assert_eq!(generator.optimization_level, OptimizationLevel::Default);
-        assert_eq!(generator.debug_info, false);
+        assert!(!generator.debug_info);
     }
 
     #[test]
@@ -729,7 +710,7 @@ mod tests {
 
         assert_eq!(generator.target_platform, TargetPlatform::LinuxX64);
         assert_eq!(generator.optimization_level, OptimizationLevel::Release);
-        assert_eq!(generator.debug_info, true);
+        assert!(generator.debug_info);
         assert_eq!(generator.output_path, Some(PathBuf::from("output.bin")));
     }
 

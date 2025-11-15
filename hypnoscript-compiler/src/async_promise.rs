@@ -85,6 +85,12 @@ impl<T: Clone> AsyncPromise<T> {
     }
 }
 
+impl<T: Clone> Default for AsyncPromise<T> {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl<T: Clone> Future for AsyncPromise<T> {
     type Output = Result<T, String>;
 

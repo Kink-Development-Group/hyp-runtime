@@ -137,12 +137,7 @@ impl WasmBinaryGenerator {
 
     /// Emittiert die Type Section
     fn emit_type_section(&mut self) -> Result<(), WasmBinaryError> {
-        let mut section = Vec::new();
-
-        // Function type: () -> ()
-        section.push(0x60); // func type
-        section.push(0x00); // 0 parameters
-        section.push(0x00); // 0 results
+        let section = vec![0x60, 0x00, 0x00];
 
         // Write section
         self.output.push(0x01); // Type section ID
@@ -250,13 +245,10 @@ impl WasmBinaryGenerator {
         let mut code = Vec::new();
 
         // Function body
-        let mut body = Vec::new();
-
-        // Locals
-        body.push(0x00); // 0 local declarations
-
-        // Function code (placeholder: just return)
-        body.push(0x0B); // end
+        let body = vec![
+            0x00, // 0 local declarations
+            0x0B, // end
+        ];
 
         // Write function body size
         code.push(body.len() as u8);

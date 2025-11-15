@@ -24,10 +24,7 @@ impl Locale {
 
     /// Returns the primary language portion (before `-`).
     pub fn language(&self) -> &str {
-        self.0
-            .split(|c| c == '-' || c == '_')
-            .next()
-            .unwrap_or("en")
+        self.0.split(['-', '_']).next().unwrap_or("en")
     }
 }
 

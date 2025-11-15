@@ -80,7 +80,7 @@ impl DataBuiltins {
             return Ok(Some(value.to_string()));
         }
         Ok(json_path(&value, &options.path)
-            .map(|v| stringify_json_value(v))
+            .map(stringify_json_value)
             .or_else(|| options.default_value.clone()))
     }
 

@@ -108,10 +108,10 @@ impl DictionaryBuiltins {
         let dict: JsonValue = serde_json::from_str(dict_json)
             .map_err(|e| BuiltinError::new("dict", "parse_error", vec![e.to_string()]))?;
 
-        if let Some(obj) = dict.as_object() {
-            if let Some(value) = obj.get(key) {
-                return Ok(value_to_string(value));
-            }
+        if let Some(obj) = dict.as_object()
+            && let Some(value) = obj.get(key)
+        {
+            return Ok(value_to_string(value));
         }
 
         Ok(String::new())
@@ -161,7 +161,7 @@ impl DictionaryBuiltins {
         let dict: JsonValue = serde_json::from_str(dict_json)
             .map_err(|e| BuiltinError::new("dict", "parse_error", vec![e.to_string()]))?;
 
-        Ok(dict.as_object().map_or(false, |obj| obj.contains_key(key)))
+        Ok(dict.as_object().is_some_and(|obj| obj.contains_key(key)))
     }
 
     /// Returns all keys from a dictionary.
