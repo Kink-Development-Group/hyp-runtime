@@ -1,15 +1,15 @@
 # Runtime Security
 
-HypnoScript bietet umfassende Sicherheitsfunktionen für Runtime-Umgebungen, einschließlich Authentifizierung, Autorisierung, Verschlüsselung und Audit-Logging.
+HypnoScript provides comprehensive security features for runtime environments, including authentication, authorization, encryption, and audit logging.
 
-## Authentifizierung
+## Authentication
 
-### Benutzerauthentifizierung
+### User Authentication
 
-HypnoScript unterstützt verschiedene Authentifizierungsmethoden:
+HypnoScript supports various authentication methods:
 
 ```hyp
-// LDAP-Authentifizierung
+// LDAP authentication
 auth.ldap {
     server: "ldap://corp.example.com:389"
     base_dn: "dc=example,dc=com"
@@ -17,7 +17,7 @@ auth.ldap {
     bind_password: env.LDAP_PASSWORD
 }
 
-// OAuth2-Integration
+// OAuth2 integration
 auth.oauth2 {
     provider: "azure_ad"
     client_id: env.OAUTH_CLIENT_ID
@@ -26,7 +26,7 @@ auth.oauth2 {
     scopes: ["openid", "profile", "email"]
 }
 
-// Multi-Faktor-Authentifizierung
+// Multi-factor authentication
 auth.mfa {
     provider: "totp"
     issuer: "HypnoScript Runtime"
@@ -36,26 +36,26 @@ auth.mfa {
 }
 ```
 
-### Session-Management
+### Session Management
 
 ```hyp
-// Sichere Session-Konfiguration
+// Secure session configuration
 session {
-    timeout: 3600  // 1 Stunde
+    timeout: 3600  // 1 hour
     max_sessions: 5
     secure_cookies: true
     http_only: true
     same_site: "strict"
 
-    // Session-Rotation
+    // Session rotation
     rotation {
-        interval: 1800  // 30 Minuten
+        interval: 1800  // 30 minutes
         regenerate_id: true
     }
 }
 ```
 
-## Autorisierung
+## Authorization
 
 ### Role-Based Access Control (RBAC)
 
@@ -64,7 +64,7 @@ session {
 roles {
     admin: {
         permissions: ["*"]
-        description: "Vollzugriff auf alle Funktionen"
+        description: "Full access to all functions"
     }
 
     developer: {
@@ -75,7 +75,7 @@ roles {
             "test:run",
             "log:read"
         ]
-        description: "Entwickler mit Script-Zugriff"
+        description: "Developer with script access"
     }
 
     analyst: {
@@ -84,7 +84,7 @@ roles {
             "data:read",
             "report:generate"
         ]
-        description: "Datenanalyst mit Lesezugriff"
+        description: "Data analyst with read access"
     }
 
     viewer: {
@@ -92,11 +92,11 @@ roles {
             "script:read",
             "log:read"
         ]
-        description: "Nur Lesezugriff"
+        description: "Read-only access"
     }
 }
 
-// Benutzer-Rollen-Zuweisung
+// User role assignment
 users {
     "john.doe@example.com": ["admin"]
     "jane.smith@example.com": ["developer", "analyst"]
@@ -107,7 +107,7 @@ users {
 ### Attribute-Based Access Control (ABAC)
 
 ```hyp
-// ABAC-Policies
+// ABAC policies
 policies {
     data_access: {
         condition: {
@@ -129,21 +129,21 @@ policies {
 }
 ```
 
-## Verschlüsselung
+## Encryption
 
-### Datenverschlüsselung
+### Data Encryption
 
 ```hyp
-// Verschlüsselungskonfiguration
+// Encryption configuration
 encryption {
-    // Ruhende Daten
+    // Data at rest
     at_rest: {
         algorithm: "aes-256-gcm"
-        key_rotation: 90  // Tage
+        key_rotation: 90  // days
         key_management: "aws-kms"
     }
 
-    // Übertragene Daten
+    // Data in transit
     in_transit: {
         tls_version: "1.3"
         cipher_suites: [
@@ -153,7 +153,7 @@ encryption {
         certificate_validation: "strict"
     }
 
-    // Anwendungsebene
+    // Application level
     application: {
         sensitive_fields: ["password", "api_key", "token"]
         encryption_algorithm: "aes-256-gcm"
@@ -163,23 +163,23 @@ encryption {
 }
 ```
 
-### Schlüsselverwaltung
+### Key Management
 
 ```hyp
-// Schlüsselverwaltung
+// Key management
 key_management {
     provider: "aws-kms"
     region: "eu-west-1"
     key_alias: "hypnoscript-encryption"
 
-    // Schlüsselrotation
+    // Key rotation
     rotation: {
         automatic: true
-        interval: 90  // Tage
-        grace_period: 7  // Tage
+        interval: 90  // days
+        grace_period: 7  // days
     }
 
-    // Backup-Schlüssel
+    // Backup keys
     backup_keys: [
         "arn:aws:kms:eu-west-1:123456789012:key/backup-key-1",
         "arn:aws:kms:eu-west-1:123456789012:key/backup-key-2"
@@ -187,14 +187,14 @@ key_management {
 }
 ```
 
-## Audit-Logging
+## Audit Logging
 
-### Umfassende Protokollierung
+### Comprehensive Logging
 
 ```hyp
-// Audit-Log-Konfiguration
+// Audit log configuration
 audit {
-    // Ereignistypen
+    // Event types
     events: [
         "user.login",
         "user.logout",
@@ -207,14 +207,14 @@ audit {
         "security.violation"
     ]
 
-    // Protokollierungsdetails
+    // Logging details
     logging: {
         level: "info"
         format: "json"
         timestamp: "iso8601"
         include_metadata: true
 
-        // Sensitive Daten maskieren
+        // Mask sensitive data
         sensitive_fields: [
             "password",
             "api_key",
@@ -223,20 +223,20 @@ audit {
         ]
     }
 
-    // Speicherung
+    // Storage
     storage: {
         primary: "elasticsearch"
         backup: "s3"
-        retention: 2555  // 7 Jahre
+        retention: 2555  // 7 years
         compression: "gzip"
     }
 }
 ```
 
-### Compliance-Reporting
+### Compliance Reporting
 
 ```hyp
-// Compliance-Berichte
+// Compliance reports
 compliance {
     reports: {
         sox: {
@@ -261,12 +261,12 @@ compliance {
 }
 ```
 
-## Netzwerksicherheit
+## Network Security
 
-### Firewall-Konfiguration
+### Firewall Configuration
 
 ```hyp
-// Netzwerksicherheit
+// Network security
 network_security {
     firewall: {
         inbound_rules: [
@@ -274,13 +274,13 @@ network_security {
                 port: 443
                 protocol: "tcp"
                 source: ["10.0.0.0/8", "172.16.0.0/12"]
-                description: "HTTPS-Zugriff"
+                description: "HTTPS access"
             },
             {
                 port: 22
                 protocol: "tcp"
                 source: ["10.0.0.0/8"]
-                description: "SSH-Zugriff"
+                description: "SSH access"
             }
         ]
 
@@ -289,12 +289,12 @@ network_security {
                 port: 443
                 protocol: "tcp"
                 destination: ["0.0.0.0/0"]
-                description: "HTTPS-Outbound"
+                description: "HTTPS outbound"
             }
         ]
     }
 
-    // VPN-Konfiguration
+    // VPN configuration
     vpn: {
         type: "ipsec"
         encryption: "aes-256"
@@ -304,14 +304,14 @@ network_security {
 }
 ```
 
-## Sicherheitsrichtlinien
+## Security Policies
 
-### Code-Sicherheit
+### Code Security
 
 ```hyp
-// Sicherheitsrichtlinien für Scripts
+// Security policies for scripts
 security_policies {
-    // Eingabevalidierung
+    // Input validation
     input_validation: {
         required: true
         sanitization: true
@@ -319,16 +319,16 @@ security_policies {
         allowed_patterns: ["^[a-zA-Z0-9_\\-\\.]+$"]
     }
 
-    // Ausführungsumgebung
+    // Execution environment
     execution: {
         sandbox: true
-        timeout: 300  // Sekunden
+        timeout: 300  // seconds
         memory_limit: "512MB"
         network_access: false
         file_access: "readonly"
     }
 
-    // Dependency-Scanning
+    // Dependency scanning
     dependencies: {
         vulnerability_scanning: true
         license_compliance: true
@@ -337,12 +337,12 @@ security_policies {
 }
 ```
 
-### Sicherheitsbewertung
+### Security Assessment
 
 ```hyp
-// Sicherheitsbewertung
+// Security assessment
 security_assessment {
-    // Automatische Scans
+    // Automated scans
     automated_scans: {
         frequency: "daily"
         tools: ["sonarqube", "snyk", "bandit"]
@@ -350,7 +350,7 @@ security_assessment {
         auto_fix: false
     }
 
-    // Penetrationstests
+    // Penetration testing
     penetration_testing: {
         frequency: "quarterly"
         scope: "full"
@@ -358,7 +358,7 @@ security_assessment {
         report_retention: 2  // Jahre
     }
 
-    // Sicherheitsmetriken
+    // Security metrics
     metrics: {
         vulnerability_count: true
         patch_compliance: true
@@ -370,12 +370,12 @@ security_assessment {
 
 ## Incident Response
 
-### Sicherheitsvorfälle
+### Security Incidents
 
 ```hyp
-// Incident Response Plan
+// Incident response plan
 incident_response {
-    // Eskalationsmatrix
+    // Escalation matrix
     escalation: {
         low: {
             response_time: "24h"
@@ -402,12 +402,12 @@ incident_response {
         }
     }
 
-    // Automatische Reaktionen
+    // Automated responses
     automated_response: {
         brute_force: {
             action: "block_ip"
-            duration: 3600  // 1 Stunde
-            threshold: 5  // Versuche
+            duration: 3600  // 1 hour
+            threshold: 5  // attempts
         }
 
         suspicious_activity: {
@@ -421,43 +421,43 @@ incident_response {
 
 ## Best Practices
 
-### Sicherheitsrichtlinien
+### Security Policies
 
-1. **Prinzip der geringsten Privilegien**
+1. **Principle of Least Privilege**
 
-   - Benutzer nur die notwendigen Berechtigungen gewähren
-   - Regelmäßige Berechtigungsprüfungen durchführen
+   - Grant users only necessary permissions
+   - Conduct regular permission reviews
 
 2. **Defense in Depth**
 
-   - Mehrere Sicherheitsebenen implementieren
-   - Keine einzelne Schwachstelle als kritisch betrachten
+   - Implement multiple security layers
+   - Do not consider a single vulnerability as critical
 
-3. **Regelmäßige Updates**
+3. **Regular Updates**
 
-   - Sicherheitspatches zeitnah einspielen
-   - Dependency-Updates automatisieren
+   - Apply security patches promptly
+   - Automate dependency updates
 
-4. **Monitoring und Alerting**
+4. **Monitoring and Alerting**
 
-   - Umfassende Protokollierung aller Aktivitäten
-   - Proaktive Erkennung von Sicherheitsvorfällen
+   - Comprehensive logging of all activities
+   - Proactive detection of security incidents
 
-5. **Schulung und Awareness**
-   - Regelmäßige Sicherheitsschulungen
-   - Phishing-Simulationen durchführen
+5. **Training and Awareness**
+   - Regular security training
+   - Conduct phishing simulations
 
-### Compliance-Checkliste
+### Compliance Checklist
 
-- [ ] Benutzerauthentifizierung implementiert
-- [ ] Multi-Faktor-Authentifizierung aktiviert
-- [ ] RBAC/ABAC konfiguriert
-- [ ] Verschlüsselung für ruhende und übertragene Daten
-- [ ] Audit-Logging aktiviert
-- [ ] Netzwerkzugriffskontrollen
-- [ ] Incident Response Plan dokumentiert
-- [ ] Regelmäßige Sicherheitsbewertungen
-- [ ] Compliance-Berichte konfiguriert
-- [ ] Sicherheitsrichtlinien dokumentiert
+- [ ] User authentication implemented
+- [ ] Multi-factor authentication enabled
+- [ ] RBAC/ABAC configured
+- [ ] Encryption for data at rest and in transit
+- [ ] Audit logging enabled
+- [ ] Network access controls
+- [ ] Incident response plan documented
+- [ ] Regular security assessments
+- [ ] Compliance reports configured
+- [ ] Security policies documented
 
-Diese Sicherheitsfunktionen stellen sicher, dass HypnoScript in Runtime-Umgebungen den höchsten Sicherheitsstandards entspricht und alle relevanten Compliance-Anforderungen erfüllt.
+These security features ensure that HypnoScript meets the highest security standards and fulfills all relevant compliance requirements in runtime environments.

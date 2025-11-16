@@ -1,5 +1,5 @@
 // HypnoScript Async System Test Suite
-// Tests für echtes Multi-Threading, Promises, Channels und parallele Ausführung
+// Tests for real multi-threading, promises, channels and parallel execution
 
 Focus {
     entrance {

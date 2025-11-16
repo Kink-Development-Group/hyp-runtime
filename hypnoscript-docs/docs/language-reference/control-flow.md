@@ -2,129 +2,129 @@
 sidebar_position: 4
 ---
 
-# Kontrollstrukturen
+# Control Flow
 
-HypnoScript bietet verschiedene Kontrollstrukturen für bedingte Ausführung und Schleifen.
+HypnoScript provides various control structures for conditional execution and loops.
 
-## If-Else Anweisungen
+## If-Else Statements
 
-### Einfache If-Anweisung
+### Simple If Statement
 
 ```hyp
-if (bedingung) {
-    // Code wird ausgeführt, wenn bedingung true ist
+if (condition) {
+    // Code is executed if condition is true
 }
 ```
 
-### If-Else Anweisung
+### If-Else Statement
 
 ```hyp
-if (bedingung) {
-    // Code wenn bedingung true ist
+if (condition) {
+    // Code when condition is true
 } else {
-    // Code wenn bedingung false ist
+    // Code when condition is false
 }
 ```
 
-### If-Else If-Else Anweisung
+### If-Else If-Else Statement
 
 ```hyp
-if (bedingung1) {
-    // Code wenn bedingung1 true ist
-} else if (bedingung2) {
-    // Code wenn bedingung2 true ist
+if (condition1) {
+    // Code when condition1 is true
+} else if (condition2) {
+    // Code when condition2 is true
 } else {
-    // Code wenn alle bedingungen false sind
+    // Code when all conditions are false
 }
 ```
 
-### Beispiele
+### Examples
 
 ```hyp
 Focus {
     entrance {
-        induce alter = 18;
+        induce age = 18;
 
-        if (alter >= 18) {
-            observe "Volljährig";
+        if (age >= 18) {
+            observe "Of legal age";
         } else {
-            observe "Minderjährig";
+            observe "Minor";
         }
 
-        induce punktzahl = 85;
-        if (punktzahl >= 90) {
-            observe "Ausgezeichnet";
-        } else if (punktzahl >= 80) {
-            observe "Gut";
-        } else if (punktzahl >= 70) {
-            observe "Befriedigend";
+        induce score = 85;
+        if (score >= 90) {
+            observe "Excellent";
+        } else if (score >= 80) {
+            observe "Good";
+        } else if (score >= 70) {
+            observe "Satisfactory";
         } else {
-            observe "Verbesserungsbedarf";
+            observe "Needs improvement";
         }
     }
 } Relax;
 ```
 
-## While-Schleifen
+## While Loops
 
 ### Syntax
 
 ```hyp
-while (bedingung) {
-    // Code wird wiederholt, solange bedingung true ist
+while (condition) {
+    // Code is repeated while condition is true
 }
 ```
 
-### Beispiele
+### Examples
 
 ```hyp
 Focus {
     entrance {
-        // Einfache While-Schleife
-        induce zaehler = 1;
-        while (zaehler <= 5) {
-            observe "Zähler: " + zaehler;
-            induce zaehler = zaehler + 1;
+        // Simple while loop
+        induce counter = 1;
+        while (counter <= 5) {
+            observe "Counter: " + counter;
+            induce counter = counter + 1;
         }
 
-        // While-Schleife mit Array
-        induce zahlen = [1, 2, 3, 4, 5];
+        // While loop with array
+        induce numbers = [1, 2, 3, 4, 5];
         induce index = 0;
-        while (index < ArrayLength(zahlen)) {
-            observe "Zahl " + (index + 1) + ": " + ArrayGet(zahlen, index);
+        while (index < ArrayLength(numbers)) {
+            observe "Number " + (index + 1) + ": " + ArrayGet(numbers, index);
             induce index = index + 1;
         }
     }
 } Relax;
 ```
 
-## For-Schleifen
+## For Loops
 
 ### Syntax
 
 ```hyp
-for (initialisierung; bedingung; inkrement) {
-    // Code wird wiederholt
+for (initialization; condition; increment) {
+    // Code is repeated
 }
 ```
 
-### Beispiele
+### Examples
 
 ```hyp
 Focus {
     entrance {
-        // Standard For-Schleife
+        // Standard for loop
         for (induce i = 1; i <= 10; induce i = i + 1) {
             observe "Iteration " + i;
         }
 
-        // For-Schleife über Array
-        induce obst = ["Apfel", "Banane", "Orange"];
-        for (induce i = 0; i < ArrayLength(obst); induce i = i + 1) {
-            observe "Obst " + (i + 1) + ": " + ArrayGet(obst, i);
+        // For loop over array
+        induce fruits = ["Apple", "Banana", "Orange"];
+        for (induce i = 0; i < ArrayLength(fruits); induce i = i + 1) {
+            observe "Fruit " + (i + 1) + ": " + ArrayGet(fruits, i);
         }
 
-        // Rückwärts zählen
+        // Count backwards
         for (induce i = 10; i >= 1; induce i = i - 1) {
             observe "Countdown: " + i;
         }
@@ -132,66 +132,66 @@ Focus {
 } Relax;
 ```
 
-## Verschachtelte Kontrollstrukturen
+## Nested Control Structures
 
 ```hyp
 Focus {
     entrance {
-        induce zahlen = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
+        induce numbers = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
 
-        for (induce i = 0; i < ArrayLength(zahlen); induce i = i + 1) {
-            induce zahl = ArrayGet(zahlen, i);
+        for (induce i = 0; i < ArrayLength(numbers); induce i = i + 1) {
+            induce number = ArrayGet(numbers, i);
 
-            if (zahl % 2 == 0) {
-                observe zahl + " ist gerade";
+            if (number % 2 == 0) {
+                observe number + " is even";
             } else {
-                observe zahl + " ist ungerade";
+                observe number + " is odd";
             }
 
-            if (zahl < 5) {
-                observe "  - Kleine Zahl";
-            } else if (zahl < 8) {
-                observe "  - Mittlere Zahl";
+            if (number < 5) {
+                observe "  - Small number";
+            } else if (number < 8) {
+                observe "  - Medium number";
             } else {
-                observe "  - Große Zahl";
+                observe "  - Large number";
             }
         }
     }
 } Relax;
 ```
 
-## Break und Continue
+## Break and Continue
 
 ### Break
 
-Beendet die aktuelle Schleife sofort:
+Exits the current loop immediately:
 
 ```hyp
 Focus {
     entrance {
         for (induce i = 1; i <= 10; induce i = i + 1) {
             if (i == 5) {
-                break; // Schleife wird bei i=5 beendet
+                break; // Loop terminates at i=5
             }
-            observe "Zahl: " + i;
+            observe "Number: " + i;
         }
-        observe "Schleife beendet";
+        observe "Loop terminated";
     }
 } Relax;
 ```
 
 ### Continue
 
-Überspringt den aktuellen Schleifendurchlauf:
+Skips the current loop iteration:
 
 ```hyp
 Focus {
     entrance {
         for (induce i = 1; i <= 10; induce i = i + 1) {
             if (i % 2 == 0) {
-                continue; // Gerade Zahlen werden übersprungen
+                continue; // Even numbers are skipped
             }
-            observe "Ungerade Zahl: " + i;
+            observe "Odd number: " + i;
         }
     }
 } Relax;
@@ -199,114 +199,114 @@ Focus {
 
 ## Best Practices
 
-### Klare Bedingungen
+### Clear Conditions
 
 ```hyp
-// Gut
-if (alter >= 18 && punktzahl >= 70) {
-    observe "Zugelassen";
+// Good
+if (age >= 18 && score >= 70) {
+    observe "Admitted";
 }
 
-// Schlecht
-if (alter >= 18 && punktzahl >= 70 == true) {
-    observe "Zugelassen";
+// Bad
+if (age >= 18 && score >= 70 == true) {
+    observe "Admitted";
 }
 ```
 
-### Effiziente Schleifen
+### Efficient Loops
 
 ```hyp
-// Gut - Array-Länge einmal berechnen
-induce laenge = ArrayLength(zahlen);
-for (induce i = 0; i < laenge; induce i = i + 1) {
+// Good - calculate array length once
+induce length = ArrayLength(numbers);
+for (induce i = 0; i < length; induce i = i + 1) {
     // Code
 }
 
-// Schlecht - Array-Länge bei jedem Durchlauf berechnen
-for (induce i = 0; i < ArrayLength(zahlen); induce i = i + 1) {
+// Bad - calculate array length on each iteration
+for (induce i = 0; i < ArrayLength(numbers); induce i = i + 1) {
     // Code
 }
 ```
 
-### Vermeidung von Endlosschleifen
+### Avoiding Infinite Loops
 
 ```hyp
-// Sicher - mit Break-Bedingung
-induce zaehler = 0;
+// Safe - with break condition
+induce counter = 0;
 while (true) {
-    induce zaehler = zaehler + 1;
-    if (zaehler > 100) {
+    induce counter = counter + 1;
+    if (counter > 100) {
         break;
     }
     // Code
 }
 ```
 
-## Beispiele für komplexe Kontrollstrukturen
+## Examples of Complex Control Structures
 
-### Zahlenraten-Spiel
+### Number Guessing Game
 
 ```hyp
 Focus {
     entrance {
-        induce zielZahl = 42;
-        induce versuche = 0;
-        induce maxVersuche = 10;
+        induce targetNumber = 42;
+        induce attempts = 0;
+        induce maxAttempts = 10;
 
-        while (versuche < maxVersuche) {
-            induce versuche = versuche + 1;
-            induce rateZahl = 25 + versuche * 2; // Vereinfachte Eingabe
+        while (attempts < maxAttempts) {
+            induce attempts = attempts + 1;
+            induce guessNumber = 25 + attempts * 2; // Simplified input
 
-            if (rateZahl == zielZahl) {
-                observe "Gewonnen! Die Zahl war " + zielZahl;
-                observe "Versuche: " + versuche;
+            if (guessNumber == targetNumber) {
+                observe "Won! The number was " + targetNumber;
+                observe "Attempts: " + attempts;
                 break;
-            } else if (rateZahl < zielZahl) {
-                observe "Zu niedrig! Versuch " + versuche;
+            } else if (guessNumber < targetNumber) {
+                observe "Too low! Attempt " + attempts;
             } else {
-                observe "Zu hoch! Versuch " + versuche;
+                observe "Too high! Attempt " + attempts;
             }
         }
 
-        if (versuche >= maxVersuche) {
-            observe "Verloren! Die Zahl war " + zielZahl;
+        if (attempts >= maxAttempts) {
+            observe "Lost! The number was " + targetNumber;
         }
     }
 } Relax;
 ```
 
-### Array-Verarbeitung mit Bedingungen
+### Array Processing with Conditions
 
 ```hyp
 Focus {
     entrance {
-        induce zahlen = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
-        induce geradeSumme = 0;
-        induce ungeradeAnzahl = 0;
+        induce numbers = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
+        induce evenSum = 0;
+        induce oddCount = 0;
 
-        for (induce i = 0; i < ArrayLength(zahlen); induce i = i + 1) {
-            induce zahl = ArrayGet(zahlen, i);
+        for (induce i = 0; i < ArrayLength(numbers); induce i = i + 1) {
+            induce number = ArrayGet(numbers, i);
 
-            if (zahl % 2 == 0) {
-                induce geradeSumme = geradeSumme + zahl;
+            if (number % 2 == 0) {
+                induce evenSum = evenSum + number;
             } else {
-                induce ungeradeAnzahl = ungeradeAnzahl + 1;
+                induce oddCount = oddCount + 1;
             }
         }
 
-        observe "Summe der geraden Zahlen: " + geradeSumme;
-        observe "Anzahl der ungeraden Zahlen: " + ungeradeAnzahl;
+        observe "Sum of even numbers: " + evenSum;
+        observe "Count of odd numbers: " + oddCount;
     }
 } Relax;
 ```
 
-## Nächste Schritte
+## Next Steps
 
-- [Funktionen](./functions) - Funktionsdefinition und -aufruf
-- [Sessions](./sessions) - Session-Management
-- [Tranceify](./tranceify) - Hypnotische Anwendungen
-- [Assertions](./assertions) - Test-Assertions
+- [Functions](./functions) - Function definition and calling
+- [Sessions](./sessions) - Session management
+- [Tranceify](./tranceify) - Hypnotic applications
+- [Assertions](./assertions) - Test assertions
 
 ---
 
-**Beherrschst du die Kontrollstrukturen? Dann lerne [Funktionen](./functions) kennen!** 🔧
+**Mastered control structures? Then learn about [Functions](./functions)!** 🔧

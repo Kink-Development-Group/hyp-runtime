@@ -1,15 +1,15 @@
 # Runtime Backup & Recovery
 
-HypnoScript bietet umfassende Backup- und Recovery-Funktionen für Runtime-Umgebungen, einschließlich automatischer Backups, Disaster Recovery, Business Continuity und Datenwiederherstellung.
+HypnoScript provides comprehensive backup and recovery features for runtime environments, including automatic backups, disaster recovery, business continuity, and data restoration.
 
-## Backup-Strategien
+## Backup Strategies
 
-### Backup-Konfiguration
+### Backup Configuration
 
 ```hyp
-// Backup-Konfiguration
+// Backup Configuration
 backup {
-    // Allgemeine Einstellungen
+    // General Settings
     general: {
         enabled: true
         backup_window: {
@@ -18,40 +18,40 @@ backup {
             timezone: "Europe/Berlin"
         }
 
-        // Backup-Typen
+        // Backup Types
         types: {
             full: {
                 frequency: "weekly"
                 day: "sunday"
-                retention: 30  // Tage
+                retention: 30  // days
                 compression: "gzip"
                 encryption: true
             }
 
             incremental: {
                 frequency: "daily"
-                retention: 7  // Tage
+                retention: 7  // days
                 compression: "gzip"
                 encryption: true
             }
 
             differential: {
                 frequency: "daily"
-                retention: 14  // Tage
+                retention: 14  // days
                 compression: "gzip"
                 encryption: true
             }
         }
     }
 
-    // Datenbank-Backups
+    // Database Backups
     database: {
-        // PostgreSQL-Backup
+        // PostgreSQL Backup
         postgresql: {
             enabled: true
             type: "pg_dump"
 
-            // Backup-Einstellungen
+            // Backup Settings
             settings: {
                 format: "custom"
                 compression: true
@@ -61,7 +61,7 @@ backup {
                 include_data: true
             }
 
-            // Backup-Speicherung
+            // Backup Storage
             storage: {
                 local: {
                     path: "/var/backups/postgresql"
@@ -74,7 +74,7 @@ backup {
                     path: "postgresql/{year}/{month}/{day}/"
                     lifecycle: {
                         transition_days: 30
-                        expiration_days: 2555  // 7 Jahre
+                        expiration_days: 2555  // 7 years
                     }
                 }
 
@@ -85,7 +85,7 @@ backup {
                 }
             }
 
-            // Backup-Validierung
+            // Backup Validation
             validation: {
                 enabled: true
                 verify_checksum: true
@@ -94,7 +94,7 @@ backup {
             }
         }
 
-        // MySQL-Backup
+        // MySQL Backup
         mysql: {
             enabled: true
             type: "mysqldump"
@@ -120,7 +120,7 @@ backup {
             }
         }
 
-        // SQL Server-Backup
+        // SQL Server Backup
         sqlserver: {
             enabled: true
             type: "sqlcmd"
@@ -147,9 +147,9 @@ backup {
         }
     }
 
-    // Dateisystem-Backups
+    // Filesystem Backups
     filesystem: {
-        // Anwendungsdaten
+        // Application Data
         application_data: {
             enabled: true
             paths: [
@@ -158,7 +158,7 @@ backup {
                 "/var/hypnoscript/config"
             ]
 
-            // Backup-Einstellungen
+            // Backup Settings
             settings: {
                 exclude_patterns: [
                     "*.tmp",
@@ -172,7 +172,7 @@ backup {
                 preserve_ownership: true
             }
 
-            // Backup-Speicherung
+            // Backup Storage
             storage: {
                 local: {
                     path: "/var/backups/application"
@@ -187,7 +187,7 @@ backup {
             }
         }
 
-        // Konfigurationsdateien
+        // Configuration Files
         configuration: {
             enabled: true
             paths: [
@@ -216,7 +216,7 @@ backup {
         }
     }
 
-    // Cloud-Backups
+    // Cloud Backups
     cloud: {
         // AWS S3
         aws_s3: {
@@ -224,17 +224,17 @@ backup {
             bucket: "hypnoscript-backups"
             region: "eu-west-1"
 
-            // Verschlüsselung
+            // Encryption
             encryption: {
                 sse_algorithm: "AES256"
                 kms_key_id: env.AWS_KMS_KEY_ID
             }
 
-            // Lifecycle-Policies
+            // Lifecycle Policies
             lifecycle: {
-                transition_to_ia: 30  // Tage
-                transition_to_glacier: 90  // Tage
-                delete_after: 2555  // 7 Jahre
+                transition_to_ia: 30  // days
+                transition_to_glacier: 90  // days
+                delete_after: 2555  // 7 years
             }
 
             // Cross-Region Replication
@@ -251,13 +251,13 @@ backup {
             storage_account: "hypnoscriptbackups"
             container: "backups"
 
-            // Verschlüsselung
+            // Encryption
             encryption: {
                 type: "customer_managed"
                 key_vault_url: env.AZURE_KEY_VAULT_URL
             }
 
-            // Lifecycle-Management
+            // Lifecycle Management
             lifecycle: {
                 tier_to_cool: 30
                 tier_to_archive: 90
@@ -271,13 +271,13 @@ backup {
             bucket: "hypnoscript-backups"
             location: "europe-west1"
 
-            // Verschlüsselung
+            // Encryption
             encryption: {
                 type: "customer_managed"
                 kms_key: env.GCP_KMS_KEY
             }
 
-            // Lifecycle-Policies
+            // Lifecycle Policies
             lifecycle: {
                 set_storage_class: {
                     nearline: 30
@@ -292,12 +292,12 @@ backup {
 
 ## Disaster Recovery
 
-### DR-Strategien
+### DR Strategies
 
 ```hyp
 // Disaster Recovery
 disaster_recovery {
-    // RTO/RPO-Ziele
+    // RTO/RPO Objectives
     objectives: {
         rto: {
             critical_systems: "4h"
@@ -312,49 +312,49 @@ disaster_recovery {
         }
     }
 
-    // DR-Szenarien
+    // DR Scenarios
     scenarios: {
-        // Datenzentrum-Ausfall
+        // Datacenter Failure
         datacenter_failure: {
-            description: "Vollständiger Ausfall des primären Datenzentrums"
+            description: "Complete failure of primary datacenter"
             probability: "low"
             impact: "high"
 
-            // Recovery-Schritte
+            // Recovery Steps
             recovery_steps: [
                 {
                     step: 1
-                    action: "DR-Site aktivieren"
+                    action: "Activate DR site"
                     estimated_time: "30m"
                     responsible: "infrastructure_team"
                 },
                 {
                     step: 2
-                    action: "Datenbank-Wiederherstellung"
+                    action: "Database restoration"
                     estimated_time: "2h"
                     responsible: "database_team"
                 },
                 {
                     step: 3
-                    action: "Anwendung starten"
+                    action: "Start application"
                     estimated_time: "30m"
                     responsible: "application_team"
                 },
                 {
                     step: 4
-                    action: "DNS-Umleitung"
+                    action: "DNS redirection"
                     estimated_time: "15m"
                     responsible: "network_team"
                 },
                 {
                     step: 5
-                    action: "Funktionalität testen"
+                    action: "Test functionality"
                     estimated_time: "1h"
                     responsible: "qa_team"
                 }
             ]
 
-            // Rollback-Kriterien
+            // Rollback Criteria
             rollback_criteria: {
                 max_recovery_time: "6h"
                 data_loss_threshold: "1h"
@@ -362,80 +362,80 @@ disaster_recovery {
             }
         }
 
-        // Datenbank-Korruption
+        // Database Corruption
         database_corruption: {
-            description: "Korruption der primären Datenbank"
+            description: "Corruption of primary database"
             probability: "medium"
             impact: "high"
 
             recovery_steps: [
                 {
                     step: 1
-                    action: "Datenbank stoppen"
+                    action: "Stop database"
                     estimated_time: "5m"
                     responsible: "database_team"
                 },
                 {
                     step: 2
-                    action: "Letztes Backup identifizieren"
+                    action: "Identify last backup"
                     estimated_time: "15m"
                     responsible: "backup_team"
                 },
                 {
                     step: 3
-                    action: "Datenbank-Wiederherstellung"
+                    action: "Database restoration"
                     estimated_time: "3h"
                     responsible: "database_team"
                 },
                 {
                     step: 4
-                    action: "Datenbank-Validierung"
+                    action: "Database validation"
                     estimated_time: "1h"
                     responsible: "database_team"
                 },
                 {
                     step: 5
-                    action: "Anwendung neu starten"
+                    action: "Restart application"
                     estimated_time: "30m"
                     responsible: "application_team"
                 }
             ]
         }
 
-        // Cyber-Angriff
+        // Cyber Attack
         cyber_attack: {
-            description: "Ransomware oder anderer Cyber-Angriff"
+            description: "Ransomware or other cyber attack"
             probability: "medium"
             impact: "critical"
 
             recovery_steps: [
                 {
                     step: 1
-                    action: "Systeme isolieren"
+                    action: "Isolate systems"
                     estimated_time: "30m"
                     responsible: "security_team"
                 },
                 {
                     step: 2
-                    action: "Bedrohung analysieren"
+                    action: "Analyze threat"
                     estimated_time: "2h"
                     responsible: "security_team"
                 },
                 {
                     step: 3
-                    action: "Saubere Backup-Identifikation"
+                    action: "Identify clean backup"
                     estimated_time: "1h"
                     responsible: "backup_team"
                 },
                 {
                     step: 4
-                    action: "Vollständige System-Wiederherstellung"
+                    action: "Complete system restoration"
                     estimated_time: "8h"
                     responsible: "infrastructure_team"
                 },
                 {
                     step: 5
-                    action: "Sicherheits-Patches anwenden"
+                    action: "Apply security patches"
                     estimated_time: "2h"
                     responsible: "security_team"
                 }
@@ -443,15 +443,15 @@ disaster_recovery {
         }
     }
 
-    // DR-Sites
+    // DR Sites
     dr_sites: {
-        // Hot-Site
+        // Hot Site
         hot_site: {
             location: "Frankfurt"
             provider: "AWS"
             region: "eu-central-1"
 
-            // Infrastruktur
+            // Infrastructure
             infrastructure: {
                 compute: {
                     instance_type: "c5.2xlarge"
@@ -472,14 +472,14 @@ disaster_recovery {
                 }
             }
 
-            // Synchronisation
+            // Synchronization
             synchronization: {
                 type: "real_time"
                 method: "streaming_replication"
                 lag_threshold: "30s"
             }
 
-            // Aktivierung
+            // Activation
             activation: {
                 automated: true
                 trigger_conditions: [
@@ -490,7 +490,7 @@ disaster_recovery {
             }
         }
 
-        // Warm-Site
+        // Warm Site
         warm_site: {
             location: "Amsterdam"
             provider: "Azure"
@@ -523,7 +523,7 @@ disaster_recovery {
             }
         }
 
-        // Cold-Site
+        // Cold Site
         cold_site: {
             location: "London"
             provider: "GCP"
@@ -560,12 +560,12 @@ disaster_recovery {
 
 ## Business Continuity
 
-### BC-Planung
+### BC Planning
 
 ```hyp
 // Business Continuity
 business_continuity {
-    // BC-Ziele
+    // BC Objectives
     objectives: {
         mtd: {
             critical_functions: "4h"
@@ -580,31 +580,31 @@ business_continuity {
         }
     }
 
-    // Kritische Funktionen
+    // Critical Functions
     critical_functions: {
-        // Script-Ausführung
+        // Script Execution
         script_execution: {
             priority: "critical"
             mtd: "4h"
             mbc: "1h"
 
-            // Alternative Prozesse
+            // Alternative Processes
             alternative_processes: [
                 {
                     name: "Manual Script Execution"
-                    description: "Manuelle Script-Ausführung über CLI"
+                    description: "Manual script execution via CLI"
                     activation_time: "30m"
                     capacity: "50%"
                 },
                 {
                     name: "Cloud Script Execution"
-                    description: "Script-Ausführung in Cloud-Umgebung"
+                    description: "Script execution in cloud environment"
                     activation_time: "1h"
                     capacity: "100%"
                 }
             ]
 
-            // Abhängigkeiten
+            // Dependencies
             dependencies: [
                 "database_access",
                 "authentication_service",
@@ -612,7 +612,7 @@ business_continuity {
             ]
         }
 
-        // Benutzer-Authentifizierung
+        // User Authentication
         user_authentication: {
             priority: "critical"
             mtd: "2h"
@@ -621,7 +621,7 @@ business_continuity {
             alternative_processes: [
                 {
                     name: "Local Authentication"
-                    description: "Lokale Authentifizierung ohne LDAP"
+                    description: "Local authentication without LDAP"
                     activation_time: "15m"
                     capacity: "100%"
                 }
@@ -633,7 +633,7 @@ business_continuity {
             ]
         }
 
-        // Datenbank-Zugriff
+        // Database Access
         database_access: {
             priority: "critical"
             mtd: "1h"
@@ -642,13 +642,13 @@ business_continuity {
             alternative_processes: [
                 {
                     name: "Read-Only Database"
-                    description: "Schreibgeschützte Datenbank-Wiederherstellung"
+                    description: "Read-only database restoration"
                     activation_time: "30m"
                     capacity: "read_only"
                 },
                 {
                     name: "Backup Database"
-                    description: "Datenbank aus Backup wiederherstellen"
+                    description: "Restore database from backup"
                     activation_time: "2h"
                     capacity: "100%"
                 }
@@ -661,7 +661,7 @@ business_continuity {
         }
     }
 
-    // BC-Teams
+    // BC Teams
     bc_teams: {
         // Incident Response Team
         incident_response: {
@@ -745,9 +745,9 @@ business_continuity {
         }
     }
 
-    // Kommunikationsplan
+    // Communication Plan
     communication_plan: {
-        // Eskalationsmatrix
+        // Escalation Matrix
         escalation: {
             level_1: {
                 duration: "15m"
@@ -774,9 +774,9 @@ business_continuity {
             }
         }
 
-        // Stakeholder-Kommunikation
+        // Stakeholder Communication
         stakeholders: {
-            // Interne Stakeholder
+            // Internal Stakeholders
             internal: {
                 employees: {
                     channels: ["email", "intranet", "slack"]
@@ -797,7 +797,7 @@ business_continuity {
                 }
             }
 
-            // Externe Stakeholder
+            // External Stakeholders
             external: {
                 customers: {
                     channels: ["status_page", "email"]
@@ -829,9 +829,9 @@ business_continuity {
 ```hyp
 // Backup-Monitoring
 backup_monitoring {
-    // Metriken
+    // Metrics
     metrics: {
-        // Backup-Metriken
+        // Backup Metrics
         backup: {
             success_rate: true
             backup_duration: true
@@ -840,7 +840,7 @@ backup_monitoring {
             encryption_status: true
         }
 
-        // Recovery-Metriken
+        // Recovery Metrics
         recovery: {
             recovery_time: true
             recovery_success_rate: true
@@ -848,7 +848,7 @@ backup_monitoring {
             point_in_time_recovery: true
         }
 
-        // Storage-Metriken
+        // Storage Metrics
         storage: {
             used_space: true
             available_space: true
@@ -859,7 +859,7 @@ backup_monitoring {
 
     // Alerting
     alerting: {
-        // Backup-Alerts
+        // Backup Alerts
         backup: {
             backup_failure: {
                 severity: "critical"
@@ -880,7 +880,7 @@ backup_monitoring {
             }
         }
 
-        // Recovery-Alerts
+        // Recovery Alerts
         recovery: {
             recovery_failure: {
                 severity: "critical"
@@ -895,7 +895,7 @@ backup_monitoring {
             }
         }
 
-        // Storage-Alerts
+        // Storage Alerts
         storage: {
             storage_full: {
                 severity: "critical"
@@ -912,7 +912,7 @@ backup_monitoring {
 
     // Reporting
     reporting: {
-        // Tägliche Berichte
+        // Daily Reports
         daily: {
             backup_summary: {
                 enabled: true
@@ -926,7 +926,7 @@ backup_monitoring {
             }
         }
 
-        // Wöchentliche Berichte
+        // Weekly Reports
         weekly: {
             backup_health: {
                 enabled: true
@@ -940,7 +940,7 @@ backup_monitoring {
             }
         }
 
-        // Monatliche Berichte
+        // Monthly Reports
         monthly: {
             backup_compliance: {
                 enabled: true
@@ -959,73 +959,73 @@ backup_monitoring {
 
 ## Best Practices
 
-### Backup-Best-Practices
+### Backup Best Practices
 
-1. **3-2-1-Regel**
+1. **3-2-1 Rule**
 
-   - 3 Kopien der Daten
-   - 2 verschiedene Speichermedien
-   - 1 Kopie außerhalb des Standorts
+   - 3 copies of data
+   - 2 different storage media
+   - 1 copy offsite
 
-2. **Backup-Validierung**
+2. **Backup Validation**
 
-   - Regelmäßige Backup-Tests
-   - Recovery-Tests durchführen
-   - Datenintegrität prüfen
+   - Regular backup tests
+   - Perform recovery tests
+   - Verify data integrity
 
-3. **Verschlüsselung**
+3. **Encryption**
 
-   - Backup-Daten verschlüsseln
-   - Schlüssel sicher verwalten
-   - Transport-Verschlüsselung
+   - Encrypt backup data
+   - Manage keys securely
+   - Transport-Encryption
 
 4. **Monitoring**
 
-   - Backup-Status überwachen
-   - Automatische Alerting
-   - Regelmäßige Berichte
+   - Monitor backup status
+   - Automatic alerting
+   - Regular reports
 
-5. **Dokumentation**
-   - Recovery-Prozeduren dokumentieren
-   - Kontaktlisten aktuell halten
-   - Regelmäßige Updates
+5. **Documentation**
+   - Document recovery procedures
+   - Keep contact lists current
+   - Regular updates
 
-### Recovery-Best-Practices
+### Recovery Best Practices
 
-1. **RTO/RPO-Definition**
+1. **RTO/RPO Definition**
 
-   - Klare Ziele definieren
-   - Regelmäßige Überprüfung
-   - Business-Validierung
+   - Define clear objectives
+   - Regular review
+   - Business validation
 
 2. **Testing**
 
-   - Regelmäßige DR-Tests
-   - Vollständige Recovery-Tests
-   - Dokumentation der Ergebnisse
+   - Regular DR tests
+   - Complete recovery tests
+   - Documentation of results
 
-3. **Automatisierung**
+3. **Automation**
 
-   - Automatische Failover
-   - Script-basierte Recovery
-   - Monitoring und Alerting
+   - Automatic failover
+   - Script-based recovery
+   - Monitoring and alerting
 
 4. **Training**
-   - Team-Schulungen
-   - Recovery-Prozeduren üben
-   - Regelmäßige Updates
+   - Team training
+   - Practice recovery procedures
+   - Regular updates
 
-### Backup-Recovery-Checkliste
+### Backup Recovery Checklist
 
-- [ ] Backup-Strategie definiert
-- [ ] RTO/RPO-Ziele festgelegt
-- [ ] Backup-Automatisierung implementiert
-- [ ] Verschlüsselung konfiguriert
-- [ ] Monitoring eingerichtet
-- [ ] DR-Plan erstellt
-- [ ] Recovery-Tests durchgeführt
-- [ ] Team geschult
-- [ ] Dokumentation erstellt
-- [ ] Compliance geprüft
+- [ ] Backup strategy defined
+- [ ] RTO/RPO objectives set
+- [ ] Backup-Automation implementiert
+- [ ] Encryption configured
+- [ ] Monitoring configured
+- [ ] DR plan created
+- [ ] Recovery tests performed
+- [ ] Team trained
+- [ ] Documentation created
+- [ ] Compliance verified
 
-Diese Backup- und Recovery-Funktionen stellen sicher, dass HypnoScript in Runtime-Umgebungen robuste Datensicherheit und Business Continuity bietet.
+These backup and recovery features ensure that HypnoScript provides robust data security and business continuity in runtime environments.

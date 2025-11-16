@@ -4,135 +4,135 @@ sidebar_position: 1
 
 # Installation
 
-Dieser Leitfaden führt dich durch die Installation der Rust-basierten HypnoScript-Toolchain.
+This guide will walk you through installing the Rust-based HypnoScript toolchain.
 
-## Voraussetzungen
+## Prerequisites
 
-| Komponente      | Empfehlung                                                                 |
-| --------------- | -------------------------------------------------------------------------- |
-| Betriebssystem  | Windows 10+, macOS 12+, Linux (Ubuntu 20.04+, Fedora 38+, Arch)            |
-| Rust Toolchain  | `rustup` mit Rust 1.76 oder neuer (`rustup --version` zur Kontrolle)       |
-| Build-Werkzeuge | Git, C/C++ Build-Tools (werden von `rustup` / Paketmanager bereitgestellt) |
+| Component     | Recommendation                                                                   |
+| ------------- | -------------------------------------------------------------------------------- |
+| Operating System | Windows 10+, macOS 12+, Linux (Ubuntu 20.04+, Fedora 38+, Arch)              |
+| Rust Toolchain  | `rustup` with Rust 1.76 or newer (check with `rustup --version`)              |
+| Build Tools     | Git, C/C++ Build Tools (provided by `rustup` / package manager)               |
 
-Optional für die Dokumentation: Node.js 18+.
+Optional for documentation: Node.js 18+.
 
-### Rust installieren
+### Installing Rust
 
 ```bash
 curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
 
-# Nach der Installation ein neues Terminal öffnen und prüfen
+# After installation, open a new terminal and verify
 rustc --version
 cargo --version
 ```
 
-Unter Windows empfiehlt sich alternativ der [rustup-init.exe Download](https://win.rustup.rs/).
+On Windows, alternatively download [rustup-init.exe](https://win.rustup.rs/).
 
-## HypnoScript aus dem Repository bauen (empfohlen)
+## Building HypnoScript from Repository (recommended)
 
 ```bash
 git clone https://github.com/Kink-Development-Group/hyp-runtime.git
 cd hyp-runtime
 
-# Release-Build der CLI erzeugen
+# Create release build of the CLI
 cargo build -p hypnoscript-cli --release
 
-# Optional global installieren (legt hypnoscript ins Cargo-Bin-Verzeichnis)
+# Optionally install globally (places hypnoscript in Cargo bin directory)
 cargo install --path hypnoscript-cli
 ```
 
-Die fertig gebaute CLI liegt anschließend unter `./target/release/hypnoscript` bzw. nach der Installation im Cargo-Bin-Verzeichnis (`~/.cargo/bin` bzw. `%USERPROFILE%\.cargo\bin`).
+The built CLI will be located at `./target/release/hypnoscript` or after installation in the Cargo bin directory (`~/.cargo/bin` or `%USERPROFILE%\.cargo\bin`).
 
-## Automatischer Installer (empfohlen für Releases)
+## Automatic Installer (recommended for releases)
 
-Für Produktionssysteme oder schnelle Tests kannst du den offiziellen Installer verwenden. Das Skript erkennt dein Betriebssystem (Linux / macOS), lädt automatisch die passende Runtime aus dem aktuellen Release und aktualisiert bestehende Installationen. Seit der aktuellen Release-Serie wird das `install.sh`-Skript automatisch in jedes Release-Archiv sowie in die Dokumentations-Assets kopiert – du erhältst also immer dieselbe, signierte Quelle, egal ob du das Archiv manuell entpackst oder den Online-Aufruf verwendest.
+For production systems or quick tests, you can use the official installer. The script detects your operating system (Linux / macOS), automatically downloads the appropriate runtime from the current release, and updates existing installations. Since the current release series, the `install.sh` script is automatically copied into every release archive as well as the documentation assets – so you always get the same signed source, whether you manually extract the archive or use the online invocation.
 
 ```bash
 curl -fsSL https://kink-development-group.github.io/hyp-runtime/install.sh | bash
 ```
 
-Der Installer bietet jetzt eine einheitliche Workflow-Erfahrung:
+The installer now offers a unified workflow experience:
 
-- ✅ **Auto-Detection** für Architektur, Plattform und vorhandene Installationen
-- ♻️ **Update & Re-Install** ohne erneutes Herunterladen kompletter Archive
-- 🧹 **Cleanup/Uninstall** inklusive Metadaten (`installation.json`)
-- 📦 **Offline-Support** via Release-Archiv (enthaltenes `share/hypnoscript/install.sh`)
+- ✅ **Auto-Detection** for architecture, platform, and existing installations
+- ♻️ **Update & Re-Install** without re-downloading complete archives
+- 🧹 **Cleanup/Uninstall** including metadata (`installation.json`)
+- 📦 **Offline-Support** via release archive (included `share/hypnoscript/install.sh`)
 
-Wichtige Optionen im Überblick:
+Important options at a glance:
 
-| Option                 | Beschreibung                                                   |
+| Option                 | Description                                                    |
 | ---------------------- | -------------------------------------------------------------- |
-| `--prefix <pfad>`      | Zielverzeichnis (Standard: `/usr/local/bin`)                   |
-| `--check`              | Nur auf Updates prüfen (Exit-Code `0` = aktuell, `2` = Update) |
-| `--version <v>`        | Konkrete Version installieren                                  |
-| `--include-prerelease` | Auch Vorabversionen berücksichtigen                            |
-| `--force`              | Installation erzwingen, selbst wenn Version bereits vorhanden  |
-| `--quiet`              | Installer-Ausgabe minimieren (nur Fehler)                      |
-| `--no-sudo`            | Nie automatisch `sudo` anfordern                               |
-| `--uninstall`          | Installierte Runtime (Binary & Metadaten) entfernen            |
+| `--prefix <path>`      | Target directory (default: `/usr/local/bin`)                   |
+| `--check`              | Only check for updates (exit code `0` = current, `2` = update) |
+| `--version <v>`        | Install specific version                                       |
+| `--include-prerelease` | Also consider pre-releases                                     |
+| `--force`              | Force installation even if version already exists              |
+| `--quiet`              | Minimize installer output (errors only)                        |
+| `--no-sudo`            | Never automatically request `sudo`                             |
+| `--uninstall`          | Remove installed runtime (binary & metadata)                   |
 
-Das Skript kann jederzeit erneut ausgeführt werden. Erkennt es eine neue Version, wird automatisch ein Update eingespielt.
+The script can be run again at any time. If it detects a new version, an update will be automatically applied.
 
-### Updates & Deinstallation
+### Updates & Uninstallation
 
-Die CLI bringt einen integrierten `self-update`-Befehl mit, der die wichtigsten Installer-Optionen abbildet:
+The CLI includes an integrated `self-update` command that implements the most important installer options:
 
-- **Updates prüfen:** `hypnoscript self-update --check`
-- **Aktualisieren:** `hypnoscript self-update`
-- **Vorabversionen zulassen:** `hypnoscript self-update --include-prerelease`
-- **Neuinstallation erzwingen:** `hypnoscript self-update --force`
-- **Quiet/No-Sudo-Modus:** `hypnoscript self-update --quiet --no-sudo`
+- **Check for updates:** `hypnoscript self-update --check`
+- **Update:** `hypnoscript self-update`
+- **Allow pre-releases:** `hypnoscript self-update --include-prerelease`
+- **Force reinstall:** `hypnoscript self-update --force`
+- **Quiet/No-Sudo mode:** `hypnoscript self-update --quiet --no-sudo`
 
-> **Hinweis:** Unter Windows steht derzeit nur die Prüffunktion zur Verfügung. Die eigentliche Installation muss weiterhin manuell aus dem Release erfolgen.
+> **Note:** On Windows, currently only the check function is available. The actual installation must still be done manually from the release.
 
-Für vollständige Deinstallation verwendest du weiterhin das Installer-Skript mit `--uninstall`:
+For complete uninstallation, continue to use the installer script with `--uninstall`:
 
 ```bash
 curl -fsSL https://kink-development-group.github.io/hyp-runtime/install.sh | bash -s -- --uninstall
 ```
 
-## Vorbereitete Release-Pakete verwenden
+## Using Pre-built Release Packages
 
-Wenn du nicht selbst bauen möchtest, findest du unter [GitHub Releases](https://github.com/Kink-Development-Group/hyp-runtime/releases) signierte Artefakte für Windows, macOS und Linux. Nach dem Entpacken kannst du die enthaltene Binärdatei direkt ausführen.
+If you don't want to build yourself, you can find signed artifacts for Windows, macOS, and Linux at [GitHub Releases](https://github.com/Kink-Development-Group/hyp-runtime/releases). After extracting, you can run the included binary directly.
 
-## Installation prüfen
+## Verifying Installation
 
 ```bash
-# Version und verfügbare Befehle anzeigen
+# Display version and available commands
 hypnoscript version
 hypnoscript builtins
 
-# Minimales Testprogramm
-echo 'Focus { entrance { observe "Installation erfolgreich!"; } } Relax' > test.hyp
+# Minimal test program
+echo 'Focus { entrance { observe "Installation successful!"; } } Relax' > test.hyp
 hypnoscript run test.hyp
 ```
 
-Erwartete Ausgabe (gekürzt):
+Expected output (abbreviated):
 
 ```text
 HypnoScript v1.0.0
-Installation erfolgreich!
+Installation successful!
 ```
 
-## Häufige Probleme
+## Common Issues
 
-| Problem                   | Lösung                                                                                              |
-| ------------------------- | --------------------------------------------------------------------------------------------------- |
-| `cargo` nicht gefunden    | Prüfe, ob `~/.cargo/bin` (Linux/macOS) bzw. `%USERPROFILE%\.cargo\bin` (Windows) im `PATH` liegt.   |
-| Linker-Fehler unter Linux | Installiere Build-Abhängigkeiten (`sudo apt install build-essential` oder Distribution-Äquivalent). |
-| Keine Ausführungsrechte   | Setze `chmod +x hypnoscript` nach dem Entpacken eines Release-Artefakts.                            |
+| Problem                  | Solution                                                                                            |
+| ------------------------ | --------------------------------------------------------------------------------------------------- |
+| `cargo` not found        | Check if `~/.cargo/bin` (Linux/macOS) or `%USERPROFILE%\.cargo\bin` (Windows) is in your `PATH`.   |
+| Linker errors on Linux   | Install build dependencies (`sudo apt install build-essential` or distribution equivalent).         |
+| No execution permissions | Set `chmod +x hypnoscript` after extracting a release artifact.                                     |
 
-## Optional: Entwicklungskomfort
+## Optional: Development Comfort
 
-- **VS Code**: Installiere die Extensions _Rust Analyzer_ und _Even Better TOML_. Das Repo enthält eine `hyp-runtime.code-workspace`-Datei.
-- **Shell Alias**: `alias hyp="hypnoscript"` für kürzere Befehle.
-- **Dokumentation bauen**: `npm install` & `npm run dev` im Ordner `hypnoscript-docs`.
+- **VS Code**: Install the _Rust Analyzer_ and _Even Better TOML_ extensions. The repo includes a `hyp-runtime.code-workspace` file.
+- **Shell Alias**: `alias hyp="hypnoscript"` for shorter commands.
+- **Building documentation**: `npm install` & `npm run dev` in the `hypnoscript-docs` folder.
 
-## Nächste Schritte
+## Next Steps
 
 - [Quick Start](./quick-start)
 - [CLI Basics](./cli-basics)
-- [Sprachreferenz](../language-reference/syntax)
-- [Standardbibliothek](../builtins/overview)
+- [Language Reference](../language-reference/syntax)
+- [Standard Library](../builtins/overview)
 
-Viel Spaß beim hypnotischen Coden! 🌀
+Happy hypnotic coding! 🌀

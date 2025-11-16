@@ -1,47 +1,47 @@
 # Core Concepts
 
-Dieser Überblick fasst die wichtigsten Bausteine der aktuellen HypnoScript-Implementierung zusammen. Wenn du den Code oder die Tests im Repository liest, findest du genau diese Konzepte wieder.
+This overview summarizes the most important building blocks of the current HypnoScript implementation. When you read the code or tests in the repository, you'll find exactly these concepts.
 
-## Programmstruktur
+## Program Structure
 
-- **Focus/Relax**: Jedes Skript startet mit `Focus {` und endet mit `} Relax`.
-- **`entrance`**: Optionaler Block direkt nach `Focus`, ideal für Setup und Begrüßung.
-- **`finale`**: Optionaler Block vor `Relax`, wird immer ausgeführt (Cleanup).
+- **Focus/Relax**: Every script starts with `Focus {` and ends with `} Relax`.
+- **`entrance`**: Optional block directly after `Focus`, ideal for setup and greeting.
+- **`finale`**: Optional block before `Relax`, always executed (cleanup).
 
 ```hyp
 Focus {
-    entrance { observe "Hallo"; }
-    // ... regulärer Code ...
-    finale { observe "Auf Wiedersehen"; }
+    entrance { observe "Hello"; }
+    // ... regular code ...
+    finale { observe "Goodbye"; }
 } Relax
 ```
 
-## Deklarationen & Typen
+## Declarations & Types
 
-- `induce name: string = "Text";` – veränderbare Variable.
-- `implant` – Alias für `induce`.
-- `freeze PI: number = 3.14159;` – Konstante.
-- Arrays werden mit `[]` notiert: `induce values: number[] = [1, 2, 3];`.
-- Unterstützte Typen: `number`, `string`, `boolean`, Arrays, Funktionen, Sessions. Ein `trance`-Typ existiert im Typsystem, wird aber derzeit nicht aktiv verwendet.
+- `induce name: string = "Text";` – mutable variable.
+- `implant` – alias for `induce`.
+- `freeze PI: number = 3.14159;` – constant.
+- Arrays are denoted with `[]`: `induce values: number[] = [1, 2, 3];`.
+- Supported types: `number`, `string`, `boolean`, arrays, functions, sessions. A `trance` type exists in the type system but is not currently actively used.
 
-## Kontrolle & Operatoren
+## Control & Operators
 
 - `if`, `else if`, `else`
-- `while` für bedingte Schleifen
-- `loop` unterstützt sowohl die Endlosschleife `loop { ... }` als auch einen klassischen Kopf `loop (init; condition; update) { ... }`; `pendulum (...)` ist ein Alias, das immer eine Bedingung verlangt.
-- `snap` (Alias `break`), `sink` (Alias `continue`)
-- Hypnotische Operatoren wie `youAreFeelingVerySleepy` (`==`) oder `underMyControl` (`&&`)
-- Booleans können mit `oscillate flag;` umgeschaltet werden
+- `while` for conditional loops
+- `loop` supports both the infinite loop `loop { ... }` and a classic header `loop (init; condition; update) { ... }`; `pendulum (...)` is an alias that always requires a condition.
+- `snap` (alias `break`), `sink` (alias `continue`)
+- Hypnotic operators like `youAreFeelingVerySleepy` (`==`) or `underMyControl` (`&&`)
+- Booleans can be toggled with `oscillate flag;`
 
-## Funktionen
+## Functions
 
-- Definiert mit `suggestion name(params): returnType { ... }`
-- `awaken` (oder `return`) beendet eine Funktion.
-- Trigger verwenden `trigger name = suggestion(...) { ... }` und verhalten sich wie Callbacks.
+- Defined with `suggestion name(params): returnType { ... }`
+- `awaken` (or `return`) exits a function.
+- Triggers use `trigger name = suggestion(...) { ... }` and behave like callbacks.
 
 ```hyp
 suggestion greet(name: string) {
-    observe "Hallo, " + name + "!";
+    observe "Hello, " + name + "!";
 }
 
 trigger onWelcome = suggestion(person: string) {
@@ -49,13 +49,13 @@ trigger onWelcome = suggestion(person: string) {
 }
 ```
 
-## Sessions (Objektorientierung)
+## Sessions (Object Orientation)
 
-- `session Name { ... }` erzeugt eine Klasse.
-- Felder: `expose` (öffentlich) oder `conceal` (privat). `dominant` macht Felder oder Methoden statisch.
-- Methoden nutzen `suggestion`, `imperativeSuggestion` oder `dominantSuggestion` (Letzteres erzwingt statisch).
-- Konstruktoren: `suggestion constructor(...) { ... }`.
-- Der Interpreter injiziert `this` für Instanzmethoden und verhindert, dass statische Mitglieder über Instanzen angesprochen werden (und umgekehrt).
+- `session Name { ... }` creates a class.
+- Fields: `expose` (public) or `conceal` (private). `dominant` makes fields or methods static.
+- Methods use `suggestion`, `imperativeSuggestion` or `dominantSuggestion` (the latter enforces static).
+- Constructors: `suggestion constructor(...) { ... }`.
+- The interpreter injects `this` for instance methods and prevents static members from being accessed via instances (and vice versa).
 
 ```hyp
 session Counter {
@@ -78,36 +78,36 @@ c.increment();
 
 ## Builtins
 
-Der Type Checker registriert sämtliche Standardfunktionen. Wichtige Kategorien:
+The type checker registers all standard functions. Important categories:
 
-- **Mathe**: `Sin`, `Cos`, `Sqrt`, `Pow`, `Clamp`, `Factorial`, `Gcd`, `Lcm`, `IsPrime`, `Fibonacci`, …
+- **Math**: `Sin`, `Cos`, `Sqrt`, `Pow`, `Clamp`, `Factorial`, `Gcd`, `Lcm`, `IsPrime`, `Fibonacci`, …
 - **Strings**: `Length`, `ToUpper`, `Trim`, `Replace`, `Split`, `Substring`, `PadLeft`, `IsWhitespace`, …
 - **Arrays**: `ArrayLength`, `ArrayIsEmpty`, `ArraySum`, `ArrayAverage`, `ArraySlice`, `ArrayDistinct`, …
-- **System & Dateien**: `GetOperatingSystem`, `GetUsername`, `GetArgs`, `ReadFile`, `WriteFile`, `ListDirectory`, …
-- **Zeit & Statistik**: `CurrentTimestamp`, `CurrentDate`, `Mean`, `Median`, `StandardDeviation`, `Correlation`, …
-- **Validierung & Utility**: `IsValidEmail`, `MatchesPattern`, `HashString`, `SimpleRandom`, …
+- **System & Files**: `GetOperatingSystem`, `GetUsername`, `GetArgs`, `ReadFile`, `WriteFile`, `ListDirectory`, …
+- **Time & Statistics**: `CurrentTimestamp`, `CurrentDate`, `Mean`, `Median`, `StandardDeviation`, `Correlation`, …
+- **Validation & Utility**: `IsValidEmail`, `MatchesPattern`, `HashString`, `SimpleRandom`, …
 
-Alle Builtins gibt es kompakt per `hypnoscript builtins`.
+All builtins are compactly available via `hypnoscript builtins`.
 
-## CLI-Workflow
+## CLI Workflow
 
 ```bash
-hypnoscript lex file.hyp       # Tokens anzeigen
-hypnoscript parse file.hyp     # AST inspizieren
-hypnoscript check file.hyp     # Typprüfung
-hypnoscript run file.hyp       # Ausführen
+hypnoscript lex file.hyp       # Show tokens
+hypnoscript parse file.hyp     # Inspect AST
+hypnoscript check file.hyp     # Type checking
+hypnoscript run file.hyp       # Execute
 hypnoscript compile-wasm file.hyp -o file.wat
-hypnoscript version            # Toolchain-Infos
+hypnoscript version            # Toolchain info
 ```
 
-- `--debug` beim `run`-Befehl zeigt Zwischenschritte (Source, Tokens, Type Check).
-- `--verbose` fügt zusätzliche Statusmeldungen hinzu.
+- `--debug` with the `run` command shows intermediate steps (source, tokens, type check).
+- `--verbose` adds additional status messages.
 
-## Wo du weiterliest
+## Where to Continue Reading
 
-- [Quick Start](./quick-start) – Dein erstes Skript Schritt für Schritt
-- [CLI Basics](./cli-basics) – Alle Subcommands im Detail
-- [Syntax-Referenz](../language-reference/syntax) – Vollständige Grammatik
-- [Builtin-Übersicht](../builtins/overview) – Alle Funktionen nach Kategorien
+- [Quick Start](./quick-start) – Your first script step by step
+- [CLI Basics](./cli-basics) – All subcommands in detail
+- [Syntax Reference](../language-reference/syntax) – Complete grammar
+- [Builtin Overview](../builtins/overview) – All functions by category
 
-Mit diesen Konzepten liest du den Repository-Code problemlos und kannst eigene Skripte schreiben.
+With these concepts, you can read the repository code easily and write your own scripts.

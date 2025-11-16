@@ -1,15 +1,15 @@
 # Runtime Database Integration
 
-HypnoScript bietet umfassende Datenbankintegrationsfunktionen für Runtime-Umgebungen, einschließlich Multi-Database-Support, Connection Pooling, Transaktionsmanagement und automatische Migrationen.
+HypnoScript provides comprehensive database integration features for runtime environments, including multi-database support, connection pooling, transaction management, and automatic migrations.
 
-## Datenbankverbindungen
+## Database Connections
 
-### Verbindungskonfiguration
+### Connection Configuration
 
 ```hyp
-// Datenbankverbindungen
+// Database connections
 database {
-    // PostgreSQL-Konfiguration
+    // PostgreSQL configuration
     postgresql: {
         primary: {
             host: "db-primary.example.com"
@@ -34,7 +34,7 @@ database {
         }
     }
 
-    // MySQL-Konfiguration
+    // MySQL configuration
     mysql: {
         primary: {
             host: "mysql-primary.example.com"
@@ -47,7 +47,7 @@ database {
         }
     }
 
-    // SQL Server-Konfiguration
+    // SQL Server configuration
     sqlserver: {
         primary: {
             host: "sqlserver.example.com"
@@ -61,7 +61,7 @@ database {
         }
     }
 
-    // Oracle-Konfiguration
+    // Oracle configuration
     oracle: {
         primary: {
             host: "oracle.example.com"
@@ -78,18 +78,18 @@ database {
 ### Connection Pooling
 
 ```hyp
-// Connection Pooling
+// Connection pooling
 connection_pooling {
-    // Allgemeine Pool-Einstellungen
+    // General pool settings
     general: {
         min_connections: 5
         max_connections: 100
-        connection_lifetime: 3600  // 1 Stunde
-        connection_idle_timeout: 300  // 5 Minuten
+        connection_lifetime: 3600  // 1 hour
+        connection_idle_timeout: 300  // 5 minutes
         connection_validation_timeout: 30
     }
 
-    // Pool-Monitoring
+    // Pool monitoring
     monitoring: {
         pool_usage_metrics: true
         connection_wait_time: true
@@ -97,18 +97,18 @@ connection_pooling {
         connection_validation_failures: true
     }
 
-    // Pool-Optimierung
+    // Pool optimization
     optimization: {
-        // Load Balancing
+        // Load balancing
         load_balancing: {
             strategy: "round_robin"
             health_check_interval: 30
             failover_enabled: true
         }
 
-        // Connection Leasing
+        // Connection leasing
         leasing: {
-            max_lease_time: 300  // 5 Minuten
+            max_lease_time: 300  // 5 minutes
             auto_return: true
             deadlock_detection: true
         }
@@ -121,9 +121,9 @@ connection_pooling {
 ### Entity-Definitionen
 
 ```hyp
-// Entity-Modelle
+// Entity models
 entities {
-    // Script-Entity
+    // Script entity
     Script: {
         table: "scripts"
         primary_key: "id"
@@ -202,7 +202,7 @@ entities {
         ]
     }
 
-    // Execution-Entity
+    // Execution entity
     Execution: {
         table: "script_executions"
         primary_key: "id"
@@ -289,7 +289,7 @@ entities {
         ]
     }
 
-    // User-Entity
+    // User entity
     User: {
         table: "users"
         primary_key: "id"
@@ -378,14 +378,14 @@ entities {
 ### Repository-Pattern
 
 ```hyp
-// Repository-Implementierungen
+// Repository implementations
 repositories {
-    // Script-Repository
+    // Script repository
     ScriptRepository: {
         entity: "Script"
 
         methods: {
-            // Standard-CRUD-Operationen
+            // Standard CRUD operations
             findById: {
                 sql: "SELECT * FROM scripts WHERE id = ?"
                 parameters: ["id"]
@@ -434,7 +434,7 @@ repositories {
                 return_type: "boolean"
             }
 
-            // Spezielle Abfragen
+            // Special queries
             getExecutionStats: {
                 sql: """
                     SELECT
@@ -472,7 +472,7 @@ repositories {
         }
     }
 
-    // Execution-Repository
+    // Execution repository
     ExecutionRepository: {
         entity: "Execution"
 
@@ -519,7 +519,7 @@ repositories {
                 return_type: "boolean"
             }
 
-            // Performance-Abfragen
+            // Performance queries
             getPerformanceStats: {
                 sql: """
                     SELECT
@@ -541,24 +541,24 @@ repositories {
 }
 ```
 
-## Transaktionsmanagement
+## Transaction Management
 
 ### Transaktions-Konfiguration
 
 ```hyp
-// Transaktionsmanagement
+// Transaction management
 transactions {
-    // Transaktions-Einstellungen
+    // Transaction settings
     settings: {
         default_isolation_level: "read_committed"
-        default_timeout: 30  // Sekunden
+        default_timeout: 30  // seconds
         max_retries: 3
-        retry_delay: 1000  // Millisekunden
+        retry_delay: 1000  // milliseconds
     }
 
-    // Transaktions-Templates
+    // Transaction templates
     templates: {
-        // Script-Erstellung mit Validierung
+        // Script creation with validation
         createScript: {
             isolation_level: "serializable"
             timeout: 60
@@ -626,11 +626,11 @@ transactions {
 ### Transaktions-Beispiele
 
 ```hyp
-// Transaktions-Beispiele
+// Transaction examples
 transaction_examples {
     // Script mit Abhängigkeiten erstellen
     createScriptWithDependencies: {
-        description: "Erstellt ein Script mit allen Abhängigkeiten in einer Transaktion"
+        description: "Creates a script with all dependencies in a transaction"
 
         transaction: {
             isolation_level: "serializable"
@@ -669,7 +669,7 @@ transaction_examples {
 
     // Batch-Script-Ausführung
     batchScriptExecution: {
-        description: "Führt mehrere Scripts in einer Batch-Transaktion aus"
+        description: "Executes multiple scripts in a batch transaction"
 
         transaction: {
             isolation_level: "read_committed"
@@ -711,26 +711,26 @@ transaction_examples {
 ### Migrations-System
 
 ```hyp
-// Migrations-Konfiguration
+// Migrations configuration
 migrations {
-    // Migrations-Einstellungen
+    // Migration settings
     settings: {
         table_name: "schema_migrations"
         version_column: "version"
         applied_at_column: "applied_at"
         checksum_column: "checksum"
 
-        // Migrations-Verzeichnis
+        // Migrations directory
         directory: "migrations"
 
-        // Versionierung
+        // Versioning
         version_format: "timestamp"
         version_separator: "_"
     }
 
-    // Migrations-Templates
+    // Migration templates
     templates: {
-        // Tabelle erstellen
+        // Create table
         create_table: {
             template: """
                 CREATE TABLE {table_name} (
@@ -743,12 +743,12 @@ migrations {
             """
         }
 
-        // Index erstellen
+        // Create index
         create_index: {
             template: "CREATE INDEX {index_name} ON {table_name}({columns});"
         }
 
-        // Foreign Key hinzufügen
+        // Add foreign key
         add_foreign_key: {
             template: "ALTER TABLE {table_name} ADD CONSTRAINT {constraint_name} FOREIGN KEY ({column}) REFERENCES {referenced_table}({referenced_column});"
         }
@@ -759,9 +759,9 @@ migrations {
 ### Migrations-Beispiele
 
 ```hyp
-// Migrations-Beispiele
+// Migration examples
 migration_examples {
-    // Initiale Schema-Erstellung
+    // Initial schema creation
     initial_schema: {
         version: "20240101000001"
         description: "Initial schema creation"
@@ -818,7 +818,7 @@ migration_examples {
         ]
     }
 
-    // Performance-Optimierungen
+    // Performance optimizations
     performance_optimizations: {
         version: "20240102000001"
         description: "Add performance indexes and optimizations"
@@ -850,7 +850,7 @@ migration_examples {
         ]
     }
 
-    // Audit-Logging hinzufügen
+    // Add audit logging
     add_audit_logging: {
         version: "20240103000001"
         description: "Add audit logging tables"
@@ -892,43 +892,43 @@ migration_examples {
 ### Performance-Optimierung
 
 ```hyp
-// Datenbank-Optimierung
+// Database optimization
 database_optimization {
-    // Query-Optimierung
+    // Query Optimization
     query_optimization: {
-        // Query-Caching
+        // Query caching
         query_cache: {
             enabled: true
             max_size: 1000
-            ttl: 300  // 5 Minuten
+            ttl: 300  // 5 minutes
             cache_key_strategy: "sql_hash"
         }
 
-        // Prepared Statements
+        // Prepared statements
         prepared_statements: {
             enabled: true
             max_prepared_statements: 100
             statement_timeout: 30
         }
 
-        // Query-Analyse
+        // Query analysis
         query_analysis: {
-            slow_query_threshold: 1000  // Millisekunden
+            slow_query_threshold: 1000  // milliseconds
             log_slow_queries: true
             explain_plans: true
         }
     }
 
-    // Index-Optimierung
+    // Index optimization
     index_optimization: {
-        // Automatische Index-Empfehlungen
+        // Automatic index recommendations
         auto_recommendations: {
             enabled: true
             analysis_interval: "daily"
             min_query_frequency: 10
         }
 
-        // Index-Monitoring
+        // Index monitoring
         index_monitoring: {
             unused_indexes: true
             duplicate_indexes: true
@@ -936,9 +936,9 @@ database_optimization {
         }
     }
 
-    // Partitionierung
+    // Partitioning
     partitioning: {
-        // Zeitbasierte Partitionierung
+        // Time-based partitioning
         time_based: {
             table: "script_executions"
             partition_column: "started_at"
@@ -946,7 +946,7 @@ database_optimization {
             retention_period: "12 months"
         }
 
-        // Hash-Partitionierung
+        // Hash partitioning
         hash_based: {
             table: "audit_logs"
             partition_column: "id"
@@ -958,48 +958,48 @@ database_optimization {
 
 ## Best Practices
 
-### Datenbank-Best-Practices
+### Database Best Practices
 
-1. **Verbindungsmanagement**
+1. **Connection Management**
 
-   - Connection Pooling verwenden
-   - Verbindungen ordnungsgemäß schließen
-   - Timeouts konfigurieren
+   - Use connection pooling
+   - Close connections properly
+   - Configure timeouts
 
-2. **Transaktionsmanagement**
+2. **Transaction Management**
 
-   - Kurze Transaktionen bevorzugen
-   - Isolation Levels bewusst wählen
-   - Rollback-Strategien definieren
+   - Prefer short transactions
+   - Choose isolation levels consciously
+   - Define rollback strategies
 
-3. **Query-Optimierung**
+3. **Query Optimization**
 
-   - Indizes strategisch platzieren
-   - N+1 Query Problem vermeiden
-   - Prepared Statements verwenden
+   - Place indexes strategically
+   - Avoid N+1 query problem
+   - Use prepared statements
 
-4. **Sicherheit**
+4. **Security**
 
-   - SQL Injection verhindern
-   - Parameterized Queries verwenden
-   - Berechtigungen minimieren
+   - Prevent SQL injection
+   - Use parameterized queries
+   - Minimize permissions
 
 5. **Monitoring**
-   - Query-Performance überwachen
-   - Connection Pool-Metriken tracken
-   - Slow Query-Logging aktivieren
+   - Monitor query performance
+   - Track connection pool metrics
+   - Enable slow query logging
 
-### Datenbank-Checkliste
+### Database Checklist
 
-- [ ] Verbindungskonfiguration getestet
-- [ ] Connection Pooling konfiguriert
-- [ ] Entity-Modelle definiert
-- [ ] Repository-Pattern implementiert
-- [ ] Transaktionsmanagement eingerichtet
-- [ ] Migrations-System konfiguriert
-- [ ] Performance-Optimierungen implementiert
-- [ ] Backup-Strategie definiert
-- [ ] Monitoring konfiguriert
-- [ ] Sicherheitsrichtlinien umgesetzt
+- [ ] Connection configuration tested
+- [ ] Connection pooling configured
+- [ ] Entity models defined
+- [ ] Repository pattern implemented
+- [ ] Transaction management set up
+- [ ] Migrations system configured
+- [ ] Performance optimizations implemented
+- [ ] Backup strategy defined
+- [ ] Monitoring configured
+- [ ] Security policies implemented
 
-Diese Datenbankintegrationsfunktionen stellen sicher, dass HypnoScript in Runtime-Umgebungen effizient und sicher mit verschiedenen Datenbanksystemen arbeitet.
+These database integration features ensure that HypnoScript works efficiently and securely with various database systems in runtime environments.

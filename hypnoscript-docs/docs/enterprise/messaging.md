@@ -1,10 +1,10 @@
 # Runtime Messaging & Queuing
 
-HypnoScript bietet umfassende Messaging- und Queuing-Funktionen für Runtime-Umgebungen, einschließlich Message Brokers, Event-Driven Architecture, Message Patterns und zuverlässige Nachrichtenverarbeitung.
+HypnoScript provides comprehensive messaging and queuing features for runtime environments, including message brokers, event-driven architecture, message patterns, and reliable message processing.
 
 ## Message Broker Integration
 
-### Broker-Konfiguration
+### Broker Configuration
 
 ```hyp
 // Message Broker-Konfiguration
@@ -26,7 +26,7 @@ messaging {
             buffer_memory: 33554432
             compression_type: "snappy"
 
-            // Sicherheit
+            // Security
             security: {
                 sasl_mechanism: "PLAIN"
                 sasl_username: env.KAFKA_USERNAME
@@ -45,7 +45,7 @@ messaging {
             max_poll_records: 500
             max_poll_interval_ms: 300000
 
-            // Sicherheit
+            // Security
             security: {
                 sasl_mechanism: "PLAIN"
                 sasl_username: env.KAFKA_USERNAME
@@ -63,7 +63,7 @@ messaging {
         username: env.RABBITMQ_USERNAME
         password: env.RABBITMQ_PASSWORD
 
-        // Verbindungseinstellungen
+        // Connection settings
         connection: {
             heartbeat: 60
             connection_timeout: 60000
@@ -92,7 +92,7 @@ messaging {
         username: env.ACTIVEMQ_USERNAME
         password: env.ACTIVEMQ_PASSWORD
 
-        // Verbindungseinstellungen
+        // Connection settings
         connection: {
             max_connections: 50
             connection_timeout: 30000
@@ -133,7 +133,7 @@ messaging {
 
 ## Event-Driven Architecture
 
-### Event-Definitionen
+### Event Definitions
 
 ```hyp
 // Event-Schema-Definitionen
@@ -321,7 +321,7 @@ events {
 }
 ```
 
-### Event-Producer
+### Event Producer
 
 ```hyp
 // Event-Producer-Konfiguration
@@ -417,7 +417,7 @@ event_producers {
 }
 ```
 
-### Event-Consumer
+### Event Consumer
 
 ```hyp
 // Event-Consumer-Konfiguration
@@ -523,7 +523,7 @@ event_consumers {
 }
 ```
 
-## Message Patterns
+## message patterns
 
 ### Request-Reply Pattern
 
@@ -747,7 +747,7 @@ dead_letter_queue {
 
 ## Message Reliability
 
-### Message-Garantien
+### Message Guarantees
 
 ```hyp
 // Message-Garantien
@@ -811,7 +811,7 @@ message_guarantees {
 }
 ```
 
-### Message-Monitoring
+### Message Monitoring
 
 ```hyp
 // Message-Monitoring
@@ -891,9 +891,9 @@ message_monitoring {
 
 ## Best Practices
 
-### Messaging-Best-Practices
+### Messaging Best Practices
 
-1. **Message-Design**
+1. **Message Design**
 
    - Immutable Events verwenden
    - Schema-Versionierung implementieren
@@ -922,17 +922,17 @@ message_monitoring {
    - Authentication/Authorization implementieren
    - Audit-Logging aktivieren
 
-### Messaging-Checkliste
+### Messaging Checklist
 
 - [ ] Message Broker konfiguriert
 - [ ] Event-Schemas definiert
 - [ ] Producer/Consumer implementiert
-- [ ] Message-Patterns ausgewählt
+- [ ] Message patterns ausgewählt
 - [ ] Dead Letter Queues eingerichtet
-- [ ] Monitoring konfiguriert
-- [ ] Security implementiert
-- [ ] Performance optimiert
-- [ ] Error-Handling definiert
-- [ ] Dokumentation erstellt
+- [ ] Monitoring configured
+- [ ] Security implemented
+- [ ] Performance optimized
+- [ ] Error handling defined
+- [ ] Documentation created
 
-Diese Messaging- und Queuing-Funktionen stellen sicher, dass HypnoScript in Runtime-Umgebungen skalierbare, zuverlässige und event-driven Architekturen unterstützt.
+These messaging and queuing features ensure that HypnoScript in runtime environments skalierbare, zuverlässige und event-driven Architekturen unterstützt.

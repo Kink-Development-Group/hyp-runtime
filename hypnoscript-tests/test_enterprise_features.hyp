@@ -44,7 +44,7 @@ Focus {
     observe "Files in current directory: " + ArrayLength(files);
     observe "Directories in current directory: " + ArrayLength(directories);
 
-    // Datei anhängen
+    // Append to file
     AppendFile("test_output.txt", "\nLine 4: Appended content works great!");
     observe "File appended successfully!";
 
@@ -80,7 +80,7 @@ Focus {
     induce jsonData: string = ToJson(person);
     observe "Person as JSON: " + jsonData;
 
-    // Von JSON zurück konvertieren
+    // Convert back from JSON
     induce parsedData = FromJson(jsonData);
     observe "Parsed JSON data: " + parsedData;
 
