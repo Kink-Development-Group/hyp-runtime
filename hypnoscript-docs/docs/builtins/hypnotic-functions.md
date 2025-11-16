@@ -4,17 +4,17 @@ title: Hypnotic Functions
 
 # Hypnotic Functions
 
-HypnoScript bietet spezielle Funktionen für hypnotische Anwendungen und Trance-Induktion.
+HypnoScript bietet spezielle Functionen für hypnotische Anwendungen und Trance-Induktion.
 
-## Übersicht
+## Overview
 
-Hypnotische Funktionen sind das Herzstück von HypnoScript und ermöglichen es Ihnen, hypnotische Sitzungen, Trance-Induktionen und therapeutische Anwendungen zu programmieren.
+Hypnotische Functionen sind das Herzstück von HypnoScript und ermöglichen es Ihnen, hypnotische Sitzungen, Trance-Induktionen und therapeutische Anwendungen zu programmieren.
 
-## Grundlegende Trance-Funktionen
+## Basic Trance-Functionen
 
 ### HypnoticBreathing
 
-Führt eine hypnotische Atemübung durch.
+Executes eine hypnotische Atemübung durch.
 
 ```hyp
 // Einfache Atemübung
@@ -24,13 +24,13 @@ HypnoticBreathing();
 HypnoticBreathing(10);
 ```
 
-**Parameter:**
+**Parameters:**
 
 - `cycles` (optional): Anzahl der Atemzyklen (Standard: 5)
 
 ### HypnoticAnchoring
 
-Erstellt oder aktiviert einen hypnotischen Anker.
+Creates oder aktiviert einen hypnotischen Anker.
 
 ```hyp
 // Anker erstellen
@@ -40,14 +40,14 @@ HypnoticAnchoring("Entspannung");
 HypnoticAnchoring("Sicherheit", "Wärme");
 ```
 
-**Parameter:**
+**Parameters:**
 
 - `anchorName`: Name des Ankers
 - `feeling` (optional): Assoziiertes Gefühl
 
 ### HypnoticRegression
 
-Führt eine hypnotische Regression durch.
+Executes eine hypnotische Regression durch.
 
 ```hyp
 // Standard-Regression
@@ -57,13 +57,13 @@ HypnoticRegression();
 HypnoticRegression(7);
 ```
 
-**Parameter:**
+**Parameters:**
 
 - `targetAge` (optional): Zielalter für Regression
 
 ### HypnoticFutureProgression
 
-Führt eine hypnotische Zukunftsvision durch.
+Executes eine hypnotische Zukunftsvision durch.
 
 ```hyp
 // Standard-Zukunftsvision
@@ -73,15 +73,15 @@ HypnoticFutureProgression();
 HypnoticFutureProgression(5); // 5 Jahre in der Zukunft
 ```
 
-**Parameter:**
+**Parameters:**
 
 - `yearsAhead` (optional): Jahre in die Zukunft
 
-## Erweiterte hypnotische Funktionen
+## Advanced hypnotische Functionen
 
 ### ProgressiveRelaxation
 
-Führt eine progressive Muskelentspannung durch.
+Executes eine progressive Muskelentspannung durch.
 
 ```hyp
 // Standard-Entspannung
@@ -91,13 +91,13 @@ ProgressiveRelaxation();
 ProgressiveRelaxation(3); // 3 Sekunden pro Gruppe
 ```
 
-**Parameter:**
+**Parameters:**
 
 - `durationPerGroup` (optional): Dauer pro Muskelgruppe in Sekunden
 
 ### HypnoticVisualization
 
-Führt eine hypnotische Visualisierung durch.
+Executes eine hypnotische Visualisierung durch.
 
 ```hyp
 // Einfache Visualisierung
@@ -107,14 +107,14 @@ HypnoticVisualization("ein friedlicher Garten");
 HypnoticVisualization("ein sonniger Strand mit sanften Wellen", 30);
 ```
 
-**Parameter:**
+**Parameters:**
 
 - `scene`: Die zu visualisierende Szene
 - `duration` (optional): Dauer in Sekunden
 
 ### HypnoticSuggestion
 
-Gibt eine hypnotische Suggestion.
+Returns eine hypnotische Suggestion.
 
 ```hyp
 // Positive Suggestion
@@ -124,7 +124,7 @@ HypnoticSuggestion("Du fühlst dich zunehmend entspannt und sicher");
 HypnoticSuggestion("Mit jedem Atemzug wirst du tiefer entspannt", 3);
 ```
 
-**Parameter:**
+**Parameters:**
 
 - `suggestion`: Die hypnotische Suggestion
 - `repetitions` (optional): Anzahl der Wiederholungen
@@ -141,15 +141,15 @@ TranceDeepening();
 TranceDeepening(3); // Level 3 (tief)
 ```
 
-**Parameter:**
+**Parameters:**
 
 - `level` (optional): Trance-Level (1-5, 5 = am tiefsten)
 
-## Spezialisierte hypnotische Funktionen
+## Spezialisierte hypnotische Functionen
 
 ### EgoStateTherapy
 
-Führt eine Ego-State-Therapie durch.
+Executes eine Ego-State-Therapie durch.
 
 ```hyp
 // Ego-State-Identifikation
@@ -159,7 +159,7 @@ induce egoState = EgoStateTherapy("identify");
 EgoStateTherapy("integrate", egoState);
 ```
 
-**Parameter:**
+**Parameters:**
 
 - `action`: Aktion ("identify", "integrate", "communicate")
 - `state` (optional): Ego-State für Integration
@@ -176,7 +176,7 @@ induce part = PartsWork("find", "Angst");
 PartsWork("communicate", part, "Was brauchst du?");
 ```
 
-**Parameter:**
+**Parameters:**
 
 - `action`: Aktion ("find", "communicate", "integrate")
 - `partName`: Name des Anteils
@@ -184,7 +184,7 @@ PartsWork("communicate", part, "Was brauchst du?");
 
 ### TimelineTherapy
 
-Führt eine Timeline-Therapie durch.
+Executes eine Timeline-Therapie durch.
 
 ```hyp
 // Timeline erstellen
@@ -194,7 +194,7 @@ induce timeline = TimelineTherapy("create");
 TimelineTherapy("navigate", timeline, "Vergangenheit");
 ```
 
-**Parameter:**
+**Parameters:**
 
 - `action`: Aktion ("create", "navigate", "heal")
 - `timeline` (optional): Timeline-Objekt
@@ -202,7 +202,7 @@ TimelineTherapy("navigate", timeline, "Vergangenheit");
 
 ### HypnoticPacing
 
-Führt hypnotisches Pacing und Leading durch.
+Executes hypnotisches Pacing und Leading durch.
 
 ```hyp
 // Pacing - aktuelle Erfahrung spiegeln
@@ -212,11 +212,11 @@ HypnoticPacing("Du sitzt hier und atmest");
 HypnoticLeading("Und mit jedem Atemzug entspannst du dich mehr");
 ```
 
-**Parameter:**
+**Parameters:**
 
 - `statement`: Die Pacing- oder Leading-Aussage
 
-## Therapeutische Funktionen
+## Therapeutische Functionen
 
 ### PainManagement
 
@@ -230,7 +230,7 @@ PainManagement("reduce", "Kopfschmerzen");
 PainManagement("transform", "Rückenschmerzen", "Wärme");
 ```
 
-**Parameter:**
+**Parameters:**
 
 - `action`: Aktion ("reduce", "transform", "eliminate")
 - `painType`: Art des Schmerzes
@@ -248,7 +248,7 @@ AnxietyReduction("general");
 AnxietyReduction("social", 0.8); // 80% Reduktion
 ```
 
-**Parameter:**
+**Parameters:**
 
 - `type`: Art der Angst ("general", "social", "performance")
 - `reductionLevel` (optional): Reduktionslevel (0.0-1.0)
@@ -265,7 +265,7 @@ ConfidenceBuilding();
 ConfidenceBuilding("public-speaking", 0.9);
 ```
 
-**Parameter:**
+**Parameters:**
 
 - `area` (optional): Bereich des Selbstvertrauens
 - `level` (optional): Gewünschtes Level (0.0-1.0)
@@ -282,7 +282,7 @@ induce habit = HabitChange("identify", "Rauchen");
 HabitChange("modify", habit, "gesunde Atemübungen");
 ```
 
-**Parameter:**
+**Parameters:**
 
 - `action`: Aktion ("identify", "modify", "eliminate")
 - `habitName`: Name der Gewohnheit
@@ -299,7 +299,7 @@ induce depth = TranceDepth();
 observe "Aktuelle Trance-Tiefe: " + depth + "/10";
 ```
 
-**Rückgabewert:** Trance-Tiefe von 1-10
+**Return value:** Trance-Tiefe von 1-10
 
 ### HypnoticResponsiveness
 
@@ -310,7 +310,7 @@ induce responsiveness = HypnoticResponsiveness();
 observe "Hypnotische Reaktionsfähigkeit: " + responsiveness + "%";
 ```
 
-**Rückgabewert:** Reaktionsfähigkeit in Prozent
+**Return value:** Reaktionsfähigkeit in Prozent
 
 ### SuggestionAcceptance
 
@@ -321,17 +321,17 @@ induce acceptance = SuggestionAcceptance("Du fühlst dich entspannt");
 observe "Suggestion-Akzeptanz: " + acceptance + "%";
 ```
 
-**Parameter:**
+**Parameters:**
 
 - `suggestion`: Die zu testende Suggestion
 
-**Rückgabewert:** Akzeptanz in Prozent
+**Return value:** Akzeptanz in Prozent
 
 ## Sicherheitsfunktionen
 
 ### SafetyCheck
 
-Führt eine Sicherheitsüberprüfung durch.
+Executes eine Sicherheitsüberprüfung durch.
 
 ```hyp
 induce safetyStatus = SafetyCheck();
@@ -342,7 +342,7 @@ if (safetyStatus.isSafe) {
 }
 ```
 
-**Rückgabewert:** Sicherheitsstatus-Objekt
+**Return value:** Sicherheitsstatus-Objekt
 
 ### EmergencyExit
 
@@ -356,7 +356,7 @@ EmergencyExit();
 EmergencyExit("gentle");
 ```
 
-**Parameter:**
+**Parameters:**
 
 - `mode` (optional): Ausstiegsmodus ("immediate", "gentle")
 
@@ -372,7 +372,7 @@ Grounding();
 Grounding("visual", 60); // Visuelle Erdung für 60 Sekunden
 ```
 
-**Parameter:**
+**Parameters:**
 
 - `method` (optional): Erdungsmethode ("visual", "physical", "mental")
 - `duration` (optional): Dauer in Sekunden
@@ -502,7 +502,7 @@ if (contraindications.hasEpilepsy) {
 
 ## Fehlerbehandlung
 
-Hypnotische Funktionen können bei unerwarteten Reaktionen Fehler werfen:
+Hypnotische Functionen können bei unerwarteten Reaktionen Fehler werfen:
 
 ```hyp
 Focus {
@@ -528,12 +528,12 @@ Focus {
 } Relax;
 ```
 
-## Nächste Schritte
+## Next Steps
 
-- [System Functions](./system-functions) - System-spezifische Funktionen
+- [System Functions](./system-functions) - System-spezifische Functionen
 - [Time & Date Functions](./time-date-functions) - Zeit- und Datumsfunktionen
 - [Therapeutic Applications](../examples/therapeutic-examples) - Therapeutische Anwendungen
 
 ---
 
-**Hypnotische Funktionen gemeistert? Dann lerne [System Functions](./system-functions) kennen!** ✅
+**Hypnotische Functionen gemeistert? Dann lerne [System Functions](./system-functions) kennen!** ✅

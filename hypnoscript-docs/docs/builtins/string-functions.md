@@ -2,19 +2,19 @@
 sidebar_position: 3
 ---
 
-# String-Funktionen
+# String-Functionen
 
-:::tip Vollständige Referenz
-Siehe [Builtin-Funktionen Vollständige Referenz](./_complete-reference#string-builtins) für die vollständige, aktuelle Dokumentation aller String-Funktionen.
+:::tip Complete Reference
+See [Builtin Functions Complete Reference](./_complete-reference#string-builtins) for the complete, aktuelle Documentation aller String-Functionen.
 :::
 
-HypnoScript bietet umfangreiche String-Funktionen für Textverarbeitung, -manipulation und -analyse.
+HypnoScript bietet umfangreiche String-Functionen für Textverarbeitung, -manipulation und -analyse.
 
-## Grundlegende String-Operationen
+## Basic String-Operationen
 
 ### Length(str)
 
-Gibt die Länge eines Strings zurück.
+Returns die Length eines Strings .
 
 ```hyp
 induce text = "HypnoScript";
@@ -24,7 +24,7 @@ observe "Länge: " + length; // 11
 
 ### Substring(str, start, length)
 
-Extrahiert einen Teilstring aus einem String.
+Extracts einen Teilstring aus einem String.
 
 ```hyp
 induce text = "HypnoScript";
@@ -34,7 +34,7 @@ induce part2 = Substring(text, 5, 6); // "Script"
 
 ### Concat(str1, str2, ...)
 
-Verkettet mehrere Strings.
+Concatenates mehrere Strings.
 
 ```hyp
 induce firstName = "Max";
@@ -47,7 +47,7 @@ observe fullName; // "Max Mustermann"
 
 ### ToUpper(str)
 
-Konvertiert einen String zu Großbuchstaben.
+Converts einen String zu Großbuchstaben.
 
 ```hyp
 induce text = "HypnoScript";
@@ -57,7 +57,7 @@ observe upper; // "HYPNOSCRIPT"
 
 ### ToLower(str)
 
-Konvertiert einen String zu Kleinbuchstaben.
+Converts einen String zu Kleinbuchstaben.
 
 ```hyp
 induce text = "HypnoScript";
@@ -67,7 +67,7 @@ observe lower; // "hypnoscript"
 
 ### Capitalize(str)
 
-Macht den ersten Buchstaben groß.
+Makes den ersten Buchstaben groß.
 
 ```hyp
 induce text = "hypnoscript";
@@ -77,7 +77,7 @@ observe capitalized; // "Hypnoscript"
 
 ### TitleCase(str)
 
-Macht jeden Wortanfang groß.
+Makes jeden Wortanfang groß.
 
 ```hyp
 induce text = "hypno script programming";
@@ -89,7 +89,7 @@ observe titleCase; // "Hypno Script Programming"
 
 ### IsEmpty(str)
 
-Prüft, ob ein String leer ist.
+Checks, ob ein String leer ist.
 
 ```hyp
 induce empty = "";
@@ -100,7 +100,7 @@ induce isEmpty2 = IsEmpty(notEmpty); // false
 
 ### IsWhitespace(str)
 
-Prüft, ob ein String nur Leerzeichen enthält.
+Checks, ob ein String nur Leerzeichen enthält.
 
 ```hyp
 induce whitespace = "   \t\n  ";
@@ -111,7 +111,7 @@ induce isWhitespace2 = IsWhitespace(text); // false
 
 ### Contains(str, substring)
 
-Prüft, ob ein String einen Teilstring enthält.
+Checks, ob ein String einen Teilstring enthält.
 
 ```hyp
 induce text = "HypnoScript ist eine Programmiersprache";
@@ -121,7 +121,7 @@ induce hasPython = Contains(text, "Python"); // false
 
 ### StartsWith(str, prefix)
 
-Prüft, ob ein String mit einem Präfix beginnt.
+Checks, ob ein String mit einem Präfix beginnt.
 
 ```hyp
 induce text = "HypnoScript";
@@ -131,7 +131,7 @@ induce startsWithScript = StartsWith(text, "Script"); // false
 
 ### EndsWith(str, suffix)
 
-Prüft, ob ein String mit einem Suffix endet.
+Checks, ob ein String mit einem Suffix endet.
 
 ```hyp
 induce text = "HypnoScript";
@@ -143,7 +143,7 @@ induce endsWithHypno = EndsWith(text, "Hypno"); // false
 
 ### IndexOf(str, substring)
 
-Findet den ersten Index eines Teilstrings.
+Finds den ersten Index eines Teilstrings.
 
 ```hyp
 induce text = "HypnoScript ist eine Programmiersprache";
@@ -153,7 +153,7 @@ observe "Index von 'Script': " + index; // 5
 
 ### LastIndexOf(str, substring)
 
-Findet den letzten Index eines Teilstrings.
+Finds den letzten Index eines Teilstrings.
 
 ```hyp
 induce text = "HypnoScript Script Script";
@@ -270,7 +270,7 @@ observe formatted; // "Hallo Max, du bist 30 Jahre alt"
 
 ### IsPalindrome(str)
 
-Prüft, ob ein String ein Palindrom ist.
+Checks, ob ein String ein Palindrom ist.
 
 ```hyp
 induce palindrome1 = "anna";
@@ -283,7 +283,7 @@ induce isPal3 = IsPalindrome(notPalindrome); // false
 
 ### IsNumeric(str)
 
-Prüft, ob ein String eine Zahl darstellt.
+Checks, ob ein String eine Zahl darstellt.
 
 ```hyp
 induce numeric1 = "123";
@@ -296,7 +296,7 @@ induce isNum3 = IsNumeric(notNumeric); // false
 
 ### IsAlpha(str)
 
-Prüft, ob ein String nur Buchstaben enthält.
+Checks, ob ein String nur Buchstaben enthält.
 
 ```hyp
 induce alpha = "HypnoScript";
@@ -307,7 +307,7 @@ induce isAlpha2 = IsAlpha(notAlpha); // false
 
 ### IsAlphaNumeric(str)
 
-Prüft, ob ein String nur Buchstaben und Zahlen enthält.
+Checks, ob ein String nur Buchstaben und Zahlen enthält.
 
 ```hyp
 induce alphanumeric = "Hypno123";
@@ -417,7 +417,7 @@ observe repeated; // "HaHaHa"
 
 ### GenerateRandomString(length)
 
-Generiert einen zufälligen String.
+Generates einen zufälligen String.
 
 ```hyp
 induce random = GenerateRandomString(10);
@@ -426,14 +426,14 @@ observe random; // Zufälliger 10-Zeichen-String
 
 ### GenerateUUID()
 
-Generiert eine UUID.
+Generates eine UUID.
 
 ```hyp
 induce uuid = GenerateUUID();
 observe uuid; // "123e4567-e89b-12d3-a456-426614174000"
 ```
 
-## Praktische Beispiele
+## Praktische Examplee
 
 ### Text-Analyse
 
@@ -574,13 +574,13 @@ for (induce i = 0; i < ArrayLength(chunks); induce i = i + 1) {
 }
 ```
 
-## Nächste Schritte
+## Next Steps
 
-- [Mathematische Funktionen](./math-functions) - Mathematische Operationen
-- [Utility-Funktionen](./utility-functions) - Allgemeine Hilfsfunktionen
-- [System-Funktionen](./system-functions) - System-Interaktion
-- [Beispiele](../examples/string-examples) - Weitere String-Beispiele
+- [Mathematische Functionen](./math-functions) - Mathematische Operationen
+- [Utility-Functionen](./utility-functions) - Allgemeine Hilfsfunktionen
+- [System-Functionen](./system-functions) - System-Interaktion
+- [Examplee](../examples/string-examples) - Weitere String-Examplee
 
 ---
 
-**Beherrschst du String-Funktionen? Dann lerne [Mathematische Funktionen](./math-functions) kennen!** 🧮
+**Beherrschst du String-Functionen? Dann lerne [Mathematische Functionen](./math-functions) kennen!** 🧮

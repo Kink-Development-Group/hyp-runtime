@@ -2,9 +2,9 @@
 sidebar_position: 1
 ---
 
-# Beispiele: Utility-Funktionen
+# Examplee: Utility-Functionen
 
-Diese Seite zeigt praxisnahe Beispiele für den Einsatz von Utility-Funktionen in HypnoScript. Die Beispiele sind kommentiert und können direkt übernommen oder angepasst werden.
+Diese Seite zeigt praxisnahe Examplee für den Einsatz von Utility-Functionen in HypnoScript. Die Examplee sind kommentiert und können direkt übernommen oder angepasst werden.
 
 ## Dynamische Typumwandlung und Validierung
 
@@ -138,7 +138,7 @@ Focus {
 
 ---
 
-**Siehe auch:**
+**See auch:**
 
-- [Utility-Funktionen Referenz](../builtins/utility-functions)
-- [System-Funktionen Beispiele](./system-examples)
+- [Utility-Functionen Referenz](../builtins/utility-functions)
+- [System-Functionen Examplee](./system-examples)

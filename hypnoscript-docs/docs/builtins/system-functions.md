@@ -2,15 +2,15 @@
 sidebar_position: 6
 ---
 
-# System-Funktionen
+# System-Functionen
 
-System-Funktionen ermöglichen die Interaktion mit dem Betriebssystem, Dateisystem, Prozessen und Umgebungsvariablen.
+System-Functionen ermöglichen die Interaktion mit dem Operating System, Filesystem, Prozessen und environment variablen.
 
-## Dateisystem-Operationen
+## Filesystem-Operationen
 
 ### ReadFile(path)
 
-Liest den Inhalt einer Datei als String.
+Reads den Inhalt einer File als String.
 
 ```hyp
 induce content = ReadFile("config.txt");
@@ -19,7 +19,7 @@ observe content;
 
 ### WriteFile(path, content)
 
-Schreibt Inhalt in eine Datei.
+Writes Inhalt in eine File.
 
 ```hyp
 WriteFile("output.txt", "Hallo Welt!");
@@ -27,7 +27,7 @@ WriteFile("output.txt", "Hallo Welt!");
 
 ### AppendFile(path, content)
 
-Fügt Inhalt an eine bestehende Datei an.
+Fügt Inhalt an eine bestehende File an.
 
 ```hyp
 AppendFile("log.txt", "Neuer Eintrag: " + Now());
@@ -35,7 +35,7 @@ AppendFile("log.txt", "Neuer Eintrag: " + Now());
 
 ### FileExists(path)
 
-Prüft, ob eine Datei existiert.
+Checks, ob eine File existiert.
 
 ```hyp
 if (FileExists("config.json")) {
@@ -46,7 +46,7 @@ if (FileExists("config.json")) {
 
 ### DeleteFile(path)
 
-Löscht eine Datei.
+Löscht eine File.
 
 ```hyp
 if (FileExists("temp.txt")) {
@@ -56,7 +56,7 @@ if (FileExists("temp.txt")) {
 
 ### CopyFile(source, destination)
 
-Kopiert eine Datei.
+Kopiert eine File.
 
 ```hyp
 CopyFile("source.txt", "backup.txt");
@@ -64,7 +64,7 @@ CopyFile("source.txt", "backup.txt");
 
 ### MoveFile(source, destination)
 
-Verschiebt eine Datei.
+Verschiebt eine File.
 
 ```hyp
 MoveFile("old.txt", "new.txt");
@@ -72,7 +72,7 @@ MoveFile("old.txt", "new.txt");
 
 ### GetFileSize(path)
 
-Gibt die Größe einer Datei in Bytes zurück.
+Returns die Größe einer File in Bytes .
 
 ```hyp
 induce size = GetFileSize("large.txt");
@@ -81,7 +81,7 @@ observe "Dateigröße: " + size + " Bytes";
 
 ### GetFileInfo(path)
 
-Gibt Informationen über eine Datei zurück.
+Returns Informationen über eine File .
 
 ```hyp
 induce info = GetFileInfo("document.txt");
@@ -90,11 +90,11 @@ observe "Geändert: " + info.modified;
 observe "Größe: " + info.size + " Bytes";
 ```
 
-## Verzeichnis-Operationen
+## directory-Operationen
 
 ### CreateDirectory(path)
 
-Erstellt ein Verzeichnis.
+Creates ein directory.
 
 ```hyp
 CreateDirectory("logs");
@@ -102,7 +102,7 @@ CreateDirectory("logs");
 
 ### DirectoryExists(path)
 
-Prüft, ob ein Verzeichnis existiert.
+Checks, ob ein directory existiert.
 
 ```hyp
 if (!DirectoryExists("output")) {
@@ -112,7 +112,7 @@ if (!DirectoryExists("output")) {
 
 ### ListFiles(path)
 
-Listet alle Dateien in einem Verzeichnis auf.
+Lists alle Fileen in einem directory auf.
 
 ```hyp
 induce files = ListFiles(".");
@@ -123,7 +123,7 @@ for (induce i = 0; i < ArrayLength(files); induce i = i + 1) {
 
 ### ListDirectories(path)
 
-Listet alle Unterverzeichnisse auf.
+Lists alle Unterverzeichnisse auf.
 
 ```hyp
 induce dirs = ListDirectories(".");
@@ -132,7 +132,7 @@ observe "Unterverzeichnisse: " + dirs;
 
 ### DeleteDirectory(path, recursive)
 
-Löscht ein Verzeichnis.
+Löscht ein directory.
 
 ```hyp
 DeleteDirectory("temp", true); // Rekursiv löschen
@@ -140,7 +140,7 @@ DeleteDirectory("temp", true); // Rekursiv löschen
 
 ### GetCurrentDirectory()
 
-Gibt das aktuelle Arbeitsverzeichnis zurück.
+Returns das aktuelle Arbeitsverzeichnis .
 
 ```hyp
 induce cwd = GetCurrentDirectory();
@@ -159,7 +159,7 @@ ChangeDirectory("../data");
 
 ### ExecuteCommand(command)
 
-Führt einen Systembefehl aus.
+Executes einen Systembefehl aus.
 
 ```hyp
 induce result = ExecuteCommand("dir");
@@ -168,7 +168,7 @@ observe result;
 
 ### ExecuteCommandAsync(command)
 
-Führt einen Systembefehl asynchron aus.
+Executes einen Systembefehl asynchron aus.
 
 ```hyp
 induce process = ExecuteCommandAsync("ping google.com");
@@ -186,7 +186,7 @@ KillProcess(pid);
 
 ### GetProcessList()
 
-Gibt eine Liste aller laufenden Prozesse zurück.
+Returns eine Liste aller laufenden Prozesse .
 
 ```hyp
 induce processes = GetProcessList();
@@ -198,18 +198,18 @@ for (induce i = 0; i < ArrayLength(processes); induce i = i + 1) {
 
 ### GetCurrentProcessId()
 
-Gibt die Prozess-ID des aktuellen Skripts zurück.
+Returns die Prozess-ID des aktuellen Skripts .
 
 ```hyp
 induce pid = GetCurrentProcessId();
 observe "Aktuelle PID: " + pid;
 ```
 
-## Umgebungsvariablen
+## environment variablen
 
 ### GetEnvironmentVariable(name)
 
-Liest eine Umgebungsvariable.
+Reads eine environment variable.
 
 ```hyp
 induce path = GetEnvironmentVariable("PATH");
@@ -218,7 +218,7 @@ induce user = GetEnvironmentVariable("USERNAME");
 
 ### SetEnvironmentVariable(name, value)
 
-Setzt eine Umgebungsvariable.
+Setzt eine environment variable.
 
 ```hyp
 SetEnvironmentVariable("MY_VAR", "mein_wert");
@@ -226,7 +226,7 @@ SetEnvironmentVariable("MY_VAR", "mein_wert");
 
 ### GetAllEnvironmentVariables()
 
-Gibt alle Umgebungsvariablen zurück.
+Returns alle environment variablen .
 
 ```hyp
 induce env = GetAllEnvironmentVariables();
@@ -239,7 +239,7 @@ for (induce key in env) {
 
 ### GetSystemInfo()
 
-Gibt allgemeine Systeminformationen zurück.
+Returns allgemeine Systeminformationen .
 
 ```hyp
 induce sysInfo = GetSystemInfo();
@@ -250,7 +250,7 @@ observe "Prozessoren: " + sysInfo.processors;
 
 ### GetMemoryInfo()
 
-Gibt Speicherinformationen zurück.
+Returns Speicherinformationen .
 
 ```hyp
 induce memInfo = GetMemoryInfo();
@@ -261,7 +261,7 @@ observe "Verwendeter RAM: " + memInfo.used + " MB";
 
 ### GetDiskInfo()
 
-Gibt Festplatteninformationen zurück.
+Returns Festplatteninformationen .
 
 ```hyp
 induce diskInfo = GetDiskInfo();
@@ -274,7 +274,7 @@ for (induce drive in diskInfo) {
 
 ### GetNetworkInfo()
 
-Gibt Netzwerkinformationen zurück.
+Returns Netzwerkinformationen .
 
 ```hyp
 induce netInfo = GetNetworkInfo();
@@ -286,7 +286,7 @@ observe "IP-Adresse: " + netInfo.ipAddress;
 
 ### DownloadFile(url, destination)
 
-Lädt eine Datei von einer URL herunter.
+Lädt eine File von einer URL herunter.
 
 ```hyp
 DownloadFile("https://example.com/file.txt", "downloaded.txt");
@@ -294,7 +294,7 @@ DownloadFile("https://example.com/file.txt", "downloaded.txt");
 
 ### UploadFile(url, filePath)
 
-Lädt eine Datei zu einer URL hoch.
+Lädt eine File zu einer URL hoch.
 
 ```hyp
 UploadFile("https://example.com/upload", "local.txt");
@@ -302,7 +302,7 @@ UploadFile("https://example.com/upload", "local.txt");
 
 ### HttpGet(url)
 
-Führt eine HTTP GET-Anfrage aus.
+Executes eine HTTP GET-Anfrage aus.
 
 ```hyp
 induce response = HttpGet("https://api.example.com/data");
@@ -311,7 +311,7 @@ induce data = ParseJSON(response);
 
 ### HttpPost(url, data)
 
-Führt eine HTTP POST-Anfrage aus.
+Executes eine HTTP POST-Anfrage aus.
 
 ```hyp
 induce postData = StringifyJSON({"name": "Max", "age": 30});
@@ -322,7 +322,7 @@ induce response = HttpPost("https://api.example.com/users", postData);
 
 ### ReadRegistryValue(key, valueName)
 
-Liest einen Registry-Wert.
+Reads einen Registry-Wert.
 
 ```hyp
 induce version = ReadRegistryValue("HKEY_LOCAL_MACHINE\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion", "ProductName");
@@ -330,7 +330,7 @@ induce version = ReadRegistryValue("HKEY_LOCAL_MACHINE\\SOFTWARE\\Microsoft\\Win
 
 ### WriteRegistryValue(key, valueName, value)
 
-Schreibt einen Registry-Wert.
+Writes einen Registry-Wert.
 
 ```hyp
 WriteRegistryValue("HKEY_CURRENT_USER\\Software\\MyApp", "Version", "1.0");
@@ -364,9 +364,9 @@ Löst ein System-Event aus.
 TriggerSystemEvent("customEvent", {"message": "Hallo Welt!"});
 ```
 
-## Praktische Beispiele
+## Praktische Examplee
 
-### Datei-Backup-System
+### File-Backup-System
 
 ```hyp
 Focus {
@@ -435,7 +435,7 @@ Focus {
 } Relax;
 ```
 
-### Automatisierte Dateiverarbeitung
+### Automatisierte Fileverarbeitung
 
 ```hyp
 Focus {
@@ -593,12 +593,12 @@ if (isValidPath(userInput)) {
 }
 ```
 
-## Nächste Schritte
+## Next Steps
 
-- [Beispiele](../examples/system-examples) - Praktische System-Beispiele
-- [CLI-Erweiterungen](../cli/advanced-commands) - Erweiterte CLI-Features
-- [Runtime-Features](../enterprise/features) - Runtime-Funktionen
+- [Examplee](../examples/system-examples) - Praktische System-Examplee
+- [CLI-Erweiterungen](../cli/advanced-commands) - Advanced CLI-Features
+- [Runtime-Features](../enterprise/features) - Runtime-Functionen
 
 ---
 
-**System-Funktionen gemeistert? Dann schaue dir die [Beispiele](../examples/system-examples) an!** 🚀
+**System-Functionen gemeistert? Dann schaue dir die [Examplee](../examples/system-examples) an!** 🚀

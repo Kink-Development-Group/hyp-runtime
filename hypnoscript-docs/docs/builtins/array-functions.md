@@ -2,23 +2,23 @@
 sidebar_position: 2
 ---
 
-# Array-Funktionen
+# Array-Functionen
 
-:::tip Vollständige Referenz
-Siehe [Builtin-Funktionen Vollständige Referenz](./_complete-reference#array-builtins) für die **aktuelle, vollständige Dokumentation** aller Array-Funktionen mit korrekten Funktionsnamen.
+:::tip Complete Reference
+See [Builtin Functions Complete Reference](./_complete-reference#array-builtins) für die **aktuelle, vollständige Documentation** aller Array-Functionen mit korrekten Functionsnamen.
 :::
 
 :::warning Hinweis
-Diese Seite enthält teilweise veraltete Funktionsnamen. Die korrekte Referenz finden Sie in der [Vollständigen Referenz](./_complete-reference#array-builtins).
+Diese Seite enthält teilweise veraltete Functionsnamen. Die korrekte Referenz finden Sie in der [Vollständigen Referenz](./_complete-reference#array-builtins).
 :::
 
-HypnoScript bietet umfangreiche Array-Funktionen für die Arbeit mit Listen und Sammlungen von Daten.
+HypnoScript bietet umfangreiche Array-Functionen für die Arbeit mit Listen und Sammlungen von Daten.
 
-## Grundlegende Array-Operationen
+## Basic Array-Operationen
 
 ### ArrayLength(arr)
 
-Gibt die Anzahl der Elemente in einem Array zurück.
+Returns die Anzahl der Elemente in einem Array .
 
 ```hyp
 induce numbers = [1, 2, 3, 4, 5];
@@ -82,7 +82,7 @@ observe reversed; // [5, 4, 3, 2, 1]
 
 ### ArraySum(arr)
 
-Berechnet die Summe aller numerischen Elemente.
+Calculates die Sum aller numerischen Elemente.
 
 ```hyp
 induce numbers = [1, 2, 3, 4, 5];
@@ -92,7 +92,7 @@ observe "Summe: " + sum; // 15
 
 ### AverageArray(arr)
 
-Berechnet den Durchschnitt aller numerischen Elemente.
+Calculates den Durchschnitt aller numerischen Elemente.
 
 ```hyp
 induce grades = [85, 92, 78, 96, 88];
@@ -102,7 +102,7 @@ observe "Durchschnitt: " + average; // 87.8
 
 ### MinArray(arr)
 
-Findet das kleinste Element im Array.
+Finds das kleinste Element im Array.
 
 ```hyp
 induce numbers = [42, 17, 89, 3, 56];
@@ -112,7 +112,7 @@ observe "Minimum: " + min; // 3
 
 ### MaxArray(arr)
 
-Findet das größte Element im Array.
+Finds das größte Element im Array.
 
 ```hyp
 induce numbers = [42, 17, 89, 3, 56];
@@ -124,7 +124,7 @@ observe "Maximum: " + max; // 89
 
 ### ArrayContains(arr, value)
 
-Prüft, ob ein Wert im Array enthalten ist.
+Checks, ob ein Wert im Array enthalten ist.
 
 ```hyp
 induce fruits = ["Apfel", "Banane", "Orange"];
@@ -134,7 +134,7 @@ induce hasGrape = ArrayContains(fruits, "Traube"); // false
 
 ### ArrayIndexOf(arr, value)
 
-Findet den Index eines Elements im Array.
+Finds den Index eines Elements im Array.
 
 ```hyp
 induce colors = ["Rot", "Grün", "Blau", "Gelb"];
@@ -144,7 +144,7 @@ observe "Index von Blau: " + index; // 2
 
 ### ArrayLastIndexOf(arr, value)
 
-Findet den letzten Index eines Elements im Array.
+Finds den letzten Index eines Elements im Array.
 
 ```hyp
 induce numbers = [1, 2, 3, 2, 4, 2, 5];
@@ -178,7 +178,7 @@ observe unique; // [1, 2, 3, 4, 5]
 
 ### MapArray(arr, function)
 
-Wendet eine Funktion auf jedes Element an.
+Wendet eine Function auf jedes Element an.
 
 ```hyp
 induce numbers = [1, 2, 3, 4, 5];
@@ -210,7 +210,7 @@ observe flat; // [1, 2, 3, 4, 5, 6]
 
 ### Range(start, end, step)
 
-Erstellt ein Array mit Zahlen von start bis end.
+Creates ein Array mit Zahlen von start bis end.
 
 ```hyp
 induce range1 = Range(1, 10); // [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
@@ -220,7 +220,7 @@ induce range3 = Range(10, 1, -1); // [10, 9, 8, 7, 6, 5, 4, 3, 2, 1]
 
 ### Repeat(value, count)
 
-Erstellt ein Array mit einem wiederholten Wert.
+Creates ein Array mit einem wiederholten Wert.
 
 ```hyp
 induce zeros = Repeat(0, 5); // [0, 0, 0, 0, 0]
@@ -229,7 +229,7 @@ induce stars = Repeat("*", 3); // ["*", "*", "*"]
 
 ### CreateArray(size, defaultValue)
 
-Erstellt ein Array mit einer bestimmten Größe und Standardwert.
+Creates ein Array mit einer bestimmten Größe und Standardwert.
 
 ```hyp
 induce emptyArray = CreateArray(5); // [null, null, null, null, null]
@@ -240,7 +240,7 @@ induce filledArray = CreateArray(3, "Hallo"); // ["Hallo", "Hallo", "Hallo"]
 
 ### ArrayVariance(arr)
 
-Berechnet die Varianz der Array-Elemente.
+Calculates die Varianz der Array-Elemente.
 
 ```hyp
 induce numbers = [1, 2, 3, 4, 5];
@@ -250,7 +250,7 @@ observe "Varianz: " + variance;
 
 ### ArrayStandardDeviation(arr)
 
-Berechnet die Standardabweichung.
+Calculates die Standardabweichung.
 
 ```hyp
 induce grades = [85, 92, 78, 96, 88];
@@ -260,7 +260,7 @@ observe "Standardabweichung: " + stdDev;
 
 ### ArrayMedian(arr)
 
-Findet den Median des Arrays.
+Finds den Median des Arrays.
 
 ```hyp
 induce numbers = [1, 3, 5, 7, 9];
@@ -284,7 +284,7 @@ induce equal2 = ArraysEqual(arr1, arr3); // false
 
 ### ArrayIntersection(arr1, arr2)
 
-Findet die Schnittmenge zweier Arrays.
+Finds die Schnittmenge zweier Arrays.
 
 ```hyp
 induce arr1 = [1, 2, 3, 4, 5];
@@ -304,7 +304,7 @@ induce union = ArrayUnion(arr1, arr2);
 observe union; // [1, 2, 3, 4, 5]
 ```
 
-## Praktische Beispiele
+## Praktische Examplee
 
 ### Zahlenraten-Spiel
 
@@ -416,13 +416,13 @@ suggestion isValidArray(arr) {
 }
 ```
 
-## Nächste Schritte
+## Next Steps
 
-- [String-Funktionen](./string-functions) - String-Manipulation
-- [Mathematische Funktionen](./math-functions) - Mathematische Operationen
-- [Utility-Funktionen](./utility-functions) - Allgemeine Hilfsfunktionen
-- [Beispiele](../examples/array-examples) - Weitere Array-Beispiele
+- [String-Functionen](./string-functions) - String-Manipulation
+- [Mathematische Functionen](./math-functions) - Mathematische Operationen
+- [Utility-Functionen](./utility-functions) - Allgemeine Hilfsfunktionen
+- [Examplee](../examples/array-examples) - Weitere Array-Examplee
 
 ---
 
-**Beherrschst du Array-Funktionen? Dann lerne [String-Funktionen](./string-functions) kennen!** 📝
+**Beherrschst du Array-Functionen? Dann lerne [String-Functionen](./string-functions) kennen!** 📝

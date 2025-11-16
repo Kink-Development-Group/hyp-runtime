@@ -1,41 +1,41 @@
-# Builtin-Funktionen Vollständige Referenz
+# Builtin Functions Complete Reference
 
-Vollständige Referenz aller 110+ Builtin-Funktionen in HypnoScript (Rust-Edition).
+Complete Reference aller 110+ Builtin Functions in HypnoScript (Rust-Edition).
 
 ## Core Builtins (I/O & Konvertierung)
 
-### Ausgabe-Funktionen
+### Output-Functionen
 
-| Funktion  | Signatur                  | Beschreibung                       |
+| Function  | Signatur                  | Description                       |
 | --------- | ------------------------- | ---------------------------------- |
-| `observe` | `(value: string) -> void` | Standard-Ausgabe mit Zeilenumbruch |
-| `whisper` | `(value: string) -> void` | Ausgabe ohne Zeilenumbruch         |
-| `command` | `(value: string) -> void` | Ausgabe in Großbuchstaben          |
+| `observe` | `(value: string) -> void` | Standard-Output mit Zeilenumbruch |
+| `whisper` | `(value: string) -> void` | Output ohne Zeilenumbruch         |
+| `command` | `(value: string) -> void` | Output in Großbuchstaben          |
 | `drift`   | `(ms: number) -> void`    | Pause/Sleep (in Millisekunden)     |
 
-### Hypnotische Funktionen
+### Hypnotische Functionen
 
-| Funktion                | Signatur                        | Beschreibung                           |
+| Function                | Signatur                        | Description                           |
 | ----------------------- | ------------------------------- | -------------------------------------- |
 | `DeepTrance`            | `(duration: number) -> void`    | Tiefe Trance-Induktion mit Verzögerung |
 | `HypnoticCountdown`     | `(from: number) -> void`        | Hypnotischer Countdown                 |
 | `TranceInduction`       | `(subjectName: string) -> void` | Vollständige Trance-Induktion          |
 | `HypnoticVisualization` | `(scene: string) -> void`       | Hypnotische Visualisierung             |
 
-### Konvertierungs-Funktionen
+### Konvertierungs-Functionen
 
-| Funktion    | Signatur                     | Beschreibung                      |
+| Function    | Signatur                     | Description                      |
 | ----------- | ---------------------------- | --------------------------------- |
-| `ToInt`     | `(value: number) -> number`  | Konvertiert zu Integer (truncate) |
+| `ToInt`     | `(value: number) -> number`  | Converts zu Integer (truncate) |
 | `ToDouble`  | `(value: string) -> number`  | Parse String zu number            |
-| `ToString`  | `(value: any) -> string`     | Konvertiert zu String             |
+| `ToString`  | `(value: any) -> string`     | Converts zu String             |
 | `ToBoolean` | `(value: string) -> boolean` | Parse String zu boolean           |
 
 ## Math Builtins
 
-### Trigonometrische Funktionen
+### Trigonometrische Functionen
 
-| Funktion | Signatur                | Beschreibung |
+| Function | Signatur                | Description |
 | -------- | ----------------------- | ------------ |
 | `Sin`    | `(x: number) -> number` | Sinus        |
 | `Cos`    | `(x: number) -> number` | Cosinus      |
@@ -43,21 +43,21 @@ Vollständige Referenz aller 110+ Builtin-Funktionen in HypnoScript (Rust-Editio
 
 ### Wurzel & Potenz
 
-| Funktion | Signatur                                     | Beschreibung  |
+| Function | Signatur                                     | Description  |
 | -------- | -------------------------------------------- | ------------- |
 | `Sqrt`   | `(x: number) -> number`                      | Quadratwurzel |
 | `Pow`    | `(base: number, exponent: number) -> number` | Potenz        |
 
 ### Logarithmen
 
-| Funktion | Signatur                | Beschreibung                 |
+| Function | Signatur                | Description                 |
 | -------- | ----------------------- | ---------------------------- |
 | `Log`    | `(x: number) -> number` | Natürlicher Logarithmus (ln) |
 | `Log10`  | `(x: number) -> number` | Logarithmus zur Basis 10     |
 
 ### Rundung
 
-| Funktion | Signatur                | Beschreibung          |
+| Function | Signatur                | Description          |
 | -------- | ----------------------- | --------------------- |
 | `Abs`    | `(x: number) -> number` | Absoluter Wert        |
 | `Floor`  | `(x: number) -> number` | Abrunden              |
@@ -66,7 +66,7 @@ Vollständige Referenz aller 110+ Builtin-Funktionen in HypnoScript (Rust-Editio
 
 ### Min/Max
 
-| Funktion | Signatur                                              | Beschreibung   |
+| Function | Signatur                                              | Description   |
 | -------- | ----------------------------------------------------- | -------------- |
 | `Min`    | `(a: number, b: number) -> number`                    | Minimum        |
 | `Max`    | `(a: number, b: number) -> number`                    | Maximum        |
@@ -74,21 +74,21 @@ Vollständige Referenz aller 110+ Builtin-Funktionen in HypnoScript (Rust-Editio
 
 ### Zahlentheorie
 
-| Funktion    | Signatur                           | Beschreibung                     |
+| Function    | Signatur                           | Description                     |
 | ----------- | ---------------------------------- | -------------------------------- |
 | `Factorial` | `(n: number) -> number`            | Fakultät                         |
 | `Gcd`       | `(a: number, b: number) -> number` | Größter gemeinsamer Teiler       |
 | `Lcm`       | `(a: number, b: number) -> number` | Kleinstes gemeinsames Vielfaches |
-| `IsPrime`   | `(n: number) -> boolean`           | Prüft ob Primzahl                |
+| `IsPrime`   | `(n: number) -> boolean`           | Checks ob Primzahl                |
 | `Fibonacci` | `(n: number) -> number`            | n-te Fibonacci-Zahl              |
 
 ## String Builtins
 
 ### Basis-Operationen
 
-| Funktion     | Signatur                | Beschreibung           |
+| Function     | Signatur                | Description           |
 | ------------ | ----------------------- | ---------------------- |
-| `Length`     | `(s: string) -> number` | String-Länge           |
+| `Length`     | `(s: string) -> number` | String-Length           |
 | `ToUpper`    | `(s: string) -> string` | In Großbuchstaben      |
 | `ToLower`    | `(s: string) -> string` | In Kleinbuchstaben     |
 | `Trim`       | `(s: string) -> string` | Whitespace entfernen   |
@@ -97,17 +97,17 @@ Vollständige Referenz aller 110+ Builtin-Funktionen in HypnoScript (Rust-Editio
 
 ### Suchen & Ersetzen
 
-| Funktion     | Signatur                                          | Beschreibung                                  |
+| Function     | Signatur                                          | Description                                  |
 | ------------ | ------------------------------------------------- | --------------------------------------------- |
 | `IndexOf`    | `(s: string, pattern: string) -> number`          | Index des Substrings (-1 wenn nicht gefunden) |
 | `Replace`    | `(s: string, from: string, to: string) -> string` | Alle Vorkommen ersetzen                       |
-| `Contains`   | `(s: string, pattern: string) -> boolean`         | Prüft ob enthalten                            |
-| `StartsWith` | `(s: string, prefix: string) -> boolean`          | Prüft Präfix                                  |
-| `EndsWith`   | `(s: string, suffix: string) -> boolean`          | Prüft Suffix                                  |
+| `Contains`   | `(s: string, pattern: string) -> boolean`         | Checks ob enthalten                            |
+| `StartsWith` | `(s: string, prefix: string) -> boolean`          | Checks Präfix                                  |
+| `EndsWith`   | `(s: string, suffix: string) -> boolean`          | Checks Suffix                                  |
 
 ### Manipulation
 
-| Funktion    | Signatur                                             | Beschreibung           |
+| Function    | Signatur                                             | Description           |
 | ----------- | ---------------------------------------------------- | ---------------------- |
 | `Split`     | `(s: string, delimiter: string) -> string[]`         | String aufteilen       |
 | `Substring` | `(s: string, start: number, end: number) -> string`  | Teilstring extrahieren |
@@ -117,30 +117,30 @@ Vollständige Referenz aller 110+ Builtin-Funktionen in HypnoScript (Rust-Editio
 
 ### Prüfungen
 
-| Funktion       | Signatur                 | Beschreibung            |
+| Function       | Signatur                 | Description            |
 | -------------- | ------------------------ | ----------------------- |
-| `IsEmpty`      | `(s: string) -> boolean` | Prüft ob leer           |
-| `IsWhitespace` | `(s: string) -> boolean` | Prüft ob nur Whitespace |
+| `IsEmpty`      | `(s: string) -> boolean` | Checks ob leer           |
+| `IsWhitespace` | `(s: string) -> boolean` | Checks ob nur Whitespace |
 
 ## Array Builtins
 
 :::note Array-Präfix
-Alle Array-Funktionen verwenden das Präfix `Array` zur Unterscheidung von String-Funktionen (z.B. `ArrayLength` vs. String `Length`).
+Alle Array-Functionen verwenden das Präfix `Array` zur Unterscheidung von String-Functionen (z.B. `ArrayLength` vs. String `Length`).
 :::
 
 ### Basis-Operationen
 
-| Funktion        | Signatur                            | Beschreibung                                |
+| Function        | Signatur                            | Description                                |
 | --------------- | ----------------------------------- | ------------------------------------------- |
-| `ArrayLength`   | `(arr: T[]) -> number`              | Array-Länge                                 |
-| `ArrayIsEmpty`  | `(arr: T[]) -> boolean`             | Prüft ob leer                               |
+| `ArrayLength`   | `(arr: T[]) -> number`              | Array-Length                                 |
+| `ArrayIsEmpty`  | `(arr: T[]) -> boolean`             | Checks ob leer                               |
 | `ArrayGet`      | `(arr: T[], index: number) -> T`    | Element an Index                            |
 | `ArrayIndexOf`  | `(arr: T[], element: T) -> number`  | Index des Elements (-1 wenn nicht gefunden) |
-| `ArrayContains` | `(arr: T[], element: T) -> boolean` | Prüft ob enthalten                          |
+| `ArrayContains` | `(arr: T[], element: T) -> boolean` | Checks ob enthalten                          |
 
 ### Transformation
 
-| Funktion        | Signatur                      | Beschreibung        |
+| Function        | Signatur                      | Description        |
 | --------------- | ----------------------------- | ------------------- |
 | `ArrayReverse`  | `(arr: T[]) -> T[]`           | Array umkehren      |
 | `ArraySort`     | `(arr: number[]) -> number[]` | Numerisch sortieren |
@@ -148,16 +148,16 @@ Alle Array-Funktionen verwenden das Präfix `Array` zur Unterscheidung von Strin
 
 ### Aggregation
 
-| Funktion       | Signatur                    | Beschreibung |
+| Function       | Signatur                    | Description |
 | -------------- | --------------------------- | ------------ |
-| `ArraySum`     | `(arr: number[]) -> number` | Summe        |
+| `ArraySum`     | `(arr: number[]) -> number` | Sum        |
 | `ArrayAverage` | `(arr: number[]) -> number` | Durchschnitt |
 | `ArrayMin`     | `(arr: number[]) -> number` | Minimum      |
 | `ArrayMax`     | `(arr: number[]) -> number` | Maximum      |
 
 ### Slicing
 
-| Funktion     | Signatur                                        | Beschreibung                 |
+| Function     | Signatur                                        | Description                 |
 | ------------ | ----------------------------------------------- | ---------------------------- |
 | `ArrayFirst` | `(arr: T[]) -> T`                               | Erstes Element               |
 | `ArrayLast`  | `(arr: T[]) -> T`                               | Letztes Element              |
@@ -167,7 +167,7 @@ Alle Array-Funktionen verwenden das Präfix `Array` zur Unterscheidung von Strin
 
 ### Weitere
 
-| Funktion     | Signatur                                  | Beschreibung              |
+| Function     | Signatur                                  | Description              |
 | ------------ | ----------------------------------------- | ------------------------- |
 | `ArrayJoin`  | `(arr: T[], separator: string) -> string` | Array zu String           |
 | `ArrayCount` | `(arr: T[], element: T) -> number`        | Häufigkeit eines Elements |
@@ -176,7 +176,7 @@ Alle Array-Funktionen verwenden das Präfix `Array` zur Unterscheidung von Strin
 
 ### Zentrale Tendenz
 
-| Funktion          | Signatur                    | Beschreibung               |
+| Function          | Signatur                    | Description               |
 | ----------------- | --------------------------- | -------------------------- |
 | `CalculateMean`   | `(arr: number[]) -> number` | Arithmetisches Mittel      |
 | `CalculateMedian` | `(arr: number[]) -> number` | Median                     |
@@ -184,7 +184,7 @@ Alle Array-Funktionen verwenden das Präfix `Array` zur Unterscheidung von Strin
 
 ### Streuung
 
-| Funktion                     | Signatur                                        | Beschreibung           |
+| Function                     | Signatur                                        | Description           |
 | ---------------------------- | ----------------------------------------------- | ---------------------- |
 | `CalculateVariance`          | `(arr: number[]) -> number`                     | Varianz                |
 | `CalculateStandardDeviation` | `(arr: number[]) -> number`                     | Standardabweichung     |
@@ -193,7 +193,7 @@ Alle Array-Funktionen verwenden das Präfix `Array` zur Unterscheidung von Strin
 
 ### Korrelation & Regression
 
-| Funktion               | Signatur                                         | Beschreibung                          |
+| Function               | Signatur                                         | Description                          |
 | ---------------------- | ------------------------------------------------ | ------------------------------------- |
 | `CalculateCorrelation` | `(x: number[], y: number[]) -> number`           | Korrelationskoeffizient               |
 | `LinearRegression`     | `(x: number[], y: number[]) -> (number, number)` | Lineare Regression (slope, intercept) |
@@ -202,7 +202,7 @@ Alle Array-Funktionen verwenden das Präfix `Array` zur Unterscheidung von Strin
 
 ### Aktuelle Zeit
 
-| Funktion               | Signatur                     | Beschreibung                 |
+| Function               | Signatur                     | Description                 |
 | ---------------------- | ---------------------------- | ---------------------------- |
 | `GetCurrentTime`       | `() -> number`               | Unix Timestamp (Sekunden)    |
 | `GetCurrentDate`       | `() -> string`               | Aktuelles Datum (YYYY-MM-DD) |
@@ -212,7 +212,7 @@ Alle Array-Funktionen verwenden das Präfix `Array` zur Unterscheidung von Strin
 
 ### Datum-Komponenten
 
-| Funktion       | Signatur       | Beschreibung            |
+| Function       | Signatur       | Description            |
 | -------------- | -------------- | ----------------------- |
 | `GetYear`      | `() -> number` | Aktuelles Jahr          |
 | `GetMonth`     | `() -> number` | Aktueller Monat (1-12)  |
@@ -225,77 +225,77 @@ Alle Array-Funktionen verwenden das Präfix `Array` zur Unterscheidung von Strin
 
 ### Datum-Berechnungen
 
-| Funktion         | Signatur                                  | Beschreibung     |
+| Function         | Signatur                                  | Description     |
 | ---------------- | ----------------------------------------- | ---------------- |
-| `IsLeapYear`     | `(year: number) -> boolean`               | Prüft Schaltjahr |
+| `IsLeapYear`     | `(year: number) -> boolean`               | Checks Schaltjahr |
 | `GetDaysInMonth` | `(year: number, month: number) -> number` | Tage im Monat    |
 
 ## System Builtins
 
 ### System-Informationen
 
-| Funktion              | Signatur       | Beschreibung          |
+| Function              | Signatur       | Description          |
 | --------------------- | -------------- | --------------------- |
-| `GetCurrentDirectory` | `() -> string` | Aktuelles Verzeichnis |
-| `GetOperatingSystem`  | `() -> string` | Betriebssystem        |
+| `GetCurrentDirectory` | `() -> string` | Aktuelles directory |
+| `GetOperatingSystem`  | `() -> string` | Operating System        |
 | `GetArchitecture`     | `() -> string` | CPU-Architektur       |
 | `GetCpuCount`         | `() -> number` | Anzahl CPU-Kerne      |
 | `GetHostname`         | `() -> string` | Hostname              |
 | `GetUsername`         | `() -> string` | Benutzername          |
-| `GetHomeDirectory`    | `() -> string` | Home-Verzeichnis      |
-| `GetTempDirectory`    | `() -> string` | Temp-Verzeichnis      |
+| `GetHomeDirectory`    | `() -> string` | Home-directory      |
+| `GetTempDirectory`    | `() -> string` | Temp-directory      |
 
-### Umgebungsvariablen
+### environment variablen
 
-| Funktion    | Signatur                                | Beschreibung             |
+| Function    | Signatur                                | Description             |
 | ----------- | --------------------------------------- | ------------------------ |
-| `GetEnvVar` | `(name: string) -> string`              | Umgebungsvariable lesen  |
-| `SetEnvVar` | `(name: string, value: string) -> void` | Umgebungsvariable setzen |
+| `GetEnvVar` | `(name: string) -> string`              | environment variable lesen  |
+| `SetEnvVar` | `(name: string, value: string) -> void` | environment variable setzen |
 
 ### Prozess
 
-| Funktion  | Signatur                 | Beschreibung            |
+| Function  | Signatur                 | Description            |
 | --------- | ------------------------ | ----------------------- |
 | `GetArgs` | `() -> string[]`         | Kommandozeilenargumente |
 | `Exit`    | `(code: number) -> void` | Programm beenden        |
 
 ## File Builtins
 
-### Datei-Operationen
+### File-Operationen
 
-| Funktion     | Signatur                                  | Beschreibung      |
+| Function     | Signatur                                  | Description      |
 | ------------ | ----------------------------------------- | ----------------- |
-| `ReadFile`   | `(path: string) -> string`                | Datei lesen       |
-| `WriteFile`  | `(path: string, content: string) -> void` | Datei schreiben   |
-| `AppendFile` | `(path: string, content: string) -> void` | An Datei anhängen |
-| `DeleteFile` | `(path: string) -> void`                  | Datei löschen     |
-| `CopyFile`   | `(from: string, to: string) -> void`      | Datei kopieren    |
-| `RenameFile` | `(from: string, to: string) -> void`      | Datei umbenennen  |
+| `ReadFile`   | `(path: string) -> string`                | File lesen       |
+| `WriteFile`  | `(path: string, content: string) -> void` | File schreiben   |
+| `AppendFile` | `(path: string, content: string) -> void` | An File anhängen |
+| `DeleteFile` | `(path: string) -> void`                  | File löschen     |
+| `CopyFile`   | `(from: string, to: string) -> void`      | File kopieren    |
+| `RenameFile` | `(from: string, to: string) -> void`      | File umbenennen  |
 
-### Datei-Informationen
+### File-Informationen
 
-| Funktion             | Signatur                    | Beschreibung                      |
+| Function             | Signatur                    | Description                      |
 | -------------------- | --------------------------- | --------------------------------- |
-| `FileExists`         | `(path: string) -> boolean` | Prüft ob Datei existiert          |
-| `IsFile`             | `(path: string) -> boolean` | Prüft ob Pfad eine Datei ist      |
-| `IsDirectory`        | `(path: string) -> boolean` | Prüft ob Pfad ein Verzeichnis ist |
-| `GetFileSize`        | `(path: string) -> number`  | Dateigröße in Bytes               |
-| `GetFileExtension`   | `(path: string) -> string`  | Dateiendung                       |
-| `GetFileName`        | `(path: string) -> string`  | Dateiname                         |
-| `GetParentDirectory` | `(path: string) -> string`  | Übergeordnetes Verzeichnis        |
+| `FileExists`         | `(path: string) -> boolean` | Checks ob File existiert          |
+| `IsFile`             | `(path: string) -> boolean` | Checks ob Pfad eine File ist      |
+| `IsDirectory`        | `(path: string) -> boolean` | Checks ob Pfad ein directory ist |
+| `GetFileSize`        | `(path: string) -> number`  | Filegröße in Bytes               |
+| `GetFileExtension`   | `(path: string) -> string`  | Fileendung                       |
+| `GetFileName`        | `(path: string) -> string`  | Filename                         |
+| `GetParentDirectory` | `(path: string) -> string`  | Übergeordnetes directory        |
 
-### Verzeichnis-Operationen
+### directory-Operationen
 
-| Funktion          | Signatur                     | Beschreibung                |
+| Function          | Signatur                     | Description                |
 | ----------------- | ---------------------------- | --------------------------- |
-| `CreateDirectory` | `(path: string) -> void`     | Verzeichnis erstellen       |
-| `ListDirectory`   | `(path: string) -> string[]` | Verzeichnisinhalt auflisten |
+| `CreateDirectory` | `(path: string) -> void`     | directory erstellen       |
+| `ListDirectory`   | `(path: string) -> string[]` | directoryinhalt auflisten |
 
 ## Validation Builtins
 
 ### Format-Validierung
 
-| Funktion             | Signatur                     | Beschreibung              |
+| Function             | Signatur                     | Description              |
 | -------------------- | ---------------------------- | ------------------------- |
 | `IsValidEmail`       | `(email: string) -> boolean` | E-Mail-Validierung        |
 | `IsValidUrl`         | `(url: string) -> boolean`   | URL-Validierung           |
@@ -303,7 +303,7 @@ Alle Array-Funktionen verwenden das Präfix `Array` zur Unterscheidung von Strin
 
 ### Zeichen-Prüfungen
 
-| Funktion         | Signatur                 | Beschreibung              |
+| Function         | Signatur                 | Description              |
 | ---------------- | ------------------------ | ------------------------- |
 | `IsAlphanumeric` | `(s: string) -> boolean` | Nur Buchstaben und Zahlen |
 | `IsAlphabetic`   | `(s: string) -> boolean` | Nur Buchstaben            |
@@ -313,16 +313,16 @@ Alle Array-Funktionen verwenden das Präfix `Array` zur Unterscheidung von Strin
 
 ### Weitere Validierungen
 
-| Funktion         | Signatur                                               | Beschreibung        |
+| Function         | Signatur                                               | Description        |
 | ---------------- | ------------------------------------------------------ | ------------------- |
 | `IsInRange`      | `(value: number, min: number, max: number) -> boolean` | Wertebereich prüfen |
 | `MatchesPattern` | `(text: string, pattern: string) -> boolean`           | Regex-Match         |
 
 ## Hashing Builtins
 
-### Hash-Funktionen
+### Hash-Functionen
 
-| Funktion       | Signatur                   | Beschreibung       |
+| Function       | Signatur                   | Description       |
 | -------------- | -------------------------- | ------------------ |
 | `HashString`   | `(s: string) -> number`    | String hashen      |
 | `HashNumber`   | `(n: number) -> number`    | Number hashen      |
@@ -330,10 +330,10 @@ Alle Array-Funktionen verwenden das Präfix `Array` zur Unterscheidung von Strin
 
 ### String-Analyse
 
-| Funktion           | Signatur                                    | Beschreibung        |
+| Function           | Signatur                                    | Description        |
 | ------------------ | ------------------------------------------- | ------------------- |
-| `AreAnagrams`      | `(s1: string, s2: string) -> boolean`       | Prüft Anagramme     |
-| `IsPalindrome`     | `(s: string) -> boolean`                    | Prüft Palindrom     |
+| `AreAnagrams`      | `(s1: string, s2: string) -> boolean`       | Checks Anagramme     |
+| `IsPalindrome`     | `(s: string) -> boolean`                    | Checks Palindrom     |
 | `CountOccurrences` | `(text: string, pattern: string) -> number` | Vorkommen zählen    |
 | `RemoveDuplicates` | `(s: string) -> string`                     | Duplikate entfernen |
 | `UniqueCharacters` | `(s: string) -> string`                     | Eindeutige Zeichen  |
@@ -344,7 +344,7 @@ Alle Array-Funktionen verwenden das Präfix `Array` zur Unterscheidung von Strin
 
 ### Kontrollfluss
 
-| Funktion            | Signatur                                                      | Beschreibung             |
+| Function            | Signatur                                                      | Description             |
 | ------------------- | ------------------------------------------------------------- | ------------------------ |
 | `RepeatAction`      | `(times: number, action: () -> void) -> void`                 | Aktion n-mal wiederholen |
 | `DelayedSuggestion` | `(action: () -> void, delay: number) -> void`                 | Verzögerte Ausführung    |
@@ -352,56 +352,56 @@ Alle Array-Funktionen verwenden das Präfix `Array` zur Unterscheidung von Strin
 
 ### Schleifen
 
-| Funktion      | Signatur                                                 | Beschreibung                  |
+| Function      | Signatur                                                 | Description                  |
 | ------------- | -------------------------------------------------------- | ----------------------------- |
 | `RepeatUntil` | `(action: () -> void, condition: () -> boolean) -> void` | Wiederhole bis Bedingung wahr |
 | `RepeatWhile` | `(condition: () -> boolean, action: () -> void) -> void` | Wiederhole solange wahr       |
 
-### Funktionskomposition
+### Functionskomposition
 
-| Funktion  | Signatur                             | Beschreibung                 |
+| Function  | Signatur                             | Description                 |
 | --------- | ------------------------------------ | ---------------------------- |
-| `Compose` | `(f: B -> C, g: A -> B) -> (A -> C)` | Funktionskomposition f(g(x)) |
-| `Pipe`    | `(f: A -> B, g: B -> C) -> (A -> C)` | Funktions-Pipeline g(f(x))   |
+| `Compose` | `(f: B -> C, g: A -> B) -> (A -> C)` | Functionskomposition f(g(x)) |
+| `Pipe`    | `(f: A -> B, g: B -> C) -> (A -> C)` | Functions-Pipeline g(f(x))   |
 
 ### Fehlerbehandlung
 
-| Funktion          | Signatur                                                    | Beschreibung |
+| Function          | Signatur                                                    | Description |
 | ----------------- | ----------------------------------------------------------- | ------------ |
 | `TryOrAwaken`     | `(try: () -> void, catch: (error: string) -> void) -> void` | Try-Catch    |
 | `EnsureAwakening` | `(main: () -> void, cleanup: () -> void) -> void`           | Try-Finally  |
 
 ### Weitere
 
-| Funktion             | Signatur                            | Beschreibung                   |
+| Function             | Signatur                            | Description                   |
 | -------------------- | ----------------------------------- | ------------------------------ |
 | `SequentialTrance`   | `(actions: (() -> void)[]) -> void` | Aktionen sequentiell ausführen |
 | `MeasureTranceDepth` | `(action: () -> void) -> number`    | Ausführungszeit messen         |
-| `Memoize`            | `(f: A -> R) -> (A -> R)`           | Funktion mit Caching           |
+| `Memoize`            | `(f: A -> R) -> (A -> R)`           | Function mit Caching           |
 
-## Verwendungshinweise
+## Usageshinweise
 
 ### Namenskonventionen
 
-- **PascalCase** für Funktionsnamen (z.B. `CalculateMean`, `ToUpper`)
+- **PascalCase** für Functionsnamen (z.B. `CalculateMean`, `ToUpper`)
 - **Case-Insensitive** Matching beim Aufruf
-- **Typ-Parameter** `T` für generische Funktionen
+- **Typ-Parameters** `T` für generische Functionen
 
 ### Fehlerbehandlung
 
-- Funktionen die fehlschlagen können werfen Runtime-Errors
-- Nutze `TryOrAwaken` für Fehlerbehandlung
-- Validiere Eingaben mit Validation-Builtins
+- Functionen die fehlschlagen können werfen Runtime-Errors
+- Use `TryOrAwaken` für Fehlerbehandlung
+- Validiere Inputn mit Validation-Builtins
 
 ### Performance
 
 - Array-Operationen erstellen neue Arrays (immutabel)
-- Nutze `Memoize` für teure Berechnungen
+- Use `Memoize` für teure Berechnungen
 - `MeasureTranceDepth` für Performance-Profiling
 
-## Siehe auch
+## See auch
 
-- [Detaillierte Array-Funktionen](./array-functions)
-- [Detaillierte String-Funktionen](./string-functions)
-- [Detaillierte Math-Funktionen](./math-functions)
-- [CLI Builtin-Befehl](../cli/commands#builtins)
+- [Detaillierte Array-Functionen](./array-functions)
+- [Detaillierte String-Functionen](./string-functions)
+- [Detaillierte Math-Functionen](./math-functions)
+- [CLI Builtin-Command](../cli/commands#builtins)

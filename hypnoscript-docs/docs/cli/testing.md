@@ -2,7 +2,7 @@
 title: CLI Testing
 ---
 
-Die Rust-CLI enthält kein separates Test-Framework. Stattdessen behandelst du jede `.hyp`-Datei als eigenständiges Skript und führst sie mit `hypnoscript run` aus. Die Dateien im Ordner `hypnoscript-tests/` liefern Beispiele für Assertions und Fehlermeldungen.
+Die Rust-CLI enthält kein separates Test-Framework. Stattdessen behandelst du jede `.hyp`-File als eigenständiges Skript und führst sie mit `hypnoscript run` aus. Die Fileen im Folder `hypnoscript-tests/` liefern Examplee für Assertions und Fehlermeldungen.
 
 ## Tests ausführen
 
@@ -49,6 +49,6 @@ So erkennst du Typfehler, bevor Assertions greifen. Die CLI bricht bei Fehlern n
 
 ## Assertions
 
-Die Test-Dateien nutzen `assert`-Statements sowie `observe`, um erwartete Werte zu prüfen. Bricht ein Assertion-Block ab, zeigt die CLI eine Fehlermeldung an, setzt die Ausführung aber fort. Achte deshalb darauf, im Testskript nach Fehlermeldungen zu suchen oder das Skript bei Bedarf mit `snap;` zu beenden.
+Die Test-Fileen nutzen `assert`-Statements sowie `observe`, um erwartete Werte zu prüfen. Bricht ein Assertion-Block ab, zeigt die CLI eine Fehlermeldung an, setzt die Ausführung aber fort. Achte deshalb darauf, im Testskript nach Fehlermeldungen zu suchen oder das Skript bei Bedarf mit `snap;` zu beenden.
 
-Mehr über verfügbare Befehle erfährst du in [CLI-Befehle](./commands).
+Mehr über availablee Commande erfährst du in [CLI-Commande](./commands).

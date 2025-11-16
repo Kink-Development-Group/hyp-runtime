@@ -4,17 +4,17 @@ title: Performance Functions
 
 # Performance Functions
 
-HypnoScript bietet umfangreiche Performance-Funktionen für die Überwachung und Optimierung von Skripten.
+HypnoScript bietet umfangreiche Performance-Functionen für die Überwachung und Optimierung von Skripten.
 
-## Übersicht
+## Overview
 
-Performance-Funktionen ermöglichen es Ihnen, die Ausführungszeit, Speichernutzung und andere Performance-Metriken Ihrer HypnoScript-Programme zu überwachen und zu optimieren.
+Performance-Functionen ermöglichen es Ihnen, die Ausführungszeit, Speichernutzung und andere Performance-Metriken Ihrer HypnoScript-Programme zu überwachen und zu optimieren.
 
-## Grundlegende Performance-Funktionen
+## Basic Performance-Functionen
 
 ### Benchmark
 
-Misst die Ausführungszeit einer Funktion über mehrere Iterationen.
+Misst die Ausführungszeit einer Function über mehrere Iterationen.
 
 ```hyp
 induce result = Benchmark(function() {
@@ -25,12 +25,12 @@ induce result = Benchmark(function() {
 observe "Durchschnittliche Ausführungszeit: " + result + " ms";
 ```
 
-**Parameter:**
+**Parameters:**
 
-- `function`: Die zu messende Funktion
+- `function`: Die zu messende Function
 - `iterations`: Anzahl der Iterationen
 
-**Rückgabewert:** Durchschnittliche Ausführungszeit in Millisekunden
+**Return value:** Durchschnittliche Ausführungszeit in Millisekunden
 
 ### GetPerformanceMetrics
 
@@ -43,7 +43,7 @@ observe "Speichernutzung: " + metrics.memoryUsage + " MB";
 observe "Verfügbarer Speicher: " + metrics.availableMemory + " MB";
 ```
 
-**Rückgabewert:** Dictionary mit Performance-Metriken
+**Return value:** Dictionary mit Performance-Metriken
 
 ### GetExecutionTime
 
@@ -61,25 +61,25 @@ observe "Ausführungszeit: " + executionTime + " ms";
 
 ### GetMemoryUsage
 
-Gibt die aktuelle Speichernutzung zurück.
+Returns die aktuelle Speichernutzung .
 
 ```hyp
 induce memoryUsage = GetMemoryUsage();
 observe "Aktuelle Speichernutzung: " + memoryUsage + " MB";
 ```
 
-**Rückgabewert:** Speichernutzung in Megabyte
+**Return value:** Speichernutzung in Megabyte
 
 ### GetAvailableMemory
 
-Gibt den verfügbaren Speicher zurück.
+Returns den availableen Speicher .
 
 ```hyp
 induce availableMemory = GetAvailableMemory();
 observe "Verfügbarer Speicher: " + availableMemory + " MB";
 ```
 
-**Rückgabewert:** Verfügbarer Speicher in Megabyte
+**Return value:** Verfügbarer Speicher in Megabyte
 
 ### ForceGarbageCollection
 
@@ -94,27 +94,27 @@ observe "Garbage Collection durchgeführt";
 
 ### GetCPUUsage
 
-Gibt die aktuelle CPU-Auslastung zurück.
+Returns die aktuelle CPU-Auslastung .
 
 ```hyp
 induce cpuUsage = GetCPUUsage();
 observe "CPU-Auslastung: " + cpuUsage + "%";
 ```
 
-**Rückgabewert:** CPU-Auslastung in Prozent
+**Return value:** CPU-Auslastung in Prozent
 
 ### GetProcessorCount
 
-Gibt die Anzahl der verfügbaren Prozessoren zurück.
+Returns die Anzahl der availableen Prozessoren .
 
 ```hyp
 induce processorCount = GetProcessorCount();
 observe "Anzahl Prozessoren: " + processorCount;
 ```
 
-**Rückgabewert:** Anzahl der Prozessoren
+**Return value:** Anzahl der Prozessoren
 
-## Profiling-Funktionen
+## Profiling-Functionen
 
 ### StartProfiling
 
@@ -128,7 +128,7 @@ induce profileData = GetProfileData("my-profile");
 observe "Profil-Daten: " + profileData;
 ```
 
-**Parameter:**
+**Parameters:**
 
 - `profileName`: Name des Profils
 
@@ -144,7 +144,7 @@ StopProfiling();
 
 ### GetProfileData
 
-Gibt die Profil-Daten zurück.
+Returns die Profil-Daten .
 
 ```hyp
 induce profileData = GetProfileData("my-profile");
@@ -152,17 +152,17 @@ observe "Funktionsaufrufe: " + profileData.functionCalls;
 observe "Ausführungszeit: " + profileData.executionTime;
 ```
 
-**Parameter:**
+**Parameters:**
 
 - `profileName`: Name des Profils
 
-**Rückgabewert:** Dictionary mit Profil-Daten
+**Return value:** Dictionary mit Profil-Daten
 
-## Optimierungs-Funktionen
+## Optimierungs-Functionen
 
 ### OptimizeMemory
 
-Führt Speicheroptimierungen durch.
+Executes Speicheroptimierungen durch.
 
 ```hyp
 OptimizeMemory();
@@ -171,14 +171,14 @@ observe "Speicheroptimierung durchgeführt";
 
 ### OptimizeCPU
 
-Führt CPU-Optimierungen durch.
+Executes CPU-Optimierungen durch.
 
 ```hyp
 OptimizeCPU();
 observe "CPU-Optimierung durchgeführt";
 ```
 
-## Monitoring-Funktionen
+## Monitoring-Functionen
 
 ### StartMonitoring
 
@@ -190,7 +190,7 @@ StartMonitoring(5000); // Alle 5 Sekunden
 StopMonitoring();
 ```
 
-**Parameter:**
+**Parameters:**
 
 - `interval`: Intervall in Millisekunden
 
@@ -206,7 +206,7 @@ StopMonitoring();
 
 ### GetMonitoringData
 
-Gibt die Monitoring-Daten zurück.
+Returns die Monitoring-Daten .
 
 ```hyp
 induce monitoringData = GetMonitoringData();
@@ -214,13 +214,13 @@ observe "Durchschnittliche CPU-Auslastung: " + monitoringData.avgCpuUsage;
 observe "Maximale Speichernutzung: " + monitoringData.maxMemoryUsage;
 ```
 
-**Rückgabewert:** Dictionary mit Monitoring-Daten
+**Return value:** Dictionary mit Monitoring-Daten
 
-## Erweiterte Performance-Funktionen
+## Advanced Performance-Functionen
 
 ### GetSystemInfo
 
-Gibt detaillierte System-Informationen zurück.
+Returns detaillierte System-Informationen .
 
 ```hyp
 induce systemInfo = GetSystemInfo();
@@ -229,11 +229,11 @@ observe "Architektur: " + systemInfo.architecture;
 observe "Framework-Version: " + systemInfo.frameworkVersion;
 ```
 
-**Rückgabewert:** Dictionary mit System-Informationen
+**Return value:** Dictionary mit System-Informationen
 
 ### GetProcessInfo
 
-Gibt Informationen über den aktuellen Prozess zurück.
+Returns Informationen über den aktuellen Prozess .
 
 ```hyp
 induce processInfo = GetProcessInfo();
@@ -242,7 +242,7 @@ observe "Arbeitsspeicher: " + processInfo.workingSet + " MB";
 observe "CPU-Zeit: " + processInfo.cpuTime + " ms";
 ```
 
-**Rückgabewert:** Dictionary mit Prozess-Informationen
+**Return value:** Dictionary mit Prozess-Informationen
 
 ## Best Practices
 
@@ -332,7 +332,7 @@ Focus {
 
 ## Fehlerbehandlung
 
-Performance-Funktionen können bei unerwarteten Systemzuständen Fehler werfen:
+Performance-Functionen können bei unerwarteten Systemzuständen Fehler werfen:
 
 ```hyp
 Focus {
@@ -347,9 +347,9 @@ Focus {
 } Relax;
 ```
 
-## Nächste Schritte
+## Next Steps
 
-- [System Functions](./system-functions) - System-spezifische Funktionen
+- [System Functions](./system-functions) - System-spezifische Functionen
 - [Utility Functions](./utility-functions) - Allgemeine Hilfsfunktionen
 - [Testing Performance](../testing/performance) - Performance-Testing-Guide
 

@@ -34,5 +34,5 @@ Jeder Fehler ist mit einem Code versehen, der die Fehlerart kennzeichnet (z.B. `
 
 ## Tipps
 
-- Nutzen Sie die Debug- und Verbose-Optionen, um Stacktraces und zusätzliche Fehlerdetails zu erhalten.
+- Usen Sie die Debug- und Verbose-Optionen, um Stacktraces und zusätzliche Fehlerdetails zu erhalten.
 - Prüfen Sie die Fehlerausgabe auf spezifische Codes, um Fehlerquellen schnell zu identifizieren.

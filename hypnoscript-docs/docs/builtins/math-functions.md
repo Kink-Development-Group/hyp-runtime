@@ -2,19 +2,19 @@
 sidebar_position: 4
 ---
 
-# Mathematische Funktionen
+# Mathematische Functionen
 
-HypnoScript bietet mathematische Funktionen für Berechnungen, Trigonometrie und Zahlentheorie.
+HypnoScript bietet mathematische Functionen für Berechnungen, Trigonometrie und Zahlentheorie.
 
-## Verfügbare Funktionen
+## Available Functions
 
-Die folgenden Funktionen sind in der `MathBuiltins`-Bibliothek verfügbar:
+Die folgenden Functionen sind in der `MathBuiltins`-Bibliothek available:
 
-### Trigonometrische Funktionen
+### Trigonometrische Functionen
 
 #### sin(x: number): number
 
-Berechnet den Sinus (x in Radiant).
+Calculates den Sinus (x in Radiant).
 
 ```hyp
 Focus {
@@ -25,7 +25,7 @@ Focus {
 
 #### cos(x: number): number
 
-Berechnet den Kosinus (x in Radiant).
+Calculates den Kosinus (x in Radiant).
 
 ```hyp
 Focus {
@@ -36,7 +36,7 @@ Focus {
 
 #### tan(x: number): number
 
-Berechnet den Tangens (x in Radiant).
+Calculates den Tangens (x in Radiant).
 
 ```hyp
 Focus {
@@ -49,7 +49,7 @@ Focus {
 
 #### sqrt(x: number): number
 
-Berechnet die Quadratwurzel.
+Calculates die Quadratwurzel.
 
 ```hyp
 Focus {
@@ -60,7 +60,7 @@ Focus {
 
 #### pow(base: number, exponent: number): number
 
-Berechnet eine Potenz.
+Calculates eine Potenz.
 
 ```hyp
 Focus {
@@ -73,7 +73,7 @@ Focus {
 
 #### log(x: number): number
 
-Berechnet den natürlichen Logarithmus (ln).
+Calculates den natürlichen Logarithmus (ln).
 
 ```hyp
 Focus {
@@ -84,7 +84,7 @@ Focus {
 
 #### log10(x: number): number
 
-Berechnet den Logarithmus zur Basis 10.
+Calculates den Logarithmus zur Basis 10.
 
 ```hyp
 Focus {
@@ -97,7 +97,7 @@ Focus {
 
 #### abs(x: number): number
 
-Gibt den absoluten Wert zurück.
+Returns den absoluten Wert .
 
 ```hyp
 Focus {
@@ -143,7 +143,7 @@ Focus {
 
 #### min(a: number, b: number): number
 
-Gibt den kleineren Wert zurück.
+Returns den kleineren Wert .
 
 ```hyp
 Focus {
@@ -154,7 +154,7 @@ Focus {
 
 #### max(a: number, b: number): number
 
-Gibt den größeren Wert zurück.
+Returns den größeren Wert .
 
 ```hyp
 Focus {
@@ -163,11 +163,11 @@ Focus {
 } Relax
 ```
 
-### Erweiterte Funktionen
+### Advanced Functionen
 
 #### factorial(n: number): number
 
-Berechnet die Fakultät.
+Calculates die Fakultät.
 
 ```hyp
 Focus {
@@ -178,7 +178,7 @@ Focus {
 
 #### gcd(a: number, b: number): number
 
-Berechnet den größten gemeinsamen Teiler.
+Calculates den größten gemeinsamen Teiler.
 
 ```hyp
 Focus {
@@ -189,7 +189,7 @@ Focus {
 
 #### lcm(a: number, b: number): number
 
-Berechnet das kleinste gemeinsame Vielfache.
+Calculates das kleinste gemeinsame Vielfache.
 
 ```hyp
 Focus {
@@ -200,7 +200,7 @@ Focus {
 
 #### is_prime(n: number): boolean
 
-Prüft, ob eine Zahl eine Primzahl ist.
+Checks, ob eine Zahl eine Primzahl ist.
 
 ```hyp
 Focus {
@@ -211,7 +211,7 @@ Focus {
 
 #### fibonacci(n: number): number
 
-Berechnet die n-te Fibonacci-Zahl.
+Calculates die n-te Fibonacci-Zahl.
 
 ```hyp
 Focus {
@@ -231,7 +231,7 @@ Focus {
 } Relax
 ```
 
-## Vollständiges Beispiel
+## Vollständiges Example
 
 ```hyp
 Focus {
@@ -268,8 +268,8 @@ Focus {
 
 ## Hinweise
 
-- Alle Winkelfunktionen (sin, cos, tan) erwarten Radiant als Eingabe
-- Die Funktionen sind direkt verfügbar und müssen nicht importiert werden
+- Alle Winkelfunktionen (sin, cos, tan) erwarten Radiant als Input
+- Die Functionen sind direkt available und müssen nicht importiert werden
 - Typ-Konvertierungen erfolgen automatisch zwischen ganzen Zahlen und Fließkommazahlen
   induce atan2_2 = Atan2(1, -1); // 3 _ PI / 4
   induce atan2_3 = Atan2(-1, -1); // -3 _ PI / 4
@@ -829,7 +829,7 @@ if (Abs(a - b) < 0.0001) {
     // a und b sind praktisch gleich
 }
 
-// Verwende Round für Ausgaben
+// Verwende Round für Outputn
 observe "Ergebnis: " + Round(result, 4);
 
 // Große Zahlen

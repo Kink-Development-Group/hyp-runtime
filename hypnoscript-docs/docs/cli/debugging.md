@@ -2,7 +2,7 @@
 title: CLI Debugging
 ---
 
-Die HypnoScript CLI setzt beim Debugging auf wenige, aber wirkungsvolle Mechanismen. Dieser Leitfaden zeigt, wie du Fehler schnell eingrenzt und welche Befehle dir helfen, den Programmzustand sichtbar zu machen.
+Die HypnoScript CLI setzt beim Debugging auf wenige, aber wirkungsvolle Mechanismen. Dieser Leitfaden zeigt, wie du Fehler schnell eingrenzt und welche Commande dir helfen, den Programmzustand sichtbar zu machen.
 
 ## Debug- und Verbose-Modus
 
@@ -17,16 +17,16 @@ hypnoscript lex script.hyp
 hypnoscript parse script.hyp
 ```
 
-- Nutze `lex`, um zu kontrollieren, welche Schlüsselwörter und Literale der Lexer erkennt.
+- Use `lex`, um zu kontrollieren, welche Schlüsselwörter und Literale der Lexer erkennt.
 - `parse` liefert den vollständigen AST – ideal, wenn Kontrollstrukturen oder Sessions nicht wie erwartet aufgebaut werden.
 
-## Typprüfung ohne Ausführung
+## Typprüfung without execution
 
 ```bash
 hypnoscript check script.hyp
 ```
 
-- Der Type Checker meldet fehlende Funktionen, falsche Rückgabewerte oder ungeeignete Zuweisungen.
+- Der Type Checker meldet fehlende Functionen, falsche Return valuee oder ungeeignete Zuweisungen.
 - Die CLI führt das Programm auch bei Typfehlern aus; verwende `check`, um Fehler schon vorher einzufangen.
 
 ## Typischer Debug-Workflow
@@ -47,4 +47,4 @@ hypnoscript run scripts/deep_trance.hyp --debug
 
 - Kommentiere komplexe Bereiche temporär aus (`//`) und führe den Rest mit `--debug` aus, um das Problem lokal einzugrenzen.
 - Bei Array-Operationen hilft `hypnoscript builtins`, um passende Hilfsfunktionen zu finden (z.B. `ArrayJoin`, `ArrayContains`).
-- Speichere Debug-Ausgaben mit `> debug.log`, falls du sie später vergleichen möchtest (`hypnoscript run script.hyp --debug > debug.log`).
+- Speichere Debug-Outputn mit `> debug.log`, falls du sie später vergleichen möchtest (`hypnoscript run script.hyp --debug > debug.log`).

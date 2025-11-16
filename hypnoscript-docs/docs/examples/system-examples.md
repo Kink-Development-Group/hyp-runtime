@@ -2,11 +2,11 @@
 sidebar_position: 2
 ---
 
-# Beispiele: System-Funktionen
+# Examplee: System-Functionen
 
-Diese Seite zeigt praxisnahe Beispiele für System-Funktionen in HypnoScript. Die Beispiele sind kommentiert und können direkt übernommen oder angepasst werden.
+Diese Seite zeigt praxisnahe Examplee für System-Functionen in HypnoScript. Die Examplee sind kommentiert und können direkt übernommen oder angepasst werden.
 
-## Dateioperationen: Lesen, Schreiben, Backup
+## Fileoperationen: Lesen, Schreiben, Backup
 
 ```hyp
 Focus {
@@ -24,7 +24,7 @@ Focus {
 } Relax;
 ```
 
-## Verzeichnisse und Dateilisten
+## Directories und Filelisten
 
 ```hyp
 Focus {
@@ -38,7 +38,7 @@ Focus {
 } Relax;
 ```
 
-## Automatisierte Dateiverarbeitung
+## Automatisierte Fileverarbeitung
 
 ```hyp
 Focus {
@@ -69,7 +69,7 @@ Focus {
 } Relax;
 ```
 
-## Umgebungsvariablen lesen und setzen
+## environment variablen lesen und setzen
 
 ```hyp
 Focus {
@@ -108,7 +108,7 @@ Focus {
 } Relax;
 ```
 
-## Fehlerbehandlung bei Dateioperationen
+## Fehlerbehandlung bei Fileoperationen
 
 ```hyp
 Focus {
@@ -145,7 +145,7 @@ Focus {
 
 ---
 
-**Siehe auch:**
+**See auch:**
 
-- [System-Funktionen Referenz](../builtins/system-functions)
-- [Utility-Funktionen Beispiele](./utility-examples)
+- [System-Functionen Referenz](../builtins/system-functions)
+- [Utility-Functionen Examplee](./utility-examples)

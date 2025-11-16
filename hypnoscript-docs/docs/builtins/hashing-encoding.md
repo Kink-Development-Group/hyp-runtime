@@ -4,17 +4,17 @@ title: Hashing & Encoding Functions
 
 # Hashing & Encoding Functions
 
-HypnoScript bietet umfangreiche Funktionen für Hashing, Verschlüsselung und Encoding von Daten.
+HypnoScript bietet umfangreiche Functionen für Hashing, Verschlüsselung und Encoding von Daten.
 
-## Übersicht
+## Overview
 
-Hashing- und Encoding-Funktionen ermöglichen es Ihnen, Daten sicher zu verarbeiten, zu übertragen und zu speichern. Diese Funktionen sind besonders wichtig für Sicherheitsanwendungen und Datenintegrität.
+Hashing- und Encoding-Functionen ermöglichen es Ihnen, Daten sicher zu verarbeiten, zu übertragen und zu speichern. Diese Functionen sind besonders wichtig für Sicherheitsanwendungen und Datenintegrität.
 
-## Hashing-Funktionen
+## Hashing-Functionen
 
 ### MD5
 
-Erstellt einen MD5-Hash einer Zeichenkette.
+Creates einen MD5-Hash einer Zeichenkette.
 
 ```hyp
 induce hash = MD5("Hello World");
@@ -22,15 +22,15 @@ observe "MD5 Hash: " + hash;
 // Ausgabe: 5eb63bbbe01eeed093cb22bb8f5acdc3
 ```
 
-**Parameter:**
+**Parameters:**
 
 - `input`: Die zu hashende Zeichenkette
 
-**Rückgabewert:** MD5-Hash als Hexadezimal-String
+**Return value:** MD5-Hash als Hexadezimal-String
 
 ### SHA1
 
-Erstellt einen SHA1-Hash einer Zeichenkette.
+Creates einen SHA1-Hash einer Zeichenkette.
 
 ```hyp
 induce hash = SHA1("Hello World");
@@ -38,15 +38,15 @@ observe "SHA1 Hash: " + hash;
 // Ausgabe: 2aae6c35c94fcfb415dbe95f408b9ce91ee846ed
 ```
 
-**Parameter:**
+**Parameters:**
 
 - `input`: Die zu hashende Zeichenkette
 
-**Rückgabewert:** SHA1-Hash als Hexadezimal-String
+**Return value:** SHA1-Hash als Hexadezimal-String
 
 ### SHA256
 
-Erstellt einen SHA256-Hash einer Zeichenkette.
+Creates einen SHA256-Hash einer Zeichenkette.
 
 ```hyp
 induce hash = SHA256("Hello World");
@@ -54,15 +54,15 @@ observe "SHA256 Hash: " + hash;
 // Ausgabe: a591a6d40bf420404a011733cfb7b190d62c65bf0bcda32b57b277d9ad9f146e
 ```
 
-**Parameter:**
+**Parameters:**
 
 - `input`: Die zu hashende Zeichenkette
 
-**Rückgabewert:** SHA256-Hash als Hexadezimal-String
+**Return value:** SHA256-Hash als Hexadezimal-String
 
 ### SHA512
 
-Erstellt einen SHA512-Hash einer Zeichenkette.
+Creates einen SHA512-Hash einer Zeichenkette.
 
 ```hyp
 induce hash = SHA512("Hello World");
@@ -70,15 +70,15 @@ observe "SHA512 Hash: " + hash;
 // Ausgabe: 2c74fd17edafd80e8447b0d46741ee243b7eb74dd2149a0ab1b9246fb30382f27e853d8585719e0e67cbda0daa8f51671064615d645ae27acb15bfb1447f459b
 ```
 
-**Parameter:**
+**Parameters:**
 
 - `input`: Die zu hashende Zeichenkette
 
-**Rückgabewert:** SHA512-Hash als Hexadezimal-String
+**Return value:** SHA512-Hash als Hexadezimal-String
 
 ### HMAC
 
-Erstellt einen HMAC-Hash mit einem geheimen Schlüssel.
+Creates einen HMAC-Hash mit einem geheimen Schlüssel.
 
 ```hyp
 induce secret = "my-secret-key";
@@ -87,15 +87,15 @@ induce hmac = HMAC(message, secret, "SHA256");
 observe "HMAC: " + hmac;
 ```
 
-**Parameter:**
+**Parameters:**
 
 - `message`: Die zu hashende Nachricht
 - `key`: Der geheime Schlüssel
 - `algorithm`: Der Hash-Algorithmus (MD5, SHA1, SHA256, SHA512)
 
-**Rückgabewert:** HMAC-Hash als Hexadezimal-String
+**Return value:** HMAC-Hash als Hexadezimal-String
 
-## Encoding-Funktionen
+## Encoding-Functionen
 
 ### Base64Encode
 
@@ -108,11 +108,11 @@ observe "Base64 encoded: " + encoded;
 // Ausgabe: SGVsbG8gV29ybGQ=
 ```
 
-**Parameter:**
+**Parameters:**
 
 - `input`: Die zu kodierende Zeichenkette
 
-**Rückgabewert:** Base64-kodierte Zeichenkette
+**Return value:** Base64-kodierte Zeichenkette
 
 ### Base64Decode
 
@@ -125,11 +125,11 @@ observe "Base64 decoded: " + decoded;
 // Ausgabe: Hello World
 ```
 
-**Parameter:**
+**Parameters:**
 
 - `input`: Die Base64-kodierte Zeichenkette
 
-**Rückgabewert:** Dekodierte Zeichenkette
+**Return value:** Dekodierte Zeichenkette
 
 ### URLEncode
 
@@ -142,11 +142,11 @@ observe "URL encoded: " + encoded;
 // Ausgabe: Hello+World%21
 ```
 
-**Parameter:**
+**Parameters:**
 
 - `input`: Die zu kodierende Zeichenkette
 
-**Rückgabewert:** URL-kodierte Zeichenkette
+**Return value:** URL-kodierte Zeichenkette
 
 ### URLDecode
 
@@ -159,11 +159,11 @@ observe "URL decoded: " + decoded;
 // Ausgabe: Hello World!
 ```
 
-**Parameter:**
+**Parameters:**
 
 - `input`: Die URL-kodierte Zeichenkette
 
-**Rückgabewert:** Dekodierte Zeichenkette
+**Return value:** Dekodierte Zeichenkette
 
 ### HTMLEncode
 
@@ -176,11 +176,11 @@ observe "HTML encoded: " + encoded;
 // Ausgabe: &lt;script&gt;alert(&#39;Hello&#39;)&lt;/script&gt;
 ```
 
-**Parameter:**
+**Parameters:**
 
 - `input`: Die zu kodierende Zeichenkette
 
-**Rückgabewert:** HTML-kodierte Zeichenkette
+**Return value:** HTML-kodierte Zeichenkette
 
 ### HTMLDecode
 
@@ -193,13 +193,13 @@ observe "HTML decoded: " + decoded;
 // Ausgabe: <script>alert('Hello')</script>
 ```
 
-**Parameter:**
+**Parameters:**
 
 - `input`: Die HTML-kodierte Zeichenkette
 
-**Rückgabewert:** Dekodierte Zeichenkette
+**Return value:** Dekodierte Zeichenkette
 
-## Verschlüsselungs-Funktionen
+## Verschlüsselungs-Functionen
 
 ### AESEncrypt
 
@@ -212,12 +212,12 @@ induce encrypted = AESEncrypt(plaintext, key);
 observe "Encrypted: " + encrypted;
 ```
 
-**Parameter:**
+**Parameters:**
 
 - `plaintext`: Der zu verschlüsselnde Text
 - `key`: Der Verschlüsselungsschlüssel (32 Zeichen für AES-256)
 
-**Rückgabewert:** Verschlüsselter Text als Base64-String
+**Return value:** Verschlüsselter Text als Base64-String
 
 ### AESDecrypt
 
@@ -230,33 +230,33 @@ induce decrypted = AESDecrypt(encrypted, key);
 observe "Decrypted: " + decrypted;
 ```
 
-**Parameter:**
+**Parameters:**
 
 - `encrypted`: Der verschlüsselte Text (Base64)
 - `key`: Der Verschlüsselungsschlüssel
 
-**Rückgabewert:** Entschlüsselter Text
+**Return value:** Entschlüsselter Text
 
 ### GenerateRandomKey
 
-Generiert einen zufälligen Schlüssel für Verschlüsselung.
+Generates einen zufälligen Schlüssel für Verschlüsselung.
 
 ```hyp
 induce key = GenerateRandomKey(32);
 observe "Random key: " + key;
 ```
 
-**Parameter:**
+**Parameters:**
 
-- `length`: Länge des Schlüssels in Bytes
+- `length`: Length des Schlüssels in Bytes
 
-**Rückgabewert:** Zufälliger Schlüssel als Hexadezimal-String
+**Return value:** Zufälliger Schlüssel als Hexadezimal-String
 
-## Erweiterte Hashing-Funktionen
+## Advanced Hashing-Functionen
 
 ### PBKDF2
 
-Erstellt einen PBKDF2-Hash für Passwort-Speicherung.
+Creates einen PBKDF2-Hash für Passwort-Speicherung.
 
 ```hyp
 induce password = "my-password";
@@ -265,18 +265,18 @@ induce hash = PBKDF2(password, salt, 10000, 32);
 observe "PBKDF2 hash: " + hash;
 ```
 
-**Parameter:**
+**Parameters:**
 
 - `password`: Das Passwort
 - `salt`: Der Salt-Wert
 - `iterations`: Anzahl der Iterationen
-- `keyLength`: Länge des generierten Schlüssels
+- `keyLength`: Length des generierten Schlüssels
 
-**Rückgabewert:** PBKDF2-Hash als Hexadezimal-String
+**Return value:** PBKDF2-Hash als Hexadezimal-String
 
 ### BCrypt
 
-Erstellt einen BCrypt-Hash für Passwort-Speicherung.
+Creates einen BCrypt-Hash für Passwort-Speicherung.
 
 ```hyp
 induce password = "my-password";
@@ -284,12 +284,12 @@ induce hash = BCrypt(password, 12);
 observe "BCrypt hash: " + hash;
 ```
 
-**Parameter:**
+**Parameters:**
 
 - `password`: Das Passwort
 - `workFactor`: Arbeitsfaktor (10-12 empfohlen)
 
-**Rückgabewert:** BCrypt-Hash
+**Return value:** BCrypt-Hash
 
 ### VerifyBCrypt
 
@@ -302,33 +302,33 @@ induce isValid = VerifyBCrypt(password, hash);
 observe "Password valid: " + isValid;
 ```
 
-**Parameter:**
+**Parameters:**
 
 - `password`: Das zu überprüfende Passwort
 - `hash`: Der BCrypt-Hash
 
-**Rückgabewert:** `true` wenn das Passwort korrekt ist, sonst `false`
+**Return value:** `true` wenn das Passwort korrekt ist, sonst `false`
 
-## Utility-Funktionen
+## Utility-Functionen
 
 ### GenerateSalt
 
-Generiert einen zufälligen Salt-Wert.
+Generates einen zufälligen Salt-Wert.
 
 ```hyp
 induce salt = GenerateSalt(16);
 observe "Salt: " + salt;
 ```
 
-**Parameter:**
+**Parameters:**
 
-- `length`: Länge des Salt-Werts in Bytes
+- `length`: Length des Salt-Werts in Bytes
 
-**Rückgabewert:** Salt als Hexadezimal-String
+**Return value:** Salt als Hexadezimal-String
 
 ### HashFile
 
-Erstellt einen Hash einer Datei.
+Creates einen Hash einer File.
 
 ```hyp
 induce filePath = "document.txt";
@@ -336,12 +336,12 @@ induce hash = HashFile(filePath, "SHA256");
 observe "File hash: " + hash;
 ```
 
-**Parameter:**
+**Parameters:**
 
-- `filePath`: Pfad zur Datei
+- `filePath`: Pfad zur File
 - `algorithm`: Hash-Algorithmus (MD5, SHA1, SHA256, SHA512)
 
-**Rückgabewert:** Hash der Datei als Hexadezimal-String
+**Return value:** Hash der File als Hexadezimal-String
 
 ### VerifyHash
 
@@ -355,12 +355,12 @@ induce isValid = VerifyHash(actualHash, expectedHash);
 observe "Hash valid: " + isValid;
 ```
 
-**Parameter:**
+**Parameters:**
 
 - `actualHash`: Der tatsächliche Hash
 - `expectedHash`: Der erwartete Hash
 
-**Rückgabewert:** `true` wenn die Hashes übereinstimmen, sonst `false`
+**Return value:** `true` wenn die Hashes übereinstimmen, sonst `false`
 
 ## Best Practices
 
@@ -394,7 +394,7 @@ Focus {
 } Relax;
 ```
 
-### Datei-Integrität prüfen
+### File-Integrität prüfen
 
 ```hyp
 Focus {
@@ -486,7 +486,7 @@ Focus {
 4. **Algorithmen**: Vermeiden Sie MD5 und SHA1 für Sicherheitsanwendungen
 5. **Schlüssel-Management**: Speichern Sie Schlüssel sicher und niemals im Code
 
-### Deprecated-Funktionen
+### Deprecated-Functionen
 
 ```hyp
 // VERMEIDEN: MD5 für Sicherheitsanwendungen
@@ -499,7 +499,7 @@ induce secureHash = PBKDF2("password", salt, 10000, 32);
 
 ## Fehlerbehandlung
 
-Hashing- und Encoding-Funktionen können bei ungültigen Eingaben Fehler werfen:
+Hashing- und Encoding-Functionen können bei ungültigen Inputn Fehler werfen:
 
 ```hyp
 Focus {
@@ -521,10 +521,10 @@ Focus {
 } Relax;
 ```
 
-## Nächste Schritte
+## Next Steps
 
 - [Validation Functions](./validation-functions) - Validierungsfunktionen
-- [Network Functions](./network-functions) - Netzwerk-Funktionen
+- [Network Functions](./network-functions) - Netzwerk-Functionen
 - [Security Best Practices](../enterprise/security) - Sicherheitsrichtlinien
 
 ---

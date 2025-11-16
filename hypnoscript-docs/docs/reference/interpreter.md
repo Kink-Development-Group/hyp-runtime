@@ -22,8 +22,8 @@ Der HypnoScript-Interpreter ist das Herzstück der Runtime und verarbeitet Hypno
 ### Verarbeitungspipeline
 
 1. **Lexer**: Zerlegt Quellcode in Tokens
-2. **Parser**: Erstellt Abstract Syntax Tree (AST)
-3. **Interpreter**: Führt AST aus
+2. **Parser**: Creates Abstract Syntax Tree (AST)
+3. **Interpreter**: Executes AST aus
 
 ## Interpreter-Features
 
@@ -71,7 +71,7 @@ if (ArrayLength(arr) > 0) {
 ### Performance-Optimierungen
 
 - **JIT-Compilation**: Häufig ausgeführte Code-Blöcke werden kompiliert
-- **Caching**: Funktionsergebnisse werden gecacht
+- **Caching**: Functionsergebnisse werden gecacht
 - **Lazy Evaluation**: Ausdrücke werden erst bei Bedarf ausgewertet
 
 ## Debugging-Features
@@ -107,7 +107,7 @@ observe "Array-Länge: " + ArrayLength(arr);
 ### Session-Lifecycle
 
 1. **Erstellung**: `Session("name")`
-2. **Verwendung**: `SessionSet()`, `SessionGet()`
+2. **Usage**: `SessionSet()`, `SessionGet()`
 3. **Bereinigung**: Automatisch nach Programmende
 
 ### Session-Typen
@@ -123,9 +123,9 @@ induce persistentSession = Session("Persistent", true);
 induce sharedSession = Session("Shared", false, true);
 ```
 
-## Builtin-Funktionen Integration
+## Builtin Functions Integration
 
-### Funktionsaufruf-Mechanismus
+### Functionsaufruf-Mechanismus
 
 ```hyp
 // Direkter Aufruf
@@ -139,13 +139,13 @@ if (IsValidEmail(email)) {
 }
 ```
 
-### Funktionskategorien
+### Functionskategorien
 
-- **Array-Funktionen**: `ArrayGet`, `ArraySet`, `ArraySort`
-- **String-Funktionen**: `Length`, `Substring`, `ToUpper`
-- **Math-Funktionen**: `Sin`, `Cos`, `Sqrt`, `Pow`
-- **System-Funktionen**: `GetCurrentTime`, `GetMachineName`
-- **Utility-Funktionen**: `Clamp`, `IsEven`, `GenerateUUID`
+- **Array-Functionen**: `ArrayGet`, `ArraySet`, `ArraySort`
+- **String-Functionen**: `Length`, `Substring`, `ToUpper`
+- **Math-Functionen**: `Sin`, `Cos`, `Sqrt`, `Pow`
+- **System-Functionen**: `GetCurrentTime`, `GetMachineName`
+- **Utility-Functionen**: `Clamp`, `IsEven`, `GenerateUUID`
 
 ## Performance-Monitoring
 
@@ -269,7 +269,7 @@ suggestion factorial(n, depth = 0) {
 }
 ```
 
-## Nächste Schritte
+## Next Steps
 
 - [Runtime](./runtime) - Runtime-Architektur
 - [Compiler](./compiler) - Code-Generierung

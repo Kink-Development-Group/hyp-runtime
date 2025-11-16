@@ -8,14 +8,14 @@ Leistungsanalyse und Optimierung sind essenziell für effiziente HypnoScript-Pro
 
 ## Performance-Metriken abrufen
 
-Nutzen Sie die eingebaute Funktion `GetPerformanceMetrics`, um Laufzeitdaten zu erhalten:
+Usen Sie die eingebaute Function `GetPerformanceMetrics`, um Laufzeitdaten zu erhalten:
 
 ```hyp
 induce metrics = GetPerformanceMetrics();
 observe metrics;
 ```
 
-## CLI-Befehle für Performance
+## CLI-Commande für Performance
 
 - **Profiling:**
 
@@ -46,5 +46,5 @@ observe metrics;
 
 ## Tipps
 
-- Analysieren Sie die Ausführungszeit mit `Execution time: ...ms` aus der CLI-Ausgabe.
+- Analysieren Sie die Ausführungszeit mit `Execution time: ...ms` aus der CLI-Output.
 - Überwachen Sie Speicher- und CPU-Auslastung mit externen Tools oder den geplanten Monitoring-Features.

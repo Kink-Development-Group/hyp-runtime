@@ -11,9 +11,9 @@ Die Rust-basierte HypnoScript CLI verzichtet bewusst auf globale Konfigurationsd
 | Subcommand                          | Optionen               | Wirkung                                                                   |
 | ----------------------------------- | ---------------------- | ------------------------------------------------------------------------- |
 | `run <file>`                        | `--debug`, `--verbose` | Debug zeigt Tokens, AST und Type Checks, verbose gibt Statusmeldungen aus |
-| `compile-wasm`                      | `--output <file>`      | Wählt den Namen der `.wat`-Datei (Standard: `<input>.wat`)                |
-| `version`                           | _(keine)_              | Gibt Toolchain-Informationen aus                                          |
-| `lex`, `parse`, `check`, `builtins` | _(keine)_              | Nutzen keine Zusatzoptionen                                               |
+| `compile-wasm`                      | `--output <file>`      | Wählt den Namen der `.wat`-File (Standard: `<input>.wat`)                |
+| `version`                           | _(keine)_              | Returns Toolchain-Informationen aus                                          |
+| `lex`, `parse`, `check`, `builtins` | _(keine)_              | Usen keine Zusatzoptionen                                               |
 
 Mehr Flags existieren aktuell nicht. Das macht die CLI zwar simpel, aber auch sehr vorhersehbar – gerade für Skripte und CI.
 
@@ -69,13 +69,13 @@ Auch ohne Konfigurationsdatei kannst du Abläufe bündeln:
 
 - **`package.json` / npm scripts:** `"check": "hypnoscript check src/**/*.hyp"`
 - **Makefile:** `check: ; hypnoscript check $(FILE)`
-- **CI-Pipeline:** Verwende die `run`, `check` und `compile-wasm` Befehle direkt in deinen Jobs.
+- **CI-Pipeline:** Verwende die `run`, `check` und `compile-wasm` Commande direkt in deinen Jobs.
 
 Damit dokumentierst du, wie das Projekt gebaut oder geprüft werden soll – ohne eigene CLI-Config.
 
-## Umgebungsvariablen
+## environment variablen
 
-Die CLI liest derzeit keine speziellen `HYPNOSCRIPT_*` Variablen ein. Du kannst trotzdem Umgebungsvariablen nutzen, um Dateipfade oder Flags zu steuern:
+Die CLI liest derzeit keine speziellen `HYPNOSCRIPT_*` Variablen ein. Du kannst trotzdem environment variablen nutzen, um Filepfade oder Flags zu steuern:
 
 ```bash
 export HYPNO_DEFAULT=examples/intro.hyp
@@ -93,8 +93,8 @@ Solche Variablen sind rein konventionell – die CLI greift nicht automatisch da
 
 ## Empfehlungen
 
-- **Dokumentiere Wrapper:** Lege ein README im `scripts/`-Ordner an, damit andere den Workflow nachvollziehen können.
-- **Nutze `--debug` sparsam:** In CI-Pipelines reicht oft `--verbose`. Debug-Ausgaben können riesig werden.
+- **Dokumentiere Wrapper:** Lege ein README im `scripts/`-Folder an, damit andere den Workflow nachvollziehen können.
+- **Use `--debug` sparsam:** In CI-Pipelines reicht oft `--verbose`. Debug-Outputn können riesig werden.
 - **Version pinnen:** Referenziere in Skripten eine konkrete Version (`hypnoscript version`) oder lege den Binary als Artefakt ab, um reproduzierbare Builds zu erhalten.
 
 ## Troubleshooting
@@ -117,7 +117,7 @@ chmod +x hypnoscript            # macOS/Linux
 Set-ExecutionPolicy RemoteSigned # Windows PowerShell (falls nötig)
 ```
 
-1. **Unerwartete Ausgaben / Syntaxfehler**
+1. **Unerwartete Outputn / Syntaxfehler**
 
 ```bash
 # Mit Debug-Infos erneut ausführen
@@ -127,11 +127,11 @@ hypnoscript run script.hyp --debug
 hypnoscript lex script.hyp
 ```
 
-## Nächste Schritte
+## Next Steps
 
-- [CLI Übersicht](./overview) – Installationswege & Workflow
-- [CLI-Befehle](./commands) – Vollständige Referenz der Subcommands
-- [CLI Basics](../getting-started/cli-basics) – Alltagstaugliche Beispiele
+- [CLI Overview](./overview) – Installationswege & Workflow
+- [CLI-Commande](./commands) – Complete Reference der Subcommands
+- [CLI Basics](../getting-started/cli-basics) – Alltagstaugliche Examplee
 
 ---
 

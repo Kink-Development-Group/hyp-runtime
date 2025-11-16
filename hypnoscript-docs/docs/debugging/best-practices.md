@@ -23,8 +23,8 @@ Assertion-Fehler werden gesammelt und am Ende der Ausführung ausgegeben:
 
 ## Tests strukturieren
 
-- Gruppieren Sie Tests in separaten `.hyp`-Dateien.
-- Nutzen Sie den CLI-Befehl `test`, um alle oder einzelne Tests auszuführen:
+- Gruppieren Sie Tests in separaten `.hyp`-Fileen.
+- Usen Sie den CLI-Command `test`, um alle oder einzelne Tests auszuführen:
 
 ```bash
 dotnet run --project HypnoScript.CLI -- test test_basic.hyp --debug
@@ -32,8 +32,8 @@ dotnet run --project HypnoScript.CLI -- test test_basic.hyp --debug
 
 ## Debug- und Verbose-Flags
 
-- `--debug`: Zeigt zusätzliche Debug-Ausgaben (z.B. Stacktraces bei Fehlern).
-- `--verbose`: Zeigt detaillierte Analysen zu Tokens, AST und Ausführung.
+- `--debug`: Shows zusätzliche Debug-Outputn (z.B. Stacktraces bei Fehlern).
+- `--verbose`: Shows detaillierte Analysen zu Tokens, AST und Ausführung.
 
 ## Fehlerausgaben interpretieren
 
@@ -42,5 +42,5 @@ dotnet run --project HypnoScript.CLI -- test test_basic.hyp --debug
 
 ## Weitere Tipps
 
-- Setzen Sie Breakpoints strategisch mit `assert` oder durch gezielte Ausgaben (`observe`).
-- Nutzen Sie die CLI-Optionen, um gezielt einzelne Tests oder Module zu debuggen.
+- Setzen Sie Breakpoints strategisch mit `assert` oder durch gezielte Outputn (`observe`).
+- Usen Sie die CLI-Optionen, um gezielt einzelne Tests oder Module zu debuggen.

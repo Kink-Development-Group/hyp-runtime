@@ -2,11 +2,11 @@
 sidebar_position: 3
 ---
 
-# Beispiele: CLI-Workflows
+# Examplee: CLI-Workflows
 
 Diese Seite zeigt typische CLI-Workflows für die HypnoScript-Entwicklung, von einfachen Skript-Ausführungen bis hin zu komplexen Automatisierungsabläufen.
 
-## Grundlegende Entwicklungsworkflows
+## Basic Entwicklungsworkflows
 
 ### Einfaches Skript ausführen
 
@@ -283,7 +283,7 @@ echo "Deployment completed!"
 }
 ```
 
-### Umgebungsvariablen
+### environment variablen
 
 ```bash
 # HypnoScript-spezifische Umgebungsvariablen
@@ -400,11 +400,11 @@ dotnet run --project HypnoScript.CLI -- build main.hyp --optimize
 echo "Workflow completed successfully!"
 ```
 
-## Nächste Schritte
+## Next Steps
 
-- [CLI-Befehle Referenz](../cli/commands) - Vollständige CLI-Referenz
-- [Konfiguration](../cli/configuration) - Erweiterte Konfiguration
-- [Runtime-Features](../enterprise/features) - Runtime-Funktionen
+- [CLI-Commande Referenz](../cli/commands) - Vollständige CLI-Referenz
+- [Konfiguration](../cli/configuration) - Advanced Konfiguration
+- [Runtime-Features](../enterprise/features) - Runtime-Functionen
 
 ---
 

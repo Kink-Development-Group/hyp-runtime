@@ -2,7 +2,7 @@
 title: Advanced CLI Commands
 ---
 
-Die HypnoScript CLI hält die Zahl der Subcommands bewusst klein. Es gibt aktuell keine versteckten oder „fortgeschrittenen“ Befehle – stattdessen kombinierst du die vorhandenen Tools flexibel.
+Die HypnoScript CLI hält die Zahl der Subcommands bewusst klein. Es gibt aktuell keine versteckten oder „fortgeschrittenen“ Commande – stattdessen kombinierst du die vorhandenen Tools flexibel.
 
 ## Nützliche Kombinationen
 
@@ -21,4 +21,4 @@ Die HypnoScript CLI hält die Zahl der Subcommands bewusst klein. Es gibt aktuel
 - **Air-Gapped Updates:** Pakete aus dem Release entpacken und `share/hypnoscript/install.sh --prefix ~/.local` manuell ausführen
 - **Skriptketten:** `hypnoscript self-update --quiet --no-sudo && hypnoscript version` für wartungsarme Deployments
 
-Weitere Befehle findest du auf der Seite [CLI-Befehle](./commands).
+Weitere Commande findest du auf der Seite [CLI-Commande](./commands).
