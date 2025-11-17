@@ -591,7 +591,7 @@ transactions {
             ]
         }
 
-        // Script-Ausführung
+        // Script execution
         executeScript: {
             isolation_level: "read_committed"
             timeout: 300
@@ -628,7 +628,7 @@ transactions {
 ```hyp
 // Transaction examples
 transaction_examples {
-    // Script mit Abhängigkeiten erstellen
+    // Create script with dependencies
     createScriptWithDependencies: {
         description: "Creates a script with all dependencies in a transaction"
 
@@ -667,7 +667,7 @@ transaction_examples {
         }
     }
 
-    // Batch-Script-Ausführung
+    // Batch script execution
     batchScriptExecution: {
         description: "Executes multiple scripts in a batch transaction"
 

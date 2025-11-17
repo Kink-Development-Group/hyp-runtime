@@ -2,43 +2,43 @@
 sidebar_position: 2
 ---
 
-# Examplee: System-Functionen
+# Examples: System Functions
 
-Diese Seite zeigt praxisnahe Examplee für System-Functionen in HypnoScript. Die Examplee sind kommentiert und können direkt übernommen oder angepasst werden.
+This page shows practical examples for system functions in HypnoScript. The examples are commented and can be used directly or adapted.
 
-## Fileoperationen: Lesen, Schreiben, Backup
+## File Operations: Read, Write, Backup
 
 ```hyp
 Focus {
     entrance {
-        // Datei schreiben
+        // Write file
         WriteFile("beispiel.txt", "Hallo HypnoScript!");
-        // Datei lesen
+        // Read file
         induce content = ReadFile("beispiel.txt");
-        observe "Datei-Inhalt: " + content;
-        // Backup anlegen
+        observe "File content: " + content;
+        // Create backup
         induce backupName = "beispiel_backup_" + Timestamp() + ".txt";
         CopyFile("beispiel.txt", backupName);
-        observe "Backup erstellt: " + backupName;
+        observe "Backup created: " + backupName;
     }
 } Relax;
 ```
 
-## Directories und Filelisten
+## Directories and File Lists
 
 ```hyp
 Focus {
     entrance {
-        // Verzeichnis anlegen
+        // Create directory
         if (!DirectoryExists("daten")) CreateDirectory("daten");
-        // Dateien auflisten
+        // List files
         induce files = ListFiles(".");
-        observe "Dateien im aktuellen Verzeichnis: " + files;
+        observe "Files in current directory: " + files;
     }
 } Relax;
 ```
 
-## Automatisierte Fileverarbeitung
+## Automated File Processing
 
 ```hyp
 Focus {
@@ -52,24 +52,24 @@ Focus {
             induce content = ReadFile(inputDir + "/" + file);
             induce processed = ToUpper(content);
             WriteFile(outputDir + "/" + file, processed);
-            observe "Verarbeitet: " + file;
+            observe "Processed: " + file;
         }
     }
 } Relax;
 ```
 
-## Prozessmanagement: Systembefehle ausführen
+## Process Management: Execute System Commands
 
 ```hyp
 Focus {
     entrance {
         induce result = ExecuteCommand("echo Hallo von der Shell!");
-        observe "Shell-Ausgabe: " + result;
+        observe "Shell output: " + result;
     }
 } Relax;
 ```
 
-## environment variablen lesen und setzen
+## Reading and Setting Environment Variables
 
 ```hyp
 Focus {
@@ -81,7 +81,7 @@ Focus {
 } Relax;
 ```
 
-## Systeminformationen und Monitoring
+## System Information and Monitoring
 
 ```hyp
 Focus {
@@ -89,26 +89,26 @@ Focus {
         induce sys = GetSystemInfo();
         induce mem = GetMemoryInfo();
         observe "OS: " + sys.os;
-        observe "RAM: " + mem.used + "/" + mem.total + " MB verwendet";
+        observe "RAM: " + mem.used + "/" + mem.total + " MB used";
     }
 } Relax;
 ```
 
-## Netzwerk: HTTP-Request und Download
+## Network: HTTP Request and Download
 
 ```hyp
 Focus {
     entrance {
         induce url = "https://example.com";
         induce response = HttpGet(url);
-        observe "HTTP-Response: " + Substring(response, 0, 100) + "...";
+        observe "HTTP response: " + Substring(response, 0, 100) + "...";
         DownloadFile(url + "/file.txt", "local.txt");
-        observe "Datei heruntergeladen als local.txt";
+        observe "File downloaded as local.txt";
     }
 } Relax;
 ```
 
-## Fehlerbehandlung bei Fileoperationen
+## Error Handling for File Operations
 
 ```hyp
 Focus {
@@ -116,7 +116,7 @@ Focus {
         try {
             awaken ReadFile(path);
         } catch (error) {
-            return "Fehler beim Lesen: " + error;
+            return "Error reading: " + error;
         }
     }
     entrance {
@@ -125,17 +125,17 @@ Focus {
 } Relax;
 ```
 
-## Kombinierte System-Workflows
+## Combined System Workflows
 
 ```hyp
 Focus {
     entrance {
-        // Backup und Monitoring kombiniert
+        // Combined backup and monitoring
         induce file = "daten.txt";
         if (FileExists(file)) {
             induce backup = file + ".bak";
             CopyFile(file, backup);
-            observe "Backup erstellt: " + backup;
+            observe "Backup created: " + backup;
         }
         induce sys = GetSystemInfo();
         observe "System: " + sys.os + " (" + sys.architecture + ")";
@@ -145,7 +145,8 @@ Focus {
 
 ---
 
-**See auch:**
+**See also:**
 
-- [System-Functionen Referenz](../builtins/system-functions)
-- [Utility-Functionen Examplee](./utility-examples)
+- [System Functions Reference](../builtins/system-functions)
+- [Utility Functions Examples](./utility-examples)
+

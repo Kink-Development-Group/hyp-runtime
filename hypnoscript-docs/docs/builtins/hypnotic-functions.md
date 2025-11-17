@@ -36,7 +36,7 @@ Creates oder aktiviert einen hypnotischen Anker.
 // Anker erstellen
 HypnoticAnchoring("Entspannung");
 
-// Anker mit spezifischem Gefühl
+// Anchor with specific feeling
 HypnoticAnchoring("Sicherheit", "Wärme");
 ```
 
@@ -69,7 +69,7 @@ Executes eine hypnotische Zukunftsvision durch.
 // Standard-Zukunftsvision
 HypnoticFutureProgression();
 
-// Vision für spezifisches Jahr
+// Vision for specific year
 HypnoticFutureProgression(5); // 5 Jahre in der Zukunft
 ```
 
@@ -120,7 +120,7 @@ Returns eine hypnotische Suggestion.
 // Positive Suggestion
 HypnoticSuggestion("Du fühlst dich zunehmend entspannt und sicher");
 
-// Suggestion mit Verstärkung
+// Suggestion with reinforcement
 HypnoticSuggestion("Mit jedem Atemzug wirst du tiefer entspannt", 3);
 ```
 
@@ -208,7 +208,7 @@ Executes hypnotisches Pacing und Leading durch.
 // Pacing - aktuelle Erfahrung spiegeln
 HypnoticPacing("Du sitzt hier und atmest");
 
-// Leading - in gewünschte Richtung führen
+// Leading - guide in desired direction
 HypnoticLeading("Und mit jedem Atemzug entspannst du dich mehr");
 ```
 
@@ -278,7 +278,7 @@ Unterstützt Gewohnheitsänderungen.
 // Gewohnheit identifizieren
 induce habit = HabitChange("identify", "Rauchen");
 
-// Gewohnheit ändern
+// Change habit
 HabitChange("modify", habit, "gesunde Atemübungen");
 ```
 
@@ -369,7 +369,7 @@ Erdet den Klienten nach der Sitzung.
 Grounding();
 
 // Erweiterte Erdung
-Grounding("visual", 60); // Visuelle Erdung für 60 Sekunden
+Grounding("visual", 60); // Visual grounding for 60 seconds
 ```
 
 **Parameters:**
@@ -489,7 +489,7 @@ Focus {
 ### Kontraindikationen
 
 ```hyp
-// Prüfe Kontraindikationen
+// Check contraindications
 induce contraindications = CheckContraindications();
 if (contraindications.hasPsychosis) {
     observe "WARNUNG: Psychose - Hypnose kontraindiziert";

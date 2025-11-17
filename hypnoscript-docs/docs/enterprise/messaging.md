@@ -183,7 +183,7 @@ events {
             }
         }
 
-        // Script gelöscht
+        // Script deleted
         ScriptDeleted: {
             event_type: "script.deleted"
             version: "1.0"
@@ -203,7 +203,7 @@ events {
             }
         }
 
-        // Script ausgeführt
+        // Script executed
         ScriptExecuted: {
             event_type: "script.executed"
             version: "1.0"
@@ -562,7 +562,7 @@ request_reply {
         }
     }
 
-    // Script-Ausführung
+    // Script execution
     script_execution: {
         request_topic: "script.execution.request"
         reply_topic: "script.execution.reply"
@@ -599,7 +599,7 @@ request_reply {
 ```hyp
 // Publish-Subscribe Pattern
 pub_sub {
-    // Script-Änderungen
+    // Script changes
     script_changes: {
         topic: "script.changes"
 

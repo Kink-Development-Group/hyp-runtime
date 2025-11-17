@@ -4,18 +4,18 @@ title: Performance Debugging
 
 # Performance Debugging
 
-Leistungsanalyse und Optimierung sind essenziell für effiziente HypnoScript-Projekte. Die wichtigsten Tools und Methoden:
+Performance analysis and optimization are essential for efficient HypnoScript projects. The most important tools and methods:
 
-## Performance-Metriken abrufen
+## Retrieving Performance Metrics
 
-Usen Sie die eingebaute Function `GetPerformanceMetrics`, um Laufzeitdaten zu erhalten:
+Use the built-in function `GetPerformanceMetrics` to obtain runtime data:
 
 ```hyp
 induce metrics = GetPerformanceMetrics();
 observe metrics;
 ```
 
-## CLI-Commande für Performance
+## CLI Commands for Performance
 
 - **Profiling:**
 
@@ -23,7 +23,7 @@ observe metrics;
   dotnet run --project HypnoScript.CLI -- profile script.hyp --debug
   ```
 
-  (Profiling ist vorbereitet, aber noch nicht voll implementiert.)
+  (Profiling is prepared but not yet fully implemented.)
 
 - **Benchmarking:**
 
@@ -31,20 +31,20 @@ observe metrics;
   dotnet run --project HypnoScript.CLI -- benchmark script.hyp --debug
   ```
 
-  (Benchmarking ist vorbereitet, aber noch nicht voll implementiert.)
+  (Benchmarking is prepared but not yet fully implemented.)
 
-- **Optimierung:**
+- **Optimization:**
   ```bash
   dotnet run --project HypnoScript.CLI -- optimize script.hyp --debug
   ```
-  (Optimiert den generierten Code, z.B. durch Entfernen überflüssiger Operationen.)
+  (Optimizes the generated code, e.g., by removing unnecessary operations.)
 
-## Code-Optimierung
+## Code Optimization
 
-- Der `ILCodeOptimizer` entfernt unnötige Operationen im generierten Code.
-- Der `TypeChecker` verwendet Caching für wiederholte Typüberprüfungen.
+- The `ILCodeOptimizer` removes unnecessary operations in the generated code.
+- The `TypeChecker` uses caching for repeated type checks.
 
-## Tipps
+## Tips
 
-- Analysieren Sie die Ausführungszeit mit `Execution time: ...ms` aus der CLI-Output.
-- Überwachen Sie Speicher- und CPU-Auslastung mit externen Tools oder den geplanten Monitoring-Features.
+- Analyze execution time with `Execution time: ...ms` from the CLI output.
+- Monitor memory and CPU usage with external tools or the planned monitoring features.

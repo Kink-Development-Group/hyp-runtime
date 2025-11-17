@@ -4,59 +4,59 @@ sidebar_position: 3
 
 # Interpreter
 
-Der HypnoScript-Interpreter ist das Herzstück der Runtime und verarbeitet HypnoScript-Code zur Laufzeit.
+The HypnoScript interpreter is the heart of the runtime and processes HypnoScript code at runtime.
 
-## Architektur
+## Architecture
 
-### Komponenten
+### Components
 
 ```
 ┌─────────────────┐    ┌─────────────────┐    ┌─────────────────┐
 │   Lexer         │    │   Parser        │    │   Interpreter   │
 │                 │    │                 │    │                 │
-│ - Tokenisierung │───▶│ - AST-Erstellung│───▶│ - Code-Ausführung│
-│ - Syntax-Check  │    │ - Semantik-Check│    │ - Session-Mgmt  │
+│ - Tokenization  │───▶│ - AST Creation  │───▶│ - Code Execution│
+│ - Syntax Check  │    │ - Semantic Check│    │ - Session Mgmt  │
 └─────────────────┘    └─────────────────┘    └─────────────────┘
 ```
 
-### Verarbeitungspipeline
+### Processing Pipeline
 
-1. **Lexer**: Zerlegt Quellcode in Tokens
+1. **Lexer**: Breaks source code into tokens
 2. **Parser**: Creates Abstract Syntax Tree (AST)
-3. **Interpreter**: Executes AST aus
+3. **Interpreter**: Executes AST
 
-## Interpreter-Features
+## Interpreter Features
 
-### Dynamische Typisierung
+### Dynamic Typing
 
 ```hyp
-// Variablen können ihren Typ zur Laufzeit ändern
+// Variables can change their type at runtime
 induce x = 42;        // Integer
-induce x = "Hallo";   // String
+induce x = "Hello";   // String
 induce x = [1,2,3];   // Array
 ```
 
-### Session-Management
+### Session Management
 
 ```hyp
-// Sessions werden automatisch verwaltet
-induce session = Session("MeineSession");
+// Sessions are automatically managed
+induce session = Session("MySession");
 SessionSet(session, "key", "value");
 induce value = SessionGet(session, "key");
 ```
 
-### Fehlerbehandlung
+### Error Handling
 
 ```hyp
-// Robuste Fehlerbehandlung
+// Robust error handling
 if (ArrayLength(arr) > 0) {
     induce element = ArrayGet(arr, 0);
 } else {
-    observe "Array ist leer";
+    observe "Array is empty";
 }
 ```
 
-## Interpreter-Konfiguration
+## Interpreter Configuration
 
 ### Memory Management
 
@@ -68,15 +68,15 @@ if (ArrayLength(arr) > 0) {
 }
 ```
 
-### Performance-Optimierungen
+### Performance Optimizations
 
-- **JIT-Compilation**: Häufig ausgeführte Code-Blöcke werden kompiliert
-- **Caching**: Functionsergebnisse werden gecacht
-- **Lazy Evaluation**: Ausdrücke werden erst bei Bedarf ausgewertet
+- **JIT-Compilation**: Frequently executed code blocks are compiled
+- **Caching**: Function results are cached
+- **Lazy Evaluation**: Expressions are evaluated only when needed
 
-## Debugging-Features
+## Debugging Features
 
-### Trace-Modus
+### Trace Mode
 
 ```bash
 dotnet run --project HypnoScript.CLI -- debug script.hyp --trace
@@ -85,11 +85,11 @@ dotnet run --project HypnoScript.CLI -- debug script.hyp --trace
 ### Breakpoints
 
 ```hyp
-// Breakpoint setzen
+// Set breakpoint
 breakpoint;
 
-// Bedingte Breakpoints
-if (zaehler == 42) {
+// Conditional breakpoints
+if (counter == 42) {
     breakpoint;
 }
 ```
@@ -97,100 +97,100 @@ if (zaehler == 42) {
 ### Variable Inspection
 
 ```hyp
-// Variablen zur Laufzeit inspizieren
+// Inspect variables at runtime
 observe "Variable x: " + x;
-observe "Array-Länge: " + ArrayLength(arr);
+observe "Array length: " + ArrayLength(arr);
 ```
 
-## Session-Management
+## Session Management
 
-### Session-Lifecycle
+### Session Lifecycle
 
-1. **Erstellung**: `Session("name")`
+1. **Creation**: `Session("name")`
 2. **Usage**: `SessionSet()`, `SessionGet()`
-3. **Bereinigung**: Automatisch nach Programmende
+3. **Cleanup**: Automatic after program end
 
-### Session-Typen
+### Session Types
 
 ```hyp
-// Standard-Session
+// Standard session
 induce session = Session("Standard");
 
-// Persistente Session
+// Persistent session
 induce persistentSession = Session("Persistent", true);
 
-// Geteilte Session
+// Shared session
 induce sharedSession = Session("Shared", false, true);
 ```
 
 ## Builtin Functions Integration
 
-### Functionsaufruf-Mechanismus
+### Function Call Mechanism
 
 ```hyp
-// Direkter Aufruf
+// Direct call
 induce result = ArraySum([1,2,3]);
 
-// Mit Fehlerbehandlung
+// With error handling
 if (IsValidEmail(email)) {
-    observe "E-Mail ist gültig";
+    observe "Email is valid";
 } else {
-    observe "E-Mail ist ungültig";
+    observe "Email is invalid";
 }
 ```
 
-### Functionskategorien
+### Function Categories
 
-- **Array-Functionen**: `ArrayGet`, `ArraySet`, `ArraySort`
-- **String-Functionen**: `Length`, `Substring`, `ToUpper`
-- **Math-Functionen**: `Sin`, `Cos`, `Sqrt`, `Pow`
-- **System-Functionen**: `GetCurrentTime`, `GetMachineName`
-- **Utility-Functionen**: `Clamp`, `IsEven`, `GenerateUUID`
+- **Array Functions**: `ArrayGet`, `ArraySet`, `ArraySort`
+- **String Functions**: `Length`, `Substring`, `ToUpper`
+- **Math Functions**: `Sin`, `Cos`, `Sqrt`, `Pow`
+- **System Functions**: `GetCurrentTime`, `GetMachineName`
+- **Utility Functions**: `Clamp`, `IsEven`, `GenerateUUID`
 
-## Performance-Monitoring
+## Performance Monitoring
 
 ### Memory Usage
 
 ```hyp
 induce memoryUsage = GetMemoryUsage();
-observe "Speicherverbrauch: " + memoryUsage + " bytes";
+observe "Memory usage: " + memoryUsage + " bytes";
 ```
 
 ### CPU Usage
 
 ```hyp
 induce cpuUsage = GetCPUUsage();
-observe "CPU-Auslastung: " + cpuUsage + "%";
+observe "CPU usage: " + cpuUsage + "%";
 ```
 
 ### Execution Time
 
 ```hyp
 induce startTime = GetCurrentTime();
-// Code ausführen
+// Execute code
 induce endTime = GetCurrentTime();
 induce executionTime = endTime - startTime;
-observe "Ausführungszeit: " + executionTime + " ms";
+observe "Execution time: " + executionTime + " ms";
 ```
 
-## Erweiterbarkeit
+## Extensibility
 
 ### Custom Functions
 
 ```hyp
-// Eigene Funktionen definieren
+// Define custom functions
 suggestion customFunction(param) {
     awaken param * 2;
 }
 
-// Verwenden
+// Use them
 induce result = customFunction(21);
 ```
 
-### Plugin-System
+### Plugin System
 
 ```hyp
-// Plugins laden (konzeptionell)
+// Load plugins (conceptual)
 LoadPlugin("math-extensions");
 LoadPlugin("network-utils");
 ```
@@ -200,12 +200,12 @@ LoadPlugin("network-utils");
 ### Memory Management
 
 ```hyp
-// Große Arrays vermeiden
+// Avoid large arrays
 induce largeArray = [];
 for (induce i = 0; i < 1000000; induce i = i + 1) {
-    // Verarbeitung in Chunks
+    // Process in chunks
     if (i % 1000 == 0) {
-        // Chunk verarbeiten
+        // Process chunk
     }
 }
 ```
@@ -213,7 +213,7 @@ for (induce i = 0; i < 1000000; induce i = i + 1) {
 ### Error Handling
 
 ```hyp
-// Robuste Fehlerbehandlung
+// Robust error handling
 suggestion safeArrayAccess(arr, index) {
     if (index < 0 || index >= Length(arr)) {
         awaken null;
@@ -225,7 +225,7 @@ suggestion safeArrayAccess(arr, index) {
 ### Performance Optimization
 
 ```hyp
-// Effiziente Schleifen
+// Efficient loops
 induce length = Length(arr);
 for (induce i = 0; i < length; induce i = i + 1) {
     // Code
@@ -234,23 +234,23 @@ for (induce i = 0; i < length; induce i = i + 1) {
 
 ## Troubleshooting
 
-### Häufige Probleme
+### Common Problems
 
 #### Memory Leaks
 
 ```hyp
-// Sessions explizit löschen
+// Explicitly delete sessions
 SessionDelete(session);
 ```
 
-#### Endlosschleifen
+#### Infinite Loops
 
 ```hyp
-// Timeout setzen
+// Set timeout
 induce startTime = GetCurrentTime();
 while (condition) {
     if (GetCurrentTime() - startTime > 5000) {
-        break; // 5 Sekunden Timeout
+        break; // 5 second timeout
     }
     // Code
 }
@@ -259,10 +259,10 @@ while (condition) {
 #### Stack Overflow
 
 ```hyp
-// Rekursion begrenzen
+// Limit recursion
 suggestion factorial(n, depth = 0) {
     if (depth > 1000) {
-        awaken null; // Stack Overflow vermeiden
+        awaken null; // Avoid stack overflow
     }
     if (n <= 1) return 1;
     return n * factorial(n - 1, depth + 1);
@@ -271,11 +271,11 @@ suggestion factorial(n, depth = 0) {
 
 ## Next Steps
 
-- [Runtime](./runtime) - Runtime-Architektur
-- [Compiler](./compiler) - Code-Generierung
-- [API](./api) - Programmierschnittstelle
-- [Debugging](../cli/debugging) - Debugging-Tools
+- [Runtime](./runtime) - Runtime Architecture
+- [Compiler](./compiler) - Code Generation
+- [API](./api) - Programming Interface
+- [Debugging](../cli/debugging) - Debugging Tools
 
 ---
 
-**Verstehst du den Interpreter? Dann lerne die [Runtime-Architektur](./runtime) kennen!** ⚙️
+**Do you understand the interpreter? Then learn about the [Runtime Architecture](./runtime)!** ⚙️

@@ -10,7 +10,7 @@ Functionskomposition deklarativ auszudrücken.
 
 ## Überblick
 
-| Function             | Return value | Brief Description                           |
+| Function             | Return value | Brief Description                          |
 | -------------------- | ------------ | ------------------------------------------ |
 | `RepeatAction`       | `void`       | Aktion eine feste Anzahl an Wiederholungen |
 | `DelayedSuggestion`  | `void`       | Aktion nach Millisekunden-Verzögerung      |
@@ -199,7 +199,7 @@ suggestion square(x: number): number { awaken x * x; }
 induce memoSquare = Memoize(square);
 
 observe memoSquare(4); // 16
-observe memoSquare(4); // 16 (zukünftig aus Cache)
+observe memoSquare(4); // 16 (future calls from cache)
 ```
 
 ## Tipps für den Einsatz

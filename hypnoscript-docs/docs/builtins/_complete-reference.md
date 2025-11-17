@@ -1,309 +1,309 @@
 # Builtin Functions Complete Reference
 
-Complete Reference aller 110+ Builtin Functions in HypnoScript (Rust-Edition).
+Complete reference of all 110+ builtin functions in HypnoScript (Rust Edition).
 
-## Core Builtins (I/O & Konvertierung)
+## Core Builtins (I/O & Conversion)
 
-### Output-Functionen
+### Output Functions
 
-| Function  | Signatur                  | Description                       |
-| --------- | ------------------------- | ---------------------------------- |
-| `observe` | `(value: string) -> void` | Standard-Output mit Zeilenumbruch |
-| `whisper` | `(value: string) -> void` | Output ohne Zeilenumbruch         |
-| `command` | `(value: string) -> void` | Output in Großbuchstaben          |
-| `drift`   | `(ms: number) -> void`    | Pause/Sleep (in Millisekunden)     |
+| Function  | Signature                 | Description                   |
+| --------- | ------------------------- | ----------------------------- |
+| `observe` | `(value: string) -> void` | Standard output with newline  |
+| `whisper` | `(value: string) -> void` | Output without newline        |
+| `command` | `(value: string) -> void` | Output in uppercase           |
+| `drift`   | `(ms: number) -> void`    | Pause/Sleep (in milliseconds) |
 
-### Hypnotische Functionen
+### Hypnotic Functions
 
-| Function                | Signatur                        | Description                           |
-| ----------------------- | ------------------------------- | -------------------------------------- |
-| `DeepTrance`            | `(duration: number) -> void`    | Tiefe Trance-Induktion mit Verzögerung |
-| `HypnoticCountdown`     | `(from: number) -> void`        | Hypnotischer Countdown                 |
-| `TranceInduction`       | `(subjectName: string) -> void` | Vollständige Trance-Induktion          |
-| `HypnoticVisualization` | `(scene: string) -> void`       | Hypnotische Visualisierung             |
+| Function                | Signature                       | Description                      |
+| ----------------------- | ------------------------------- | -------------------------------- |
+| `DeepTrance`            | `(duration: number) -> void`    | Deep trance induction with delay |
+| `HypnoticCountdown`     | `(from: number) -> void`        | Hypnotic countdown               |
+| `TranceInduction`       | `(subjectName: string) -> void` | Complete trance induction        |
+| `HypnoticVisualization` | `(scene: string) -> void`       | Hypnotic visualization           |
 
-### Konvertierungs-Functionen
+### Conversion Functions
 
-| Function    | Signatur                     | Description                      |
-| ----------- | ---------------------------- | --------------------------------- |
-| `ToInt`     | `(value: number) -> number`  | Converts zu Integer (truncate) |
-| `ToDouble`  | `(value: string) -> number`  | Parse String zu number            |
-| `ToString`  | `(value: any) -> string`     | Converts zu String             |
-| `ToBoolean` | `(value: string) -> boolean` | Parse String zu boolean           |
+| Function    | Signature                    | Description                   |
+| ----------- | ---------------------------- | ----------------------------- |
+| `ToInt`     | `(value: number) -> number`  | Convert to integer (truncate) |
+| `ToDouble`  | `(value: string) -> number`  | Parse string to number        |
+| `ToString`  | `(value: any) -> string`     | Convert to string             |
+| `ToBoolean` | `(value: string) -> boolean` | Parse string to boolean       |
 
 ## Math Builtins
 
-### Trigonometrische Functionen
+### Trigonometric Functions
 
-| Function | Signatur                | Description |
-| -------- | ----------------------- | ------------ |
-| `Sin`    | `(x: number) -> number` | Sinus        |
-| `Cos`    | `(x: number) -> number` | Cosinus      |
-| `Tan`    | `(x: number) -> number` | Tangens      |
+| Function | Signature               | Description |
+| -------- | ----------------------- | ----------- |
+| `Sin`    | `(x: number) -> number` | Sine        |
+| `Cos`    | `(x: number) -> number` | Cosine      |
+| `Tan`    | `(x: number) -> number` | Tangent     |
 
-### Wurzel & Potenz
+### Root & Power
 
-| Function | Signatur                                     | Description  |
-| -------- | -------------------------------------------- | ------------- |
-| `Sqrt`   | `(x: number) -> number`                      | Quadratwurzel |
-| `Pow`    | `(base: number, exponent: number) -> number` | Potenz        |
+| Function | Signature                                    | Description |
+| -------- | -------------------------------------------- | ----------- |
+| `Sqrt`   | `(x: number) -> number`                      | Square root |
+| `Pow`    | `(base: number, exponent: number) -> number` | Power       |
 
-### Logarithmen
+### Logarithms
 
-| Function | Signatur                | Description                 |
-| -------- | ----------------------- | ---------------------------- |
-| `Log`    | `(x: number) -> number` | Natürlicher Logarithmus (ln) |
-| `Log10`  | `(x: number) -> number` | Logarithmus zur Basis 10     |
+| Function | Signature               | Description            |
+| -------- | ----------------------- | ---------------------- |
+| `Log`    | `(x: number) -> number` | Natural logarithm (ln) |
+| `Log10`  | `(x: number) -> number` | Base-10 logarithm      |
 
-### Rundung
+### Rounding
 
-| Function | Signatur                | Description          |
-| -------- | ----------------------- | --------------------- |
-| `Abs`    | `(x: number) -> number` | Absoluter Wert        |
-| `Floor`  | `(x: number) -> number` | Abrunden              |
-| `Ceil`   | `(x: number) -> number` | Aufrunden             |
-| `Round`  | `(x: number) -> number` | Kaufmännisches Runden |
+| Function | Signature               | Description      |
+| -------- | ----------------------- | ---------------- |
+| `Abs`    | `(x: number) -> number` | Absolute value   |
+| `Floor`  | `(x: number) -> number` | Round down       |
+| `Ceil`   | `(x: number) -> number` | Round up         |
+| `Round`  | `(x: number) -> number` | Round to nearest |
 
 ### Min/Max
 
-| Function | Signatur                                              | Description   |
-| -------- | ----------------------------------------------------- | -------------- |
-| `Min`    | `(a: number, b: number) -> number`                    | Minimum        |
-| `Max`    | `(a: number, b: number) -> number`                    | Maximum        |
-| `Clamp`  | `(value: number, min: number, max: number) -> number` | Wert begrenzen |
+| Function | Signature                                             | Description |
+| -------- | ----------------------------------------------------- | ----------- |
+| `Min`    | `(a: number, b: number) -> number`                    | Minimum     |
+| `Max`    | `(a: number, b: number) -> number`                    | Maximum     |
+| `Clamp`  | `(value: number, min: number, max: number) -> number` | Clamp value |
 
-### Zahlentheorie
+### Number Theory
 
-| Function    | Signatur                           | Description                     |
-| ----------- | ---------------------------------- | -------------------------------- |
-| `Factorial` | `(n: number) -> number`            | Fakultät                         |
-| `Gcd`       | `(a: number, b: number) -> number` | Größter gemeinsamer Teiler       |
-| `Lcm`       | `(a: number, b: number) -> number` | Kleinstes gemeinsames Vielfaches |
-| `IsPrime`   | `(n: number) -> boolean`           | Checks ob Primzahl                |
-| `Fibonacci` | `(n: number) -> number`            | n-te Fibonacci-Zahl              |
+| Function    | Signature                          | Description             |
+| ----------- | ---------------------------------- | ----------------------- |
+| `Factorial` | `(n: number) -> number`            | Factorial               |
+| `Gcd`       | `(a: number, b: number) -> number` | Greatest common divisor |
+| `Lcm`       | `(a: number, b: number) -> number` | Least common multiple   |
+| `IsPrime`   | `(n: number) -> boolean`           | Check if prime          |
+| `Fibonacci` | `(n: number) -> number`            | n-th Fibonacci number   |
 
 ## String Builtins
 
-### Basis-Operationen
+### Basic Operations
 
-| Function     | Signatur                | Description           |
-| ------------ | ----------------------- | ---------------------- |
-| `Length`     | `(s: string) -> number` | String-Length           |
-| `ToUpper`    | `(s: string) -> string` | In Großbuchstaben      |
-| `ToLower`    | `(s: string) -> string` | In Kleinbuchstaben     |
-| `Trim`       | `(s: string) -> string` | Whitespace entfernen   |
-| `Reverse`    | `(s: string) -> string` | String umkehren        |
-| `Capitalize` | `(s: string) -> string` | Ersten Buchstaben groß |
+| Function     | Signature               | Description             |
+| ------------ | ----------------------- | ----------------------- |
+| `Length`     | `(s: string) -> number` | String length           |
+| `ToUpper`    | `(s: string) -> string` | To uppercase            |
+| `ToLower`    | `(s: string) -> string` | To lowercase            |
+| `Trim`       | `(s: string) -> string` | Remove whitespace       |
+| `Reverse`    | `(s: string) -> string` | Reverse string          |
+| `Capitalize` | `(s: string) -> string` | Capitalize first letter |
 
-### Suchen & Ersetzen
+### Search & Replace
 
-| Function     | Signatur                                          | Description                                  |
-| ------------ | ------------------------------------------------- | --------------------------------------------- |
-| `IndexOf`    | `(s: string, pattern: string) -> number`          | Index des Substrings (-1 wenn nicht gefunden) |
-| `Replace`    | `(s: string, from: string, to: string) -> string` | Alle Vorkommen ersetzen                       |
-| `Contains`   | `(s: string, pattern: string) -> boolean`         | Checks ob enthalten                            |
-| `StartsWith` | `(s: string, prefix: string) -> boolean`          | Checks Präfix                                  |
-| `EndsWith`   | `(s: string, suffix: string) -> boolean`          | Checks Suffix                                  |
+| Function     | Signature                                         | Description                          |
+| ------------ | ------------------------------------------------- | ------------------------------------ |
+| `IndexOf`    | `(s: string, pattern: string) -> number`          | Index of substring (-1 if not found) |
+| `Replace`    | `(s: string, from: string, to: string) -> string` | Replace all occurrences              |
+| `Contains`   | `(s: string, pattern: string) -> boolean`         | Check if contains                    |
+| `StartsWith` | `(s: string, prefix: string) -> boolean`          | Check prefix                         |
+| `EndsWith`   | `(s: string, suffix: string) -> boolean`          | Check suffix                         |
 
 ### Manipulation
 
-| Function    | Signatur                                             | Description           |
-| ----------- | ---------------------------------------------------- | ---------------------- |
-| `Split`     | `(s: string, delimiter: string) -> string[]`         | String aufteilen       |
-| `Substring` | `(s: string, start: number, end: number) -> string`  | Teilstring extrahieren |
-| `Repeat`    | `(s: string, times: number) -> string`               | String wiederholen     |
-| `PadLeft`   | `(s: string, width: number, char: string) -> string` | Links auffüllen        |
-| `PadRight`  | `(s: string, width: number, char: string) -> string` | Rechts auffüllen       |
+| Function    | Signature                                            | Description       |
+| ----------- | ---------------------------------------------------- | ----------------- |
+| `Split`     | `(s: string, delimiter: string) -> string[]`         | Split string      |
+| `Substring` | `(s: string, start: number, end: number) -> string`  | Extract substring |
+| `Repeat`    | `(s: string, times: number) -> string`               | Repeat string     |
+| `PadLeft`   | `(s: string, width: number, char: string) -> string` | Pad left          |
+| `PadRight`  | `(s: string, width: number, char: string) -> string` | Pad right         |
 
-### Prüfungen
+### Checks
 
-| Function       | Signatur                 | Description            |
-| -------------- | ------------------------ | ----------------------- |
-| `IsEmpty`      | `(s: string) -> boolean` | Checks ob leer           |
-| `IsWhitespace` | `(s: string) -> boolean` | Checks ob nur Whitespace |
+| Function       | Signature                | Description              |
+| -------------- | ------------------------ | ------------------------ |
+| `IsEmpty`      | `(s: string) -> boolean` | Check if empty           |
+| `IsWhitespace` | `(s: string) -> boolean` | Check if only whitespace |
 
 ## Array Builtins
 
-:::note Array-Präfix
-Alle Array-Functionen verwenden das Präfix `Array` zur Unterscheidung von String-Functionen (z.B. `ArrayLength` vs. String `Length`).
+:::note Array Prefix
+All array functions use the `Array` prefix to distinguish from string functions (e.g., `ArrayLength` vs. string `Length`).
 :::
 
-### Basis-Operationen
+### Basic Operations
 
-| Function        | Signatur                            | Description                                |
-| --------------- | ----------------------------------- | ------------------------------------------- |
-| `ArrayLength`   | `(arr: T[]) -> number`              | Array-Length                                 |
-| `ArrayIsEmpty`  | `(arr: T[]) -> boolean`             | Checks ob leer                               |
-| `ArrayGet`      | `(arr: T[], index: number) -> T`    | Element an Index                            |
-| `ArrayIndexOf`  | `(arr: T[], element: T) -> number`  | Index des Elements (-1 wenn nicht gefunden) |
-| `ArrayContains` | `(arr: T[], element: T) -> boolean` | Checks ob enthalten                          |
+| Function        | Signature                           | Description                        |
+| --------------- | ----------------------------------- | ---------------------------------- |
+| `ArrayLength`   | `(arr: T[]) -> number`              | Array length                       |
+| `ArrayIsEmpty`  | `(arr: T[]) -> boolean`             | Check if empty                     |
+| `ArrayGet`      | `(arr: T[], index: number) -> T`    | Element at index                   |
+| `ArrayIndexOf`  | `(arr: T[], element: T) -> number`  | Index of element (-1 if not found) |
+| `ArrayContains` | `(arr: T[], element: T) -> boolean` | Check if contains                  |
 
 ### Transformation
 
-| Function        | Signatur                      | Description        |
-| --------------- | ----------------------------- | ------------------- |
-| `ArrayReverse`  | `(arr: T[]) -> T[]`           | Array umkehren      |
-| `ArraySort`     | `(arr: number[]) -> number[]` | Numerisch sortieren |
-| `ArrayDistinct` | `(arr: T[]) -> T[]`           | Duplikate entfernen |
+| Function        | Signature                     | Description       |
+| --------------- | ----------------------------- | ----------------- |
+| `ArrayReverse`  | `(arr: T[]) -> T[]`           | Reverse array     |
+| `ArraySort`     | `(arr: number[]) -> number[]` | Sort numerically  |
+| `ArrayDistinct` | `(arr: T[]) -> T[]`           | Remove duplicates |
 
 ### Aggregation
 
-| Function       | Signatur                    | Description |
-| -------------- | --------------------------- | ------------ |
-| `ArraySum`     | `(arr: number[]) -> number` | Sum        |
-| `ArrayAverage` | `(arr: number[]) -> number` | Durchschnitt |
-| `ArrayMin`     | `(arr: number[]) -> number` | Minimum      |
-| `ArrayMax`     | `(arr: number[]) -> number` | Maximum      |
+| Function       | Signature                   | Description |
+| -------------- | --------------------------- | ----------- |
+| `ArraySum`     | `(arr: number[]) -> number` | Sum         |
+| `ArrayAverage` | `(arr: number[]) -> number` | Average     |
+| `ArrayMin`     | `(arr: number[]) -> number` | Minimum     |
+| `ArrayMax`     | `(arr: number[]) -> number` | Maximum     |
 
 ### Slicing
 
-| Function     | Signatur                                        | Description                 |
-| ------------ | ----------------------------------------------- | ---------------------------- |
-| `ArrayFirst` | `(arr: T[]) -> T`                               | Erstes Element               |
-| `ArrayLast`  | `(arr: T[]) -> T`                               | Letztes Element              |
-| `ArrayTake`  | `(arr: T[], n: number) -> T[]`                  | Erste n Elemente             |
-| `ArraySkip`  | `(arr: T[], n: number) -> T[]`                  | Überspringt erste n Elemente |
-| `ArraySlice` | `(arr: T[], start: number, end: number) -> T[]` | Teilarray                    |
+| Function     | Signature                                       | Description           |
+| ------------ | ----------------------------------------------- | --------------------- |
+| `ArrayFirst` | `(arr: T[]) -> T`                               | First element         |
+| `ArrayLast`  | `(arr: T[]) -> T`                               | Last element          |
+| `ArrayTake`  | `(arr: T[], n: number) -> T[]`                  | First n elements      |
+| `ArraySkip`  | `(arr: T[], n: number) -> T[]`                  | Skip first n elements |
+| `ArraySlice` | `(arr: T[], start: number, end: number) -> T[]` | Subarray              |
 
-### Weitere
+### More
 
-| Function     | Signatur                                  | Description              |
-| ------------ | ----------------------------------------- | ------------------------- |
-| `ArrayJoin`  | `(arr: T[], separator: string) -> string` | Array zu String           |
-| `ArrayCount` | `(arr: T[], element: T) -> number`        | Häufigkeit eines Elements |
+| Function     | Signature                                 | Description          |
+| ------------ | ----------------------------------------- | -------------------- |
+| `ArrayJoin`  | `(arr: T[], separator: string) -> string` | Array to string      |
+| `ArrayCount` | `(arr: T[], element: T) -> number`        | Frequency of element |
 
 ## Statistics Builtins
 
-### Zentrale Tendenz
+### Central Tendency
 
-| Function          | Signatur                    | Description               |
-| ----------------- | --------------------------- | -------------------------- |
-| `CalculateMean`   | `(arr: number[]) -> number` | Arithmetisches Mittel      |
-| `CalculateMedian` | `(arr: number[]) -> number` | Median                     |
-| `CalculateMode`   | `(arr: number[]) -> number` | Modus (häufigstes Element) |
+| Function          | Signature                   | Description          |
+| ----------------- | --------------------------- | -------------------- |
+| `CalculateMean`   | `(arr: number[]) -> number` | Arithmetic mean      |
+| `CalculateMedian` | `(arr: number[]) -> number` | Median               |
+| `CalculateMode`   | `(arr: number[]) -> number` | Mode (most frequent) |
 
-### Streuung
+### Dispersion
 
-| Function                     | Signatur                                        | Description           |
-| ---------------------------- | ----------------------------------------------- | ---------------------- |
-| `CalculateVariance`          | `(arr: number[]) -> number`                     | Varianz                |
-| `CalculateStandardDeviation` | `(arr: number[]) -> number`                     | Standardabweichung     |
-| `CalculateRange`             | `(arr: number[]) -> number`                     | Spannweite (Max - Min) |
-| `CalculatePercentile`        | `(arr: number[], percentile: number) -> number` | Perzentil berechnen    |
+| Function                     | Signature                                       | Description          |
+| ---------------------------- | ----------------------------------------------- | -------------------- |
+| `CalculateVariance`          | `(arr: number[]) -> number`                     | Variance             |
+| `CalculateStandardDeviation` | `(arr: number[]) -> number`                     | Standard deviation   |
+| `CalculateRange`             | `(arr: number[]) -> number`                     | Range (Max - Min)    |
+| `CalculatePercentile`        | `(arr: number[], percentile: number) -> number` | Calculate percentile |
 
-### Korrelation & Regression
+### Correlation & Regression
 
-| Function               | Signatur                                         | Description                          |
-| ---------------------- | ------------------------------------------------ | ------------------------------------- |
-| `CalculateCorrelation` | `(x: number[], y: number[]) -> number`           | Korrelationskoeffizient               |
-| `LinearRegression`     | `(x: number[], y: number[]) -> (number, number)` | Lineare Regression (slope, intercept) |
+| Function               | Signature                                        | Description                          |
+| ---------------------- | ------------------------------------------------ | ------------------------------------ |
+| `CalculateCorrelation` | `(x: number[], y: number[]) -> number`           | Correlation coefficient              |
+| `LinearRegression`     | `(x: number[], y: number[]) -> (number, number)` | Linear regression (slope, intercept) |
 
 ## Time Builtins
 
-### Aktuelle Zeit
+### Current Time
 
-| Function               | Signatur                     | Description                 |
-| ---------------------- | ---------------------------- | ---------------------------- |
-| `GetCurrentTime`       | `() -> number`               | Unix Timestamp (Sekunden)    |
-| `GetCurrentDate`       | `() -> string`               | Aktuelles Datum (YYYY-MM-DD) |
-| `GetCurrentTimeString` | `() -> string`               | Aktuelle Zeit (HH:MM:SS)     |
-| `GetCurrentDateTime`   | `() -> string`               | Datum und Zeit               |
-| `FormatDateTime`       | `(format: string) -> string` | Formatierte Zeit             |
+| Function               | Signature                    | Description               |
+| ---------------------- | ---------------------------- | ------------------------- |
+| `GetCurrentTime`       | `() -> number`               | Unix timestamp (seconds)  |
+| `GetCurrentDate`       | `() -> string`               | Current date (YYYY-MM-DD) |
+| `GetCurrentTimeString` | `() -> string`               | Current time (HH:MM:SS)   |
+| `GetCurrentDateTime`   | `() -> string`               | Date and time             |
+| `FormatDateTime`       | `(format: string) -> string` | Formatted time            |
 
-### Datum-Komponenten
+### Date Components
 
-| Function       | Signatur       | Description            |
-| -------------- | -------------- | ----------------------- |
-| `GetYear`      | `() -> number` | Aktuelles Jahr          |
-| `GetMonth`     | `() -> number` | Aktueller Monat (1-12)  |
-| `GetDay`       | `() -> number` | Aktueller Tag (1-31)    |
-| `GetHour`      | `() -> number` | Aktuelle Stunde (0-23)  |
-| `GetMinute`    | `() -> number` | Aktuelle Minute (0-59)  |
-| `GetSecond`    | `() -> number` | Aktuelle Sekunde (0-59) |
-| `GetDayOfWeek` | `() -> number` | Wochentag (0=Sonntag)   |
-| `GetDayOfYear` | `() -> number` | Tag im Jahr (1-366)     |
+| Function       | Signature      | Description            |
+| -------------- | -------------- | ---------------------- |
+| `GetYear`      | `() -> number` | Current year           |
+| `GetMonth`     | `() -> number` | Current month (1-12)   |
+| `GetDay`       | `() -> number` | Current day (1-31)     |
+| `GetHour`      | `() -> number` | Current hour (0-23)    |
+| `GetMinute`    | `() -> number` | Current minute (0-59)  |
+| `GetSecond`    | `() -> number` | Current second (0-59)  |
+| `GetDayOfWeek` | `() -> number` | Day of week (0=Sunday) |
+| `GetDayOfYear` | `() -> number` | Day of year (1-366)    |
 
-### Datum-Berechnungen
+### Date Calculations
 
-| Function         | Signatur                                  | Description     |
-| ---------------- | ----------------------------------------- | ---------------- |
-| `IsLeapYear`     | `(year: number) -> boolean`               | Checks Schaltjahr |
-| `GetDaysInMonth` | `(year: number, month: number) -> number` | Tage im Monat    |
+| Function         | Signature                                 | Description     |
+| ---------------- | ----------------------------------------- | --------------- |
+| `IsLeapYear`     | `(year: number) -> boolean`               | Check leap year |
+| `GetDaysInMonth` | `(year: number, month: number) -> number` | Days in month   |
 
 ## System Builtins
 
-### System-Informationen
+### System Information
 
-| Function              | Signatur       | Description          |
-| --------------------- | -------------- | --------------------- |
-| `GetCurrentDirectory` | `() -> string` | Aktuelles directory |
-| `GetOperatingSystem`  | `() -> string` | Operating System        |
-| `GetArchitecture`     | `() -> string` | CPU-Architektur       |
-| `GetCpuCount`         | `() -> number` | Anzahl CPU-Kerne      |
-| `GetHostname`         | `() -> string` | Hostname              |
-| `GetUsername`         | `() -> string` | Benutzername          |
-| `GetHomeDirectory`    | `() -> string` | Home-directory      |
-| `GetTempDirectory`    | `() -> string` | Temp-directory      |
+| Function              | Signature      | Description         |
+| --------------------- | -------------- | ------------------- |
+| `GetCurrentDirectory` | `() -> string` | Current directory   |
+| `GetOperatingSystem`  | `() -> string` | Operating system    |
+| `GetArchitecture`     | `() -> string` | CPU architecture    |
+| `GetCpuCount`         | `() -> number` | Number of CPU cores |
+| `GetHostname`         | `() -> string` | Hostname            |
+| `GetUsername`         | `() -> string` | Username            |
+| `GetHomeDirectory`    | `() -> string` | Home directory      |
+| `GetTempDirectory`    | `() -> string` | Temp directory      |
 
-### environment variablen
+### Environment Variables
 
-| Function    | Signatur                                | Description             |
-| ----------- | --------------------------------------- | ------------------------ |
-| `GetEnvVar` | `(name: string) -> string`              | environment variable lesen  |
-| `SetEnvVar` | `(name: string, value: string) -> void` | environment variable setzen |
+| Function    | Signature                               | Description               |
+| ----------- | --------------------------------------- | ------------------------- |
+| `GetEnvVar` | `(name: string) -> string`              | Read environment variable |
+| `SetEnvVar` | `(name: string, value: string) -> void` | Set environment variable  |
 
-### Prozess
+### Process
 
-| Function  | Signatur                 | Description            |
-| --------- | ------------------------ | ----------------------- |
-| `GetArgs` | `() -> string[]`         | Kommandozeilenargumente |
-| `Exit`    | `(code: number) -> void` | Programm beenden        |
+| Function  | Signature                | Description            |
+| --------- | ------------------------ | ---------------------- |
+| `GetArgs` | `() -> string[]`         | Command line arguments |
+| `Exit`    | `(code: number) -> void` | Exit program           |
 
 ## File Builtins
 
-### File-Operationen
+### File Operations
 
-| Function     | Signatur                                  | Description      |
-| ------------ | ----------------------------------------- | ----------------- |
-| `ReadFile`   | `(path: string) -> string`                | File lesen       |
-| `WriteFile`  | `(path: string, content: string) -> void` | File schreiben   |
-| `AppendFile` | `(path: string, content: string) -> void` | An File anhängen |
-| `DeleteFile` | `(path: string) -> void`                  | File löschen     |
-| `CopyFile`   | `(from: string, to: string) -> void`      | File kopieren    |
-| `RenameFile` | `(from: string, to: string) -> void`      | File umbenennen  |
+| Function     | Signature                                 | Description    |
+| ------------ | ----------------------------------------- | -------------- |
+| `ReadFile`   | `(path: string) -> string`                | Read file      |
+| `WriteFile`  | `(path: string, content: string) -> void` | Write file     |
+| `AppendFile` | `(path: string, content: string) -> void` | Append to file |
+| `DeleteFile` | `(path: string) -> void`                  | Delete file    |
+| `CopyFile`   | `(from: string, to: string) -> void`      | Copy file      |
+| `RenameFile` | `(from: string, to: string) -> void`      | Rename file    |
 
-### File-Informationen
+### File Information
 
-| Function             | Signatur                    | Description                      |
-| -------------------- | --------------------------- | --------------------------------- |
-| `FileExists`         | `(path: string) -> boolean` | Checks ob File existiert          |
-| `IsFile`             | `(path: string) -> boolean` | Checks ob Pfad eine File ist      |
-| `IsDirectory`        | `(path: string) -> boolean` | Checks ob Pfad ein directory ist |
-| `GetFileSize`        | `(path: string) -> number`  | Filegröße in Bytes               |
-| `GetFileExtension`   | `(path: string) -> string`  | Fileendung                       |
-| `GetFileName`        | `(path: string) -> string`  | Filename                         |
-| `GetParentDirectory` | `(path: string) -> string`  | Übergeordnetes directory        |
+| Function             | Signature                   | Description                  |
+| -------------------- | --------------------------- | ---------------------------- |
+| `FileExists`         | `(path: string) -> boolean` | Check if file exists         |
+| `IsFile`             | `(path: string) -> boolean` | Check if path is a file      |
+| `IsDirectory`        | `(path: string) -> boolean` | Check if path is a directory |
+| `GetFileSize`        | `(path: string) -> number`  | File size in bytes           |
+| `GetFileExtension`   | `(path: string) -> string`  | File extension               |
+| `GetFileName`        | `(path: string) -> string`  | File name                    |
+| `GetParentDirectory` | `(path: string) -> string`  | Parent directory             |
 
-### directory-Operationen
+### Directory Operations
 
-| Function          | Signatur                     | Description                |
-| ----------------- | ---------------------------- | --------------------------- |
-| `CreateDirectory` | `(path: string) -> void`     | directory erstellen       |
-| `ListDirectory`   | `(path: string) -> string[]` | directoryinhalt auflisten |
+| Function          | Signature                    | Description      |
+| ----------------- | ---------------------------- | ---------------- |
+| `CreateDirectory` | `(path: string) -> void`     | Create directory |
+| `ListDirectory`   | `(path: string) -> string[]` | List directory   |
 
 ## Validation Builtins
 
-### Format-Validierung
+### Format Validation
 
-| Function             | Signatur                     | Description              |
+| Function             | Signature                    | Description               |
 | -------------------- | ---------------------------- | ------------------------- |
-| `IsValidEmail`       | `(email: string) -> boolean` | E-Mail-Validierung        |
+| `IsValidEmail`       | `(email: string) -> boolean` | Email validation          |
 | `IsValidUrl`         | `(url: string) -> boolean`   | URL-Validierung           |
 | `IsValidPhoneNumber` | `(phone: string) -> boolean` | Telefonnummer-Validierung |
 
 ### Zeichen-Prüfungen
 
-| Function         | Signatur                 | Description              |
+| Function         | Signatur                 | Description               |
 | ---------------- | ------------------------ | ------------------------- |
 | `IsAlphanumeric` | `(s: string) -> boolean` | Nur Buchstaben und Zahlen |
 | `IsAlphabetic`   | `(s: string) -> boolean` | Nur Buchstaben            |
@@ -313,7 +313,7 @@ Alle Array-Functionen verwenden das Präfix `Array` zur Unterscheidung von Strin
 
 ### Weitere Validierungen
 
-| Function         | Signatur                                               | Description        |
+| Function         | Signatur                                               | Description         |
 | ---------------- | ------------------------------------------------------ | ------------------- |
 | `IsInRange`      | `(value: number, min: number, max: number) -> boolean` | Wertebereich prüfen |
 | `MatchesPattern` | `(text: string, pattern: string) -> boolean`           | Regex-Match         |
@@ -322,7 +322,7 @@ Alle Array-Functionen verwenden das Präfix `Array` zur Unterscheidung von Strin
 
 ### Hash-Functionen
 
-| Function       | Signatur                   | Description       |
+| Function       | Signatur                   | Description        |
 | -------------- | -------------------------- | ------------------ |
 | `HashString`   | `(s: string) -> number`    | String hashen      |
 | `HashNumber`   | `(n: number) -> number`    | Number hashen      |
@@ -330,10 +330,10 @@ Alle Array-Functionen verwenden das Präfix `Array` zur Unterscheidung von Strin
 
 ### String-Analyse
 
-| Function           | Signatur                                    | Description        |
+| Function           | Signatur                                    | Description         |
 | ------------------ | ------------------------------------------- | ------------------- |
-| `AreAnagrams`      | `(s1: string, s2: string) -> boolean`       | Checks Anagramme     |
-| `IsPalindrome`     | `(s: string) -> boolean`                    | Checks Palindrom     |
+| `AreAnagrams`      | `(s1: string, s2: string) -> boolean`       | Checks Anagramme    |
+| `IsPalindrome`     | `(s: string) -> boolean`                    | Checks Palindrom    |
 | `CountOccurrences` | `(text: string, pattern: string) -> number` | Vorkommen zählen    |
 | `RemoveDuplicates` | `(s: string) -> string`                     | Duplikate entfernen |
 | `UniqueCharacters` | `(s: string) -> string`                     | Eindeutige Zeichen  |
@@ -344,7 +344,7 @@ Alle Array-Functionen verwenden das Präfix `Array` zur Unterscheidung von Strin
 
 ### Kontrollfluss
 
-| Function            | Signatur                                                      | Description             |
+| Function            | Signatur                                                      | Description              |
 | ------------------- | ------------------------------------------------------------- | ------------------------ |
 | `RepeatAction`      | `(times: number, action: () -> void) -> void`                 | Aktion n-mal wiederholen |
 | `DelayedSuggestion` | `(action: () -> void, delay: number) -> void`                 | Verzögerte Ausführung    |
@@ -352,14 +352,14 @@ Alle Array-Functionen verwenden das Präfix `Array` zur Unterscheidung von Strin
 
 ### Schleifen
 
-| Function      | Signatur                                                 | Description                  |
+| Function      | Signatur                                                 | Description                   |
 | ------------- | -------------------------------------------------------- | ----------------------------- |
 | `RepeatUntil` | `(action: () -> void, condition: () -> boolean) -> void` | Wiederhole bis Bedingung wahr |
 | `RepeatWhile` | `(condition: () -> boolean, action: () -> void) -> void` | Wiederhole solange wahr       |
 
 ### Functionskomposition
 
-| Function  | Signatur                             | Description                 |
+| Function  | Signatur                             | Description                  |
 | --------- | ------------------------------------ | ---------------------------- |
 | `Compose` | `(f: B -> C, g: A -> B) -> (A -> C)` | Functionskomposition f(g(x)) |
 | `Pipe`    | `(f: A -> B, g: B -> C) -> (A -> C)` | Functions-Pipeline g(f(x))   |
@@ -367,13 +367,13 @@ Alle Array-Functionen verwenden das Präfix `Array` zur Unterscheidung von Strin
 ### Fehlerbehandlung
 
 | Function          | Signatur                                                    | Description |
-| ----------------- | ----------------------------------------------------------- | ------------ |
-| `TryOrAwaken`     | `(try: () -> void, catch: (error: string) -> void) -> void` | Try-Catch    |
-| `EnsureAwakening` | `(main: () -> void, cleanup: () -> void) -> void`           | Try-Finally  |
+| ----------------- | ----------------------------------------------------------- | ----------- |
+| `TryOrAwaken`     | `(try: () -> void, catch: (error: string) -> void) -> void` | Try-Catch   |
+| `EnsureAwakening` | `(main: () -> void, cleanup: () -> void) -> void`           | Try-Finally |
 
 ### Weitere
 
-| Function             | Signatur                            | Description                   |
+| Function             | Signatur                            | Description                    |
 | -------------------- | ----------------------------------- | ------------------------------ |
 | `SequentialTrance`   | `(actions: (() -> void)[]) -> void` | Aktionen sequentiell ausführen |
 | `MeasureTranceDepth` | `(action: () -> void) -> number`    | Ausführungszeit messen         |

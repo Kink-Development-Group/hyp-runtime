@@ -1,8 +1,8 @@
-# CLI-Commande
+# CLI Commands
 
 <!-- markdownlint-disable MD024 MD040 -->
 
-Die HypnoScript CLI bietet alle wesentlichen Commande für Entwicklung, Testing und Analyse von HypnoScript-Programmen.
+The HypnoScript CLI provides all essential commands for development, testing, and analysis of HypnoScript programs.
 
 ## Overview
 
@@ -10,22 +10,22 @@ Die HypnoScript CLI bietet alle wesentlichen Commande für Entwicklung, Testing 
 hypnoscript <COMMAND> [OPTIONS]
 ```
 
-**Verfügbare Commande:**
+**Available Commands:**
 
-| Command         | Description                                |
+| Command        | Description                                 |
 | -------------- | ------------------------------------------- |
-| `run`          | Executes ein HypnoScript-Programm aus          |
-| `lex`          | Tokenizes eine HypnoScript-File          |
-| `parse`        | Shows den AST einer File                   |
-| `check`        | Executes Type checking durch                   |
-| `compile-wasm` | Kompiliert zu WebAssembly (.wat)            |
-| `self-update`  | Checks auf Updates und startet den Installer |
-| `version`      | Shows Versionsinformationen                 |
-| `builtins`     | Lists alle Builtin Functions              |
+| `run`          | Executes a HypnoScript program              |
+| `lex`          | Tokenizes a HypnoScript file                |
+| `parse`        | Shows the AST of a file                     |
+| `check`        | Performs type checking                      |
+| `compile-wasm` | Compiles to WebAssembly (.wat)              |
+| `self-update`  | Checks for updates and starts the installer |
+| `version`      | Shows version information                   |
+| `builtins`     | Lists all builtin functions                 |
 
 ## run - Run a program
 
-Executes ein HypnoScript-Programm aus. Dies ist der Hauptbefehl für die Ausführung von .hyp-Fileen.
+Executes a HypnoScript program. This is the main command for running .hyp files.
 
 ### Syntax
 
@@ -35,27 +35,27 @@ hypnoscript run <FILE> [OPTIONS]
 
 ### Arguments
 
-| Argument | Description        | Erforderlich |
-| -------- | ------------------- | ------------ |
-| `<FILE>` | Pfad zur .hyp-File | ✅ Ja        |
+| Argument | Description           | Required |
+| -------- | --------------------- | -------- |
+| `<FILE>` | Path to the .hyp file | ✅ Yes   |
 
-### Optionen
+### Options
 
-| Option      | Kurzform | Description           |
-| ----------- | -------- | ---------------------- |
-| `--debug`   | `-d`     | Debug-Modus enable |
-| `--verbose` | `-v`     | Ausführliche Output   |
+| Option      | Short | Description       |
+| ----------- | ----- | ----------------- |
+| `--debug`   | `-d`  | Enable debug mode |
+| `--verbose` | `-v`  | Verbose output    |
 
-### Verhalten
+### Behavior
 
-1. **Lexing**: Tokenizes den Quellcode
-2. **Parsing**: Creates den AST
-3. **Type checking**: Checks Typen (Fehler werden als Warnung ausgegeben)
-4. **Execution**: Executes das Programm aus
+1. **Lexing**: Tokenizes the source code
+2. **Parsing**: Creates the AST
+3. **Type checking**: Checks types (errors are output as warnings)
+4. **Execution**: Executes the program
 
-**Hinweis:** Type-Fehler führen nicht zum Abbruch - das Programm wird trotzdem ausgeführt.
+**Note:** Type errors do not cause termination - the program is executed anyway.
 
-### Examplee
+### Examples
 
 ```bash
 # Einfache Ausführung
@@ -91,9 +91,9 @@ Tokens: 42
 ✅ Program executed successfully!
 ```
 
-## lex - Tokenisierung
+## lex - Tokenization
 
-Tokenizes eine HypnoScript-File und zeigt alle Token an.
+Tokenizes a HypnoScript file and displays all tokens.
 
 ### Syntax
 
@@ -103,9 +103,9 @@ hypnoscript lex <FILE>
 
 ### Arguments
 
-| Argument | Description        | Erforderlich |
-| -------- | ------------------- | ------------ |
-| `<FILE>` | Pfad zur .hyp-File | ✅ Ja        |
+| Argument | Description           | Required |
+| -------- | --------------------- | -------- |
+| `<FILE>` | Path to the .hyp file | ✅ Yes   |
 
 ### Output
 
@@ -133,9 +133,9 @@ Total tokens: 42
 hypnoscript lex examples/01_hello_trance.hyp
 ```
 
-## parse - AST anzeigen
+## parse - Show AST
 
-Parst eine HypnoScript-File und zeigt den resultierenden Abstract Syntax Tree (AST).
+Parses a HypnoScript file and displays the resulting Abstract Syntax Tree (AST).
 
 ### Syntax
 
@@ -145,9 +145,9 @@ hypnoscript parse <FILE>
 
 ### Arguments
 
-| Argument | Description        | Erforderlich |
-| -------- | ------------------- | ------------ |
-| `<FILE>` | Pfad zur .hyp-File | ✅ Ja        |
+| Argument | Description           | Required |
+| -------- | --------------------- | -------- |
+| `<FILE>` | Path to the .hyp file | ✅ Yes   |
 
 ### Output
 
@@ -184,7 +184,7 @@ hypnoscript parse examples/02_variables_arithmetic.hyp
 
 ## check - Type checking
 
-Executes Type checking auf einer HypnoScript-File durch und meldet Typ-Fehler.
+Performs type checking on a HypnoScript file and reports type errors.
 
 ### Syntax
 
@@ -194,9 +194,9 @@ hypnoscript check <FILE>
 
 ### Arguments
 
-| Argument | Description        | Erforderlich |
-| -------- | ------------------- | ------------ |
-| `<FILE>` | Pfad zur .hyp-File | ✅ Ja        |
+| Argument | Description           | Required |
+| -------- | --------------------- | -------- |
+| `<FILE>` | Path to the .hyp file | ✅ Yes   |
 
 ### Output
 
@@ -247,9 +247,9 @@ else
 fi
 ```
 
-## compile-wasm - WebAssembly Generierung
+## compile-wasm - WebAssembly Generation
 
-Kompiliert ein HypnoScript-Programm zu WebAssembly Text Format (.wat).
+Compiles a HypnoScript program to WebAssembly Text Format (.wat).
 
 ### Syntax
 
@@ -259,23 +259,23 @@ hypnoscript compile-wasm <INPUT> [OPTIONS]
 
 ### Arguments
 
-| Argument  | Description               | Erforderlich |
-| --------- | -------------------------- | ------------ |
-| `<INPUT>` | Pfad zur .hyp-Inputdatei | ✅ Ja        |
+| Argument  | Description                 | Required |
+| --------- | --------------------------- | -------- |
+| `<INPUT>` | Path to the .hyp input file | ✅ Yes   |
 
-### Optionen
+### Options
 
-| Option     | Kurzform | Description       | Standard      |
-| ---------- | -------- | ------------------ | ------------- |
-| `--output` | `-o`     | Output-.wat-File | `<input>.wat` |
+| Option     | Short | Description      | Default       |
+| ---------- | ----- | ---------------- | ------------- |
+| `--output` | `-o`  | Output .wat file | `<input>.wat` |
 
-### Verhalten
+### Behavior
 
-1. **Parsing**: Creates AST aus Quellcode
-2. **Code Generation**: Generates WASM-Text-Format
-3. **Output**: Writes .wat-File
+1. **Parsing**: Creates AST from source code
+2. **Code Generation**: Generates WASM text format
+3. **Output**: Writes .wat file
 
-**Hinweis:** Die generierte .wat-File kann mit Tools wie `wat2wasm` zu binärem WASM kompiliert werden.
+**Note:** The generated .wat file can be compiled to binary WASM with tools like `wat2wasm`.
 
 ### Output
 
@@ -283,17 +283,17 @@ hypnoscript compile-wasm <INPUT> [OPTIONS]
 ✅ WASM code written to: output.wat
 ```
 
-### Examplee
+### Examples
 
 ```bash
-# Standard-Ausgabe (script.wat)
+# Standard output (script.wat)
 hypnoscript compile-wasm script.hyp
 
-# Custom Ausgabedatei
+# Custom output file
 hypnoscript compile-wasm script.hyp --output program.wat
 hypnoscript compile-wasm script.hyp -o program.wat
 
-# Komplett zu binärem WASM (benötigt wabt)
+# Complete to binary WASM (requires wabt)
 hypnoscript compile-wasm script.hyp
 wat2wasm script.wat -o script.wasm
 ```
@@ -318,9 +318,9 @@ const bytes = fs.readFileSync('script.wasm');
 const module = await WebAssembly.instantiate(bytes);
 ```
 
-## self-update - Installer aus der CLI starten
+## self-update - Start installer from the CLI
 
-Steuert das neue Installationsskript direkt aus der CLI. Die CLI lädt bei Bedarf das `install.sh` from the Release-Assets und führt es mit den gewünschten Optionen aus.
+Controls the new installation script directly from the CLI. The CLI loads the `install.sh` from the release assets if needed and runs it with the desired options.
 
 ### Syntax
 
@@ -328,44 +328,44 @@ Steuert das neue Installationsskript direkt aus der CLI. Die CLI lädt bei Bedar
 hypnoscript self-update [OPTIONS]
 ```
 
-### Optionen
+### Options
 
-| Option                 | Description                                                             |
-| ---------------------- | ------------------------------------------------------------------------ |
-| `--check`              | Nur nach Updates suchen (Exit-Code `0` = aktuell, `2` = Update gefunden) |
-| `--include-prerelease` | Vorabversionen berücksichtigen                                           |
-| `--force`              | Installation erzwingen, selbst wenn Version bereits vorhanden ist        |
-| `--quiet`              | Output minimieren (nur Fehler)                                          |
-| `--no-sudo`            | Unterdrückt automatische `sudo`-Aufrufe für Systeme ohne Root-Zugriff    |
+| Option                 | Description                                                          |
+| ---------------------- | -------------------------------------------------------------------- |
+| `--check`              | Only check for updates (Exit code `0` = current, `2` = update found) |
+| `--include-prerelease` | Consider pre-releases                                                |
+| `--force`              | Force installation even if version is already present                |
+| `--quiet`              | Minimize output (only errors)                                        |
+| `--no-sudo`            | Suppresses automatic `sudo` calls for systems without root access    |
 
-### Verhalten
+### Behavior
 
-1. **Versionen vergleichen:** Aktuelle CLI-Version vs. neueste Release-Tags (inkl. optionaler Prereleases)
-2. **Installer finden:** Verwendet vorhandene `installation.json`-Metadaten oder das lokale Release-Archiv (`share/hypnoscript/install.sh`)
-3. **Download-Fallback:** Lädt das Installer-Skript aus der Documentation, falls lokal keines gefunden wird
-4. **Ausführen:** Startet `install.sh` mit übergebenen Parametersn und übergibt dem Benutzer die Output des Skripts
+1. **Compare versions:** Current CLI version vs. latest release tags (including optional prereleases)
+2. **Find installer:** Uses existing `installation.json` metadata or the local release archive (`share/hypnoscript/install.sh`)
+3. **Download fallback:** Downloads the installer script from the documentation if none is found locally
+4. **Execute:** Starts `install.sh` with passed parameters and gives the user the script's output
 
-> **Hinweis:** Auf Windows steht derzeit nur `--check` zur Verfügung. Für die eigentliche Installation nutze weiterhin das Release-Archiv.
+> **Note:** On Windows, currently only `--check` is available. For the actual installation, continue to use the release archive.
 
-### Examplee
+### Examples
 
 ```bash
-# Nur prüfen, ob Updates verfügbar sind
+# Only check if updates are available
 hypnoscript self-update --check
 
-# Prerelease-Version installieren
+# Install prerelease version
 hypnoscript self-update --include-prerelease
 
-# Update stumm und ohne sudo ausführen (z.B. CI oder eingeschränkte Shell)
+# Run update silently and without sudo (e.g., CI or restricted shell)
 hypnoscript self-update --quiet --no-sudo
 
-# Installation neu erzwingen (z.B. beschädigte Installation reparieren)
+# Force reinstallation (e.g., repair corrupted installation)
 hypnoscript self-update --force
 ```
 
-## version - Versionsinformationen
+## version - Version information
 
-Shows Versionsinformationen und Features der HypnoScript CLI.
+Shows version information and features of the HypnoScript CLI.
 
 ### Syntax
 
@@ -390,9 +390,9 @@ Features:
 
 ### Usage
 
-- **Version prüfen**: Aktuell installierte Version feststellen
-- **Feature-Überblick**: Verfügbare Functionalität anzeigen
-- **Debugging**: Version in Bug-Reports angeben
+- **Check version**: Determine currently installed version
+- **Feature overview**: Display available functionality
+- **Debugging**: Specify version in bug reports
 
 ### Example
 
@@ -400,9 +400,9 @@ Features:
 hypnoscript version
 ```
 
-## builtins - Builtin Functions auflisten
+## builtins - List builtin functions
 
-Lists alle availableen Builtin Functions der HypnoScript Standard-Bibliothek.
+Lists all available builtin functions of the HypnoScript standard library.
 
 ### Syntax
 
@@ -450,53 +450,53 @@ Total: 50+ builtin functions implemented
 
 ### Usage
 
-- **Referenz**: Schnell nachschlagen welche Functionen available sind
-- **Entwicklung**: Entdecken neuer Functionalität
-- **Documentation**: Liste für eigene Referenzen
+- **Reference**: Quickly look up which functions are available
+- **Development**: Discover new functionality
+- **Documentation**: List for your own references
 
 ### Example
 
 ```bash
-# Auflisten
+# List
 hypnoscript builtins
 
-# Ausgabe in Datei umleiten
+# Redirect output to file
 hypnoscript builtins > builtin-reference.txt
 
-# Filtern mit grep
+# Filter with grep
 hypnoscript builtins | grep "Array"
 ```
 
-## Globale Optionen
+## Global Options
 
-Diese Optionen funktionieren mit allen Commanden:
+These options work with all commands:
 
-| Option      | Kurzform | Description         |
-| ----------- | -------- | -------------------- |
-| `--help`    | `-h`     | Shows Hilfe          |
-| `--version` | `-V`     | Shows Version (kurz) |
+| Option      | Short | Description          |
+| ----------- | ----- | -------------------- |
+| `--help`    | `-h`  | Show help            |
+| `--version` | `-V`  | Show version (short) |
 
-### Examplee
+### Examples
 
 ```bash
-# Hilfe für Hauptbefehl
+# Help for main command
 hypnoscript --help
 
-# Hilfe für Unterbefehl
+# Help for subcommand
 hypnoscript run --help
 
-# Kurzversion
+# Short version
 hypnoscript --version
 ```
 
 ## Exit Codes
 
-Die CLI verwendet Standard-Exit-Codes:
+The CLI uses standard exit codes:
 
-| Code | Bedeutung                   |
-| ---- | --------------------------- |
-| `0`  | Erfolg                      |
-| `1`  | Fehler (Parse/Type/Runtime) |
+| Code | Meaning                    |
+| ---- | -------------------------- |
+| `0`  | Success                    |
+| `1`  | Error (Parse/Type/Runtime) |
 
 ### Usage in Scripts
 
@@ -514,20 +514,20 @@ fi
 
 ## Best Practices
 
-### Entwicklungs-Workflow
+### Development Workflow
 
-1. **Schreiben**: Code in .hyp-File schreiben
-2. **Prüfen**: `hypnoscript check script.hyp`
-3. **Testen**: `hypnoscript run script.hyp --debug`
-4. **Optimieren**: Bei Bedarf Code anpassen
-5. **Deployen**: Final mit `hypnoscript run script.hyp`
+1. **Write**: Write code in .hyp file
+2. **Check**: `hypnoscript check script.hyp`
+3. **Test**: `hypnoscript run script.hyp --debug`
+4. **Optimize**: Adjust code if needed
+5. **Deploy**: Final with `hypnoscript run script.hyp`
 
-### Debugging-Workflow
+### Debugging Workflow
 
-1. **Lexing prüfen**: `hypnoscript lex script.hyp`
+1. **Check lexing**: `hypnoscript lex script.hyp`
 2. **Check AST**: `hypnoscript parse script.hyp`
-3. **Typen prüfen**: `hypnoscript check script.hyp`
-4. **Ausführen**: `hypnoscript run script.hyp --debug --verbose`
+3. **Check types**: `hypnoscript check script.hyp`
+4. **Execute**: `hypnoscript run script.hyp --debug --verbose`
 
 ### CI/CD Integration
 
@@ -550,14 +550,14 @@ steps:
     run: hypnoscript compile-wasm src/main.hyp -o dist/app.wat
 ```
 
-## Tipps & Tricks
+## Tips & Tricks
 
-### Shell-Aliase
+### Shell Aliases
 
-Vereinfache häufige Commande:
+Simplify frequent commands:
 
 ```bash
-# In ~/.bashrc oder ~/.zshrc
+# In ~/.bashrc or ~/.zshrc
 alias hyp='hypnoscript'
 alias hyp-run='hypnoscript run'
 alias hyp-check='hypnoscript check'
@@ -572,16 +572,16 @@ hyp-check script.hyp
 hyp-wasm script.hyp
 ```
 
-### Batch-Verarbeitung
+### Batch Processing
 
 ```bash
-# Alle .hyp-Dateien prüfen
+# Check all .hyp files
 for file in **/*.hyp; do
     echo "Checking $file..."
     hypnoscript check "$file"
 done
 
-# Alle Tests ausführen
+# Run all tests
 for file in tests/*.hyp; do
     echo "Running $file..."
     hypnoscript run "$file"
@@ -591,19 +591,19 @@ done
 ### Output Redirection
 
 ```bash
-# Fehler in Datei schreiben
+# Write errors to file
 hypnoscript run script.hyp 2> errors.log
 
-# Ausgabe UND Fehler
+# Output AND errors
 hypnoscript run script.hyp &> complete.log
 
-# Nur Fehler anzeigen
+# Show only errors
 hypnoscript run script.hyp 2>&1 >/dev/null
 ```
 
-## See auch
+## See Also
 
-- [Quick Start](../getting-started/quick-start) - Erste Schritte
-- [Debugging](./debugging) - Advanced Debugging-Techniken
-- [Configuration](./configuration) - CLI-Konfiguration
-- [Builtin Functions](../builtins/overview) - Referenz aller Functionen
+- [Quick Start](../getting-started/quick-start) - Getting started
+- [Debugging](./debugging) - Advanced debugging techniques
+- [Configuration](./configuration) - CLI configuration
+- [Builtin Functions](../builtins/overview) - Reference of all functions

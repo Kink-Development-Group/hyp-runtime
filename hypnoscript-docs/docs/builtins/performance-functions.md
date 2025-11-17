@@ -256,7 +256,7 @@ Focus {
 
         // Performance-kritischer Code
         induce result = Benchmark(function() {
-            // Optimierungsbedürftiger Code
+            // Code needing optimization
             induce sum = 0;
             for (induce i = 0; i < 1000000; induce i = i + 1) {
                 sum = sum + i;

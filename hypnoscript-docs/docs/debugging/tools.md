@@ -186,12 +186,12 @@ Focus {
         induce a = 5;
         induce b = 3;
 
-        // Debug-Punkt 1: Werte prüfen
+        // Debug point 1: Check values
         observe "Debug: a = " + a + ", b = " + b;
 
         induce result = a + b;
 
-        // Debug-Punkt 2: Ergebnis prüfen
+        // Debug point 2: Check result
         observe "Debug: result = " + result;
 
         if (result > 10) {
@@ -401,7 +401,7 @@ Focus {
         // Breakpoint 2: Verarbeitung
         induce processed = ToUpper(input);
 
-        // Breakpoint 3: Ergebnis prüfen
+        // Breakpoint 3: Check result
         observe "Verarbeitet: " + processed;
     }
 } Relax;
