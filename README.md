@@ -138,7 +138,7 @@ Focus {
 
 ```bash
 # Programm ausführen (Interpreter)
-hypnoscript run program.hyp
+hypnoscript exec program.hyp
 
 # Analyse-Tools
 hypnoscript lex program.hyp          # Tokenisierung
@@ -163,6 +163,7 @@ hypnoscript add pkg@^1.0.0 --dev     # Dev-Dependency hinzufügen
 hypnoscript remove package           # Dependency entfernen
 hypnoscript install                  # Alle Dependencies installieren
 hypnoscript list                     # Dependencies auflisten
+hypnoscript run <script>             # Skript aus trance.json ausführen
 hypnoscript validate                 # trance.json validieren
 
 # Utilities
@@ -221,6 +222,9 @@ hypnoscript install
 # Dependencies auflisten
 hypnoscript list
 
+# Skript ausführen
+hypnoscript run test
+
 # Manifest validieren
 hypnoscript validate
 ```
@@ -246,8 +250,8 @@ Beispiel `trance.json`:
   "mantra": "1.0.0",
   "intent": "cli",
   "suggestions": {
-    "focus": "hypnoscript run src/main.hyp",
-    "test": "hypnoscript run tests/test.hyp"
+    "focus": "hypnoscript exec src/main.hyp",
+    "test": "hypnoscript exec tests/test.hyp"
   },
   "anchors": {
     "hypnoscript-runtime": "^1.0.0"

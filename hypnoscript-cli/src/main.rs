@@ -49,8 +49,9 @@ struct Cli {
 
 #[derive(Subcommand)]
 enum Commands {
-    /// Run a HypnoScript file
-    Run {
+    /// Execute a HypnoScript file directly
+    #[command(name = "exec", alias = "execute")]
+    Exec {
         /// Path to the .hyp file
         file: String,
 
@@ -189,8 +190,7 @@ enum Commands {
     List,
 
     /// Run a suggestion (script) from trance.json
-    #[command(name = "run-suggestion")]
-    RunSuggestion {
+    Run {
         /// Name of the suggestion to run
         name: String,
     },
@@ -209,7 +209,7 @@ fn main() -> Result<()> {
     let cli = Cli::parse();
 
     match cli.command {
-        Commands::Run {
+        Commands::Exec {
             file,
             debug,
             verbose,
@@ -506,7 +506,7 @@ fn main() -> Result<()> {
             pm.list_dependencies()?;
         }
 
-        Commands::RunSuggestion { name } => {
+        Commands::Run { name } => {
             let pm = PackageManager::new();
             let command = pm.run_suggestion(&name)?;
             println!("📜 Running suggestion '{}': {}", name, command);

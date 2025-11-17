@@ -22,11 +22,11 @@
     "supportChannel": "https://chat.your-org.dev/hypno"
   },
   "suggestions": {
-    "focus": "hypnoscript run src/main.hyp -- help",
-    "status": "hypnoscript run src/main.hyp -- status",
-    "pulse": "hypnoscript run src/main.hyp -- pulse",
+    "focus": "hypnoscript exec src/main.hyp -- help",
+    "status": "hypnoscript exec src/main.hyp -- status",
+    "pulse": "hypnoscript exec src/main.hyp -- pulse",
     "watch": "pwsh scripts/watch.ps1 help",
-    "test": "hypnoscript run tests/smoke.hyp"
+    "test": "hypnoscript exec tests/smoke.hyp"
   },
   "anchors": {
     "hypnoscript-runtime": "^1.0.0",

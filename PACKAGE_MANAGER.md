@@ -48,9 +48,9 @@ hypnoscript install
 
 ```bash
 # Run a script defined in suggestions
-hypnoscript run-suggestion focus
-hypnoscript run-suggestion test
-hypnoscript run-suggestion build
+hypnoscript run focus
+hypnoscript run test
+hypnoscript run build
 ```
 
 ### Validation
@@ -89,9 +89,9 @@ The `trance.json` file follows the HypnoScript theming with hypnotic terminology
     "supportChannel": "https://chat.your-org.dev/hypno"
   },
   "suggestions": {
-    "focus": "hypnoscript run src/main.hyp -- help",
-    "status": "hypnoscript run src/main.hyp -- status",
-    "test": "hypnoscript run tests/smoke.hyp"
+    "focus": "hypnoscript exec src/main.hyp -- help",
+    "status": "hypnoscript exec src/main.hyp -- status",
+    "test": "hypnoscript exec tests/smoke.hyp"
   },
   "anchors": {
     "hypnoscript-runtime": "^1.0.0"

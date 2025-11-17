@@ -308,11 +308,11 @@ impl PackageManager {
         let mut suggestions = HashMap::new();
         suggestions.insert(
             "focus".to_string(),
-            "hypnoscript run src/main.hyp".to_string(),
+            "hypnoscript exec src/main.hyp".to_string(),
         );
         suggestions.insert(
             "test".to_string(),
-            "hypnoscript run tests/smoke.hyp".to_string(),
+            "hypnoscript exec tests/smoke.hyp".to_string(),
         );
 
         TranceManifest {
@@ -352,7 +352,7 @@ impl PackageManager {
         let mut suggestions = HashMap::new();
         suggestions.insert(
             "test".to_string(),
-            "hypnoscript run tests/test.hyp".to_string(),
+            "hypnoscript exec tests/test.hyp".to_string(),
         );
         suggestions.insert(
             "build".to_string(),
