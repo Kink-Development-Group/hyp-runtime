@@ -81,16 +81,20 @@ cd hyp-runtime
 cargo build --all --release
 ```
 
+Die CLI wird als zwei Binaries erstellt: `hypnoscript` und `hyp` (Kurzform). Beide sind identisch und können austauschbar verwendet werden.
+
 ### Programm ausführen
 
 ```bash
-./target/release/hypnoscript-cli run program.hyp
+# Beide Varianten funktionieren
+./target/release/hypnoscript exec program.hyp
+./target/release/hyp exec program.hyp
 ```
 
 Oder während der Entwicklung:
 
 ```bash
-cargo run -p hypnoscript-cli -- run test_simple.hyp
+cargo run -p hypnoscript-cli -- exec test_simple.hyp
 ```
 
 ### Beispielprogramm
@@ -136,9 +140,13 @@ Focus {
 
 ### CLI-Befehle im Detail
 
+**Hinweis:** Alle Befehle können sowohl mit `hypnoscript` als auch mit `hyp` ausgeführt werden.
+
 ```bash
 # Programm ausführen (Interpreter)
 hypnoscript exec program.hyp
+# oder kurz:
+hyp exec program.hyp
 
 # Analyse-Tools
 hypnoscript lex program.hyp          # Tokenisierung

@@ -2,6 +2,8 @@
 
 The HypnoScript Package Manager is an integrated dependency management tool for HypnoScript projects, similar to npm for JavaScript or cargo for Rust.
 
+**Note:** All commands can be run with either `hypnoscript` or the shorter `hyp` alias.
+
 ## Overview
 
 The package manager uses two main files:
@@ -16,6 +18,8 @@ The package manager uses two main files:
 ```bash
 # Initialize with default settings (library)
 hypnoscript init
+# or use the short form:
+hyp init
 
 # Initialize with a custom name
 hypnoscript init --name my-awesome-project
