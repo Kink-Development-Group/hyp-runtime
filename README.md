@@ -22,6 +22,7 @@ portiert und ab Version 1.0 ausschließlich in Rust weiterentwickelt.
 - 💎 **Nullish Operators** – `lucidFallback` (`??`) und `dreamReach` (`?.`) für sichere Null-Behandlung
 - 🏛️ **OOP-Support** – Sessions mit `constructor`, `expose`/`conceal`, `dominant` (static)
 - 🖥️ **Erweiterte CLI** – `run`, `lex`, `parse`, `check`, `compile-wasm`, `compile-native`, `optimize`, `builtins`, `version`
+- 📦 **Package Manager** – Integrierter Dependency Manager mit `trance.json` Manifest (npm-like)
 - ✅ **Umfangreiche Tests** – 185+ Tests über alle Compiler-Module
 - 📚 **Dokumentation** – VitePress + ausführliche Architektur-Docs + vollständige Rustdoc
 - 🚀 **Performance** – Zero-cost abstractions, kein Garbage Collector, optimierter nativer Code
@@ -154,6 +155,16 @@ hypnoscript compile-native -t linux-x64 \
 # Code-Optimierung
 hypnoscript optimize program.hyp --stats          # Mit Statistiken
 
+# Package Manager
+hypnoscript init                     # Initialisiere neues Projekt
+hypnoscript init --template cli      # CLI-Projekt Template
+hypnoscript add package@^1.0.0       # Dependency hinzufügen
+hypnoscript add pkg@^1.0.0 --dev     # Dev-Dependency hinzufügen
+hypnoscript remove package           # Dependency entfernen
+hypnoscript install                  # Alle Dependencies installieren
+hypnoscript list                     # Dependencies auflisten
+hypnoscript validate                 # trance.json validieren
+
 # Utilities
 hypnoscript builtins                 # Builtin-Funktionen
 hypnoscript version                  # Version
@@ -187,6 +198,65 @@ hypnoscript compile-native -t linux-x64 app.hyp
 # Mit Optimierung
 hypnoscript compile-native --opt-level release app.hyp
 ```
+
+---
+
+## 📦 Package Manager
+
+HypnoScript verfügt über einen integrierten Package Manager, ähnlich wie npm für JavaScript oder Cargo für Rust. Er verwendet `trance.json` als Manifest-Datei.
+
+### Quick Start
+
+```bash
+# Neues Projekt initialisieren
+hypnoscript init --name my-project --template cli
+
+# Dependencies hinzufügen
+hypnoscript add hypnoscript-runtime --version "^1.0.0"
+hypnoscript add @hypno/testing-lab --version "^0.3.0" --dev
+
+# Dependencies installieren
+hypnoscript install
+
+# Dependencies auflisten
+hypnoscript list
+
+# Manifest validieren
+hypnoscript validate
+```
+
+### trance.json Manifest
+
+Das Manifest nutzt hypnotische Terminologie:
+
+- **ritualName**: Paketname (entspricht `name` in npm)
+- **mantra**: Version (entspricht `version` in npm)
+- **intent**: Projekttyp (cli, library)
+- **anchors**: Produktions-Dependencies (entspricht `dependencies`)
+- **deepAnchors**: Entwicklungs-Dependencies (entspricht `devDependencies`)
+- **suggestions**: Ausführbare Skripte (entspricht `scripts`)
+- **channels**: Binary/CLI-Konfiguration
+- **triggers**: Lifecycle-Hooks
+
+Beispiel `trance.json`:
+
+```json
+{
+  "ritualName": "my-hypno-app",
+  "mantra": "1.0.0",
+  "intent": "cli",
+  "suggestions": {
+    "focus": "hypnoscript run src/main.hyp",
+    "test": "hypnoscript run tests/test.hyp"
+  },
+  "anchors": {
+    "hypnoscript-runtime": "^1.0.0"
+  }
+}
+```
+
+Vollständige Dokumentation: siehe [PACKAGE_MANAGER.md](PACKAGE_MANAGER.md)
+
 
 ---
 

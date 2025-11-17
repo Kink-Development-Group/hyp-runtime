@@ -1,3 +1,5 @@
+mod package;
+
 use anyhow::{Result, anyhow};
 use clap::{Parser, Subcommand};
 use hypnoscript_compiler::{
@@ -5,6 +7,7 @@ use hypnoscript_compiler::{
     WasmBinaryGenerator, WasmCodeGenerator,
 };
 use hypnoscript_lexer_parser::{Lexer, Parser as HypnoParser};
+use package::PackageManager;
 use semver::Version;
 use serde::Deserialize;
 #[cfg(not(target_os = "windows"))]
@@ -147,6 +150,53 @@ enum Commands {
         #[arg(long)]
         no_sudo: bool,
     },
+
+    /// Initialize a new trance.json manifest
+    Init {
+        /// Name of the package
+        #[arg(short, long)]
+        name: Option<String>,
+
+        /// Template to use (cli, library)
+        #[arg(short, long)]
+        template: Option<String>,
+    },
+
+    /// Install all dependencies from trance.json
+    Install,
+
+    /// Add a dependency to trance.json
+    Add {
+        /// Package name
+        package: String,
+
+        /// Version specification (e.g., ^1.0.0)
+        #[arg(short, long)]
+        version: Option<String>,
+
+        /// Add as a development dependency
+        #[arg(short = 'D', long)]
+        dev: bool,
+    },
+
+    /// Remove a dependency from trance.json
+    Remove {
+        /// Package name
+        package: String,
+    },
+
+    /// List all dependencies
+    List,
+
+    /// Run a suggestion (script) from trance.json
+    #[command(name = "run-suggestion")]
+    RunSuggestion {
+        /// Name of the suggestion to run
+        name: String,
+    },
+
+    /// Validate trance.json manifest
+    Validate,
 
     /// Show version information
     Version,
@@ -412,6 +462,61 @@ fn main() -> Result<()> {
             no_sudo,
         } => {
             handle_self_update(check, include_prerelease, force, quiet, no_sudo)?;
+        }
+
+        Commands::Init { name, template } => {
+            let pm = PackageManager::new();
+            let ritual_name = match name {
+                Some(n) => n,
+                None => {
+                    // Try to get from current directory name
+                    let cwd = env::current_dir()?;
+                    cwd.file_name()
+                        .and_then(|n| n.to_str())
+                        .unwrap_or("my-hypno-package")
+                        .to_string()
+                }
+            };
+
+            pm.init(ritual_name, template.as_deref())?;
+        }
+
+        Commands::Install => {
+            let pm = PackageManager::new();
+            pm.install()?;
+        }
+
+        Commands::Add {
+            package,
+            version,
+            dev,
+        } => {
+            let pm = PackageManager::new();
+            let ver = version.unwrap_or_else(|| "^1.0.0".to_string());
+            pm.add_dependency(package, ver, dev)?;
+        }
+
+        Commands::Remove { package } => {
+            let pm = PackageManager::new();
+            pm.remove_dependency(&package)?;
+        }
+
+        Commands::List => {
+            let pm = PackageManager::new();
+            pm.list_dependencies()?;
+        }
+
+        Commands::RunSuggestion { name } => {
+            let pm = PackageManager::new();
+            let command = pm.run_suggestion(&name)?;
+            println!("📜 Running suggestion '{}': {}", name, command);
+            println!("\nNote: Actual command execution will be implemented in a future version.");
+            println!("You can run manually: {}", command);
+        }
+
+        Commands::Validate => {
+            let pm = PackageManager::new();
+            pm.validate()?;
         }
 
         Commands::Version => {
