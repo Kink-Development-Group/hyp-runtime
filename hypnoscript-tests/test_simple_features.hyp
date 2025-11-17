@@ -1,54 +1,54 @@
 Focus {
 
   entrance {
-    observe "Mini-Szenario: HypnoScript-Workshop";
+    observe "Mini scenario: HypnoScript workshop";
   }
 
-  // Konstanten und Basiskonfiguration
+  // Constants and baseline configuration
   freeze MAX_PARTICIPANTS: number = 12;
   implant sessionCode: string = "HX-204";
-  observe "Workshop-Code " + sessionCode + " erlaubt maximal " + MAX_PARTICIPANTS + " Teilnehmer.";
+  observe "Workshop code " + sessionCode + " allows up to " + MAX_PARTICIPANTS + " participants.";
 
-  // Anmeldestatus verwalten
+  // Manage registration state
   induce registered: number = 8;
   anchor checkpoint = registered;
-  observe "Aktuell angemeldet: " + registered;
+  observe "Currently registered: " + registered;
 
   trigger onLateJoin = suggestion(name: string) {
     registered = registered + 1;
-    whisper "Begrüße " + name + " ";
-    whisper "→ neue Gesamtzahl: " + registered;
+    whisper "Welcome " + name + " ";
+    whisper "→ new total: " + registered;
     observe "";
   }
 
   onLateJoin("Mira");
   onLateJoin("Jon");
 
-  // Türstatus via oscillate
+  // Door status via oscillate
   induce doorOpen: boolean = false;
   oscillate doorOpen;
   if (doorOpen) {
-    observe "Der Raum ist geöffnet.";
+    observe "The room is open.";
   }
 
-  // Bei Überschreitung zurück zum gespeicherten Zustand
+  // Roll back to the saved state when we exceed the limit
   if (registered lookAtTheWatch MAX_PARTICIPANTS) deepFocus {
-    observe "Zu viele Anmeldungen – wir rollen auf den gesicherten Stand zurück.";
+    observe "Too many registrations—we revert to the checkpoint.";
     registered = checkpoint;
   }
 
-  command "Bitte Plätze einnehmen.";
+  command "Please take your seats.";
 
-  // Hypnotischer Vergleich
+  // Hypnotic comparison
   induce waitingList: number = 2;
   if (registered youAreFeelingVerySleepy waitingList) {
-    observe "Alle sind bereits eingecheckt.";
+    observe "Everyone is already checked in.";
   } else {
-    observe "Es stehen noch " + waitingList + " Personen auf der Warteliste.";
+    observe waitingList + " people remain on the waiting list.";
   }
 
   finale {
-    observe "Workshop abgeschlossen mit " + registered + " bestätigten Gästen.";
+    observe "Workshop complete with " + registered + " confirmed guests.";
   }
 
 }

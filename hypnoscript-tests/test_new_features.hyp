@@ -1,77 +1,77 @@
 Focus {
 
   entrance {
-    observe "=== Test der erweiterten HypnoScript Features ===";
+    observe "=== Advanced HypnoScript feature test ===";
     observe "";
   }
 
-  // Test 1: freeze (const) Variablen
-  observe "--- Test 1: Freeze (Konstanten) ---";
+  // Test 1: freeze (const variables)
+  observe "--- Test 1: Freeze (constants) ---";
   freeze PI: number = 3.14159;
   observe "PI = " + PI;
   observe "";
 
-  // Test 2: implant (alternative Variablendeklaration)
-  observe "--- Test 2: Implant (Alternative Var) ---";
+  // Test 2: implant (alternative variable declaration)
+  observe "--- Test 2: Implant (alternate var) ---";
   implant secretCode: number = 42;
   observe "Secret Code = " + secretCode;
   observe "";
 
-  // Test 3: anchor (Zustand speichern)
-  observe "--- Test 3: Anchor (Zustand speichern) ---";
+  // Test 3: anchor (store state)
+  observe "--- Test 3: Anchor (store state) ---";
   induce counter: number = 100;
   anchor savedCounter = counter;
   observe "Original Counter: " + counter;
   counter = 200;
-  observe "Geänderter Counter: " + counter;
+  observe "Changed counter: " + counter;
   counter = savedCounter;
-  observe "Wiederhergestellter Counter: " + counter;
+  observe "Restored counter: " + counter;
   observe "";
 
-  // Test 4: whisper (Ausgabe ohne Newline)
-  observe "--- Test 4: Whisper (ohne Newline) ---";
-  whisper "Dies ";
-  whisper "ist ";
-  whisper "eine ";
-  whisper "Zeile";
+  // Test 4: whisper (output without newline)
+  observe "--- Test 4: Whisper (no newline) ---";
+  whisper "This ";
+  whisper "is ";
+  whisper "a ";
+  whisper "line";
   observe "";
   observe "";
 
-  // Test 5: command (Imperative Ausgabe)
-  observe "--- Test 5: Command (Imperativ) ---";
-  command "Aufwachen!";
+  // Test 5: command (imperative output)
+  observe "--- Test 5: Command (imperative) ---";
+  command "Wake up!";
   observe "";
 
-  // Test 6: oscillate (Boolean Toggle)
+  // Test 6: oscillate (boolean toggle)
   observe "--- Test 6: Oscillate (Toggle) ---";
   induce isActive: boolean = false;
-  observe "isActive vor oscillate: " + isActive;
+  observe "isActive before oscillate: " + isActive;
   oscillate isActive;
-  observe "isActive nach oscillate: " + isActive;
+  observe "isActive after oscillate: " + isActive;
   oscillate isActive;
-  observe "isActive nach 2x oscillate: " + isActive;
+  observe "isActive after 2x oscillate: " + isActive;
   observe "";
 
-  // Test 7: trigger (Event Handler)
-  observe "--- Test 7: Trigger (Event Handler) ---";
+  // Test 7: trigger (event handler)
+  observe "--- Test 7: Trigger (event handler) ---";
   trigger onEvent = suggestion(message: string) {
-    observe "Trigger ausgelöst: " + message;
+    observe "Trigger fired: " + message;
   }
 
-  onEvent("Hallo von Trigger!");
+  onEvent("Hello from trigger!");
   observe "";
 
-  // Test 8: deepFocus Statement
-  observe "--- Test 8: DeepFocus Statement ---";
+  // Test 8: deepFocus statement
+  observe "--- Test 8: DeepFocus statement ---";
   induce x: number = 15;
   if (x > 10) deepFocus {
-    observe "x ist größer als 10 (deepFocus)";
-    observe "Tiefer in die Trance...";
+    observe "x is greater than 10 (deepFocus)";
+    observe "Dropping deeper into trance...";
   }
   observe "";
 
-  // Test 9: Hypnotische Operatoren
-  observe "--- Test 9: Hypnotische Operatoren ---";
+  // Test 9: Hypnotic operators
+  observe "--- Test 9: Hypnotic operators ---";
   induce a: number = 10;
   induce b: number = 10;
 
@@ -90,7 +90,7 @@ Focus {
 
   finale {
     observe "";
-    observe "=== Alle Tests abgeschlossen ===";
+    observe "=== All tests complete ===";
   }
 
 } Relax

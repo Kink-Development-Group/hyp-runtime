@@ -1,12 +1,12 @@
 Focus {
     entrance {
-        observe "=== HypnoScript Extended Features Showcase ===";
-        observe "(Simulierte Atemfokussierung für 600 ms)";
-        observe "Bereit für einen Rundgang durch die echten Laufzeitfunktionen.";
+        observe "=== HypnoScript extended features showcase ===";
+        observe "(Simulated breathing focus for 600 ms)";
+        observe "Ready for a tour through the real runtime functions.";
     }
 
-    // ===== MATHEMATIK & RANDOMNESS =====
-    observe "=== Erweiterte Mathematik ===";
+    // ===== MATHEMATICS & RANDOMNESS =====
+    observe "=== Advanced mathematics ===";
     induce pi: number = 3.14159;
     observe "π ≈ " + pi;
     observe "Sin(30°): " + Sin(30);
@@ -27,8 +27,8 @@ Focus {
     observe "Clamp(1.5, 0, 1): " + Clamp(1.5, 0, 1);
     observe "SimpleRandom(42): " + SimpleRandom(42);
 
-    // ===== STRING-BUILTINS =====
-    observe "=== String-Manipulation ===";
+    // ===== STRING BUILTINS =====
+    observe "=== String manipulation ===";
     induce sampleText: string = "  HypnoScript gently widens focus  ";
     observe "Original: '" + sampleText + "'";
     observe "Trim: '" + Trim(sampleText) + "'";
@@ -48,53 +48,53 @@ Focus {
     observe "IsPalindrome('level'): " + IsPalindrome("level");
     observe "AreAnagrams('listen','silent'): " + AreAnagrams("listen", "silent");
 
-    // ===== ARRAYS & STATISTIK =====
-    observe "=== Arrays & Statistik ===";
+    // ===== ARRAYS & STATISTICS =====
+    observe "=== Arrays & statistics ===";
     induce metrics = [5, 12, 9, 5, 18, 12];
-    observe "Rohdaten:";
+    observe "Raw data:";
     observe metrics;
-    observe "Summe: " + ArraySum(metrics);
-    observe "Durchschnitt: " + ArrayAverage(metrics);
+    observe "Sum: " + ArraySum(metrics);
+    observe "Average: " + ArrayAverage(metrics);
     observe "Minimum: " + ArrayMin(metrics);
     observe "Maximum: " + ArrayMax(metrics);
-    observe "Sortiert:";
+    observe "Sorted:";
     observe ArraySort(metrics);
 
     induce satisfaction = [3.8, 4.1, 4.5, 4.7, 4.3];
-    observe "Mittelwert: " + Mean(satisfaction);
+    observe "Mean: " + Mean(satisfaction);
     observe "Median: " + Median(satisfaction);
-    observe "Varianz: " + Variance(satisfaction);
-    observe "Standardabweichung: " + StandardDeviation(satisfaction);
-    observe "Perzentil 75%: " + Percentile(satisfaction, 0.75);
+    observe "Variance: " + Variance(satisfaction);
+    observe "Standard deviation: " + StandardDeviation(satisfaction);
+    observe "75th percentile: " + Percentile(satisfaction, 0.75);
 
     induce retention = [72, 78, 81, 88, 91];
-    observe "Korrelation (Satisfaction↔Retention): " + Correlation(satisfaction, retention);
-    observe "Lineare Regression: " + ToString(LinearRegression(satisfaction, retention));
+    observe "Correlation (satisfaction↔retention): " + Correlation(satisfaction, retention);
+    observe "Linear regression: " + ToString(LinearRegression(satisfaction, retention));
 
-    // ===== ZEIT & SYSTEM =====
-    observe "=== Zeit- und Systemfunktionen ===";
+    // ===== TIME & SYSTEM =====
+    observe "=== Time and system functions ===";
     observe "Timestamp: " + CurrentTimestamp();
-    observe "Datum/Zeit: " + CurrentDateTime();
-    observe "Wochentag: " + DayOfWeek();
-    observe "Jahres-Tag: " + DayOfYear();
-    observe "Stunde: " + CurrentHour();
-    observe "CPU-Kerne: " + GetCpuCount();
+    observe "Date/time: " + CurrentDateTime();
+    observe "Day of week: " + DayOfWeek();
+    observe "Day of year: " + DayOfYear();
+    observe "Hour: " + CurrentHour();
+    observe "CPU cores: " + GetCpuCount();
     observe "Hostname: " + GetHostname();
-    observe "Benutzername: " + GetUsername();
-    observe "HOME-Verzeichnis: " + GetHomeDirectory();
-    observe "PATH vorhanden?: " + (GetEnv("PATH") lucidFallback "(nicht gesetzt)");
+    observe "Username: " + GetUsername();
+    observe "HOME directory: " + GetHomeDirectory();
+    observe "PATH present?: " + (GetEnv("PATH") lucidFallback "(not set)");
 
-    // ===== HYPNOTISCHE BUILTINS =====
-    observe "=== Hypnotische Kernbefehle ===";
-    TranceInduction("Konzentration bündelt sich im Atem.");
-    HypnoticVisualization("ein helles, ruhiges Studio");
+    // ===== HYPNOTIC BUILTINS =====
+    observe "=== Hypnotic core commands ===";
+    TranceInduction("Concentration pools within the breath.");
+    HypnoticVisualization("a bright, calm studio");
     HypnoticCountdown(3);
-    observe "Sanfte Phasewechsel (400 ms simuliert).";
+    observe "Gentle phase transition (400 ms simulated).";
     DeepTrance(250);
-    observe "Zurück im leichten Fokus.";
+    observe "Back to a light focus.";
 
-    // ===== DATENSTRUKTUREN =====
-    observe "=== tranceify & Sessions ===";
+    // ===== DATA STRUCTURES =====
+    observe "=== tranceify & sessions ===";
     tranceify SessionReport {
         subject: string;
         duration: number;
@@ -106,7 +106,7 @@ Focus {
         duration: 45,
         rating: 8
     };
-    observe "Report: " + report.subject + " · " + report.duration + "min · Bewertung " + report.rating;
+    observe "Report: " + report.subject + " · " + report.duration + "min · rating " + report.rating;
 
     session HypnoticCoach {
         expose name: string;
@@ -119,31 +119,31 @@ Focus {
 
         suggestion registerSession(duration: number): number {
             this.totalSessions = this.totalSessions + 1;
-            observe this.name + " protokolliert eine Session über " + duration + " Minuten.";
+            observe this.name + " logs a session lasting " + duration + " minutes.";
             awaken this.totalSessions;
         }
     }
 
     induce coach = HypnoticCoach("Dr. Aurora");
     induce sessionsLogged = coach.registerSession(report.duration);
-    observe "Sessions insgesamt: " + sessionsLogged;
+    observe "Sessions in total: " + sessionsLogged;
 
-    // ===== MUSTER MIT OPERATOR-SYNONYME =====
-    observe "=== Hypnotische Operatoren ===";
+    // ===== PATTERNS WITH OPERATOR SYNONYMS =====
+    observe "=== Hypnotic operators ===";
     induce target: number = 21;
     induce guess: number = 21;
     if (guess youAreFeelingVerySleepy target) {
-        observe "Treffer!";
+        observe "Match!";
     }
     if (guess lookAtTheWatch 10) {
-        observe "Mehr als 10.";
+        observe "Greater than 10.";
     }
     if (10 fallUnderMySpell guess) {
-        observe "10 liegt darunter.";
+        observe "10 is below the value.";
     }
 
-    observe "=== Showcase abgeschlossen ===";
-    observe "Alle gezeigten Beispiele verwenden registrierte HypnoScript-Builtins.";
+    observe "=== Showcase complete ===";
+    observe "Every example above uses registered HypnoScript builtins.";
 }
 
 Relax

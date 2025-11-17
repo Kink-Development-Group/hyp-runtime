@@ -1,9 +1,9 @@
-// Dieser Test wurde zusammengeführt.
-// Bewahre die Datei, damit externe Referenzen nicht brechen.
+// This test was merged elsewhere.
+// Keep this file so external references do not break.
 
 Focus {
-    observe "test_simple_new_features.hyp ist ein Alias.";
-    observe "Bitte test_new_features.hyp für die volle Demonstration verwenden.";
+    observe "test_simple_new_features.hyp is an alias.";
+    observe "Please use test_new_features.hyp for the full demonstration.";
 }
 
 Relax

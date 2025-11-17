@@ -1,17 +1,17 @@
-// Simulierte Parallel-Ausführung ohne echte Threads
-// Zeigt, wie Timing-Analysen mit den vorhandenen Builtins möglich sind
+// Simulated parallel execution without real threads
+// Demonstrates how to perform timing analysis with existing builtins
 
 Focus {
     entrance {
-        observe "=== Simulierte Parallel-Workloads ===";
-        observe "Verfügbare CPU-Kerne laut Runtime: " + GetCpuCount();
+        observe "=== Simulated parallel workloads ===";
+        observe "CPU cores according to runtime: " + GetCpuCount();
         observe "Hostname: " + GetHostname();
         observe "";
 
         induce taskDurations: array = [120, 80, 150];
         induce total: number = 0;
 
-        observe "Starte sequentielle Simulation von 3 Aufgaben.";
+        observe "Starting sequential simulation of 3 tasks.";
 
         pendulum (induce i: number = 0; i < 3; i = i + 1) {
             induce duration: number = entrain i {
@@ -20,20 +20,20 @@ Focus {
                 when 2 => 150
                 otherwise => 0
             };
-            observe "Aufgabe " + (i + 1) + " läuft für " + duration + " ms";
-            observe "(simulierte Wartezeit: " + duration + " ms)";
+            observe "Task " + (i + 1) + " runs for " + duration + " ms";
+            observe "(simulated wait: " + duration + " ms)";
 
             total = total + duration;
-            murmur "Zwischenstand nach Aufgabe " + (i + 1) + ": " + total + " ms";
+            murmur "Progress after task " + (i + 1) + ": " + total + " ms";
         }
 
-        observe "Gesamtzeit (sequenziell): " + total + " ms";
+        observe "Total time (sequential): " + total + " ms";
 
         induce averageDuration = ArrayAverage(taskDurations);
-        observe "Durchschnittliche Aufgabendauer: " + averageDuration + " ms";
+        observe "Average task duration: " + averageDuration + " ms";
 
-        observe "Hinweis: Echte Nebenläufigkeit ist zukünftige Arbeit – diese Demo nutzt Drift für reproduzierbare Zeitmessungen.";
-        observe "=== Simulation beendet ===";
+        observe "Note: real concurrency is future work—this demo relies on drift for repeatable timing.";
+        observe "=== Simulation complete ===";
     }
 }
 

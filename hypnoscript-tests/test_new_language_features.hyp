@@ -1,30 +1,30 @@
-// HypnoScript Test File für moderne Sprachfeatures
-// Fokus: embed, pendulum, murmur, await, lucidFallback, dreamReach optional chaining
+// HypnoScript test file for modern language features
+// Focus: embed, pendulum, murmur, await, lucidFallback, dreamReach optional chaining
 
 Focus {
-    observe "=== Neue Sprachfeatures in Aktion ===";
+    observe "=== New language features in action ===";
 
-    // embed legt eine globale Erinnerung an
+    // embed stores a global memory
     embed deepMemory: number = 42;
-    observe "Eingebetteter Wert: " + deepMemory;
+    observe "Embedded value: " + deepMemory;
 
-    // Pendulum (for-Schleife im HypnoScript-Stil) mit murmur-Ausgaben
-    observe "=== Pendulum-Zusammenfassung ===";
+    // Pendulum (HypnoScript-style for-loop) with murmur output
+    observe "=== Pendulum summary ===";
     induce sum: number = 0;
     pendulum (induce i: number = 0; i < 4; i = i + 1) {
         sum = sum + i;
-        murmur "Iteration " + i + ": Summe = " + sum;
+        murmur "Iteration " + i + ": sum = " + sum;
     }
-    observe "Gesamtsumme: " + sum;
+    observe "Final sum: " + sum;
 
-    // Nullish Operator (lucidFallback)
+    // Nullish operator (lucidFallback)
     induce optionalLocale = GetEnv("HYP_RUNTIME_DEMO_LOCALE");
     induce resolvedLocale = optionalLocale lucidFallback "de-DE";
-    observe "Locale Fallback: " + resolvedLocale;
+    observe "Locale fallback: " + resolvedLocale;
 
-    // await kann auch auf einfache Ausdrücke angewendet werden
+    // await can also be applied to simple expressions
     induce awaitedValue = await (sum + 5);
-    observe "Await Ergebnis: " + awaitedValue;
+    observe "Await result: " + awaitedValue;
 
     // Optional Chaining mit dreamReach
     session DataEnvelope {
@@ -39,20 +39,20 @@ Focus {
     induce fullEnvelope = DataEnvelope();
     fullEnvelope.attach("Trance Transcript");
 
-    observe "Optional chaining leer: " + ((emptyEnvelope dreamReach payload) lucidFallback "(leer)");
-    observe "Optional chaining gesetzt: " + ((fullEnvelope dreamReach payload) lucidFallback "(leer)");
+    observe "Optional chaining empty: " + ((emptyEnvelope dreamReach payload) lucidFallback "(empty)");
+    observe "Optional chaining filled: " + ((fullEnvelope dreamReach payload) lucidFallback "(empty)");
 
-    // murmur als leise Diagnoseausgabe
-    murmur "DreamReach gibt null zurück, wenn nichts vorhanden ist.";
+    // murmur as a subtle diagnostic output
+    murmur "DreamReach returns null when nothing is present.";
 
-    // Mehrere Ausgabetypen bleiben kombinierbar
-    observe "Standardausgabe aktiv.";
-    whisper "leichter flüsterton";
+    // Multiple output channels remain combinable
+    observe "Standard output active.";
+    whisper "soft whisper"
     command "COMMAND CHANNEL";
 
     finale {
         observe "";
-        observe "=== Neue Sprachfeatures erfolgreich demonstriert ===";
+        observe "=== New language features demonstrated successfully ===";
     }
 }
 
