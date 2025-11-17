@@ -1,35 +1,9 @@
-// Simplified Test for New Language Features
+// Dieser Test wurde zusammengeführt.
+// Bewahre die Datei, damit externe Referenzen nicht brechen.
 
 Focus {
-    observe "=== Testing New Features ===";
+    observe "test_simple_new_features.hyp ist ein Alias.";
+    observe "Bitte test_new_features.hyp für die volle Demonstration verwenden.";
+}
 
-    // Test 1: embed variable
-    embed deepVar: number = 100;
-    observe deepVar;
-
-    // Test 2: Pendulum loop
-    induce counter: number = 0;
-    pendulum (induce i: number = 0; i < 3; i = i + 1) {
-        counter = counter + 1;
-        murmur counter;
-    }
-    observe counter;
-
-    // Test 3: Nullish coalescing
-    induce val1: number = 0;
-    induce val2: number = val1 lucidFallback 99;
-    observe val2;
-
-    // Test 4: Oscillate
-    induce active: boolean = false;
-    oscillate active;
-    observe active;
-
-    // Test 5: Anchor
-    induce base: number = 50;
-    anchor snapshot = base;
-    base = 75;
-    observe snapshot;
-
-    observe "=== All Tests Complete ===";
-} Relax
+Relax

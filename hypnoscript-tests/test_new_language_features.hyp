@@ -1,57 +1,59 @@
-// HypnoScript Test File for New Language Features
-// Tests: embed, pendulum, suspend, murmur, await, nullish operators, optional chaining
+// HypnoScript Test File für moderne Sprachfeatures
+// Fokus: embed, pendulum, murmur, await, lucidFallback, dreamReach optional chaining
 
 Focus {
-    // Test 1: embed variable declaration
+    observe "=== Neue Sprachfeatures in Aktion ===";
+
+    // embed legt eine globale Erinnerung an
     embed deepMemory: number = 42;
-    observe "Deep memory value: " + deepMemory;
+    observe "Eingebetteter Wert: " + deepMemory;
 
-    // Test 2: Pendulum loop (for-loop style)
-    observe "=== Pendulum Loop Test ===";
+    // Pendulum (for-Schleife im HypnoScript-Stil) mit murmur-Ausgaben
+    observe "=== Pendulum-Zusammenfassung ===";
     induce sum: number = 0;
-    pendulum (induce i: number = 0; i < 5; i = i + 1) {
+    pendulum (induce i: number = 0; i < 4; i = i + 1) {
         sum = sum + i;
-        murmur "Iteration: " + i;
+        murmur "Iteration " + i + ": Summe = " + sum;
     }
-    observe "Sum from pendulum: " + sum;
+    observe "Gesamtsumme: " + sum;
 
-    // Test 3: Nullish coalescing (lucidFallback)
-    induce maybeValue: number = 0;
-    induce defaulted: number = maybeValue lucidFallback 100;
-    observe "Nullish coalescing result: " + defaulted;
+    // Nullish Operator (lucidFallback)
+    induce optionalLocale = GetEnv("HYP_RUNTIME_DEMO_LOCALE");
+    induce resolvedLocale = optionalLocale lucidFallback "de-DE";
+    observe "Locale Fallback: " + resolvedLocale;
 
-    // Test 4: Optional chaining (dreamReach)
-    session TestSession {
-        expose value: number;
+    // await kann auch auf einfache Ausdrücke angewendet werden
+    induce awaitedValue = await (sum + 5);
+    observe "Await Ergebnis: " + awaitedValue;
 
-        suggestion constructor(val: number) {
-            this.value = val;
+    // Optional Chaining mit dreamReach
+    session DataEnvelope {
+        expose payload;
+
+        suggestion attach(value: string) {
+            this.payload = value;
         }
     }
 
-    induce obj = TestSession(999);
-    observe "Optional chaining test: " + obj.value;
+    induce emptyEnvelope = DataEnvelope();
+    induce fullEnvelope = DataEnvelope();
+    fullEnvelope.attach("Trance Transcript");
 
-    // Test 5: Murmur output
-    murmur "This is a quiet debug message";
+    observe "Optional chaining leer: " + ((emptyEnvelope dreamReach payload) lucidFallback "(leer)");
+    observe "Optional chaining gesetzt: " + ((fullEnvelope dreamReach payload) lucidFallback "(leer)");
 
-    // Test 6: Multiple output types
-    observe "Standard output";
-    whisper "Whispered output";
-    command "COMMAND OUTPUT";
-    murmur "Debug output";
+    // murmur als leise Diagnoseausgabe
+    murmur "DreamReach gibt null zurück, wenn nichts vorhanden ist.";
 
-    // Test 7: Oscillate
-    induce flag: boolean = false;
-    observe "Flag before oscillate: " + flag;
-    oscillate flag;
-    observe "Flag after oscillate: " + flag;
+    // Mehrere Ausgabetypen bleiben kombinierbar
+    observe "Standardausgabe aktiv.";
+    whisper "leichter flüsterton";
+    command "COMMAND CHANNEL";
 
-    // Test 8: Anchor
-    induce original: number = 100;
-    anchor saved = original;
-    original = 200;
-    observe "Original changed to: " + original;
-    observe "Anchored value: " + saved;
+    finale {
+        observe "";
+        observe "=== Neue Sprachfeatures erfolgreich demonstriert ===";
+    }
+}
 
-} Relax
+Relax

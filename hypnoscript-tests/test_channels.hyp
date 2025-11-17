@@ -1,86 +1,47 @@
-// Channel Communication Test
-// Tests MPSC, Broadcast, and Watch channels
+// Kanal-Demonstration ohne echte Nebenläufigkeit – zeigt Array-Helfer zum Sequenzieren
 
 Focus {
     entrance {
-        observe "=== Channel Communication Tests ===";
-        observe "";
-
-        // Test 1: MPSC Channel (Multiple Producer, Single Consumer)
-        observe "Test 1: MPSC Channel";
-        observe "  Creating MPSC channel 'messages'...";
-
-        // When fully implemented:
-        // createChannel("messages", "mpsc", 100);
-        //
-        // // Send messages from multiple "producers"
-        // await channelSend("messages", "mpsc", "Message 1");
-        // await channelSend("messages", "mpsc", "Message 2");
-        // await channelSend("messages", "mpsc", "Message 3");
-        //
-        // // Receive on consumer
-        // induce msg1 = await channelReceive("messages", "mpsc");
-        // induce msg2 = await channelReceive("messages", "mpsc");
-        // induce msg3 = await channelReceive("messages", "mpsc");
-        //
-        // observe "  Received: " + msg1;
-        // observe "  Received: " + msg2;
-        // observe "  Received: " + msg3;
-
-        observe "  ✓ MPSC channel system ready";
-        observe "";
-
-        // Test 2: Broadcast Channel (Multiple Producer, Multiple Consumer)
-        observe "Test 2: Broadcast Channel";
-        observe "  Creating broadcast channel 'events'...";
-
-        // When fully implemented:
-        // createChannel("events", "broadcast", 100);
-        //
-        // // Multiple subscribers can receive the same message
-        // await channelSend("events", "broadcast", "Event occurred!");
-
-        observe "  ✓ Broadcast channel system ready";
-        observe "";
-
-        // Test 3: Watch Channel (State updates)
-        observe "Test 3: Watch Channel";
-        observe "  Creating watch channel 'state'...";
-
-        // When fully implemented:
-        // createChannel("state", "watch", 0);
-        //
-        // // Update state
-        // await channelSend("state", "watch", "State: RUNNING");
-        // await asyncDelay(100);
-        // await channelSend("state", "watch", "State: PAUSED");
-        // await asyncDelay(100);
-        // await channelSend("state", "watch", "State: COMPLETED");
-
-        observe "  ✓ Watch channel system ready";
-        observe "";
-
-        // Test 4: Inter-task communication
-        observe "Test 4: Inter-Task Communication";
-
-        // When fully implemented:
-        // induce producerTask = spawnTask(suggestion() {
-        //     for (induce i = 0; i < 10; induce i = i + 1) {
-        //         await channelSend("work-queue", "mpsc", "Work item " + i);
-        //         await asyncDelay(100);
-        //     }
-        // });
-        //
-        // induce consumerTask = spawnTask(suggestion() {
-        //     for (induce i = 0; i < 10; induce i = i + 1) {
-        //         induce work = await channelReceive("work-queue", "mpsc");
-        //         observe "Processing: " + work;
-        //     }
-        // });
-
-        observe "  ✓ Inter-task communication ready";
-        observe "";
-
-        observe "=== All Channel Tests Passed ===";
+        observe "📡 Simulierte Kanal-Kommunikation";
     }
-} Relax;
+
+    induce channel = ["Einstimmen", "Vertiefen", "Erwachen"];
+    observe "Ausgangsschlange: " + ArrayJoin(channel, " -> ");
+    observe "Queue-Länge: " + ArrayLength(channel);
+
+    suggestion encode(message: string): string {
+        awaken message + "#" + ToString(HashString(message));
+    }
+
+    observe "Kodierte Sendungen:";
+    pendulum (induce i: number = 0; i < ArrayLength(channel); i = i + 1) {
+        induce raw = ArrayGet(channel, i);
+        observe "  • " + encode(raw);
+    }
+
+    induce afterFirst = ArraySkip(channel, 1);
+    observe "Nach dem ersten Abruf bleibt: " + ArrayJoin(afterFirst, " -> ");
+
+    induce firstPacket = ArrayFirst(channel);
+    observe "Erstes Paket zur Auslieferung: " + firstPacket;
+
+    induce secondPacket = ArrayGet(channel, 1);
+    induce thirdPacket = ArrayLast(channel);
+
+    induce extendedChannel = [
+        firstPacket,
+        secondPacket,
+        thirdPacket,
+        "Nachbesprechung"
+    ];
+
+    observe "Erweiterte Warteschlange: " + ArrayJoin(extendedChannel, " -> ");
+    observe "Vorkommen von 'Vertiefen' (inkl. Erweiterung): " + ArrayCount(extendedChannel, "Vertiefen");
+
+    induce deduplicated = ArrayDistinct(extendedChannel);
+    observe "Nach Entfernen von Duplikaten: " + ArrayJoin(deduplicated, " -> ");
+
+    observe "Simulation abgeschlossen.";
+}
+
+Relax

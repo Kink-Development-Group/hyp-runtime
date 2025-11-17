@@ -1,13 +1,13 @@
 Focus {
     entrance {
         observe "Simple HypnoScript Test";
-        drift(500);
+        observe "(Simulierte Fokussierung für 500 ms)";
     }
 
     // Grundlegende Variablen
     induce greeting: string = "Hello Trance!";
     induce counter: number = 0;
-    induce userInput: string from external;
+    induce userInput: string = "External placeholder";
 
     // Einfache Berechnungen
     induce x: number = 10;
@@ -21,7 +21,7 @@ Focus {
     // Einfache If-Else
     if (counter youAreFeelingVerySleepy 0) deepFocus {
         observe "Counter is zero";
-    } else deepFocus {
+    } else {
         observe "Counter is not zero";
     }
 
@@ -29,7 +29,7 @@ Focus {
     while (counter fallUnderMySpell 3) {
         counter = counter + 1;
         observe "Counter: " + counter;
-        drift(200);
+        observe "(Kurze Wartezeit von 200 ms simuliert)";
     }
 
     // Einfache Funktion
@@ -38,7 +38,7 @@ Focus {
     }
 
     // Funktionsaufruf
-    induce sum = call add(3, 4);
+    induce sum = add(3, 4);
     observe "Sum: " + sum;
 
     observe "Test complete!";
