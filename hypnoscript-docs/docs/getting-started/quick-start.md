@@ -97,7 +97,6 @@ Focus {
 
 ## 5. Control Structures
 
-## 5. Control Structures
 
 ```hyp
 if (total lookAtTheWatch 10) {
