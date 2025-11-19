@@ -37,7 +37,7 @@ dotnet run --project HypnoScript.CLI -- validate *.hyp --output validation-repor
 ### Format Code
 
 ```bash
-# Format Code und in neue Datei schreiben
+# Format code and write to new file
 dotnet run --project HypnoScript.CLI -- format script.hyp --output formatted.hyp
 
 # Format directly in file
@@ -68,7 +68,7 @@ dotnet run --project HypnoScript.CLI -- test *.hyp --format json --output test-r
 ### Debug Mode
 
 ```bash
-# Debug Mode mit Trace
+# Debug mode with trace
 dotnet run --project HypnoScript.CLI -- debug script.hyp --trace
 
 # Step-by-step execution
@@ -283,10 +283,10 @@ echo "Deployment completed!"
 }
 ```
 
-### environment variablen
+### Environment Variables
 
 ```bash
-# HypnoScript-spezifische Umgebungsvariablen
+# HypnoScript-specific environment variables
 export HYPNOSCRIPT_HOME="/opt/hypnoscript"
 export HYPNOSCRIPT_LOG_LEVEL="debug"
 export HYPNOSCRIPT_CONFIG="./config.json"
@@ -402,11 +402,11 @@ echo "Workflow completed successfully!"
 
 ## Next Steps
 
-- [CLI-Commande Referenz](../cli/commands) - Vollständige CLI-Referenz
-- [Konfiguration](../cli/configuration) - Advanced Konfiguration
-- [Runtime-Features](../enterprise/features) - Runtime-Functionen
+- [CLI Command Reference](../cli/commands) - Complete CLI Reference
+- [Configuration](../cli/configuration) - Advanced Configuration
+- [Runtime Features](../enterprise/features) - Runtime Functions
 
 ---
 
-**CLI-Workflows gemeistert? Dann lerne [erweiterte Konfiguration](../cli/configuration) kennen!** ⚙️
+**Mastered CLI workflows? Then check out [advanced configuration](../cli/configuration)!** ⚙️
 
