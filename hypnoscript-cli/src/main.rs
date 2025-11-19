@@ -510,13 +510,15 @@ fn main() -> Result<()> {
             let command_str = pm.run_suggestion(&name)?;
             println!("📜 Running suggestion '{}': {}", name, command_str);
 
-            // Parse and execute the command
-            let parts: Vec<&str> = command_str.split_whitespace().collect();
+            // Parse and execute the command using proper shell argument parsing
+            let parts = shlex::split(&command_str)
+                .ok_or_else(|| anyhow!("Failed to parse command in suggestion '{}'", name))?;
+
             if parts.is_empty() {
                 return Err(anyhow!("Empty command in suggestion '{}'", name));
             }
 
-            let program = parts[0];
+            let program = &parts[0];
             let args = &parts[1..];
 
             let status = Command::new(program)

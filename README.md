@@ -244,21 +244,13 @@ hypnoscript install
 
 
 # List dependencies
-
 hypnoscript list
 
-
-
 # Run script
-
 hypnoscript run test
 
-
-
 # Validate manifest
-
 hypnoscript validate
-
 ```
 
 
@@ -272,19 +264,12 @@ The manifest uses hypnotic terminology:
 
 
 - **ritualName**: Package name (corresponds to `name` in npm)
-
 - **mantra**: Version (corresponds to `version` in npm)
-
 - **intent**: Project type (cli, library)
-
 - **anchors**: Production dependencies (corresponds to `dependencies`)
-
 - **deepAnchors**: Development dependencies (corresponds to `devDependencies`)
-
 - **suggestions**: Executable scripts (corresponds to `scripts`)
-
 - **channels**: Binary/CLI configuration
-
 - **triggers**: Lifecycle hooks
 
 
@@ -294,31 +279,18 @@ Example `trance.json`:
 
 
 ```json
-
 {
-
   “ritualName”: “my-hypno-app”,
-
   “mantra”: “1.0.0”,
-
   “intent”: “cli”,
-
   “suggestions”: {
-
     “focus”: “hypnoscript exec src/main.hyp”,
-
     “test”: “hypnoscript exec tests/test.hyp”
-
   },
-
   “anchors”: {
-
     “hypnoscript-runtime”: “^1.0.0”
-
   }
-
 }
-
 ```
 
 Complete documentation: see [PACKAGE_MANAGER.md](PACKAGE_MANAGER.md)
