@@ -286,7 +286,7 @@ echo "Deployment completed!"
 ### Environment Variables
 
 ```bash
-# HypnoScript-spezifische Umgebungsvariablen
+# HypnoScript-specific environment variables
 export HYPNOSCRIPT_HOME="/opt/hypnoscript"
 export HYPNOSCRIPT_LOG_LEVEL="debug"
 export HYPNOSCRIPT_CONFIG="./config.json"
