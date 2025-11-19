@@ -80,16 +80,20 @@ cd hyp-runtime
 cargo build --all --release
 ```
 
+The CLI is created as two binaries: `hypnoscript` and `hyp` (short form). Both are identical and can be used interchangeably.
+
 ### Run Program
 
 ```bash
-./target/release/hypnoscript-cli run program.hyp
+# Both variants work
+./target/release/hypnoscript exec program.hyp
+./target/release/hyp exec program.hyp
 ```
 
 Or during development:
 
 ```bash
-cargo run -p hypnoscript-cli -- run test_simple.hyp
+cargo run -p hypnoscript-cli -- exec test_simple.hyp
 ```
 
 ### Example Program
@@ -135,9 +139,13 @@ Focus {
 
 ### Detailed CLI Commands
 
+**Note:** All commands can be executed with either `hypnoscript` or `hyp`.
+
 ```bash
-# Run program (interpreter)
-hypnoscript run program.hyp
+# Execute program (Interpreter)
+hypnoscript exec program.hyp
+# or short:
+hyp exec program.hyp
 
 # Analysis tools
 hypnoscript lex program.hyp          # Tokenization
@@ -153,6 +161,17 @@ hypnoscript compile-native -t linux-x64 \
 
 # Code optimization
 hypnoscript optimize program.hyp --stats          # With statistics
+
+# Package Manager
+hypnoscript init                         # Initialize new project
+hypnoscript init --template cli          # CLI project template
+hypnoscript add package --version "^1.0.0"       # Add dependency
+hypnoscript add pkg --version "^1.0.0" --dev     # Add dev dependency
+hypnoscript remove package               # Remove dependency
+hypnoscript install                      # Install all dependencies
+hypnoscript list                         # List dependencies
+hypnoscript run <script>                 # Run script from trance.json
+hypnoscript validate                     # Validate trance.json
 
 # Utilities
 hypnoscript builtins                 # Builtin functions
@@ -187,6 +206,62 @@ hypnoscript compile-native -t linux-x64 app.hyp
 # With optimization
 hypnoscript compile-native --opt-level release app.hyp
 ```
+
+---
+
+## 📦 Package Manager
+
+HypnoScript has a built-in package manager, similar to npm for JavaScript or Cargo for Rust. It uses `trance.json` as its manifest file.
+
+### Quick Start
+
+```bash
+# Initialize new project
+hypnoscript init --name my-project --template cli
+# Add dependencies
+hypnoscript add hypnoscript-runtime --version “^1.0.0”
+hypnoscript add @hypno/testing-lab --version “^0.3.0” --dev
+# Install dependencies
+hypnoscript install
+# List dependencies
+hypnoscript list
+# Run script
+hypnoscript run test
+# Validate manifest
+hypnoscript validate
+```
+
+### trance.json Manifest
+
+The manifest uses hypnotic terminology:
+
+- **ritualName**: Package name (corresponds to `name` in npm)
+- **mantra**: Version (corresponds to `version` in npm)
+- **intent**: Project type (cli, library)
+- **anchors**: Production dependencies (corresponds to `dependencies`)
+- **deepAnchors**: Development dependencies (corresponds to `devDependencies`)
+- **suggestions**: Executable scripts (corresponds to `scripts`)
+- **channels**: Binary/CLI configuration
+- **triggers**: Lifecycle hooks
+
+Example `trance.json`:
+
+```json
+{
+  “ritualName”: “my-hypno-app”,
+  “mantra”: “1.0.0”,
+  “intent”: “cli”,
+  “suggestions”: {
+    “focus”: “hypnoscript exec src/main.hyp”,
+    “test”: “hypnoscript exec tests/test.hyp”
+  },
+  “anchors”: {
+    “hypnoscript-runtime”: “^1.0.0”
+  }
+}
+```
+
+Complete documentation: see [PACKAGE_MANAGER.md](PACKAGE_MANAGER.md)
 
 ---
 
