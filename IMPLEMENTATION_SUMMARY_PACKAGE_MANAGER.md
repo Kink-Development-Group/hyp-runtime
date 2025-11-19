@@ -34,7 +34,7 @@ All commands integrated into the main CLI:
 | Command | Description | Example |
 |---------|-------------|---------|
 | `init` | Initialize new project | `hypnoscript init --template cli` |
-| `add` | Add a dependency | `hypnoscript add pkg@^1.0.0` |
+| `add` | Add a dependency | `hypnoscript add pkg --version "^1.0.0"` |
 | `remove` | Remove a dependency | `hypnoscript remove pkg` |
 | `install` | Install all dependencies | `hypnoscript install` |
 | `list` | List dependencies | `hypnoscript list` |
