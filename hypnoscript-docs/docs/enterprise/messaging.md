@@ -523,7 +523,7 @@ event_consumers {
 }
 ```
 
-## message patterns
+## Message Patterns
 
 ### Request-Reply Pattern
 
