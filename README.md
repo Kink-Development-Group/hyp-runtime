@@ -85,7 +85,7 @@ The CLI is created as two binaries: `hypnoscript` and `hyp` (short form). Both a
 ### Run Program
 
 ```bash
-# Beide Varianten funktionieren
+# Both variants work
 ./target/release/hypnoscript exec program.hyp
 ./target/release/hyp exec program.hyp
 ```
@@ -139,11 +139,12 @@ Focus {
 
 ### Detailed CLI Commands
 
-**Hinweis:** Alle Befehle können sowohl mit `hypnoscript` als auch mit `hyp` ausgeführt werden.
+**Note:** All commands can be executed with either `hypnoscript` or `hyp`.
 
 ```bash
-
+# Execute program (Interpreter)
 hypnoscript exec program.hyp
+# or short:
 hyp exec program.hyp
 
 # Analysis tools
@@ -162,15 +163,15 @@ hypnoscript compile-native -t linux-x64 \
 hypnoscript optimize program.hyp --stats          # With statistics
 
 # Package Manager
-hypnoscript init                     # Initialisiere neues Projekt
-hypnoscript init --template cli      # CLI-Projekt Template
-hypnoscript add package@^1.0.0       # Dependency hinzufügen
-hypnoscript add pkg@^1.0.0 --dev     # Dev-Dependency hinzufügen
-hypnoscript remove package           # Dependency entfernen
-hypnoscript install                  # Alle Dependencies installieren
-hypnoscript list                     # Dependencies auflisten
-hypnoscript run <script>             # Skript aus trance.json ausführen
-hypnoscript validate                 # trance.json validieren
+hypnoscript init                         # Initialize new project
+hypnoscript init --template cli          # CLI project template
+hypnoscript add package --version "^1.0.0"       # Add dependency
+hypnoscript add pkg --version "^1.0.0" --dev     # Add dev dependency
+hypnoscript remove package               # Remove dependency
+hypnoscript install                      # Install all dependencies
+hypnoscript list                         # List dependencies
+hypnoscript run <script>                 # Run script from trance.json
+hypnoscript validate                     # Validate trance.json
 
 # Utilities
 hypnoscript builtins                 # Builtin functions
@@ -320,15 +321,11 @@ Example `trance.json`:
 
 ```
 
-
-
 Complete documentation: see [PACKAGE_MANAGER.md](PACKAGE_MANAGER.md)
-
-
 
 ---
 
-## 🧪 Tests & Qualitätssicherung
+## 🧪 Tests & Quality Assurance
 
 Run all tests:
 

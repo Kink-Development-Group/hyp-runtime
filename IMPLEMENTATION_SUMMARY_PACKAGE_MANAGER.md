@@ -39,7 +39,7 @@ All commands integrated into the main CLI:
 | `install` | Install all dependencies | `hypnoscript install` |
 | `list` | List dependencies | `hypnoscript list` |
 | `validate` | Validate manifest | `hypnoscript validate` |
-| `run-suggestion` | Run a script | `hypnoscript run-suggestion test` |
+| `run` | Run a script | `hypnoscript run test` |
 
 ### 3. Templates
 
@@ -106,8 +106,8 @@ Creates:
     "license": "MIT"
   },
   "suggestions": {
-    "focus": "hypnoscript run src/main.hyp",
-    "test": "hypnoscript run tests/smoke.hyp"
+    "focus": "hypnoscript exec src/main.hyp",
+    "test": "hypnoscript exec tests/smoke.hyp"
   },
   "anchors": {},
   "deepAnchors": {},

@@ -289,7 +289,7 @@ impl PackageManager {
             intent: "library".to_string(),
             induction: Some(TranceInduction {
                 description: Some("A HypnoScript package".to_string()),
-                entry_script: Some("src/main.hyp".to_string()),
+                entry_script: Some("src/lib.hyp".to_string()),
                 keywords: vec!["hypnoscript".to_string()],
                 license: Some("MIT".to_string()),
             }),
@@ -518,11 +518,12 @@ impl PackageManager {
 
         // Validate dependency versions
         for (name, version) in manifest.anchors.iter().chain(manifest.deep_anchors.iter()) {
-            if !version.starts_with('^') && !version.starts_with('~') && !version.starts_with('=') {
-                semver::Version::parse(version).with_context(|| {
-                    format!("Invalid version for dependency {}: {}", name, version)
-                })?;
-            }
+            semver::VersionReq::parse(version).with_context(|| {
+                format!(
+                    "Invalid version requirement for dependency {}: {}",
+                    name, version
+                )
+            })?;
         }
 
         println!("✅ Manifest is valid");
