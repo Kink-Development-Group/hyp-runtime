@@ -104,8 +104,10 @@ jobs:
         with:
           name: hypnoscript-cli-${{ matrix.os }}
           path: |
-            target/release/hypnoscript*
-            target/release/hyp*
+            target/release/hypnoscript
+            target/release/hypnoscript.exe
+            target/release/hyp
+            target/release/hyp.exe
 
   code-quality:
     if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository
