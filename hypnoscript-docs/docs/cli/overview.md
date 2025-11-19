@@ -2,95 +2,95 @@
 sidebar_position: 1
 ---
 
-# CLI Übersicht
+# CLI Overview
 
-Die HypnoScript Command Line Interface (CLI) ist ein in Rust gebautes Einzelbinary (`hypnoscript`). Es bündelt Lexer, Parser, Type Checker, Interpreter und den WASM-Codegenerator in einem Tool.
+The HypnoScript Command Line Interface (CLI) is a single binary (`hypnoscript`) built in Rust. It bundles lexer, parser, type checker, interpreter and the WASM code generator in one tool.
 
 ## Installation
 
-### Vorgefertigte Pakete
+### Pre-built Packages
 
-1. Lade das passende Archiv aus den [GitHub Releases](https://github.com/Kink-Development-Group/hyp-runtime/releases).
-2. Entpacke das Archiv und füge den Binärpfad deiner `PATH`-Umgebungsvariable hinzu.
-3. Prüfe die Installation mit `hypnoscript version`.
+1. Download the appropriate archive from [GitHub Releases](https://github.com/Kink-Development-Group/hyp-runtime/releases).
+2. Extract the archive and add the binary path to your `PATH` environment variable.
+3. Verify the installation with `hypnoscript version`.
 
-### Aus dem Quellcode bauen
+### Building from Source
 
 ```bash
 git clone https://github.com/Kink-Development-Group/hyp-runtime.git
 cd hyp-runtime
 cargo build --release -p hypnoscript-cli
-# Optional installieren
+# Optionally install
 cargo install --path hypnoscript-cli
 ```
 
-Die kompilierten Binaries findest du unter `target/release/`.
+You'll find the compiled binaries under `target/release/`.
 
-## Schnellstart
+## Quick Start
 
 ```bash
-# Hilfe anzeigen
+# Show help
 hypnoscript --help
 
-# Versionshinweis
+# Version information
 hypnoscript version
 
-# Programm ausführen
+# Run a program
 hypnoscript run hello.hyp
 ```
 
-Alle Subcommands sind bewusst schlank gehalten. Für einen tieferen Blick sieh dir die folgenden Abschnitte an.
+All subcommands are intentionally kept lean. For a deeper look, check out the following sections.
 
-## Befehlsüberblick
+## Command Overview
 
-| Befehl         | Kurzbeschreibung                                 |
+| Command        | Brief Description                                |
 | -------------- | ------------------------------------------------ |
-| `run`          | Führt ein HypnoScript-Programm aus               |
-| `run --debug`  | Zeigt zusätzlich Tokens, AST und Typprüfung      |
-| `lex`          | Tokenisiert eine Datei                           |
-| `parse`        | Zeigt den AST                                    |
-| `check`        | Führt Type Checking durch                        |
-| `compile-wasm` | Generiert WebAssembly Text Format (.wat)         |
-| `self-update`  | Prüft Releases und führt den neuen Installer aus |
-| `builtins`     | Listet alle verfügbaren Builtin-Funktionen       |
-| `version`      | Zeigt Versions- und Featureinformationen         |
+| `run`          | Executes a HypnoScript program                   |
+| `run --debug`  | Additionally shows tokens, AST and type checking |
+| `lex`          | Tokenizes a file                                 |
+| `parse`        | Shows the AST                                    |
+| `check`        | Performs type checking                           |
+| `compile-wasm` | Generates WebAssembly Text Format (.wat)         |
+| `self-update`  | Checks releases and runs the new installer       |
+| `builtins`     | Lists all available builtin functions            |
+| `version`      | Shows version and feature information            |
 
-Weitere Details liefert die Seite [CLI-Befehle](./commands).
+Further details are provided on the [CLI Commands](./commands) page.
 
-## Typischer Workflow
+## Typical Workflow
 
 ```bash
-# 1. Type Checking ohne Ausführung
+# 1. Type checking without execution
 hypnoscript check my_script.hyp
 
-# 2. Bei Fehlern AST prüfen
+# 2. Check AST if there are errors
 hypnoscript parse my_script.hyp
 
-# 3. Debug-Ausgabe aktivieren
+# 3. Enable debug output
 hypnoscript run my_script.hyp --debug
 
-# 4. Optional WASM generieren
+# 4. Optionally generate WASM
 hypnoscript compile-wasm my_script.hyp -o my_script.wat
 ```
 
-## Plattformhinweise
+## Platform Notes
 
-- **Windows**: Nutze das ZIP aus dem Release, entpacke in `%LOCALAPPDATA%\Programs\hypnoscript` und ergänze den Pfad.
-- **macOS / Linux**: Archiv nach `/usr/local/bin` oder `~/.local/bin` kopieren.
-- Für portable Nutzung kannst du den Binary-Pfad direkt angeben (`./hypnoscript run demo.hyp`).
+- **Windows**: Use the ZIP from the release, extract to `%LOCALAPPDATA%\Programs\hypnoscript` and add the path.
+- **macOS / Linux**: Copy the archive to `/usr/local/bin` or `~/.local/bin`.
+- For portable use, you can specify the binary path directly (`./hypnoscript run demo.hyp`).
 
-## Updates & Wartung
+## Updates & Maintenance
 
-- **Self-Update:** `hypnoscript self-update` prüft Releases und startet automatisch das neue `install.sh`. Mit `--check` wird nur geprüft, `--force` erzwingt eine Neuinstallation, `--include-prerelease` aktiviert RC-/Beta-Builds.
-- **Installer im Release:** Jedes Release enthält zusätzlich zu den Binaries ein `share/hypnoscript/install.sh`, sodass du Updates auch offline starten kannst (z.B. `bash share/hypnoscript/install.sh --check`).
-- **Windows-Einschränkung:** Auf Windows steht derzeit nur `--check` zur Verfügung; Installation erfolgt weiterhin über das manuell heruntergeladene Archiv.
+- **Self-Update:** `hypnoscript self-update` checks releases and automatically starts the new `install.sh`. With `--check` only checks, `--force` forces a reinstallation, `--include-prerelease` enables RC/beta builds.
+- **Installer in Release:** Each release additionally contains a `share/hypnoscript/install.sh` in addition to the binaries, so you can also start updates offline (e.g. `bash share/hypnoscript/install.sh --check`).
+- **Windows Limitation:** On Windows, currently only `--check` is available; installation is still done via the manually downloaded archive.
 
-## Nächste Schritte
+## Next Steps
 
-- [CLI-Befehle](./commands) – Details zu allen Subcommands
-- [CLI Basics](../getting-started/cli-basics) – Schritt-für-Schritt-Anleitung
-- [Sprachreferenz](../language-reference/syntax) – Grammatik & Beispiele
+- [CLI Commands](./commands) – Details on all subcommands
+- [CLI Basics](../getting-started/cli-basics) – Step-by-step guide
+- [Language Reference](../language-reference/syntax) – Grammar & examples
 
 ---
 
-**Tipp:** `hypnoscript builtins` verschafft dir einen schnellen Überblick über die Standardbibliothek.
+**Tip:** `hypnoscript builtins` gives you a quick overview of the standard library.

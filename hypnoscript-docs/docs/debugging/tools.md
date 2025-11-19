@@ -4,11 +4,11 @@ sidebar_position: 1
 
 # Debugging-Tools
 
-HypnoScript bietet umfassende Debugging-Funktionalitäten für die Entwicklung und Fehlerbehebung von Skripten.
+HypnoScript bietet umfassende Debugging-Functionalitäten für die Entwicklung und Fehlerbehebung von Skripten.
 
 ## Debug-Modi
 
-### Grundlegender Debug-Modus
+### Basic Debug-Modus
 
 ```bash
 # Debug-Modus starten
@@ -49,7 +49,7 @@ dotnet run --project HypnoScript.CLI -- debug script.hyp --trace --detailed
 
 ## Breakpoints
 
-### Breakpoint-Datei erstellen
+### Breakpoint-File erstellen
 
 ```txt
 # breakpoints.txt
@@ -134,9 +134,9 @@ dotnet run --project HypnoScript.CLI -- debug script.hyp --profile --output prof
 dotnet run --project HypnoScript.CLI -- debug script.hyp --profile --memory
 ```
 
-## Debugging-Befehle
+## Debugging-Commande
 
-### Interaktive Debugging-Befehle
+### Interaktive Debugging-Commande
 
 ```bash
 # Debug-Session starten
@@ -152,7 +152,7 @@ dotnet run --project HypnoScript.CLI -- debug script.hyp --interactive
 # quit (q)         - Beenden
 ```
 
-### Beispiel für interaktive Session
+### Example für interaktive Session
 
 ```bash
 $ dotnet run --project HypnoScript.CLI -- debug script.hyp --interactive
@@ -178,7 +178,7 @@ Debug session ended.
 
 ## Debugging in der Praxis
 
-### Einfaches Debugging-Beispiel
+### Einfaches Debugging-Example
 
 ```hyp
 Focus {
@@ -186,12 +186,12 @@ Focus {
         induce a = 5;
         induce b = 3;
 
-        // Debug-Punkt 1: Werte prüfen
+        // Debug point 1: Check values
         observe "Debug: a = " + a + ", b = " + b;
 
         induce result = a + b;
 
-        // Debug-Punkt 2: Ergebnis prüfen
+        // Debug point 2: Check result
         observe "Debug: result = " + result;
 
         if (result > 10) {
@@ -251,7 +251,7 @@ Focus {
 } Relax;
 ```
 
-## Erweiterte Debugging-Features
+## Advanced Debugging-Features
 
 ### Memory-Debugging
 
@@ -321,7 +321,7 @@ dotnet run --project HypnoScript.CLI -- debug script.hyp --deadlock-detection
 }
 ```
 
-### Debug-Umgebungsvariablen
+### Debug-environment variablen
 
 ```bash
 # Debug-spezifische Umgebungsvariablen
@@ -401,7 +401,7 @@ Focus {
         // Breakpoint 2: Verarbeitung
         induce processed = ToUpper(input);
 
-        // Breakpoint 3: Ergebnis prüfen
+        // Breakpoint 3: Check result
         observe "Verarbeitet: " + processed;
     }
 } Relax;
@@ -475,7 +475,7 @@ Focus {
    dotnet run --project HypnoScript.CLI -- debug script.hyp --variable-scope
    ```
 
-3. **Trace-Datei ist zu groß**
+3. **Trace-File ist zu groß**
 
    ```bash
    # Selektives Tracing
@@ -485,9 +485,9 @@ Focus {
    dotnet run --project HypnoScript.CLI -- debug script.hyp --trace --compressed
    ```
 
-## Nächste Schritte
+## Next Steps
 
-- [Debugging-Best-Practices](./best-practices) - Erweiterte Debugging-Techniken
+- [Debugging-Best-Practices](./best-practices) - Advanced Debugging-Techniken
 - [Performance-Debugging](./performance) - Performance-Optimierung
 - [Error-Handling](../error-handling/overview) - Fehlerbehandlung
 - [Runtime-Debugging](../enterprise/debugging) - Runtime-Debugging-Tools

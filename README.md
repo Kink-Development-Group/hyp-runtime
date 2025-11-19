@@ -1,79 +1,78 @@
 # HypnoScript – Rust Implementation
 
-**HypnoScript** ist eine hypnotisch angehauchte Programmiersprache mit eigener Syntax (`Focus { ... } Relax`).
-Die komplette Laufzeitumgebung, der Compiler und die Kommandozeilen-Tools wurden aus C# nach Rust
-portiert und ab Version 1.0 ausschließlich in Rust weiterentwickelt.
+**HypnoScript** is a hypnotically-inspired programming language with its own syntax (`Focus { ... } Relax`).
+The complete runtime environment, compiler, and command-line tools were ported from C# to Rust
+and are exclusively developed in Rust from version 1.0 onwards.
 
 ---
 
 ## 🚀 Highlights
 
-- 🦀 **Reine Rust-Codebasis** – schneller Build, keine .NET-Abhängigkeiten mehr
-- 🧠 **Vollständige Toolchain** – Lexer, Parser, Type Checker, Interpreter und mehrere Compiler-Backends
-- 🎯 **Multiple Targets** – Interpreter, WebAssembly (Text & Binary), Native Code (geplant)
-- ⚡ **Code-Optimierung** – Constant Folding, Dead Code Elimination, CSE, LICM, Inlining
-- 🧰 **180+ Builtins** – Mathe, Strings, Arrays, Hypnose, Files, Zeit, System, Statistik, Hashing, Validation, Kryptographie
-- 🌍 **Mehrsprachigkeit** – i18n-Unterstützung (EN, DE, FR, ES)
-- 🔐 **Kryptographie** – SHA-256, SHA-512, MD5, Base64, UUID
-- 🧬 **Funktionale Programmierung** – map, filter, reduce, compose, pipe
-- 🎭 **Hypnotische Operatoren** – 14 Synonyme wie `youAreFeelingVerySleepy`, `lookAtTheWatch`, `underMyControl`
-- 🎯 **Pattern Matching** – `entrain`/`when`/`otherwise` mit Destructuring, Guards und Type Patterns
-- 🔔 **Event-Driven** – `trigger` für Callbacks und Event-Handler
-- 💎 **Nullish Operators** – `lucidFallback` (`??`) und `dreamReach` (`?.`) für sichere Null-Behandlung
-- 🏛️ **OOP-Support** – Sessions mit `constructor`, `expose`/`conceal`, `dominant` (static)
-- 🖥️ **Erweiterte CLI** – `run`, `lex`, `parse`, `check`, `compile-wasm`, `compile-native`, `optimize`, `builtins`, `version`
-- 📦 **Package Manager** – Integrierter Dependency Manager mit `trance.json` Manifest (npm-like)
-- ✅ **Umfangreiche Tests** – 185+ Tests über alle Compiler-Module
-- 📚 **Dokumentation** – VitePress + ausführliche Architektur-Docs + vollständige Rustdoc
-- 🚀 **Performance** – Zero-cost abstractions, kein Garbage Collector, optimierter nativer Code
+- 🦀 **Pure Rust Codebase** – fast builds, no .NET dependencies
+- 🧠 **Complete Toolchain** – Lexer, Parser, Type Checker, Interpreter, and multiple compiler backends
+- 🎯 **Multiple Targets** – Interpreter, WebAssembly (Text & Binary), Native Code (planned)
+- ⚡ **Code Optimization** – Constant Folding, Dead Code Elimination, CSE, LICM, Inlining
+- 🧰 **180+ Builtins** – Math, Strings, Arrays, Hypnosis, Files, Time, System, Statistics, Hashing, Validation, Cryptography
+- 🌍 **Multilingual** – i18n support (EN, DE, FR, ES)
+- 🔐 **Cryptography** – SHA-256, SHA-512, MD5, Base64, UUID
+- 🧬 **Functional Programming** – map, filter, reduce, compose, pipe
+- 🎭 **Hypnotic Operators** – 14 synonyms like `youAreFeelingVerySleepy`, `lookAtTheWatch`, `underMyControl`
+- 🎯 **Pattern Matching** – `entrain`/`when`/`otherwise` with Destructuring, Guards, and Type Patterns
+- 🔔 **Event-Driven** – `trigger` for Callbacks and Event Handlers
+- 💎 **Nullish Operators** – `lucidFallback` (`??`) and `dreamReach` (`?.`) for safe null handling
+- 🏛️ **OOP Support** – Sessions with `constructor`, `expose`/`conceal`, `dominant` (static)
+- 🖥️ **Extended CLI** – `run`, `lex`, `parse`, `check`, `compile-wasm`, `compile-native`, `optimize`, `builtins`, `version`
+- ✅ **Comprehensive Tests** – 185+ tests across all compiler modules
+- 📚 **Documentation** – VitePress + extensive architecture docs + complete Rustdoc
+- 🚀 **Performance** – Zero-cost abstractions, no garbage collector, optimized native code
 
 ---
 
-## 🏗️ Workspace-Architektur
+## 🏗️ Workspace Architecture
 
 ```text
 hyp-runtime/
-├── Cargo.toml                    # Workspace-Konfiguration
-├── COMPILER_ARCHITECTURE.md      # Detaillierte Compiler-Dokumentation
-├── hypnoscript-core/             # Typ-System & Symbole (100%)
+├── Cargo.toml                    # Workspace configuration
+├── COMPILER_ARCHITECTURE.md      # Detailed compiler documentation
+├── hypnoscript-core/             # Type system & symbols (100%)
 ├── hypnoscript-lexer-parser/     # Tokens, Lexer, AST, Parser (100%)
-├── hypnoscript-compiler/         # Compiler-Backend (100%)
-│   ├── interpreter.rs            # ✅ Tree-Walking Interpreter
-│   ├── type_checker.rs           # ✅ Statische Typprüfung
+├── hypnoscript-compiler/         # Compiler backend (100%)
+│   ├── interpreter.rs            # ✅ Tree-walking interpreter
+│   ├── type_checker.rs           # ✅ Static type checking
 │   ├── wasm_codegen.rs           # ✅ WASM Text Format (.wat)
 │   ├── wasm_binary.rs            # ✅ WASM Binary Format (.wasm)
-│   ├── optimizer.rs              # ✅ Code-Optimierungen
-│   └── native_codegen.rs         # 🚧 Native Compilation (LLVM)
-├── hypnoscript-runtime/          # 180+ Builtin-Funktionen (100%)
-└── hypnoscript-cli/              # Kommandozeileninterface (100%)
+│   ├── optimizer.rs              # ✅ Code optimizations
+│   └── native_codegen.rs         # 🚧 Native compilation (LLVM)
+├── hypnoscript-runtime/          # 180+ builtin functions (100%)
+└── hypnoscript-cli/              # Command-line interface (100%)
 ```
 
-Zur Dokumentation steht weiterhin `hypnoscript-docs/` (Docusaurus) bereit.
+Documentation is available in `hypnoscript-docs/` (Docusaurus).
 
 ---
 
 ## ⚙️ Installation & Quick Start
 
-### Voraussetzungen
+### Prerequisites
 
-- Rust 1.76+ (empfohlen) inkl. `cargo`
+- Rust 1.76+ (recommended) including `cargo`
 
-### Automatischer Installer
+### Automatic Installer
 
 ```bash
 curl -fsSL https://kink-development-group.github.io/hyp-runtime/install.sh | bash
 ```
 
-Das Skript erkennt Linux/macOS automatisch, lädt die passende Runtime aus dem aktuellen Release und aktualisiert bestehende Installationen. Wichtige Optionen: `--prefix`, `--version`, `--check`, `--include-prerelease`, `--force`, `--uninstall`.
+The script automatically detects Linux/macOS, downloads the appropriate runtime from the current release, and updates existing installations. Important options: `--prefix`, `--version`, `--check`, `--include-prerelease`, `--force`, `--uninstall`.
 
-#### Updates & Deinstallation
+#### Updates & Uninstallation
 
-- **Updates checken:** `hypnoscript self-update --check` zeigt verfügbare Versionen an.
-- **Aktualisieren:** `hypnoscript self-update` zieht die neueste Release-Version inklusive sudo-Handhabung.
-- **Neuinstallation erzwingen:** `hypnoscript self-update --force` führt den Installer erneut aus.
-- **Deinstallation:** `curl -fsSL https://kink-development-group.github.io/hyp-runtime/install.sh | bash -s -- --uninstall` entfernt Binärdatei und Metadaten.
+- **Check for updates:** `hypnoscript self-update --check` displays available versions.
+- **Update:** `hypnoscript self-update` pulls the latest release version including sudo handling.
+- **Force reinstallation:** `hypnoscript self-update --force` runs the installer again.
+- **Uninstall:** `curl -fsSL https://kink-development-group.github.io/hyp-runtime/install.sh | bash -s -- --uninstall` removes binary and metadata.
 
-### Projekt klonen & bauen
+### Clone & Build Project
 
 ```bash
 git clone https://github.com/Kink-Development-Group/hyp-runtime.git
@@ -81,9 +80,9 @@ cd hyp-runtime
 cargo build --all --release
 ```
 
-Die CLI wird als zwei Binaries erstellt: `hypnoscript` und `hyp` (Kurzform). Beide sind identisch und können austauschbar verwendet werden.
+The CLI is created as two binaries: `hypnoscript` and `hyp` (short form). Both are identical and can be used interchangeably.
 
-### Programm ausführen
+### Run Program
 
 ```bash
 # Beide Varianten funktionieren
@@ -91,13 +90,13 @@ Die CLI wird als zwei Binaries erstellt: `hypnoscript` und `hyp` (Kurzform). Bei
 ./target/release/hyp exec program.hyp
 ```
 
-Oder während der Entwicklung:
+Or during development:
 
 ```bash
 cargo run -p hypnoscript-cli -- exec test_simple.hyp
 ```
 
-### Beispielprogramm
+### Example Program
 
 ```hypnoscript
 Focus {
@@ -111,12 +110,12 @@ Focus {
     observe message;
     observe x;
 
-    // Hypnotischer Operator-Synonym
+    // Hypnotic operator synonym
     if (x yourEyesAreGettingHeavy 40) deepFocus {
         observe "X is greater than 40";
     }
 
-    // Pattern Matching mit entrain
+    // Pattern matching with entrain
     induce result: string = entrain x {
         when 0 => "zero"
         when 42 => "answer to everything"
@@ -125,12 +124,12 @@ Focus {
     };
     observe result;
 
-    // Nullish Operators
+    // Nullish operators
     induce maybeNull: number? = null;
     induce defaulted: number = maybeNull lucidFallback 100;
     observe defaulted;  // 100
 
-    // Trigger (Event Handler)
+    // Trigger (event handler)
     trigger onComplete = suggestion() {
         observe "Task completed!";
     };
@@ -138,30 +137,29 @@ Focus {
 } Relax
 ```
 
-### CLI-Befehle im Detail
+### Detailed CLI Commands
 
 **Hinweis:** Alle Befehle können sowohl mit `hypnoscript` als auch mit `hyp` ausgeführt werden.
 
 ```bash
-# Programm ausführen (Interpreter)
+
 hypnoscript exec program.hyp
-# oder kurz:
 hyp exec program.hyp
 
-# Analyse-Tools
-hypnoscript lex program.hyp          # Tokenisierung
-hypnoscript parse program.hyp        # AST anzeigen
-hypnoscript check program.hyp        # Typprüfung
+# Analysis tools
+hypnoscript lex program.hyp          # Tokenization
+hypnoscript parse program.hyp        # Display AST
+hypnoscript check program.hyp        # Type checking
 
-# Kompilierung
+# Compilation
 hypnoscript compile-wasm program.hyp              # WASM Text Format (.wat)
 hypnoscript compile-wasm -b program.hyp           # WASM Binary Format (.wasm)
-hypnoscript compile-native program.hyp            # Native Binary (geplant)
+hypnoscript compile-native program.hyp            # Native binary (planned)
 hypnoscript compile-native -t linux-x64 \
-  --opt-level release program.hyp                 # Mit Zielplattform
+  --opt-level release program.hyp                 # With target platform
 
-# Code-Optimierung
-hypnoscript optimize program.hyp --stats          # Mit Statistiken
+# Code optimization
+hypnoscript optimize program.hyp --stats          # With statistics
 
 # Package Manager
 hypnoscript init                     # Initialisiere neues Projekt
@@ -175,36 +173,36 @@ hypnoscript run <script>             # Skript aus trance.json ausführen
 hypnoscript validate                 # trance.json validieren
 
 # Utilities
-hypnoscript builtins                 # Builtin-Funktionen
+hypnoscript builtins                 # Builtin functions
 hypnoscript version                  # Version
-hypnoscript self-update              # Selbst-Update
+hypnoscript self-update              # Self-update
 ```
 
-#### WASM-Kompilierung im Detail
+#### WASM Compilation in Detail
 
 ```bash
-# Text-Format (lesbar, debugging-freundlich)
+# Text format (readable, debugging-friendly)
 hypnoscript compile-wasm script.hyp -o output.wat
 
-# Binär-Format (kompakt, production-ready)
+# Binary format (compact, production-ready)
 hypnoscript compile-wasm --binary script.hyp -o output.wasm
 
-# Mit wabt-tools zu komplettem WASM-Binary konvertieren
+# Convert to complete WASM binary with wabt-tools
 wat2wasm output.wat -o output.wasm
 ```
 
-#### Native Kompilierung (Geplant)
+#### Native Compilation (Planned)
 
 ```bash
-# Für aktuelle Plattform
+# For current platform
 hypnoscript compile-native app.hyp
 
-# Cross-Compilation
+# Cross-compilation
 hypnoscript compile-native -t windows-x64 app.hyp
 hypnoscript compile-native -t macos-arm64 app.hyp
 hypnoscript compile-native -t linux-x64 app.hyp
 
-# Mit Optimierung
+# With optimization
 hypnoscript compile-native --opt-level release app.hyp
 ```
 
@@ -212,115 +210,173 @@ hypnoscript compile-native --opt-level release app.hyp
 
 ## 📦 Package Manager
 
-HypnoScript verfügt über einen integrierten Package Manager, ähnlich wie npm für JavaScript oder Cargo für Rust. Er verwendet `trance.json` als Manifest-Datei.
+
+
+HypnoScript has a built-in package manager, similar to npm for JavaScript or Cargo for Rust. It uses `trance.json` as its manifest file.
+
+
 
 ### Quick Start
 
+
+
 ```bash
-# Neues Projekt initialisieren
+
+# Initialize new project
+
 hypnoscript init --name my-project --template cli
 
-# Dependencies hinzufügen
-hypnoscript add hypnoscript-runtime --version "^1.0.0"
-hypnoscript add @hypno/testing-lab --version "^0.3.0" --dev
 
-# Dependencies installieren
+
+# Add dependencies
+
+hypnoscript add hypnoscript-runtime --version “^1.0.0”
+
+hypnoscript add @hypno/testing-lab --version “^0.3.0” --dev
+
+
+
+# Install dependencies
+
 hypnoscript install
 
-# Dependencies auflisten
+
+
+# List dependencies
+
 hypnoscript list
 
-# Skript ausführen
+
+
+# Run script
+
 hypnoscript run test
 
-# Manifest validieren
+
+
+# Validate manifest
+
 hypnoscript validate
+
 ```
+
+
 
 ### trance.json Manifest
 
-Das Manifest nutzt hypnotische Terminologie:
 
-- **ritualName**: Paketname (entspricht `name` in npm)
-- **mantra**: Version (entspricht `version` in npm)
-- **intent**: Projekttyp (cli, library)
-- **anchors**: Produktions-Dependencies (entspricht `dependencies`)
-- **deepAnchors**: Entwicklungs-Dependencies (entspricht `devDependencies`)
-- **suggestions**: Ausführbare Skripte (entspricht `scripts`)
-- **channels**: Binary/CLI-Konfiguration
-- **triggers**: Lifecycle-Hooks
 
-Beispiel `trance.json`:
+The manifest uses hypnotic terminology:
+
+
+
+- **ritualName**: Package name (corresponds to `name` in npm)
+
+- **mantra**: Version (corresponds to `version` in npm)
+
+- **intent**: Project type (cli, library)
+
+- **anchors**: Production dependencies (corresponds to `dependencies`)
+
+- **deepAnchors**: Development dependencies (corresponds to `devDependencies`)
+
+- **suggestions**: Executable scripts (corresponds to `scripts`)
+
+- **channels**: Binary/CLI configuration
+
+- **triggers**: Lifecycle hooks
+
+
+
+Example `trance.json`:
+
+
 
 ```json
+
 {
-  "ritualName": "my-hypno-app",
-  "mantra": "1.0.0",
-  "intent": "cli",
-  "suggestions": {
-    "focus": "hypnoscript exec src/main.hyp",
-    "test": "hypnoscript exec tests/test.hyp"
+
+  “ritualName”: “my-hypno-app”,
+
+  “mantra”: “1.0.0”,
+
+  “intent”: “cli”,
+
+  “suggestions”: {
+
+    “focus”: “hypnoscript exec src/main.hyp”,
+
+    “test”: “hypnoscript exec tests/test.hyp”
+
   },
-  "anchors": {
-    "hypnoscript-runtime": "^1.0.0"
+
+  “anchors”: {
+
+    “hypnoscript-runtime”: “^1.0.0”
+
   }
+
 }
+
 ```
 
-Vollständige Dokumentation: siehe [PACKAGE_MANAGER.md](PACKAGE_MANAGER.md)
+
+
+Complete documentation: see [PACKAGE_MANAGER.md](PACKAGE_MANAGER.md)
+
 
 
 ---
 
 ## 🧪 Tests & Qualitätssicherung
 
-Alle Tests ausführen:
+Run all tests:
 
 ```bash
 cargo test --all
 ```
 
-**Test-Abdeckung**:
+**Test Coverage**:
 
-- ✅ Lexer: 15+ Tests
-- ✅ Parser: 20+ Tests
-- ✅ Type Checker: 10+ Tests
-- ✅ Interpreter: 12+ Tests
-- ✅ WASM Generator: 4+ Tests
-- ✅ Optimizer: 6+ Tests
-- ✅ Native Generator: 5+ Tests
-- ✅ Runtime Builtins: 30+ Tests
-- ✅ Pattern Matching: Vollständige Abdeckung
-- ✅ Triggers: Vollständige Abdeckung
-- ✅ Nullish Operators: Vollständige Abdeckung
+- ✅ Lexer: 15+ tests
+- ✅ Parser: 20+ tests
+- ✅ Type Checker: 10+ tests
+- ✅ Interpreter: 12+ tests
+- ✅ WASM Generator: 4+ tests
+- ✅ Optimizer: 6+ tests
+- ✅ Native Generator: 5+ tests
+- ✅ Runtime Builtins: 30+ tests
+- ✅ Pattern Matching: Full coverage
+- ✅ Triggers: Full coverage
+- ✅ Nullish Operators: Full coverage
 
-### Gesamt: 185+ Tests (alle bestanden)
+### Total: 185+ tests (all passing)
 
-### Compiler-Tests
+### Compiler Tests
 
 ```bash
-# Nur Compiler-Tests
+# Compiler tests only
 cargo test --package hypnoscript-compiler
 
-# Mit detaillierter Ausgabe
+# With detailed output
 cargo test --package hypnoscript-compiler -- --nocapture
 ```
 
-### Code-Qualität
+### Code Quality
 
 ```bash
-# Formatierung prüfen
+# Check formatting
 cargo fmt --all -- --check
 
-# Linting mit Clippy
+# Linting with Clippy
 cargo clippy --all-targets --all-features
 ```
 
 ---
 
-## 📦 Builtin-Funktionen (110+)
+## 📦 Builtin Functions (110+)
 
-### Mathematik (20+)
+### Mathematics (20+)
 
 `Sin`, `Cos`, `Tan`, `Sqrt`, `Pow`, `Log`, `Abs`, `Floor`, `Ceil`, `Round`, `Min`, `Max`, `Factorial`, `Gcd`, `Lcm`, `IsPrime`, `Fibonacci`, `Clamp`
 
@@ -332,19 +388,19 @@ cargo clippy --all-targets --all-features
 
 `ArrayLength`, `ArraySum`, `ArrayAverage`, `ArrayMin`, `ArrayMax`, `ArraySort`, `ArrayReverse`, `ArrayDistinct`, `ArrayFirst`, `ArrayLast`, `ArrayTake`, `ArraySkip`, `ArraySlice`, `ArrayJoin`, `ArrayCount`, `ArrayIndexOf`, `ArrayContains`, `ArrayIsEmpty`, `ArrayGet`
 
-### Zeit/Datum (15)
+### Time/Date (15)
 
 `GetCurrentTime`, `GetCurrentDate`, `GetCurrentDateTime`, `FormatDateTime`, `GetYear`, `GetMonth`, `GetDay`, `GetHour`, `GetMinute`, `GetSecond`, `GetDayOfWeek`, `GetDayOfYear`, `IsLeapYear`, `GetDaysInMonth`, `CurrentDate`, `DaysInMonth`
 
-### Validierung (10)
+### Validation (10)
 
 `IsValidEmail`, `IsValidUrl`, `IsValidPhoneNumber`, `IsAlphanumeric`, `IsAlphabetic`, `IsNumeric`, `IsLowercase`, `IsUppercase`, `IsInRange`, `MatchesPattern`
 
-### Datei-I/O (14)
+### File I/O (14)
 
 `ReadFile`, `WriteFile`, `AppendFile`, `FileExists`, `IsFile`, `IsDirectory`, `DeleteFile`, `CreateDirectory`, `ListDirectory`, `GetFileSize`, `CopyFile`, `RenameFile`, `GetFileExtension`, `GetFileName`
 
-### Statistik (9)
+### Statistics (9)
 
 `CalculateMean`, `CalculateMedian`, `CalculateMode`, `CalculateStandardDeviation`, `CalculateVariance`, `CalculateRange`, `CalculatePercentile`, `CalculateCorrelation`, `LinearRegression`, `Mean`, `Variance`
 
@@ -356,64 +412,64 @@ cargo clippy --all-targets --all-features
 
 `GetOperatingSystem`, `GetArchitecture`, `GetCpuCount`, `GetHostname`, `GetCurrentDirectory`, `GetHomeDirectory`, `GetTempDirectory`, `GetEnvVar`, `SetEnvVar`, `GetUsername`, `GetArgs`, `Exit`
 
-### Hypnose/Core (6)
+### Hypnosis/Core (6)
 
 `Observe`, `Drift`, `DeepTrance`, `HypnoticCountdown`, `TranceInduction`, `HypnoticVisualization`
 
-### Konvertierungen (4)
+### Conversions (4)
 
 `ToInt`, `ToDouble`, `ToString`, `ToBoolean`
 
-Eine vollständige Liste liefert `hypnoscript-cli builtins` sowie die Dokumentation im Docusaurus.
+A complete list is available via `hypnoscript-cli builtins` and in the Docusaurus documentation.
 
 ---
 
-## 🎯 Erweiterte Sprachfeatures
+## 🎯 Advanced Language Features
 
-### 🎭 Hypnotische Operator-Synonyme
+### 🎭 Hypnotic Operator Synonyms
 
-HypnoScript bietet 14 hypnotische Aliase für Standard-Operatoren:
+HypnoScript offers 14 hypnotic aliases for standard operators:
 
-| Standard | Hypnotisch                | Beschreibung       |
+| Standard | Hypnotic                  | Description        |
 | -------- | ------------------------- | ------------------ |
-| `==`     | `youAreFeelingVerySleepy` | Gleichheit         |
-| `!=`     | `youCannotResist`         | Ungleichheit       |
-| `>`      | `lookAtTheWatch`          | Größer als         |
-| `>=`     | `yourEyesAreGettingHeavy` | Größer gleich      |
-| `<`      | `fallUnderMySpell`        | Kleiner als        |
-| `<=`     | `goingDeeper`             | Kleiner gleich     |
-| `&&`     | `underMyControl`          | Logisches UND      |
-| `\|\|`   | `resistanceIsFutile`      | Logisches ODER     |
-| `!`      | `snapOutOfIt`             | Logisches NICHT    |
-| `??`     | `lucidFallback`           | Nullish Coalescing |
-| `?.`     | `dreamReach`              | Optional Chaining  |
+| `==`     | `youAreFeelingVerySleepy` | Equality           |
+| `!=`     | `youCannotResist`         | Inequality         |
+| `>`      | `lookAtTheWatch`          | Greater than       |
+| `>=`     | `yourEyesAreGettingHeavy` | Greater or equal   |
+| `<`      | `fallUnderMySpell`        | Less than          |
+| `<=`     | `goingDeeper`             | Less or equal      |
+| `&&`     | `underMyControl`          | Logical AND        |
+| `\|\|`   | `resistanceIsFutile`      | Logical OR         |
+| `!`      | `snapOutOfIt`             | Logical NOT        |
+| `??`     | `lucidFallback`           | Nullish coalescing |
+| `?.`     | `dreamReach`              | Optional chaining  |
 
-> ⚠️ **String-Konkatenation:** Wenn einer der Operanden beim `+`-Operator ein String ist, werden alle übrigen Werte automatisch in Strings konvertiert. Beispiele: `null + "text"` ergibt `"nulltext"`, `42 + "px"` ergibt `"42px"`. Prüfe den Typ vor dem Konkatenieren, wenn du solche impliziten Umwandlungen vermeiden möchtest.
+> ⚠️ **String Concatenation:** When one of the operands of the `+` operator is a string, all other values are automatically converted to strings. Examples: `null + "text"` yields `"nulltext"`, `42 + "px"` yields `"42px"`. Check the type before concatenating if you want to avoid such implicit conversions.
 
-**Beispiel:**
+**Example:**
 
 ```hypnoscript
 induce age: number = 25;
 
 if (age yourEyesAreGettingHeavy 18 underMyControl age fallUnderMySpell 65) {
-    observe "Erwachsener im arbeitsfähigen Alter";
+    observe "Adult of working age";
 }
 ```
 
-📚 **Vollständige Dokumentation:** [`docs/language-reference/operator-synonyms.md`](hypnoscript-docs/docs/language-reference/operator-synonyms.md)
+📚 **Complete Documentation:** [`docs/language-reference/operator-synonyms.md`](hypnoscript-docs/docs/language-reference/operator-synonyms.md)
 
 ### 🎯 Pattern Matching (`entrain`/`when`/`otherwise`)
 
-Leistungsstarkes Pattern Matching mit:
+Powerful pattern matching with:
 
-- **Literal Patterns:** Direkter Wertevergleich
-- **Type Patterns:** Typ-basiertes Matching mit Binding
-- **Array Destructuring:** Spread-Operator, Nested Patterns
-- **Record Patterns:** Feldbasiertes Matching
-- **Guards:** Bedingte Patterns mit `if`
-- **Identifier Binding:** Variable Binding in Patterns
+- **Literal Patterns:** Direct value comparison
+- **Type Patterns:** Type-based matching with binding
+- **Array Destructuring:** Spread operator, nested patterns
+- **Record Patterns:** Field-based matching
+- **Guards:** Conditional patterns with `if`
+- **Identifier Binding:** Variable binding in patterns
 
-**Beispiel:**
+**Example:**
 
 ```hypnoscript
 induce status: number = 404;
@@ -426,7 +482,7 @@ induce message: string = entrain status {
     otherwise => "Unknown"
 };
 
-// Array Destructuring
+// Array destructuring
 induce coords: array = [10, 20, 30];
 entrain coords {
     when [x, y, z] => observe "3D Point: " + x + ", " + y + ", " + z
@@ -435,21 +491,21 @@ entrain coords {
 }
 ```
 
-📚 **Vollständige Dokumentation:** [`docs/language-reference/pattern-matching.md`](hypnoscript-docs/docs/language-reference/pattern-matching.md)
+📚 **Complete Documentation:** [`docs/language-reference/pattern-matching.md`](hypnoscript-docs/docs/language-reference/pattern-matching.md)
 
 ### 🔔 Triggers (Event-Driven Callbacks)
 
-Triggers sind Top-Level Event-Handler, die auf Ereignisse reagieren:
+Triggers are top-level event handlers that respond to events:
 
 **Syntax:**
 
 ```hypnoscript
 trigger triggerName = suggestion(parameters) {
-    // Handler-Code
+    // Handler code
 };
 ```
 
-**Beispiel:**
+**Example:**
 
 ```hypnoscript
 trigger onStartup = suggestion() {
@@ -475,32 +531,32 @@ entrance {
 }
 ```
 
-**Anwendungsfälle:**
+**Use Cases:**
 
-- Event-Handler (Click, Load, Error)
-- Lifecycle-Hooks (Setup, Teardown)
-- Callbacks für Async-Operations
-- Observers für Zustandsänderungen
+- Event handlers (Click, Load, Error)
+- Lifecycle hooks (Setup, Teardown)
+- Callbacks for async operations
+- Observers for state changes
 
-📚 **Vollständige Dokumentation:** [`docs/language-reference/triggers.md`](hypnoscript-docs/docs/language-reference/triggers.md)
+📚 **Complete Documentation:** [`docs/language-reference/triggers.md`](hypnoscript-docs/docs/language-reference/triggers.md)
 
 ### 💎 Nullish Operators
 
 **Nullish Coalescing (`lucidFallback` / `??`):**
 
-Liefert rechten Wert nur wenn linker Wert `null` oder `undefined` ist (nicht bei `0`, `false`, `""`):
+Returns the right value only when the left value is `null` or `undefined` (not for `0`, `false`, `""`):
 
 ```hypnoscript
 induce value: number? = null;
 induce result: number = value lucidFallback 100;  // 100
 
 induce zero: number = 0;
-induce result2: number = zero lucidFallback 100;  // 0 (nicht 100!)
+induce result2: number = zero lucidFallback 100;  // 0 (not 100!)
 ```
 
 **Optional Chaining (`dreamReach` / `?.`):**
 
-Sichere Navigation durch verschachtelte Strukturen:
+Safe navigation through nested structures:
 
 ```hypnoscript
 session User {
@@ -515,45 +571,45 @@ induce user: User? = getUser();
 induce name: string = user dreamReach profile dreamReach name lucidFallback "Anonymous";
 ```
 
-**Vorteile:**
+**Benefits:**
 
-- ✅ Vermeidung von Null-Pointer-Exceptions
-- ✅ Lesbarer als verschachtelte `if`-Checks
-- ✅ Funktionale Programmierung-Patterns
-- ✅ Zero-Cost Abstraction (Compiler-optimiert)
+- ✅ Avoids null pointer exceptions
+- ✅ More readable than nested `if` checks
+- ✅ Functional programming patterns
+- ✅ Zero-cost abstraction (compiler-optimized)
 
-📚 **Vollständige Dokumentation:** [`docs/language-reference/nullish-operators.md`](hypnoscript-docs/docs/language-reference/nullish-operators.md)
-
----
-
-## 📊 Performance-Vorteile
-
-Rust bietet mehrere Vorteile gegenüber C#:
-
-1. **Zero-cost Abstractions**: Compile-time Optimierungen ohne Runtime-Overhead
-2. **Kein Garbage Collector**: Deterministisches Speichermanagement
-3. **Speichersicherheit**: Compile-time Verhinderung häufiger Bugs
-4. **Kleinere Binaries**: 5-10MB vs. 60+MB für C# mit Runtime
-5. **Bessere Parallelisierung**: Sicherer gleichzeitiger Zugriff via Ownership-Modell
-6. **Schnellere Ausführung**: Nativer Code mit LLVM-Optimierungen
+📚 **Complete Documentation:** [`docs/language-reference/nullish-operators.md`](hypnoscript-docs/docs/language-reference/nullish-operators.md)
 
 ---
 
-## 🔧 Entwicklung
+## 📊 Performance Benefits
 
-### Neue Builtins hinzufügen
+Rust offers several advantages over C#:
 
-1. Funktion zum passenden Modul in `hypnoscript-runtime/src/` hinzufügen
-2. Tests in derselben Datei hinzufügen
-3. Builtins-Liste im CLI aktualisieren
-4. Aus `lib.rs` exportieren
+1. **Zero-cost Abstractions**: Compile-time optimizations without runtime overhead
+2. **No Garbage Collector**: Deterministic memory management
+3. **Memory Safety**: Compile-time prevention of common bugs
+4. **Smaller Binaries**: 5-10MB vs. 60+MB for C# with runtime
+5. **Better Parallelization**: Safe concurrent access via ownership model
+6. **Faster Execution**: Native code with LLVM optimizations
 
-Beispiel:
+---
+
+## 🔧 Development
+
+### Adding New Builtins
+
+1. Add function to the appropriate module in `hypnoscript-runtime/src/`
+2. Add tests in the same file
+3. Update builtins list in CLI
+4. Export from `lib.rs`
+
+Example:
 
 ```rust
 // In math_builtins.rs
 pub fn new_function(x: f64) -> f64 {
-    // Implementierung
+    // Implementation
 }
 
 #[cfg(test)]
@@ -567,30 +623,30 @@ mod tests {
 }
 ```
 
-### Code-Style
+### Code Style
 
-- Rust-Standard-Style befolgen (nutze `cargo fmt`)
-- Clippy für Linting ausführen: `cargo clippy`
-- Funktionen fokussiert und gut dokumentiert halten
-- Tests für neue Funktionalität schreiben
+- Follow Rust standard style (use `cargo fmt`)
+- Run Clippy for linting: `cargo clippy`
+- Keep functions focused and well-documented
+- Write tests for new functionality
 
 ---
 
-## 📝 Migrationsstatus & Features
+## 📝 Migration Status & Features
 
-### Compiler-Backend
+### Compiler Backend
 
-- ✅ **Interpreter** (100%) – Tree-Walking Interpreter mit voller Builtin-Unterstützung
-- ✅ **Type Checker** (100%) – Statische Typprüfung, OOP-Validierung
+- ✅ **Interpreter** (100%) – Tree-walking interpreter with full builtin support
+- ✅ **Type Checker** (100%) – Static type checking, OOP validation
 - ✅ **WASM Text Generator** (100%) – WebAssembly Text Format (.wat)
-- ✅ **WASM Binary Generator** (100%) – Direkte Binary-Generierung (.wasm)
+- ✅ **WASM Binary Generator** (100%) – Direct binary generation (.wasm)
 - ✅ **Code Optimizer** (100%) – Constant Folding, Dead Code Elimination, CSE, LICM, Inlining
-- 🚧 **Native Code Generator** (20%) – LLVM-Backend in Planung
+- 🚧 **Native Code Generator** (20%) – LLVM backend planned
 
-### Core-System
+### Core System
 
-- ✅ Core-Typ-System (100%)
-- ✅ Symbol-Tabelle (100%)
+- ✅ Core type system (100%)
+- ✅ Symbol table (100%)
 - ✅ Lexer (100%)
 - ✅ Parser (100%)
 - ✅ AST (100%)
@@ -598,112 +654,112 @@ mod tests {
 - ✅ Pattern Matching (`entrain`/`when`/`otherwise`) (100%)
 - ✅ Triggers (Event-Driven Callbacks) (100%)
 - ✅ Nullish Operators (`lucidFallback`, `dreamReach`) (100%)
-- ✅ Hypnotische Operator-Synonyme (14 Aliase) (100%)
+- ✅ Hypnotic Operator Synonyms (14 aliases) (100%)
 
 ### Runtime
 
-- ✅ Runtime-Builtins (180+ Funktionen)
+- ✅ Runtime Builtins (180+ functions)
   - Math, String, Array, Collections
   - File I/O, Time/Date, System
   - Hashing, Validation, Statistics
   - Advanced String Operations
   - API/HTTP Helpers
-- ✅ Lokalisierung (EN, DE, FR, ES)
-- ✅ CLI-Framework (100%)
-- ✅ CI/CD-Pipelines (100%)
+- ✅ Localization (EN, DE, FR, ES)
+- ✅ CLI Framework (100%)
+- ✅ CI/CD Pipelines (100%)
 
 ---
 
 ## 🎯 Roadmap
 
-### Abgeschlossen ✅
+### Completed ✅
 
-- [x] Lexer-Implementierung
-- [x] Parser-Implementierung
-- [x] Type Checker-Implementierung
-- [x] Interpreter-Implementierung
+- [x] Lexer implementation
+- [x] Parser implementation
+- [x] Type Checker implementation
+- [x] Interpreter implementation
 - [x] WASM Text Format Generator (.wat)
 - [x] WASM Binary Format Generator (.wasm)
-- [x] Code-Optimierungs-Framework
-- [x] 180+ Builtin-Funktionen
-- [x] Session/OOP-Features
-- [x] Vollständige Programmausführung
-- [x] CLI-Integration (10 Befehle)
-- [x] CI/CD-Pipelines
-- [x] Umfassende Tests (100+ Tests)
-- [x] Mehrsprachige Dokumentation
+- [x] Code optimization framework
+- [x] 180+ builtin functions
+- [x] Session/OOP features
+- [x] Complete program execution
+- [x] CLI integration (10 commands)
+- [x] CI/CD pipelines
+- [x] Comprehensive tests (100+ tests)
+- [x] Multilingual documentation
 
-### In Entwicklung 🚧
+### In Development 🚧
 
-- [ ] **Native Code Generator** – LLVM-Backend für plattformspezifische Binaries
+- [ ] **Native Code Generator** – LLVM backend for platform-specific binaries
   - Windows (x86_64, ARM64)
   - macOS (x86_64, ARM64/Apple Silicon)
   - Linux (x86_64, ARM64, RISC-V)
-- [ ] **Erweiterte Optimierungen** – Vollständige Implementierung aller Optimierungs-Pässe
-- [ ] **Source Maps** – Debugging-Unterstützung für kompilierten Code
+- [ ] **Advanced Optimizations** – Complete implementation of all optimization passes
+- [ ] **Source Maps** – Debugging support for compiled code
 
-### Geplant 🔮
+### Planned 🔮
 
-- [ ] JIT-Kompilierung
-- [ ] Incremental Compilation
+- [ ] JIT compilation
+- [ ] Incremental compilation
 - [ ] Profile-Guided Optimization (PGO)
 - [ ] Link-Time Optimization (LTO)
-- [ ] Language Server Protocol (LSP) für IDE-Integration
-- [ ] Erweiterte WASM-Features (Threads, SIMD)
-- [ ] Zusätzliche 40 spezialisierte Builtins (Netzwerk, ML)
-- [ ] Session/OOP-Features
-- [ ] Erweiterte Fehlerbehandlung
-- [ ] Performance-Benchmarking vs. C#
-- [ ] Optimierungs-Passes
+- [ ] Language Server Protocol (LSP) for IDE integration
+- [ ] Advanced WASM features (Threads, SIMD)
+- [ ] Additional 40 specialized builtins (Network, ML)
+- [ ] Session/OOP features
+- [ ] Advanced error handling
+- [ ] Performance benchmarking vs. C#
+- [ ] Optimization passes
 
 ---
 
-## 🐛 Bekannte Einschränkungen
+## 🐛 Known Limitations
 
-- Einige fortgeschrittene C#-Builtins noch ausstehend (Netzwerk-, ML-Features - optional)
-- Session/OOP-Features sind optionale Erweiterungen
-
----
-
-## 🧭 Migration & Projektstatus
-
-- ✅ C#-Codebasis entfernt (alle ehemaligen `.csproj`-Projekte wurden gelöscht)
-- ✅ Rust-Workspace produktiv einsetzbar
-- ✅ Kompletter Port der Kernfunktionalität
-- ✅ Alle 48 Tests erfolgreich
-- 🔄 Optionale Erweiterungen (z. B. Netzwerk-/ML-Builtins) sind als Roadmap möglich
-
-Details zur Migration: siehe `IMPLEMENTATION_SUMMARY.md`.
+- Some advanced C# builtins still pending (Network, ML features - optional)
+- Session/OOP features are optional extensions
 
 ---
 
-## 🔗 Links & Ressourcen
+## 🧭 Migration & Project Status
+
+- ✅ C# codebase removed (all former `.csproj` projects deleted)
+- ✅ Rust workspace production-ready
+- ✅ Complete port of core functionality
+- ✅ All 48 tests passing
+- 🔄 Optional extensions (e.g., Network/ML builtins) possible as roadmap items
+
+Migration details: see `IMPLEMENTATION_SUMMARY.md`.
+
+---
+
+## 🔗 Links & Resources
 
 - 📘 [Rust Book](https://doc.rust-lang.org/book/)
-- 📦 [Cargo-Dokumentation](https://doc.rust-lang.org/cargo/)
-- 🧾 Projekt-Doku: `HypnoScript.Dokumentation/`
-- 🐞 Issues & Diskussionen: <https://github.com/Kink-Development-Group/hyp-runtime>
+- 📦 [Cargo Documentation](https://doc.rust-lang.org/cargo/)
+- 🧾 Project Docs: `HypnoScript.Dokumentation/`
+- 🐞 Issues & Discussions: <https://github.com/Kink-Development-Group/hyp-runtime>
 
 ---
 
 ## 🤝 Contributing
 
-Bei Beiträgen zur Rust-Implementierung:
+When contributing to the Rust implementation:
 
-1. API-Kompatibilität mit der C#-Version wo möglich beibehalten
-2. DRY-Prinzipien befolgen (Don't Repeat Yourself)
-3. Umfassende Tests schreiben
-4. Öffentliche APIs dokumentieren
-5. `cargo fmt` und `cargo clippy` vor dem Commit ausführen
+1. Maintain API compatibility with the C# version where possible
+2. Follow DRY principles (Don't Repeat Yourself)
+3. Write comprehensive tests
+4. Document public APIs
+5. Run `cargo fmt` and `cargo clippy` before committing
 
 ---
 
 ## 📄 License
 
-MIT License (gleiche wie das Original-Projekt)
+MIT License (same as the original project)
 
 ---
 
-**_Die Rust-Runtime ist production-ready für HypnoScript-Kernprogrammierung! 🚀_**
+**_The Rust runtime is production-ready for HypnoScript core programming! 🚀_**
 
-**Viel Spaß beim hypnotischen Programmieren mit Rust!**
+**Enjoy hypnotic programming with Rust!**

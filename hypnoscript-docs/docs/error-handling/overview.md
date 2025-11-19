@@ -4,17 +4,17 @@ title: Error Handling Overview
 
 # Error Handling Overview
 
-Fehlerbehandlung ist ein zentraler Bestandteil von HypnoScript. Das System unterscheidet zwischen Syntax-, Typ- und Laufzeitfehlern.
+Error handling is a central component of HypnoScript. The system distinguishes between syntax, type, and runtime errors.
 
-## Fehlerarten
+## Error Types
 
-- **Syntaxfehler:** Werden beim Parsen erkannt und mit einer klaren Fehlermeldung ausgegeben.
-- **Typfehler:** Der `TypeChecker` prüft Typkonsistenz und meldet Fehler mit spezifischen Codes (z.B. `TYPE002`).
-- **Laufzeitfehler:** Während der Ausführung werden Fehler im Interpreter erkannt und ausgegeben.
+- **Syntax errors:** Detected during parsing and output with a clear error message.
+- **Type errors:** The `TypeChecker` checks type consistency and reports errors with specific codes (e.g., `TYPE002`).
+- **Runtime errors:** Errors during execution are detected and output by the interpreter.
 
-## Fehlerausgabe
+## Error Output
 
-Fehler werden im CLI und in der Konsole ausgegeben, z.B.:
+Errors are output in the CLI and console, e.g.:
 
 ```
 [ERROR] Execution failed: Variable 'x' not defined
@@ -22,17 +22,17 @@ Fehler werden im CLI und in der Konsole ausgegeben, z.B.:
 
 ## ErrorReporter
 
-Der zentrale Mechanismus zur Fehlerausgabe im Compiler ist der `ErrorReporter`:
+The central mechanism for error output in the compiler is the `ErrorReporter`:
 
 ```csharp
 ErrorReporter.Report("Type mismatch: ...", line, column, "TYPE002");
 ```
 
-## Fehlercodes
+## Error Codes
 
-Jeder Fehler ist mit einem Code versehen, der die Fehlerart kennzeichnet (z.B. `TYPE002` für Typfehler).
+Each error is provided with a code that identifies the error type (e.g., `TYPE002` for type errors).
 
-## Tipps
+## Tips
 
-- Nutzen Sie die Debug- und Verbose-Optionen, um Stacktraces und zusätzliche Fehlerdetails zu erhalten.
-- Prüfen Sie die Fehlerausgabe auf spezifische Codes, um Fehlerquellen schnell zu identifizieren.
+- Use the debug and verbose options to get stacktraces and additional error details.
+- Check the error output for specific codes to quickly identify error sources.

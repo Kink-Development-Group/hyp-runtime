@@ -4,15 +4,15 @@ title: Records
 
 # Records
 
-Records sind strukturierte Datentypen in HypnoScript, die es ermöglichen, zusammengehörige Daten in einem Objekt zu gruppieren.
+Records are structured data types in HypnoScript that allow you to group related data in an object.
 
-## Übersicht
+## Overview
 
-Records sind unveränderliche (immutable) Datenstrukturen, die mehrere Felder mit verschiedenen Typen enthalten können. Sie sind ideal für die Darstellung von Entitäten, Konfigurationen und strukturierten Daten.
+Records are immutable data structures that can contain multiple fields with different types. They are ideal for representing entities, configurations, and structured data.
 
 ## Syntax
 
-### Record-Deklaration
+### Record Declaration
 
 ```hyp
 record Person {
@@ -23,7 +23,7 @@ record Person {
 }
 ```
 
-### Record-Instanziierung
+### Record Instantiation
 
 ```hyp
 induce person = Person {
@@ -34,44 +34,44 @@ induce person = Person {
 };
 ```
 
-### Record mit optionalen Feldern
+### Record with Optional Fields
 
 ```hyp
 record User {
     id: number;
     username: string;
-    email?: string;  // Optionales Feld
+    email?: string;  // Optional field
     lastLogin?: number;
 }
 ```
 
-## Grundlegende Verwendung
+## Basic Usage
 
-### Einfacher Record
+### Simple Record
 
 ```hyp
 Focus {
     entrance {
-        // Record definieren
+        // Define record
         record Point {
             x: number;
             y: number;
         }
 
-        // Record-Instanz erstellen
+        // Create record instance
         induce point1 = Point {
             x: 10,
             y: 20
         };
 
-        // Auf Felder zugreifen
-        observe "X-Koordinate: " + point1.x;
-        observe "Y-Koordinate: " + point1.y;
+        // Access fields
+        observe "X-Coordinate: " + point1.x;
+        observe "Y-Coordinate: " + point1.y;
     }
 } Relax;
 ```
 
-### Record mit verschiedenen Datentypen
+### Record with Different Data Types
 
 ```hyp
 Focus {
@@ -97,16 +97,16 @@ Focus {
             }
         };
 
-        observe "Produkt: " + product.name;
-        observe "Preis: " + product.price + " €";
-        observe "Kategorien: " + product.categories;
+        observe "Product: " + product.name;
+        observe "Price: " + product.price + " €";
+        observe "Categories: " + product.categories;
     }
 } Relax;
 ```
 
-## Record-Operationen
+## Record Operations
 
-### Feldzugriff
+### Field Access
 
 ```hyp
 Focus {
@@ -125,19 +125,19 @@ Focus {
             country: "Deutschland"
         };
 
-        // Direkter Feldzugriff
-        observe "Straße: " + address.street;
-        observe "Stadt: " + address.city;
+        // Direct field access
+        observe "Street: " + address.street;
+        observe "City: " + address.city;
 
-        // Dynamischer Feldzugriff
+        // Dynamic field access
         induce fieldName = "zipCode";
         induce fieldValue = address[fieldName];
-        observe "PLZ: " + fieldValue;
+        observe "ZIP: " + fieldValue;
     }
 } Relax;
 ```
 
-### Record-Kopien mit Änderungen
+### Record Copies with Changes
 
 ```hyp
 Focus {
@@ -150,23 +150,23 @@ Focus {
 
         induce defaultConfig = Config {
             theme: "dark",
-            language: "de",
+            language: "en",
             notifications: true
         };
 
-        // Kopie mit Änderungen erstellen
+        // Create copy with changes
         induce userConfig = defaultConfig with {
             theme: "light",
-            language: "en"
+            language: "de"
         };
 
-        observe "Standard-Theme: " + defaultConfig.theme;
-        observe "Benutzer-Theme: " + userConfig.theme;
+        observe "Default theme: " + defaultConfig.theme;
+        observe "User theme: " + userConfig.theme;
     }
 } Relax;
 ```
 
-### Record-Vergleiche
+### Record Comparisons
 
 ```hyp
 Focus {
@@ -180,20 +180,20 @@ Focus {
         induce v2 = Vector { x: 1, y: 2 };
         induce v3 = Vector { x: 3, y: 4 };
 
-        // Strukturelle Gleichheit
+        // Structural equality
         observe "v1 == v2: " + (v1 == v2);  // true
         observe "v1 == v3: " + (v1 == v3);  // false
 
-        // Tiefenvergleich
+        // Deep comparison
         induce areEqual = DeepEquals(v1, v2);
-        observe "Tiefenvergleich v1 und v2: " + areEqual;
+        observe "Deep comparison v1 and v2: " + areEqual;
     }
 } Relax;
 ```
 
-## Erweiterte Record-Features
+## Advanced Record Features
 
-### Record mit Methoden
+### Record with Methods
 
 ```hyp
 Focus {
@@ -202,7 +202,7 @@ Focus {
             width: number;
             height: number;
 
-            // Methoden im Record
+            // Methods in record
             suggestion area(): number {
                 awaken this.width * this.height;
             }
@@ -221,21 +221,21 @@ Focus {
             height: 5
         };
 
-        observe "Fläche: " + rect.area();
-        observe "Umfang: " + rect.perimeter();
-        observe "Ist Quadrat: " + rect.isSquare();
+        observe "Area: " + rect.area();
+        observe "Perimeter: " + rect.perimeter();
+        observe "Is square: " + rect.isSquare();
     }
 } Relax;
 ```
 
-### Record mit berechneten Feldern
+### Record with Computed Fields
 
 ```hyp
 Focus {
     entrance {
         record Circle {
             radius: number;
-            diameter: number;  // Berechnet aus radius
+            diameter: number;  // Computed from radius
 
             suggestion constructor(r: number) {
                 this.radius = r;
@@ -245,12 +245,12 @@ Focus {
 
         induce circle = Circle(5);
         observe "Radius: " + circle.radius;
-        observe "Durchmesser: " + circle.diameter;
+        observe "Diameter: " + circle.diameter;
     }
 } Relax;
 ```
 
-### Record mit Validierung
+### Record with Validation
 
 ```hyp
 Focus {
@@ -262,7 +262,7 @@ Focus {
                 if (IsValidEmail(email)) {
                     this.address = email;
                 } else {
-                    throw "Ungültige E-Mail-Adresse: " + email;
+                    throw "Invalid email address: " + email;
                 }
             }
 
@@ -278,18 +278,18 @@ Focus {
 
         try {
             induce email = Email("user@example.com");
-            observe "E-Mail: " + email.address;
+            observe "Email: " + email.address;
             observe "Domain: " + email.getDomain();
         } catch (error) {
-            observe "Fehler: " + error;
+            observe "Error: " + error;
         }
     }
 } Relax;
 ```
 
-## Record-Patterns
+## Record Patterns
 
-### Record als Konfiguration
+### Record as Configuration
 
 ```hyp
 Focus {
@@ -314,17 +314,17 @@ Focus {
             timeout: 30
         };
 
-        // Konfiguration verwenden
+        // Use configuration
         induce connectionString = "postgresql://" + dbConfig.username + ":" +
                                  dbConfig.password + "@" + dbConfig.host + ":" +
                                  dbConfig.port + "/" + dbConfig.database;
 
-        observe "Verbindungsstring: " + connectionString;
+        observe "Connection string: " + connectionString;
     }
 } Relax;
 ```
 
-### Record als API-Response
+### Record as API Response
 
 ```hyp
 Focus {
@@ -337,7 +337,7 @@ Focus {
             requestId: string;
         }
 
-        // Erfolgreiche Antwort
+        // Successful response
         induce successResponse = ApiResponse {
             success: true,
             data: {
@@ -349,21 +349,21 @@ Focus {
             requestId: GenerateUUID()
         };
 
-        // Fehlerantwort
+        // Error response
         induce errorResponse = ApiResponse {
             success: false,
-            error: "Benutzer nicht gefunden",
+            error: "User not found",
             timestamp: GetCurrentTime(),
             requestId: GenerateUUID()
         };
 
-        observe "Erfolg: " + successResponse.success;
-        observe "Fehler: " + errorResponse.error;
+        observe "Success: " + successResponse.success;
+        observe "Error: " + errorResponse.error;
     }
 } Relax;
 ```
 
-### Record für Event-Handling
+### Record for Event Handling
 
 ```hyp
 Focus {
@@ -388,18 +388,18 @@ Focus {
             priority: 1
         };
 
-        // Event verarbeiten
+        // Process event
         if (userEvent.type == "user.login") {
-            observe "Benutzer-Login erkannt: " + userEvent.data.userId;
+            observe "User login detected: " + userEvent.data.userId;
             LogEvent(userEvent);
         }
     }
 } Relax;
 ```
 
-## Record-Arrays und Collections
+## Record Arrays and Collections
 
-### Array von Records
+### Array of Records
 
 ```hyp
 Focus {
@@ -416,23 +416,23 @@ Focus {
             Student { id: 3, name: "Charlie", grade: 78 }
         ];
 
-        // Durch Records iterieren
+        // Iterate through records
         for (induce i = 0; i < ArrayLength(students); induce i = i + 1) {
             induce student = students[i];
-            observe "Student: " + student.name + " - Note: " + student.grade;
+            observe "Student: " + student.name + " - Grade: " + student.grade;
         }
 
-        // Records filtern
+        // Filter records
         induce topStudents = ArrayFilter(students, function(student) {
             return student.grade >= 90;
         });
 
-        observe "Top-Studenten: " + ArrayLength(topStudents);
+        observe "Top students: " + ArrayLength(topStudents);
     }
 } Relax;
 ```
 
-### Record als Dictionary-Wert
+### Record as Dictionary Value
 
 ```hyp
 Focus {
@@ -449,11 +449,11 @@ Focus {
             "PROD003": ProductInfo { name: "Book", price: 19.99, category: "Books" }
         };
 
-        // Produkt nach ID suchen
+        // Search product by ID
         induce productId = "PROD001";
         if (productCatalog[productId]) {
             induce product = productCatalog[productId];
-            observe "Produkt gefunden: " + product.name + " - " + product.price + " €";
+            observe "Product found: " + product.name + " - " + product.price + " €";
         }
     }
 } Relax;
@@ -461,12 +461,12 @@ Focus {
 
 ## Best Practices
 
-### Record-Design
+### Record Design
 
 ```hyp
 Focus {
     entrance {
-        // ✅ GUT: Klare, spezifische Records
+        // ✅ GOOD: Clear, specific records
         record UserProfile {
             userId: number;
             displayName: string;
@@ -474,25 +474,25 @@ Focus {
             preferences: object;
         }
 
-        // ❌ SCHLECHT: Zu generische Records
+        // ❌ BAD: Too generic records
         record Data {
             field1: object;
             field2: object;
             field3: object;
         }
 
-        // ✅ GUT: Immutable Records verwenden
+        // ✅ GOOD: Use immutable records
         induce user = UserProfile {
             userId: 123,
             displayName: "Alice",
             email: "alice@example.com",
             preferences: {
                 theme: "dark",
-                language: "de"
+                language: "en"
             }
         };
 
-        // ✅ GUT: Kopien für Änderungen erstellen
+        // ✅ GOOD: Create copies for changes
         induce updatedUser = user with {
             displayName: "Alice Johnson"
         };
@@ -500,27 +500,27 @@ Focus {
 } Relax;
 ```
 
-### Performance-Optimierung
+### Performance Optimization
 
 ```hyp
 Focus {
     entrance {
-        // ✅ GUT: Records für kleine, häufig verwendete Daten
+        // ✅ GOOD: Records for small, frequently used data
         record Point {
             x: number;
             y: number;
         }
 
-        // ✅ GUT: Sessions für komplexe Objekte mit Verhalten
+        // ✅ GOOD: Sessions for complex objects with behavior
         session ComplexObject {
             expose data: object;
 
             suggestion processData() {
-                // Komplexe Verarbeitung
+                // Complex processing
             }
         }
 
-        // ✅ GUT: Records für Konfigurationen
+        // ✅ GOOD: Records for configurations
         record AppConfig {
             debug: boolean;
             logLevel: string;
@@ -530,7 +530,7 @@ Focus {
 } Relax;
 ```
 
-### Fehlerbehandlung
+### Error Handling
 
 ```hyp
 Focus {
@@ -546,13 +546,13 @@ Focus {
             induce warnings = [];
 
             if (Length(email) == 0) {
-                ArrayPush(errors, "E-Mail darf nicht leer sein");
+                ArrayPush(errors, "Email must not be empty");
             } else if (!IsValidEmail(email)) {
-                ArrayPush(errors, "Ungültiges E-Mail-Format");
+                ArrayPush(errors, "Invalid email format");
             }
 
             if (Length(email) > 100) {
-                ArrayPush(warnings, "E-Mail ist sehr lang");
+                ArrayPush(warnings, "Email is very long");
             }
 
             return ValidationResult {
@@ -564,17 +564,17 @@ Focus {
 
         induce result = validateEmail("test@example.com");
         if (result.isValid) {
-            observe "E-Mail ist gültig";
+            observe "Email is valid";
         } else {
-            observe "E-Mail-Fehler: " + result.errors;
+            observe "Email errors: " + result.errors;
         }
     }
 } Relax;
 ```
 
-## Fehlerbehandlung
+## Error Handling
 
-Records können bei ungültigen Operationen Fehler werfen:
+Records can throw errors on invalid operations:
 
 ```hyp
 Focus {
@@ -590,31 +590,31 @@ Focus {
                 age: 30
             };
 
-            // Ungültiger Feldzugriff
+            // Invalid field access
             induce invalidField = person.nonexistentField;
         } catch (error) {
-            observe "Record-Fehler: " + error;
+            observe "Record error: " + error;
         }
 
         try {
-            // Ungültige Record-Erstellung
+            // Invalid record creation
             induce invalidPerson = Person {
                 name: "Bob",
-                age: "ungültig"  // Sollte number sein
+                age: "invalid"  // Should be number
             };
         } catch (error) {
-            observe "Validierungsfehler: " + error;
+            observe "Validation error: " + error;
         }
     }
 } Relax;
 ```
 
-## Nächste Schritte
+## Next Steps
 
-- [Sessions](./sessions) - Objektorientierte Programmierung mit Sessions
-- [Arrays](./arrays) - Array-Operationen und Collections
-- [Functions](./functions) - Funktionsdefinitionen und -aufrufe
+- [Sessions](./sessions) - Object-oriented programming with sessions
+- [Arrays](./arrays) - Array operations and collections
+- [Functions](./functions) - Function definitions and calls
 
 ---
 
-**Records gemeistert? Dann lerne [Sessions](./sessions) kennen!** ✅
+**Mastered records? Then learn about [Sessions](./sessions)!** ✅

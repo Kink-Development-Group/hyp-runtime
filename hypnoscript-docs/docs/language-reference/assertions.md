@@ -4,29 +4,29 @@ title: Assertions
 
 # Assertions
 
-Assertions sind mächtige Werkzeuge in HypnoScript, um Bedingungen zu überprüfen und Fehler frühzeitig zu erkennen.
+Assertions are powerful tools in HypnoScript for checking conditions and detecting errors early.
 
-## Übersicht
+## Overview
 
-Assertions ermöglichen es Ihnen, Annahmen über den Zustand Ihres Programms zu formulieren und automatisch zu überprüfen. Sie sind besonders nützlich für Debugging, Testing und die Validierung von Eingabedaten.
+Assertions allow you to formulate assumptions about the state of your program and automatically verify them. They are particularly useful for debugging, testing, and validating input data.
 
-## Grundlegende Syntax
+## Basic Syntax
 
-### Einfache Assertion
+### Simple Assertion
 
 ```hyp
 assert condition "Optional message";
 ```
 
-### Assertion ohne Nachricht
+### Assertion without Message
 
 ```hyp
 assert condition;
 ```
 
-## Grundlegende Assertions
+## Basic Assertions
 
-### Wahrheitswert-Assertions
+### Boolean Assertions
 
 ```hyp
 Focus {
@@ -34,21 +34,21 @@ Focus {
         induce isLoggedIn = true;
         induce hasPermission = false;
 
-        // Einfache Wahrheitswert-Assertions
-        assert isLoggedIn "Benutzer muss eingeloggt sein";
-        assert !hasPermission "Benutzer sollte keine Berechtigung haben";
+        // Simple boolean assertions
+        assert isLoggedIn "User must be logged in";
+        assert !hasPermission "User should not have permission";
 
-        // Komplexe Bedingungen
+        // Complex conditions
         induce userAge = 25;
         induce isAdult = userAge >= 18;
-        assert isAdult "Benutzer muss volljährig sein";
+        assert isAdult "User must be of legal age";
 
-        observe "Alle Assertions bestanden!";
+        observe "All assertions passed!";
     }
 } Relax;
 ```
 
-### Gleichheits-Assertions
+### Equality Assertions
 
 ```hyp
 Focus {
@@ -56,97 +56,97 @@ Focus {
         induce expected = 42;
         induce actual = 42;
 
-        // Gleichheit prüfen
-        assert actual == expected "Wert sollte 42 sein";
+        // Check equality
+        assert actual == expected "Value should be 42";
 
-        // Ungleichheit prüfen
+        // Check inequality
         induce differentValue = 100;
-        assert actual != differentValue "Werte sollten unterschiedlich sein";
+        assert actual != differentValue "Values should be different";
 
-        // String-Gleichheit
+        // String equality
         induce name = "Alice";
-        assert name == "Alice" "Name sollte Alice sein";
+        assert name == "Alice" "Name should be Alice";
 
-        observe "Gleichheits-Assertions bestanden!";
+        observe "Equality assertions passed!";
     }
 } Relax;
 ```
 
-### Numerische Assertions
+### Numeric Assertions
 
 ```hyp
 Focus {
     entrance {
         induce value = 50;
 
-        // Größer-als
-        assert value > 0 "Wert sollte positiv sein";
-        assert value >= 50 "Wert sollte mindestens 50 sein";
+        // Greater than
+        assert value > 0 "Value should be positive";
+        assert value >= 50 "Value should be at least 50";
 
-        // Kleiner-als
-        assert value < 100 "Wert sollte kleiner als 100 sein";
-        assert value <= 50 "Wert sollte maximal 50 sein";
+        // Less than
+        assert value < 100 "Value should be less than 100";
+        assert value <= 50 "Value should be at most 50";
 
-        // Bereich prüfen
-        assert value >= 0 && value <= 100 "Wert sollte zwischen 0 und 100 liegen";
+        // Range check
+        assert value >= 0 && value <= 100 "Value should be between 0 and 100";
 
-        observe "Numerische Assertions bestanden!";
+        observe "Numeric assertions passed!";
     }
 } Relax;
 ```
 
-## Erweiterte Assertions
+## Advanced Assertions
 
-### Array-Assertions
+### Array Assertions
 
 ```hyp
 Focus {
     entrance {
         induce numbers = [1, 2, 3, 4, 5];
 
-        // Array-Länge prüfen
-        assert ArrayLength(numbers) == 5 "Array sollte 5 Elemente haben";
-        assert ArrayLength(numbers) > 0 "Array sollte nicht leer sein";
+        // Check array length
+        assert ArrayLength(numbers) == 5 "Array should have 5 elements";
+        assert ArrayLength(numbers) > 0 "Array should not be empty";
 
-        // Array-Inhalt prüfen
-        assert ArrayContains(numbers, 3) "Array sollte 3 enthalten";
-        assert !ArrayContains(numbers, 10) "Array sollte 10 nicht enthalten";
+        // Check array contents
+        assert ArrayContains(numbers, 3) "Array should contain 3";
+        assert !ArrayContains(numbers, 10) "Array should not contain 10";
 
-        // Array-Elemente prüfen
-        assert ArrayGet(numbers, 0) == 1 "Erstes Element sollte 1 sein";
-        assert ArrayGet(numbers, ArrayLength(numbers) - 1) == 5 "Letztes Element sollte 5 sein";
+        // Check array elements
+        assert ArrayGet(numbers, 0) == 1 "First element should be 1";
+        assert ArrayGet(numbers, ArrayLength(numbers) - 1) == 5 "Last element should be 5";
 
-        observe "Array-Assertions bestanden!";
+        observe "Array assertions passed!";
     }
 } Relax;
 ```
 
-### String-Assertions
+### String Assertions
 
 ```hyp
 Focus {
     entrance {
         induce text = "Hello World";
 
-        // String-Länge
-        assert Length(text) > 0 "Text sollte nicht leer sein";
-        assert Length(text) <= 100 "Text sollte maximal 100 Zeichen haben";
+        // String length
+        assert Length(text) > 0 "Text should not be empty";
+        assert Length(text) <= 100 "Text should have at most 100 characters";
 
-        // String-Inhalt
-        assert Contains(text, "Hello") "Text sollte 'Hello' enthalten";
-        assert StartsWith(text, "Hello") "Text sollte mit 'Hello' beginnen";
-        assert EndsWith(text, "World") "Text sollte mit 'World' enden";
+        // String content
+        assert Contains(text, "Hello") "Text should contain 'Hello'";
+        assert StartsWith(text, "Hello") "Text should start with 'Hello'";
+        assert EndsWith(text, "World") "Text should end with 'World'";
 
-        // String-Format
+        // String format
         induce email = "user@example.com";
-        assert IsValidEmail(email) "E-Mail sollte gültig sein";
+        assert IsValidEmail(email) "Email should be valid";
 
-        observe "String-Assertions bestanden!";
+        observe "String assertions passed!";
     }
 } Relax;
 ```
 
-### Objekt-Assertions
+### Object Assertions
 
 ```hyp
 Focus {
@@ -161,22 +161,22 @@ Focus {
             age: 30
         };
 
-        // Objekt-Eigenschaften prüfen
-        assert person.name != "" "Name sollte nicht leer sein";
-        assert person.age >= 0 "Alter sollte nicht negativ sein";
-        assert person.age <= 150 "Alter sollte realistisch sein";
+        // Check object properties
+        assert person.name != "" "Name should not be empty";
+        assert person.age >= 0 "Age should not be negative";
+        assert person.age <= 150 "Age should be realistic";
 
-        // Objekt-Typ prüfen
-        assert person != null "Person sollte nicht null sein";
+        // Check object type
+        assert person != null "Person should not be null";
 
-        observe "Objekt-Assertions bestanden!";
+        observe "Object assertions passed!";
     }
 } Relax;
 ```
 
-## Spezialisierte Assertions
+## Specialized Assertions
 
-### Typ-Assertions
+### Type Assertions
 
 ```hyp
 Focus {
@@ -185,56 +185,56 @@ Focus {
         induce text = "Hello";
         induce array = [1, 2, 3];
 
-        // Typ prüfen
-        assert TypeOf(value) == "number" "Wert sollte vom Typ number sein";
-        assert TypeOf(text) == "string" "Text sollte vom Typ string sein";
-        assert TypeOf(array) == "array" "Array sollte vom Typ array sein";
+        // Check type
+        assert TypeOf(value) == "number" "Value should be of type number";
+        assert TypeOf(text) == "string" "Text should be of type string";
+        assert TypeOf(array) == "array" "Array should be of type array";
 
-        // Null-Check
+        // Null check
         induce nullableValue = null;
-        assert nullableValue == null "Wert sollte null sein";
+        assert nullableValue == null "Value should be null";
 
-        observe "Typ-Assertions bestanden!";
+        observe "Type assertions passed!";
     }
 } Relax;
 ```
 
-### Funktions-Assertions
+### Function Assertions
 
 ```hyp
 Focus {
     entrance {
-        // Funktion definieren
+        // Define function
         suggestion add(a: number, b: number): number {
             awaken a + b;
         }
 
-        // Funktionsergebnis prüfen
+        // Check function result
         induce result = call add(2, 3);
-        assert result == 5 "2 + 3 sollte 5 ergeben";
+        assert result == 5 "2 + 3 should equal 5";
 
-        // Funktionsverhalten prüfen
+        // Check function behavior
         induce zeroResult = call add(0, 0);
-        assert zeroResult == 0 "0 + 0 sollte 0 ergeben";
+        assert zeroResult == 0 "0 + 0 should equal 0";
 
-        // Negative Zahlen
+        // Negative numbers
         induce negativeResult = call add(-1, -2);
-        assert negativeResult == -3 "-1 + (-2) sollte -3 ergeben";
+        assert negativeResult == -3 "-1 + (-2) should equal -3";
 
-        observe "Funktions-Assertions bestanden!";
+        observe "Function assertions passed!";
     }
 } Relax;
 ```
 
-### Performance-Assertions
+### Performance Assertions
 
 ```hyp
 Focus {
     entrance {
-        // Performance messen
+        // Measure performance
         induce startTime = GetCurrentTime();
 
-        // Operation durchführen
+        // Perform operation
         induce sum = 0;
         for (induce i = 0; i < 1000; induce i = i + 1) {
             sum = sum + i;
@@ -243,52 +243,52 @@ Focus {
         induce endTime = GetCurrentTime();
         induce executionTime = (endTime - startTime) * 1000; // in ms
 
-        // Performance-Assertions
-        assert executionTime < 100 "Operation sollte schneller als 100ms sein";
-        assert sum == 499500 "Summe sollte korrekt berechnet werden";
+        // Performance assertions
+        assert executionTime < 100 "Operation should be faster than 100ms";
+        assert sum == 499500 "Sum should be calculated correctly";
 
-        observe "Performance-Assertions bestanden!";
-        observe "Ausführungszeit: " + executionTime + " ms";
+        observe "Performance assertions passed!";
+        observe "Execution time: " + executionTime + " ms";
     }
 } Relax;
 ```
 
-## Assertion-Patterns
+## Assertion Patterns
 
-### Eingabevalidierung
+### Input Validation
 
 ```hyp
 Focus {
     entrance {
         suggestion validateUserInput(username: string, age: number): boolean {
-            // Username-Validierung
-            assert Length(username) >= 3 "Username sollte mindestens 3 Zeichen haben";
-            assert Length(username) <= 20 "Username sollte maximal 20 Zeichen haben";
-            assert !Contains(username, " ") "Username sollte keine Leerzeichen enthalten";
+            // Username validation
+            assert Length(username) >= 3 "Username should have at least 3 characters";
+            assert Length(username) <= 20 "Username should have at most 20 characters";
+            assert !Contains(username, " ") "Username should not contain spaces";
 
-            // Alters-Validierung
-            assert age >= 13 "Benutzer sollte mindestens 13 Jahre alt sein";
-            assert age <= 120 "Alter sollte realistisch sein";
+            // Age validation
+            assert age >= 13 "User should be at least 13 years old";
+            assert age <= 120 "Age should be realistic";
 
-            // Zusätzliche Validierungen
-            assert IsValidUsername(username) "Username sollte gültig sein";
+            // Additional validations
+            assert IsValidUsername(username) "Username should be valid";
 
             return true;
         }
 
-        // Validierung testen
+        // Test validation
         try {
             induce isValid = call validateUserInput("alice123", 25);
-            assert isValid "Eingabe sollte gültig sein";
-            observe "Eingabevalidierung erfolgreich!";
+            assert isValid "Input should be valid";
+            observe "Input validation successful!";
         } catch (error) {
-            observe "Validierungsfehler: " + error;
+            observe "Validation error: " + error;
         }
     }
 } Relax;
 ```
 
-### Zustandsvalidierung
+### State Validation
 
 ```hyp
 Focus {
@@ -305,21 +305,21 @@ Focus {
             level: 3
         };
 
-        // Zustands-Assertions
-        assert gameState.playerHealth >= 0 "Spieler-Gesundheit sollte nicht negativ sein";
-        assert gameState.playerHealth <= 100 "Spieler-Gesundheit sollte maximal 100 sein";
-        assert gameState.score >= 0 "Punktzahl sollte nicht negativ sein";
-        assert gameState.level >= 1 "Level sollte mindestens 1 sein";
+        // State assertions
+        assert gameState.playerHealth >= 0 "Player health should not be negative";
+        assert gameState.playerHealth <= 100 "Player health should be at most 100";
+        assert gameState.score >= 0 "Score should not be negative";
+        assert gameState.level >= 1 "Level should be at least 1";
 
-        // Konsistenz prüfen
-        assert gameState.playerHealth > 0 || gameState.level == 1 "Spieler sollte leben oder im ersten Level sein";
+        // Consistency check
+        assert gameState.playerHealth > 0 || gameState.level == 1 "Player should be alive or in first level";
 
-        observe "Zustandsvalidierung erfolgreich!";
+        observe "State validation successful!";
     }
 } Relax;
 ```
 
-### API-Response-Validierung
+### API Response Validation
 
 ```hyp
 Focus {
@@ -330,7 +330,7 @@ Focus {
             message: string;
         }
 
-        // Simulierte API-Antwort
+        // Simulated API response
         induce response = ApiResponse {
             status: 200,
             data: {
@@ -340,36 +340,36 @@ Focus {
             message: "Success"
         };
 
-        // Response-Validierung
-        assert response.status >= 200 && response.status < 300 "Status sollte erfolgreich sein";
-        assert response.data != null "Daten sollten vorhanden sein";
-        assert Length(response.message) > 0 "Nachricht sollte nicht leer sein";
+        // Response validation
+        assert response.status >= 200 && response.status < 300 "Status should be successful";
+        assert response.data != null "Data should be present";
+        assert Length(response.message) > 0 "Message should not be empty";
 
-        // Daten-Validierung
+        // Data validation
         if (response.data.userId) {
-            assert response.data.userId > 0 "User-ID sollte positiv sein";
+            assert response.data.userId > 0 "User ID should be positive";
         }
 
         if (response.data.name) {
-            assert Length(response.data.name) > 0 "Name sollte nicht leer sein";
+            assert Length(response.data.name) > 0 "Name should not be empty";
         }
 
-        observe "API-Response-Validierung erfolgreich!";
+        observe "API response validation successful!";
     }
 } Relax;
 ```
 
-## Assertion-Frameworks
+## Assertion Frameworks
 
-### Test-Assertions
+### Test Assertions
 
 ```hyp
 Focus {
     entrance {
-        // Test-Setup
+        // Test setup
         induce testResults = [];
 
-        // Test-Funktionen
+        // Test functions
         suggestion assertEqual(actual: object, expected: object, message: string) {
             if (actual != expected) {
                 ArrayPush(testResults, "FAIL: " + message + " (Expected: " + expected + ", Got: " + actual + ")");
@@ -388,19 +388,19 @@ Focus {
             }
         }
 
-        // Tests ausführen
+        // Run tests
         try {
             call assertEqual(2 + 2, 4, "Addition test");
             call assertTrue(Length("Hello") == 5, "String length test");
             call assertEqual(ArrayLength([1, 2, 3]), 3, "Array length test");
 
-            observe "Alle Tests bestanden!";
+            observe "All tests passed!";
         } catch (error) {
-            observe "Test fehlgeschlagen: " + error;
+            observe "Test failed: " + error;
         }
 
-        // Test-Ergebnisse anzeigen
-        observe "Test-Ergebnisse:";
+        // Display test results
+        observe "Test results:";
         for (induce i = 0; i < ArrayLength(testResults); induce i = i + 1) {
             observe "  " + testResults[i];
         }
@@ -408,7 +408,7 @@ Focus {
 } Relax;
 ```
 
-### Debug-Assertions
+### Debug Assertions
 
 ```hyp
 Focus {
@@ -422,83 +422,83 @@ Focus {
             }
         }
 
-        // Debug-Assertions verwenden
+        // Use debug assertions
         induce value = 42;
-        call debugAssert(value > 0, "Wert sollte positiv sein");
-        call debugAssert(value < 100, "Wert sollte kleiner als 100 sein");
+        call debugAssert(value > 0, "Value should be positive");
+        call debugAssert(value < 100, "Value should be less than 100");
 
-        // Debug-Informationen sammeln
+        // Collect debug information
         if (debugMode) {
             induce memoryUsage = GetMemoryUsage();
-            call debugAssert(memoryUsage < 1000, "Speichernutzung sollte unter 1GB sein");
+            call debugAssert(memoryUsage < 1000, "Memory usage should be under 1GB");
         }
 
-        observe "Debug-Assertions abgeschlossen!";
+        observe "Debug assertions completed!";
     }
 } Relax;
 ```
 
 ## Best Practices
 
-### Assertion-Strategien
+### Assertion Strategies
 
 ```hyp
 Focus {
     entrance {
-        // ✅ GUT: Spezifische Assertions
+        // ✅ GOOD: Specific assertions
         induce userAge = 25;
-        assert userAge >= 18 "Benutzer muss volljährig sein";
+        assert userAge >= 18 "User must be of legal age";
 
-        // ✅ GUT: Aussagekräftige Nachrichten
+        // ✅ GOOD: Meaningful messages
         induce result = 42;
-        assert result == 42 "Berechnung sollte 42 ergeben, nicht " + result;
+        assert result == 42 "Calculation should equal 42, not " + result;
 
-        // ✅ GUT: Frühe Validierung
+        // ✅ GOOD: Early validation
         suggestion processUser(user: object) {
-            assert user != null "Benutzer-Objekt darf nicht null sein";
-            assert user.name != "" "Benutzername darf nicht leer sein";
+            assert user != null "User object must not be null";
+            assert user.name != "" "Username must not be empty";
 
-            // Verarbeitung...
+            // Processing...
         }
 
-        // ❌ SCHLECHT: Zu allgemeine Assertions
-        assert true "Alles ist gut";
+        // ❌ BAD: Too general assertions
+        assert true "Everything is fine";
 
-        // ❌ SCHLECHT: Fehlende Nachrichten
+        // ❌ BAD: Missing messages
         assert userAge >= 18;
     }
 } Relax;
 ```
 
-### Performance-Considerations
+### Performance Considerations
 
 ```hyp
 Focus {
     entrance {
-        // ✅ GUT: Einfache Assertions für Performance-kritische Pfade
+        // ✅ GOOD: Simple assertions for performance-critical paths
         induce criticalValue = 100;
-        assert criticalValue > 0; // Schnelle Prüfung
+        assert criticalValue > 0; // Fast check
 
-        // ✅ GUT: Komplexe Assertions nur im Debug-Modus
+        // ✅ GOOD: Complex assertions only in debug mode
         induce debugMode = true;
         if (debugMode) {
             induce complexValidation = ValidateComplexData();
-            assert complexValidation "Komplexe Validierung fehlgeschlagen";
+            assert complexValidation "Complex validation failed";
         }
 
-        // ✅ GUT: Assertions für invariante Bedingungen
+        // ✅ GOOD: Assertions for invariant conditions
         induce loopCount = 0;
         while (loopCount < 10) {
-            assert loopCount >= 0 "Schleifenzähler sollte nicht negativ sein";
+            assert loopCount >= 0 "Loop counter should not be negative";
             loopCount = loopCount + 1;
         }
     }
 } Relax;
 ```
 
-## Fehlerbehandlung
+## Error Handling
 
-### Assertion-Fehler abfangen
+### Catching Assertion Errors
 
 ```hyp
 Focus {
@@ -515,17 +515,17 @@ Focus {
             }
         }
 
-        // Sichere Assertions verwenden
-        induce test1 = call safeAssert(2 + 2 == 4, "Mathematik funktioniert");
-        induce test2 = call safeAssert(2 + 2 == 5, "Diese Assertion sollte fehlschlagen");
-        induce test3 = call safeAssert(Length("Hello") == 5, "String-Länge ist korrekt");
+        // Use safe assertions
+        induce test1 = call safeAssert(2 + 2 == 4, "Math works");
+        induce test2 = call safeAssert(2 + 2 == 5, "This assertion should fail");
+        induce test3 = call safeAssert(Length("Hello") == 5, "String length is correct");
 
-        // Ergebnisse auswerten
-        observe "Erfolgreiche Assertions: " + (test1 && test3);
-        observe "Fehlgeschlagene Assertions: " + (!test2);
+        // Evaluate results
+        observe "Successful assertions: " + (test1 && test3);
+        observe "Failed assertions: " + (!test2);
 
         if (ArrayLength(assertionErrors) > 0) {
-            observe "Assertion-Fehler:";
+            observe "Assertion errors:";
             for (induce i = 0; i < ArrayLength(assertionErrors); induce i = i + 1) {
                 observe "  " + assertionErrors[i];
             }
@@ -534,7 +534,7 @@ Focus {
 } Relax;
 ```
 
-### Assertion-Level
+### Assertion Levels
 
 ```hyp
 Focus {
@@ -549,22 +549,22 @@ Focus {
             }
         }
 
-        // Level-spezifische Assertions
-        call levelAssert(true, "Immer prüfen", "strict");
-        call levelAssert(2 + 2 == 4, "Normale Prüfung", "normal");
-        call levelAssert(Length("test") == 4, "Entspannte Prüfung", "relaxed");
+        // Level-specific assertions
+        call levelAssert(true, "Always check", "strict");
+        call levelAssert(2 + 2 == 4, "Normal check", "normal");
+        call levelAssert(Length("test") == 4, "Relaxed check", "relaxed");
 
-        observe "Level-spezifische Assertions abgeschlossen!";
+        observe "Level-specific assertions completed!";
     }
 } Relax;
 ```
 
-## Nächste Schritte
+## Next Steps
 
-- [Testing Overview](../testing/overview) - Umfassender Testing-Guide
-- [Functions](./functions) - Funktionsdefinitionen und -aufrufe
-- [Error Handling](../error-handling/overview) - Fehlerbehandlung
+- [Testing Overview](../testing/overview) - Comprehensive testing guide
+- [Functions](./functions) - Function definitions and calls
+- [Error Handling](../error-handling/overview) - Error handling
 
 ---
 
-**Assertions gemeistert? Dann lerne [Testing Overview](../testing/overview) kennen!** ✅
+**Mastered assertions? Then learn about [Testing Overview](../testing/overview)!** ✅

@@ -1,61 +1,56 @@
 Focus {
 
   entrance {
-    observe "Test der erweiterten Features";
+    observe "Mini scenario: HypnoScript workshop";
   }
 
-  // Test freeze
-  freeze PI: number = 3.14159;
-  observe "Freeze Test OK";
+  // Constants and baseline configuration
+  freeze MAX_PARTICIPANTS: number = 12;
+  implant sessionCode: string = "HX-204";
+  observe "Workshop code " + sessionCode + " allows up to " + MAX_PARTICIPANTS + " participants.";
 
-  // Test implant
-  implant code: number = 42;
-  observe "Implant Test OK";
+  // Manage registration state
+  induce registered: number = 8;
+  anchor checkpoint = registered;
+  observe "Currently registered: " + registered;
 
-  // Test anchor
-  induce x: number = 100;
-  anchor saved = x;
-  x = 200;
-  x = saved;
-  observe "Anchor Test OK";
-
-  // Test whisper
-  whisper "Whisper ";
-  whisper "Test ";
-  observe "OK";
-
-  // Test command
-  command "Command Test";
-
-  // Test oscillate
-  induce flag: boolean = false;
-  oscillate flag;
-  if (flag) {
-    observe "Oscillate Test OK";
+  trigger onLateJoin = suggestion(name: string) {
+    registered = registered + 1;
+    whisper "Welcome " + name + " ";
+    whisper "→ new total: " + registered;
+    observe "";
   }
 
-  // Test trigger
-  trigger myTrigger = suggestion() {
-    observe "Trigger Test OK";
-  }
-  myTrigger();
+  onLateJoin("Mira");
+  onLateJoin("Jon");
 
-  // Test deepFocus
-  induce y: number = 15;
-  if (y > 10) deepFocus {
-    observe "DeepFocus Test OK";
+  // Door status via oscillate
+  induce doorOpen: boolean = false;
+  oscillate doorOpen;
+  if (doorOpen) {
+    observe "The room is open.";
   }
 
-  // Test hypnotic operators
-  induce a: number = 10;
-  induce b: number = 10;
+  // Roll back to the saved state when we exceed the limit
+  if (registered lookAtTheWatch MAX_PARTICIPANTS) deepFocus {
+    observe "Too many registrations—we revert to the checkpoint.";
+    registered = checkpoint;
+  }
 
-  if (a youAreFeelingVerySleepy b) {
-    observe "Hypnotic Operator Test OK";
+  command "Please take your seats.";
+
+  // Hypnotic comparison
+  induce waitingList: number = 2;
+  if (registered youAreFeelingVerySleepy waitingList) {
+    observe "Everyone is already checked in.";
+  } else {
+    observe waitingList + " people remain on the waiting list.";
   }
 
   finale {
-    observe "Alle Tests erfolgreich";
+    observe "Workshop complete with " + registered + " confirmed guests.";
   }
 
-} Relax
+}
+
+Relax

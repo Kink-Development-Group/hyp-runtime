@@ -1,0 +1,17 @@
+MindLink "../shared/runtime_state.hyp";
+
+Focus {
+
+    expose suggestion ShowPulseReport(payload: array) {
+        induce metrics = DefaultPulseMetrics();
+        RenderPulseMetrics(metrics);
+
+        if (Length(payload) > 0) {
+            observe "Operator note: " + payload[0];
+        }
+
+        observe "Keep an even breath—the pulse is synchronized.";
+    }
+}
+
+Relax

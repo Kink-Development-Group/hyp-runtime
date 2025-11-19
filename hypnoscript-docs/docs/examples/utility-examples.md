@@ -2,11 +2,11 @@
 sidebar_position: 1
 ---
 
-# Beispiele: Utility-Funktionen
+# Examples: Utility Functions
 
-Diese Seite zeigt praxisnahe Beispiele für den Einsatz von Utility-Funktionen in HypnoScript. Die Beispiele sind kommentiert und können direkt übernommen oder angepasst werden.
+This page shows practical examples for using utility functions in HypnoScript. The examples are commented and can be used directly or adapted.
 
-## Dynamische Typumwandlung und Validierung
+## Dynamic Type Conversion and Validation
 
 ```hyp
 Focus {
@@ -14,72 +14,72 @@ Focus {
         induce input = "42";
         induce n = ToNumber(input);
         if (IsNumber(n)) {
-            observe "Eingegebene Zahl: " + n;
+            observe "Entered number: " + n;
         } else {
-            observe "Ungültige Eingabe!";
+            observe "Invalid input!";
         }
     }
 } Relax;
 ```
 
-## Zufällige Auswahl und Mischen
+## Random Selection and Shuffling
 
 ```hyp
 Focus {
     entrance {
         induce namen = ["Anna", "Ben", "Carla", "Dieter"];
         induce gewinner = Sample(namen, 1);
-        observe "Gewinner: " + gewinner;
+        observe "Winner: " + gewinner;
         induce gemischt = Shuffle(namen);
-        observe "Zufällige Reihenfolge: " + gemischt;
+        observe "Random order: " + gemischt;
     }
 } Relax;
 ```
 
-## Zeitmessung und Sleep
+## Time Measurement and Sleep
 
 ```hyp
 Focus {
     entrance {
         induce start = Timestamp();
-        Sleep(500); // 0,5 Sekunden warten
+        Sleep(500); // 0,5 seconds wait
         induce ende = Timestamp();
-        observe "Dauer: " + (ende - start) + " Sekunden";
+        observe "Duration: " + (ende - start) + " seconds";
     }
 } Relax;
 ```
 
-## Array-Transformationen
+## Array Transformations
 
 ```hyp
 Focus {
     entrance {
         induce zahlen = [1,2,3,4,5,2,3,4];
         induce unique = Unique(zahlen);
-        observe "Ohne Duplikate: " + unique;
+        observe "Without duplicates: " + unique;
         induce sortiert = Sort(unique);
-        observe "Sortiert: " + sortiert;
+        observe "Sorted: " + sortiert;
         induce gepaart = Zip(unique, ["a","b","c","d","e"]);
-        observe "Gepaart: " + gepaart;
+        observe "Paired: " + gepaart;
     }
 } Relax;
 ```
 
-## Fehlerbehandlung mit Try
+## Error Handling with Try
 
 ```hyp
 Focus {
     suggestion safeDivide(a, b) {
-        awaken Try(a / b, "Fehler: Division durch Null");
+        awaken Try(a / b, "Error: Division by zero");
     }
     entrance {
         observe safeDivide(10, 2); // 5
-        observe safeDivide(10, 0); // "Fehler: Division durch Null"
+        observe safeDivide(10, 0); // "Error: Division by zero"
     }
 } Relax;
 ```
 
-## JSON-Parsing und -Erzeugung
+## JSON Parsing and Generation
 
 ```hyp
 Focus {
@@ -87,11 +87,11 @@ Focus {
         induce jsonString = '{"name": "Max", "age": 30}';
         induce obj = ParseJSON(jsonString);
         observe "Name: " + obj.name;
-        observe "Alter: " + obj.age;
+        observe "Age: " + obj.age;
 
         induce arr = [1,2,3];
         induce jsonArr = StringifyJSON(arr);
-        observe "JSON-Array: " + jsonArr;
+        observe "JSON array: " + jsonArr;
     }
 } Relax;
 ```
@@ -109,36 +109,37 @@ Focus {
 } Relax;
 ```
 
-## Kombinierte Utility-Workflows
+## Combined Utility Workflows
 
 ```hyp
 Focus {
     entrance {
-        // Eingabe validieren und verarbeiten
+        // Validate and process input
         induce input = "15";
         induce n = ToNumber(input);
         if (IsNumber(n) && n > 10) {
-            observe "Eingabe ist eine Zahl > 10: " + n;
+            observe "Input is a number > 10: " + n;
         } else {
-            observe "Ungültige oder zu kleine Zahl!";
+            observe "Invalid or too small number!";
         }
 
-        // Zufällige Auswahl aus Range
+        // Random selection from range
         induce zahlen = Range(1, 100);
         induce zufall = Sample(zahlen, 5);
-        observe "5 zufällige Zahlen: " + zufall;
+        observe "5 random numbers: " + zufall;
 
-        // Array-Transformationen kombinieren
+        // Array Transformations kombinieren
         induce arr = [1,2,2,3,4,4,5];
         induce clean = Sort(Unique(arr));
-        observe "Sortiert & eindeutig: " + clean;
+        observe "Sorted & unique: " + clean;
     }
 } Relax;
 ```
 
 ---
 
-**Siehe auch:**
+**See also:**
 
-- [Utility-Funktionen Referenz](../builtins/utility-functions)
-- [System-Funktionen Beispiele](./system-examples)
+- [Utility Functions Reference](../builtins/utility-functions)
+- [System Functions Examples](./system-examples)
+
