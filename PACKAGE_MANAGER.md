@@ -206,8 +206,7 @@ The current implementation provides the foundation for:
 2. **Dependency Resolution**: Automatic resolution of transitive dependencies
 3. **Package Publishing**: Commands to publish packages to the registry
 4. **Workspaces**: Support for monorepo-style projects
-5. **Script Execution**: Direct execution of suggestion scripts
-6. **Dependency Auditing**: Security vulnerability scanning
+5. **Dependency Auditing**: Security vulnerability scanning
 
 ## Examples
 

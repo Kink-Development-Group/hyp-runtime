@@ -211,57 +211,29 @@ hypnoscript compile-native --opt-level release app.hyp
 
 ## 📦 Package Manager
 
-
-
 HypnoScript has a built-in package manager, similar to npm for JavaScript or Cargo for Rust. It uses `trance.json` as its manifest file.
-
-
 
 ### Quick Start
 
-
-
 ```bash
-
 # Initialize new project
-
 hypnoscript init --name my-project --template cli
-
-
-
 # Add dependencies
-
 hypnoscript add hypnoscript-runtime --version “^1.0.0”
-
 hypnoscript add @hypno/testing-lab --version “^0.3.0” --dev
-
-
-
 # Install dependencies
-
 hypnoscript install
-
-
-
 # List dependencies
 hypnoscript list
-
 # Run script
 hypnoscript run test
-
 # Validate manifest
 hypnoscript validate
 ```
 
-
-
 ### trance.json Manifest
 
-
-
 The manifest uses hypnotic terminology:
-
-
 
 - **ritualName**: Package name (corresponds to `name` in npm)
 - **mantra**: Version (corresponds to `version` in npm)
@@ -272,11 +244,7 @@ The manifest uses hypnotic terminology:
 - **channels**: Binary/CLI configuration
 - **triggers**: Lifecycle hooks
 
-
-
 Example `trance.json`:
-
-
 
 ```json
 {

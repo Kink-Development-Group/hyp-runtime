@@ -195,10 +195,9 @@ The current implementation provides the foundation for:
 2. **Dependency Resolution**: Automatic transitive dependency management
 3. **Publishing**: Upload packages to registry
 4. **Workspaces**: Monorepo support
-5. **Script Execution**: Direct execution of suggestion scripts
-6. **Audit**: Security vulnerability scanning
-7. **Update**: Smart dependency updates
-8. **Link**: Local package development
+5. **Audit**: Security vulnerability scanning
+6. **Update**: Smart dependency updates
+7. **Link**: Local package development
 
 ## Integration Points
 
@@ -219,7 +218,7 @@ The package manager is designed to integrate with:
 
 ## Files Changed
 
-1. `hypnoscript-cli/src/package.rs` (new, 621 lines)
+1. `hypnoscript-cli/src/package.rs` (new, 654 lines)
 2. `hypnoscript-cli/src/main.rs` (modified, +67 lines)
 3. `README.md` (modified, added package manager section)
 4. `PACKAGE_MANAGER.md` (new, complete usage guide)
