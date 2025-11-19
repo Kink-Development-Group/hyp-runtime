@@ -12,14 +12,12 @@ use semver::Version;
 use serde::Deserialize;
 #[cfg(not(target_os = "windows"))]
 use std::io::Write;
+use std::process::{Command, Stdio};
 use std::{env, fs, time::Duration};
 use ureq::{Agent, AgentBuilder};
 
 #[cfg(not(target_os = "windows"))]
-use std::{
-    path::{Path, PathBuf},
-    process::{Command, Stdio},
-};
+use std::path::{Path, PathBuf};
 
 const GITHUB_OWNER: &str = "Kink-Development-Group";
 const GITHUB_REPO: &str = "hyp-runtime";
@@ -509,10 +507,30 @@ fn main() -> Result<()> {
 
         Commands::Run { name } => {
             let pm = PackageManager::new();
-            let command = pm.run_suggestion(&name)?;
-            println!("📜 Running suggestion '{}': {}", name, command);
-            println!("\nNote: Actual command execution will be implemented in a future version.");
-            println!("You can run manually: {}", command);
+            let command_str = pm.run_suggestion(&name)?;
+            println!("📜 Running suggestion '{}': {}", name, command_str);
+
+            // Parse and execute the command
+            let parts: Vec<&str> = command_str.split_whitespace().collect();
+            if parts.is_empty() {
+                return Err(anyhow!("Empty command in suggestion '{}'", name));
+            }
+
+            let program = parts[0];
+            let args = &parts[1..];
+
+            let status = Command::new(program)
+                .args(args)
+                .stdin(Stdio::inherit())
+                .stdout(Stdio::inherit())
+                .stderr(Stdio::inherit())
+                .status()
+                .map_err(|e| anyhow!("Failed to execute command '{}': {}", command_str, e))?;
+
+            if !status.success() {
+                let code = status.code().unwrap_or(-1);
+                return Err(anyhow!("Command '{}' exited with code {}", name, code));
+            }
         }
 
         Commands::Validate => {
