@@ -2,151 +2,151 @@
 sidebar_position: 3
 ---
 
-# Beispiele: CLI-Workflows
+# Examples: CLI Workflows
 
-Diese Seite zeigt typische CLI-Workflows für die HypnoScript-Entwicklung, von einfachen Skript-Ausführungen bis hin zu komplexen Automatisierungsabläufen.
+This page shows typical CLI workflows for HypnoScript development, from simple script executions to complex automation processes.
 
-## Grundlegende Entwicklungsworkflows
+## Basic Development Workflows
 
-### Einfaches Skript ausführen
+### Run Simple Script
 
 ```bash
-# Skript direkt ausführen
+# Run script directly
 dotnet run --project HypnoScript.CLI -- run hello.hyp
 
-# Mit detaillierter Ausgabe
+# With detailed output
 dotnet run --project HypnoScript.CLI -- run script.hyp --verbose
 
-# Mit Timeout für lange Skripte
+# With timeout for long scripts
 dotnet run --project HypnoScript.CLI -- run long_script.hyp --timeout 60
 ```
 
-### Syntax prüfen und validieren
+### Check and Validate Syntax
 
 ```bash
-# Syntax prüfen
+# Check syntax
 dotnet run --project HypnoScript.CLI -- validate script.hyp
 
-# Strikte Validierung mit Warnungen
+# Strict validation with warnings
 dotnet run --project HypnoScript.CLI -- validate script.hyp --strict --warnings
 
-# Validierungs-Report generieren
+# Generate validation report
 dotnet run --project HypnoScript.CLI -- validate *.hyp --output validation-report.json
 ```
 
-### Code formatieren
+### Format Code
 
 ```bash
-# Code formatieren und in neue Datei schreiben
+# Format Code und in neue Datei schreiben
 dotnet run --project HypnoScript.CLI -- format script.hyp --output formatted.hyp
 
-# Direkt in der Datei formatieren
+# Format directly in file
 dotnet run --project HypnoScript.CLI -- format script.hyp --in-place
 
-# Nur prüfen, ob Formatierung nötig ist
+# Only check if formatting is needed
 dotnet run --project HypnoScript.CLI -- format script.hyp --check
 ```
 
-## Testen und Debugging
+## Testing and Debugging
 
-### Tests ausführen
+### Run Tests
 
 ```bash
-# Alle Tests im aktuellen Verzeichnis
+# All tests in current directory
 dotnet run --project HypnoScript.CLI -- test *.hyp
 
-# Spezifische Test-Datei
+# Specific test file
 dotnet run --project HypnoScript.CLI -- test test_math.hyp
 
-# Tests mit Filter
+# Tests with filter
 dotnet run --project HypnoScript.CLI -- test *.hyp --filter "math"
 
-# JSON-Report für CI/CD
+# JSON report for CI/CD
 dotnet run --project HypnoScript.CLI -- test *.hyp --format json --output test-results.json
 ```
 
-### Debug-Modus
+### Debug Mode
 
 ```bash
-# Debug-Modus mit Trace
+# Debug Mode mit Trace
 dotnet run --project HypnoScript.CLI -- debug script.hyp --trace
 
-# Schritt-für-Schritt-Ausführung
+# Step-by-step execution
 dotnet run --project HypnoScript.CLI -- debug script.hyp --step
 
-# Mit Breakpoints
+# With breakpoints
 dotnet run --project HypnoScript.CLI -- debug script.hyp --breakpoints breakpoints.txt
 
-# Variablen anzeigen
+# Show variables
 dotnet run --project HypnoScript.CLI -- debug script.hyp --variables
 ```
 
-### Code-Analyse
+### Code Analysis
 
 ```bash
-# Lint-Analyse
+# Lint analysis
 dotnet run --project HypnoScript.CLI -- lint script.hyp
 
-# Mit spezifischen Regeln
+# With specific rules
 dotnet run --project HypnoScript.CLI -- lint script.hyp --rules "style,performance"
 
-# Nur Fehler anzeigen
+# Show only errors
 dotnet run --project HypnoScript.CLI -- lint script.hyp --severity error
 
-# Lint-Report generieren
+# Generate lint report
 dotnet run --project HypnoScript.CLI -- lint *.hyp --output lint-report.json
 ```
 
-## Build und Deployment
+## Build and Deployment
 
-### Kompilieren
+### Compile
 
 ```bash
-# Standard-Kompilierung
+# Standard compilation
 dotnet run --project HypnoScript.CLI -- build script.hyp
 
-# Mit Optimierungen
+# With optimizations
 dotnet run --project HypnoScript.CLI -- build script.hyp --optimize
 
-# Debug-Version
+# Debug version
 dotnet run --project HypnoScript.CLI -- build script.hyp --debug
 
-# WebAssembly-Target
+# WebAssembly target
 dotnet run --project HypnoScript.CLI -- build script.hyp --target wasm
 ```
 
-### Pakete erstellen
+### Create Packages
 
 ```bash
-# Ausführbares Paket erstellen
+# Create executable package
 dotnet run --project HypnoScript.CLI -- package script.hyp
 
-# Mit Runtime-spezifischen Abhängigkeiten
+# With runtime-specific dependencies
 dotnet run --project HypnoScript.CLI -- package script.hyp --runtime win-x64 --dependencies
 
-# Spezifische Ausgabedatei
+# Specific output file
 dotnet run --project HypnoScript.CLI -- package script.hyp --output myapp.exe
 ```
 
-### Webserver starten
+### Start Web Server
 
 ```bash
-# Standard-Webserver
+# Standard web server
 dotnet run --project HypnoScript.CLI -- serve
 
-# Mit spezifischem Port
+# With specific port
 dotnet run --project HypnoScript.CLI -- serve --port 8080
 
-# Mit SSL
+# With SSL
 dotnet run --project HypnoScript.CLI -- serve --ssl
 
-# Mit Konfiguration
+# With configuration
 dotnet run --project HypnoScript.CLI -- serve --config server.json
 ```
 
-## Automatisierung und CI/CD
+## Automation and CI/CD
 
-### Entwicklungsworkflow-Skript
+### Development Workflow Script
 
 ```bash
 #!/bin/bash
@@ -154,19 +154,19 @@ dotnet run --project HypnoScript.CLI -- serve --config server.json
 
 echo "=== HypnoScript Development Workflow ==="
 
-# 1. Syntax prüfen
+# 1. Check syntax
 echo "1. Validating syntax..."
 dotnet run --project HypnoScript.CLI -- validate *.hyp
 
-# 2. Code formatieren
+# 2. Format Code
 echo "2. Formatting code..."
 dotnet run --project HypnoScript.CLI -- format *.hyp --in-place
 
-# 3. Lint-Analyse
+# 3. Lint analysis
 echo "3. Running lint analysis..."
 dotnet run --project HypnoScript.CLI -- lint *.hyp --severity error
 
-# 4. Tests ausführen
+# 4. Run Tests
 echo "4. Running tests..."
 dotnet run --project HypnoScript.CLI -- test *.hyp
 
@@ -237,7 +237,7 @@ fi
 echo "Building application..."
 dotnet run --project HypnoScript.CLI -- build main.hyp --optimize
 
-# Tests ausführen
+# Run Tests
 echo "Running tests..."
 dotnet run --project HypnoScript.CLI -- test *.hyp
 
@@ -283,7 +283,7 @@ echo "Deployment completed!"
 }
 ```
 
-### Umgebungsvariablen
+### environment variablen
 
 ```bash
 # HypnoScript-spezifische Umgebungsvariablen
@@ -352,17 +352,17 @@ my-project/
 
 echo "Running HypnoScript pre-commit checks..."
 
-# Syntax prüfen
+# Check syntax
 dotnet run --project HypnoScript.CLI -- validate *.hyp
 if [ $? -ne 0 ]; then
     echo "Syntax validation failed!"
     exit 1
 fi
 
-# Code formatieren
+# Format Code
 dotnet run --project HypnoScript.CLI -- format *.hyp --in-place
 
-# Tests ausführen
+# Run Tests
 dotnet run --project HypnoScript.CLI -- test *.hyp
 if [ $? -ne 0 ]; then
     echo "Tests failed!"
@@ -400,12 +400,13 @@ dotnet run --project HypnoScript.CLI -- build main.hyp --optimize
 echo "Workflow completed successfully!"
 ```
 
-## Nächste Schritte
+## Next Steps
 
-- [CLI-Befehle Referenz](../cli/commands) - Vollständige CLI-Referenz
-- [Konfiguration](../cli/configuration) - Erweiterte Konfiguration
-- [Runtime-Features](../enterprise/features) - Runtime-Funktionen
+- [CLI-Commande Referenz](../cli/commands) - Vollständige CLI-Referenz
+- [Konfiguration](../cli/configuration) - Advanced Konfiguration
+- [Runtime-Features](../enterprise/features) - Runtime-Functionen
 
 ---
 
 **CLI-Workflows gemeistert? Dann lerne [erweiterte Konfiguration](../cli/configuration) kennen!** ⚙️
+

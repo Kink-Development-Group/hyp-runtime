@@ -2,30 +2,30 @@
 title: CLI Testing
 ---
 
-Die Rust-CLI enthält kein separates Test-Framework. Stattdessen behandelst du jede `.hyp`-Datei als eigenständiges Skript und führst sie mit `hypnoscript run` aus. Die Dateien im Ordner `hypnoscript-tests/` liefern Beispiele für Assertions und Fehlermeldungen.
+The Rust CLI does not include a separate test framework. Instead, you treat each `.hyp` file as an independent script and run it with `hypnoscript run`. The files in the `hypnoscript-tests/` folder provide examples of assertions and error messages.
 
-## Tests ausführen
+## Running Tests
 
 ```bash
-# Einzelne Testdatei starten
+# Run a single test file
 hypnoscript run hypnoscript-tests/test_basic.hyp
 
-# Alle Dateien im Ordner durchlaufen
+# Run all files in the folder
 for file in hypnoscript-tests/*.hyp; do
     echo "== $file =="
     hypnoscript run "$file"
 done
 ```
 
-## Typprüfung vorgeschaltet
+## Type Checking First
 
 ```bash
 hypnoscript check hypnoscript-tests/test_basic.hyp
 ```
 
-So erkennst du Typfehler, bevor Assertions greifen. Die CLI bricht bei Fehlern nicht automatisch ab, daher lohnt sich ein separates `check` vor dem `run`.
+This way you can detect type errors before assertions are triggered. The CLI does not automatically abort on errors, so it's worth running a separate `check` before `run`.
 
-## Integration in Skripte
+## Integration into Scripts
 
 - **PowerShell:**
 
@@ -40,7 +40,7 @@ So erkennst du Typfehler, bevor Assertions greifen. Die CLI bricht bei Fehlern n
 
   ```makefile
   test:
-      @# Ersetze führende Leerzeichen durch Tabs, da Make dies erfordert
+      @# Replace leading spaces with tabs, as Make requires this
       @for file in hypnoscript-tests/*.hyp; do \
           echo "== $$file =="; \
           hypnoscript run $$file || exit 1; \
@@ -49,6 +49,6 @@ So erkennst du Typfehler, bevor Assertions greifen. Die CLI bricht bei Fehlern n
 
 ## Assertions
 
-Die Test-Dateien nutzen `assert`-Statements sowie `observe`, um erwartete Werte zu prüfen. Bricht ein Assertion-Block ab, zeigt die CLI eine Fehlermeldung an, setzt die Ausführung aber fort. Achte deshalb darauf, im Testskript nach Fehlermeldungen zu suchen oder das Skript bei Bedarf mit `snap;` zu beenden.
+The test files use `assert` statements as well as `observe` to check expected values. If an assertion block fails, the CLI displays an error message but continues execution. Therefore, make sure to search for error messages in the test script or terminate the script with `snap;` if needed.
 
-Mehr über verfügbare Befehle erfährst du in [CLI-Befehle](./commands).
+Learn more about available commands in [CLI Commands](./commands).

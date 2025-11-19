@@ -1,166 +1,166 @@
-# Schlüsselwörter-Referenz
+# Keywords Reference
 
-Vollständige Referenz aller Schlüsselwörter in HypnoScript basierend auf der Rust-Implementierung.
+Complete reference of all keywords in HypnoScript based on the Rust implementation.
 
-## Programmstruktur
+## Program Structure
 
-| Schlüsselwort | Beschreibung                            | Beispiel                        |
-| ------------- | --------------------------------------- | ------------------------------- |
-| `Focus`       | Programmstart (erforderlich)            | `Focus { ... } Relax`           |
-| `Relax`       | Programmende (erforderlich)             | `Focus { ... } Relax`           |
-| `entrance`    | Initialisierungsblock (optional)        | `entrance { observe "Start"; }` |
-| `finale`      | Cleanup/Destruktor-Block (optional)     | `finale { observe "Ende"; }`    |
-| `deepFocus`   | Erweiterter if-Block mit tieferer Scope | `if (x > 5) deepFocus { ... }`  |
+| Keyword   | Description                             | Example                         |
+| --------- | --------------------------------------- | ------------------------------- |
+| `Focus`   | Program start (required)                | `Focus { ... } Relax`           |
+| `Relax`   | Program end (required)                  | `Focus { ... } Relax`           |
+| `entrance`| Initialization block (optional)         | `entrance { observe "Start"; }` |
+| `finale`  | Cleanup/destructor block (optional)     | `finale { observe "End"; }`     |
+| `deepFocus`| Extended if block with deeper scope    | `if (x > 5) deepFocus { ... }`  |
 
-## Variablendeklarationen
+## Variable Declarations
 
-| Schlüsselwort | Beschreibung                     | Mutabilität   | Beispiel                             |
-| ------------- | -------------------------------- | ------------- | ------------------------------------ |
-| `induce`      | Standard-Variablendeklaration    | Veränderbar   | `induce x: number = 42;`             |
-| `implant`     | Alternative Variablendeklaration | Veränderbar   | `implant y: string = "text";`        |
-| `freeze`      | Konstanten-Deklaration           | Unveränderbar | `freeze PI: number = 3.14159;`       |
-| `anchor`      | State Snapshot/Backup erstellen  | Unveränderbar | `anchor saved = currentValue;`       |
-| `from`        | Eingabe-Quellangabe              | -             | `induce x: number from external;`    |
-| `external`    | Externe Eingabequelle            | -             | `induce name: string from external;` |
+| Keyword   | Description                      | Mutability  | Example                              |
+| --------- | -------------------------------- | ----------- | ------------------------------------ |
+| `induce`  | Standard variable declaration    | Mutable     | `induce x: number = 42;`             |
+| `implant` | Alternative variable declaration | Mutable     | `implant y: string = "text";`        |
+| `freeze`  | Constant declaration             | Immutable   | `freeze PI: number = 3.14159;`       |
+| `anchor`  | Create state snapshot/backup     | Immutable   | `anchor saved = currentValue;`       |
+| `from`    | Input source specification       | -           | `induce x: number from external;`    |
+| `external`| External input source            | -           | `induce name: string from external;` |
 
-## Kontrollstrukturen
+## Control Structures
 
-| Schlüsselwort | Beschreibung             | Äquivalent | Beispiel                                         |
-| ------------- | ------------------------ | ---------- | ------------------------------------------------ |
-| `if`          | Bedingte Anweisung       | if         | `if (x > 5) { ... }`                             |
-| `else`        | Alternative Verzweigung  | else       | `if (x > 5) { ... } else { ... }`                |
-| `while`       | While-Schleife           | while      | `while (x > 0) { x = x - 1; }`                   |
-| `loop`        | For-ähnliche Schleife    | for        | `loop (induce i = 0; i < 10; i = i + 1) { ... }` |
-| `snap`        | Schleife abbrechen       | break      | `while (true) { snap; }`                         |
-| `sink`        | Zum nächsten Durchlauf   | continue   | `while (x < 10) { sink; }`                       |
-| `sinkTo`      | Goto (zu Label springen) | goto       | `sinkTo myLabel;`                                |
-| `oscillate`   | Boolean-Variable togglen | -          | `oscillate isActive;`                            |
+| Keyword   | Description              | Equivalent | Example                                      |
+| --------- | ------------------------ | ---------- | -------------------------------------------- |
+| `if`      | Conditional statement    | if         | `if (x > 5) { ... }`                         |
+| `else`    | Alternative branch       | else       | `if (x > 5) { ... } else { ... }`            |
+| `while`   | While loop               | while      | `while (x > 0) { x = x - 1; }`               |
+| `loop`    | For-like loop            | for        | `loop (induce i = 0; i < 10; i = i + 1) { ... }` |
+| `snap`    | Break loop               | break      | `while (true) { snap; }`                     |
+| `sink`    | Continue to next iteration| continue  | `while (x < 10) { sink; }`                   |
+| `sinkTo`  | Goto (jump to label)     | goto       | `sinkTo myLabel;`                            |
+| `oscillate`| Toggle boolean variable | -          | `oscillate isActive;`                        |
 
-**Hinweis:** `break` und `continue` werden auch als Synonyme für `snap` und `sink` akzeptiert.
+**Note:** `break` and `continue` are also accepted as synonyms for `snap` and `sink`.
 
-## Funktionen
+## Functions
 
-| Schlüsselwort          | Beschreibung                    | Beispiel                                               |
-| ---------------------- | ------------------------------- | ------------------------------------------------------ |
-| `suggestion`           | Funktionsdeklaration            | `suggestion add(a: number, b: number): number { ... }` |
-| `trigger`              | Event-Handler/Callback-Funktion | `trigger onClick = suggestion() { ... };`              |
-| `imperativeSuggestion` | Imperative Funktion (Modifier)  | `imperativeSuggestion doSomething() { ... }`           |
-| `dominantSuggestion`   | Statische Funktion (Modifier)   | `dominantSuggestion helperFunc() { ... }`              |
-| `awaken`               | Return-Statement                | `awaken x + y;`                                        |
-| `call`                 | Expliziter Funktionsaufruf      | `call myFunction();`                                   |
+| Keyword            | Description                     | Example                                                |
+| ------------------ | ------------------------------- | ------------------------------------------------------ |
+| `suggestion`       | Function declaration            | `suggestion add(a: number, b: number): number { ... }` |
+| `trigger`          | Event handler/callback function | `trigger onClick = suggestion() { ... };`              |
+| `imperativeSuggestion` | Imperative function (modifier) | `imperativeSuggestion doSomething() { ... }`      |
+| `dominantSuggestion`   | Static function (modifier)     | `dominantSuggestion helperFunc() { ... }`          |
+| `awaken`           | Return statement                | `awaken x + y;`                                        |
+| `call`             | Explicit function call          | `call myFunction();`                                   |
 
-**Hinweis:** `return` wird auch als Synonym für `awaken` akzeptiert.
+**Note:** `return` is also accepted as a synonym for `awaken`.
 
-## Objektorientierung
+## Object-Orientation
 
-### Sessions (Klassen)
+### Sessions (Classes)
 
-| Schlüsselwort | Beschreibung         | Beispiel                                       |
+| Keyword       | Description          | Example                                        |
 | ------------- | -------------------- | ---------------------------------------------- |
-| `session`     | Klassendeklaration   | `session Person { ... }`                       |
-| `constructor` | Konstruktor-Methode  | `suggestion constructor(name: string) { ... }` |
-| `expose`      | Public-Sichtbarkeit  | `expose name: string;`                         |
-| `conceal`     | Private-Sichtbarkeit | `conceal age: number;`                         |
-| `dominant`    | Statischer Member    | `dominant counter: number = 0;`                |
+| `session`     | Class declaration    | `session Person { ... }`                       |
+| `constructor` | Constructor method   | `suggestion constructor(name: string) { ... }` |
+| `expose`      | Public visibility    | `expose name: string;`                         |
+| `conceal`     | Private visibility   | `conceal age: number;`                         |
+| `dominant`    | Static member        | `dominant counter: number = 0;`                |
 
-### Strukturen
+### Structures
 
-| Schlüsselwort | Beschreibung              | Beispiel                                    |
-| ------------- | ------------------------- | ------------------------------------------- |
-| `tranceify`   | Record/Struct-Deklaration | `tranceify Point { x: number; y: number; }` |
+| Keyword     | Description               | Example                                     |
+| ----------- | ------------------------- | ------------------------------------------- |
+| `tranceify` | Record/struct declaration | `tranceify Point { x: number; y: number; }` |
 
-## Ein-/Ausgabe
+## Input/Output
 
-| Schlüsselwort | Beschreibung         | Verhalten                   | Beispiel                            |
-| ------------- | -------------------- | --------------------------- | ----------------------------------- |
-| `observe`     | Standard-Ausgabe     | Mit Zeilenumbruch           | `observe "Hallo Welt";`             |
-| `whisper`     | Ausgabe ohne Umbruch | Ohne Zeilenumbruch          | `whisper "Teil1"; whisper "Teil2";` |
-| `command`     | Imperative Ausgabe   | Großbuchstaben, mit Umbruch | `command "Wichtig!";`               |
-| `drift`       | Pause/Sleep          | Verzögerung in ms           | `drift(2000);`                      |
+| Keyword   | Description          | Behavior                    | Example                             |
+| --------- | -------------------- | --------------------------- | ----------------------------------- |
+| `observe` | Standard output      | With newline                | `observe "Hello World";`            |
+| `whisper` | Output without newline| Without newline            | `whisper "Part1"; whisper "Part2";` |
+| `command` | Imperative output    | Uppercase, with newline     | `command "Important!";`             |
+| `drift`   | Pause/sleep          | Delay in ms                 | `drift(2000);`                      |
 
-## Module und Globals
+## Modules and Globals
 
-| Schlüsselwort  | Beschreibung      | Beispiel                                  |
+| Keyword        | Description       | Example                                   |
 | -------------- | ----------------- | ----------------------------------------- |
-| `mindLink`     | Import/Include    | `mindLink "utilities.hyp";`               |
-| `sharedTrance` | Globale Variable  | `sharedTrance config: string = "global";` |
-| `label`        | Label-Deklaration | `label myLabel;`                          |
+| `mindLink`     | Import/include    | `mindLink "utilities.hyp";`               |
+| `sharedTrance` | Global variable   | `sharedTrance config: string = "global";` |
+| `label`        | Label declaration | `label myLabel;`                          |
 
-## Datentypen
+## Data Types
 
-| Schlüsselwort | Beschreibung          | Beispiel                         |
-| ------------- | --------------------- | -------------------------------- |
-| `number`      | Numerischer Typ       | `induce x: number = 42;`         |
-| `string`      | String-Typ            | `induce text: string = "hello";` |
-| `boolean`     | Boolean-Typ           | `induce flag: boolean = true;`   |
-| `trance`      | Spezieller Trance-Typ | `induce state: trance;`          |
+| Keyword   | Description       | Example                          |
+| --------- | ----------------- | -------------------------------- |
+| `number`  | Numeric type      | `induce x: number = 42;`         |
+| `string`  | String type       | `induce text: string = "hello";` |
+| `boolean` | Boolean type      | `induce flag: boolean = true;`   |
+| `trance`  | Special trance type| `induce state: trance;`         |
 
-## Literale
+## Literals
 
-| Schlüsselwort | Beschreibung    | Beispiel                            |
-| ------------- | --------------- | ----------------------------------- |
-| `true`        | Boolean-Literal | `induce isActive: boolean = true;`  |
-| `false`       | Boolean-Literal | `induce isActive: boolean = false;` |
+| Keyword | Description      | Example                             |
+| ------- | ---------------- | ----------------------------------- |
+| `true`  | Boolean literal  | `induce isActive: boolean = true;`  |
+| `false` | Boolean literal  | `induce isActive: boolean = false;` |
 
 ## Testing/Debugging
 
-| Schlüsselwort | Beschreibung | Beispiel        |
-| ------------- | ------------ | --------------- |
-| `assert`      | Assertion    | `assert x > 0;` |
+| Keyword  | Description | Example         |
+| -------- | ----------- | --------------- |
+| `assert` | Assertion   | `assert x > 0;` |
 
-## Hypnotische Operatoren
+## Hypnotic Operators
 
-### Vergleichsoperatoren
+### Comparison Operators
 
-| Hypnotisch                | Standard | Bedeutung      |
-| ------------------------- | -------- | -------------- |
-| `youAreFeelingVerySleepy` | `==`     | Gleich         |
-| `youCannotResist`         | `!=`     | Ungleich       |
-| `lookAtTheWatch`          | `>`      | Größer         |
-| `fallUnderMySpell`        | `<`      | Kleiner        |
-| `yourEyesAreGettingHeavy` | `>=`     | Größer gleich  |
-| `goingDeeper`             | `<=`     | Kleiner gleich |
+| Hypnotic                  | Standard | Meaning         |
+| ------------------------- | -------- | --------------- |
+| `youAreFeelingVerySleepy` | `==`     | Equal           |
+| `youCannotResist`         | `!=`     | Not equal       |
+| `lookAtTheWatch`          | `>`      | Greater         |
+| `fallUnderMySpell`        | `<`      | Less            |
+| `yourEyesAreGettingHeavy` | `>=`     | Greater-or-equal|
+| `goingDeeper`             | `<=`     | Less-or-equal   |
 
-### Legacy-Operatoren (veraltet, aber unterstützt)
+### Legacy Operators (deprecated but supported)
 
-| Hypnotisch      | Standard | Hinweis                            |
+| Hypnotic        | Standard | Note                               |
 | --------------- | -------- | ---------------------------------- |
-| `notSoDeep`     | `!=`     | Verwende `youCannotResist`         |
-| `deeplyGreater` | `>=`     | Verwende `yourEyesAreGettingHeavy` |
-| `deeplyLess`    | `<=`     | Verwende `goingDeeper`             |
+| `notSoDeep`     | `!=`     | Use `youCannotResist`              |
+| `deeplyGreater` | `>=`     | Use `yourEyesAreGettingHeavy`      |
+| `deeplyLess`    | `<=`     | Use `goingDeeper`                  |
 
-### Logische Operatoren
+### Logical Operators
 
-| Hypnotisch           | Standard | Bedeutung      |
-| -------------------- | -------- | -------------- |
-| `underMyControl`     | `&&`     | Logisches UND  |
-| `resistanceIsFutile` | `\|\|`   | Logisches ODER |
+| Hypnotic             | Standard | Meaning     |
+| -------------------- | -------- | ----------- |
+| `underMyControl`     | `&&`     | Logical AND |
+| `resistanceIsFutile` | `\|\|`   | Logical OR  |
 
-## Verwendungshinweise
+## Usage Notes
 
 ### Case-Insensitivity
 
-Alle Schlüsselwörter sind **case-insensitive** beim Lexing, werden aber zu ihrer kanonischen Form normalisiert:
+All keywords are **case-insensitive** during lexing but are normalized to their canonical form:
 
 ```hyp
-// Alle folgenden sind äquivalent:
+// All of the following are equivalent:
 Focus { ... } Relax
 focus { ... } relax
 FOCUS { ... } RELAX
 ```
 
-### Standard-Synonyme
+### Standard Synonyms
 
-Für bessere Lesbarkeit unterstützt HypnoScript Standard-Synonyme:
+For better readability, HypnoScript supports standard synonyms:
 
 - `return` → `awaken`
 - `break` → `snap`
 - `continue` → `sink`
 
-### Empfehlungen
+### Recommendations
 
-1. **Verwende kanonische Formen** für bessere Lesbarkeit
-2. **Nutze hypnotische Operatoren** für thematische Konsistenz
-3. **Vermeide Legacy-Operatoren** (`notSoDeep`, `deeplyGreater`, `deeplyLess`)
-4. **Bevorzuge `induce`** gegenüber `implant` für Standardvariablen
-5. **Nutze `freeze`** für unveränderbare Werte statt `induce`
+1. **Use canonical forms** for better readability
+2. **Use hypnotic operators** for thematic consistency
+3. **Avoid legacy operators** (`notSoDeep`, `deeplyGreater`, `deeplyLess`)
+4. **Prefer `induce`** over `implant` for standard variables
+5. **Use `freeze`** for immutable values instead of `induce`

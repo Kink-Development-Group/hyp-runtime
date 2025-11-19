@@ -2,19 +2,19 @@
 sidebar_position: 4
 ---
 
-# Mathematische Funktionen
+# Mathematical Functions
 
-HypnoScript bietet mathematische Funktionen für Berechnungen, Trigonometrie und Zahlentheorie.
+HypnoScript provides mathematical functions for calculations, trigonometry, and number theory.
 
-## Verfügbare Funktionen
+## Available Functions
 
-Die folgenden Funktionen sind in der `MathBuiltins`-Bibliothek verfügbar:
+The following functions are available in the `MathBuiltins` library:
 
-### Trigonometrische Funktionen
+### Trigonometric Functions
 
 #### sin(x: number): number
 
-Berechnet den Sinus (x in Radiant).
+Calculates the sine (x in radians).
 
 ```hyp
 Focus {
@@ -25,7 +25,7 @@ Focus {
 
 #### cos(x: number): number
 
-Berechnet den Kosinus (x in Radiant).
+Calculates the cosine (x in radians).
 
 ```hyp
 Focus {
@@ -36,7 +36,7 @@ Focus {
 
 #### tan(x: number): number
 
-Berechnet den Tangens (x in Radiant).
+Calculates the tangent (x in radians).
 
 ```hyp
 Focus {
@@ -45,11 +45,11 @@ Focus {
 } Relax
 ```
 
-### Wurzel- und Potenzfunktionen
+### Root and Power Functions
 
 #### sqrt(x: number): number
 
-Berechnet die Quadratwurzel.
+Calculates the square root.
 
 ```hyp
 Focus {
@@ -60,7 +60,7 @@ Focus {
 
 #### pow(base: number, exponent: number): number
 
-Berechnet eine Potenz.
+Calculates a power.
 
 ```hyp
 Focus {
@@ -69,11 +69,11 @@ Focus {
 } Relax
 ```
 
-### Logarithmen
+### Logarithms
 
 #### log(x: number): number
 
-Berechnet den natürlichen Logarithmus (ln).
+Calculates the natural logarithm (ln).
 
 ```hyp
 Focus {
@@ -84,7 +84,7 @@ Focus {
 
 #### log10(x: number): number
 
-Berechnet den Logarithmus zur Basis 10.
+Calculates the base-10 logarithm.
 
 ```hyp
 Focus {
@@ -93,11 +93,11 @@ Focus {
 } Relax
 ```
 
-### Rundungsfunktionen
+### Rounding Functions
 
 #### abs(x: number): number
 
-Gibt den absoluten Wert zurück.
+Returns the absolute value.
 
 ```hyp
 Focus {
@@ -108,7 +108,7 @@ Focus {
 
 #### floor(x: number): number
 
-Rundet ab.
+Rounds down.
 
 ```hyp
 Focus {
@@ -119,7 +119,7 @@ Focus {
 
 #### ceil(x: number): number
 
-Rundet auf.
+Rounds up.
 
 ```hyp
 Focus {
@@ -130,7 +130,7 @@ Focus {
 
 #### round(x: number): number
 
-Rundet zur nächsten ganzen Zahl.
+Rounds to the nearest integer.
 
 ```hyp
 Focus {
@@ -143,7 +143,7 @@ Focus {
 
 #### min(a: number, b: number): number
 
-Gibt den kleineren Wert zurück.
+Returns the smaller value.
 
 ```hyp
 Focus {
@@ -154,7 +154,7 @@ Focus {
 
 #### max(a: number, b: number): number
 
-Gibt den größeren Wert zurück.
+Returns the larger value.
 
 ```hyp
 Focus {
@@ -163,11 +163,11 @@ Focus {
 } Relax
 ```
 
-### Erweiterte Funktionen
+### Advanced Functions
 
 #### factorial(n: number): number
 
-Berechnet die Fakultät.
+Calculates the factorial.
 
 ```hyp
 Focus {
@@ -178,7 +178,7 @@ Focus {
 
 #### gcd(a: number, b: number): number
 
-Berechnet den größten gemeinsamen Teiler.
+Calculates the greatest common divisor.
 
 ```hyp
 Focus {
@@ -189,7 +189,7 @@ Focus {
 
 #### lcm(a: number, b: number): number
 
-Berechnet das kleinste gemeinsame Vielfache.
+Calculates the least common multiple.
 
 ```hyp
 Focus {
@@ -200,7 +200,7 @@ Focus {
 
 #### is_prime(n: number): boolean
 
-Prüft, ob eine Zahl eine Primzahl ist.
+Checks if a number is prime.
 
 ```hyp
 Focus {
@@ -211,7 +211,7 @@ Focus {
 
 #### fibonacci(n: number): number
 
-Berechnet die n-te Fibonacci-Zahl.
+Calculates the n-th Fibonacci number.
 
 ```hyp
 Focus {
@@ -222,7 +222,7 @@ Focus {
 
 #### clamp(value: number, min: number, max: number): number
 
-Begrenzt einen Wert auf einen Bereich.
+Clamps a value to a range.
 
 ```hyp
 Focus {
@@ -231,23 +231,23 @@ Focus {
 } Relax
 ```
 
-## Vollständiges Beispiel
+## Complete Example
 
 ```hyp
 Focus {
     entrance {
-        observe "=== Mathematische Funktionen Demo ===";
+        observe "=== Mathematical Functions Demo ===";
 
-        // Trigonometrie
+        // Trigonometry
         induce angle: number = 0;
         observe "sin(0) = " + sin(angle);
         observe "cos(0) = " + cos(angle);
 
-        // Wurzeln und Potenzen
+        // Roots and powers
         observe "sqrt(16) = " + sqrt(16);
         observe "pow(2, 10) = " + pow(2, 10);
 
-        // Rundung
+        // Rounding
         induce pi: number = 3.14159;
         observe "floor(pi) = " + floor(pi);
         observe "ceil(pi) = " + ceil(pi);
@@ -257,7 +257,7 @@ Focus {
         observe "min(5, 10) = " + min(5, 10);
         observe "max(5, 10) = " + max(5, 10);
 
-        // Erweiterte Funktionen
+        // Advanced functions
         observe "factorial(5) = " + factorial(5);
         observe "gcd(48, 18) = " + gcd(48, 18);
         observe "fibonacci(10) = " + fibonacci(10);
@@ -266,19 +266,19 @@ Focus {
 } Relax
 ```
 
-## Hinweise
+## Notes
 
-- Alle Winkelfunktionen (sin, cos, tan) erwarten Radiant als Eingabe
-- Die Funktionen sind direkt verfügbar und müssen nicht importiert werden
-- Typ-Konvertierungen erfolgen automatisch zwischen ganzen Zahlen und Fließkommazahlen
-  induce atan2_2 = Atan2(1, -1); // 3 _ PI / 4
-  induce atan2_3 = Atan2(-1, -1); // -3 _ PI / 4
+- All angle functions (sin, cos, tan) expect radians as input
+- The functions are directly available and don't need to be imported
+- Type conversions happen automatically between integers and floating-point numbers
+  induce atan2*2 = Atan2(1, -1); // 3 * PI / 4
+  induce atan2*3 = Atan2(-1, -1); // -3 * PI / 4
 
 ````
 
 ### DegreesToRadians(degrees)
 
-Konvertiert Grad in Radiant.
+Converts degrees to radians.
 
 ```hyp
 induce rad1 = DegreesToRadians(0); // 0
@@ -288,7 +288,7 @@ induce rad3 = DegreesToRadians(180); // PI
 
 ### RadiansToDegrees(radians)
 
-Konvertiert Radiant in Grad.
+Converts radians to degrees.
 
 ```hyp
 induce deg1 = RadiansToDegrees(0); // 0
@@ -296,11 +296,11 @@ induce deg2 = RadiansToDegrees(PI / 2); // 90
 induce deg3 = RadiansToDegrees(PI); // 180
 ```
 
-## Logarithmen
+## Logarithms
 
 ### Log(x)
 
-Berechnet den natürlichen Logarithmus.
+Calculates the natural logarithm.
 
 ```hyp
 induce log1 = Log(1); // 0
@@ -310,7 +310,7 @@ induce log3 = Log(10); // 2.302585092994046
 
 ### Log10(x)
 
-Berechnet den Logarithmus zur Basis 10.
+Calculates the base-10 logarithm.
 
 ```hyp
 induce log10_1 = Log10(1); // 0
@@ -320,7 +320,7 @@ induce log10_3 = Log10(100); // 2
 
 ### Log2(x)
 
-Berechnet den Logarithmus zur Basis 2.
+Calculates the base-2 logarithm.
 
 ```hyp
 induce log2_1 = Log2(1); // 0
@@ -330,7 +330,7 @@ induce log2_3 = Log2(8); // 3
 
 ### LogBase(x, base)
 
-Berechnet den Logarithmus zur angegebenen Basis.
+Calculates the logarithm with the specified base.
 
 ```hyp
 induce logBase1 = LogBase(8, 2); // 3
@@ -338,11 +338,11 @@ induce logBase2 = LogBase(100, 10); // 2
 induce logBase3 = LogBase(27, 3); // 3
 ```
 
-## Exponentialfunktionen
+## Exponential Functions
 
 ### Exp(x)
 
-Berechnet e^x.
+Calculates e^x.
 
 ```hyp
 induce exp1 = Exp(0); // 1
@@ -352,7 +352,7 @@ induce exp3 = Exp(2); // E^2
 
 ### Exp2(x)
 
-Berechnet 2^x.
+Calculates 2^x.
 
 ```hyp
 induce exp2_1 = Exp2(0); // 1
@@ -362,7 +362,7 @@ induce exp2_3 = Exp2(3); // 8
 
 ### Exp10(x)
 
-Berechnet 10^x.
+Calculates 10^x.
 
 ```hyp
 induce exp10_1 = Exp10(0); // 1
@@ -370,11 +370,11 @@ induce exp10_2 = Exp10(1); // 10
 induce exp10_3 = Exp10(2); // 100
 ```
 
-## Hyperbolische Funktionen
+## Hyperbolic Functions
 
 ### Sinh(x)
 
-Berechnet den hyperbolischen Sinus.
+Calculates the hyperbolic sine.
 
 ```hyp
 induce sinh1 = Sinh(0); // 0
@@ -383,7 +383,7 @@ induce sinh2 = Sinh(1); // 1.1752011936438014
 
 ### Cosh(x)
 
-Berechnet den hyperbolischen Kosinus.
+Calculates the hyperbolic cosine.
 
 ```hyp
 induce cosh1 = Cosh(0); // 1
@@ -392,18 +392,18 @@ induce cosh2 = Cosh(1); // 1.5430806348152437
 
 ### Tanh(x)
 
-Berechnet den hyperbolischen Tangens.
+Calculates the hyperbolic tangent.
 
 ```hyp
 induce tanh1 = Tanh(0); // 0
 induce tanh2 = Tanh(1); // 0.7615941559557649
 ```
 
-## Ganzzahl-Operationen
+## Integer Operations
 
 ### Mod(dividend, divisor)
 
-Berechnet den Modulo (Rest der Division).
+Calculates the modulo (remainder of division).
 
 ```hyp
 induce mod1 = Mod(7, 3); // 1
@@ -413,7 +413,7 @@ induce mod3 = Mod(-7, 3); // -1
 
 ### Div(dividend, divisor)
 
-Berechnet die ganzzahlige Division.
+Calculates integer division.
 
 ```hyp
 induce div1 = Div(7, 3); // 2
@@ -423,7 +423,7 @@ induce div3 = Div(15, 4); // 3
 
 ### GCD(a, b)
 
-Berechnet den größten gemeinsamen Teiler.
+Calculates the greatest common divisor.
 
 ```hyp
 induce gcd1 = GCD(12, 18); // 6
@@ -433,7 +433,7 @@ induce gcd3 = GCD(0, 5); // 5
 
 ### LCM(a, b)
 
-Berechnet das kleinste gemeinsame Vielfache.
+Calculates the least common multiple.
 
 ```hyp
 induce lcm1 = LCM(12, 18); // 36
@@ -443,7 +443,7 @@ induce lcm3 = LCM(4, 6); // 12
 
 ### IsPrime(n)
 
-Prüft, ob eine Zahl prim ist.
+Checks if a number is prime.
 
 ```hyp
 induce isPrime1 = IsPrime(2); // true
@@ -453,7 +453,7 @@ induce isPrime3 = IsPrime(4); // false
 
 ### NextPrime(n)
 
-Findet die nächste Primzahl.
+Finds the next prime number.
 
 ```hyp
 induce nextPrime1 = NextPrime(10); // 11
@@ -463,7 +463,7 @@ induce nextPrime3 = NextPrime(1); // 2
 
 ### PrimeFactors(n)
 
-Zerlegt eine Zahl in Primfaktoren.
+Decomposes a number into prime factors.
 
 ```hyp
 induce factors1 = PrimeFactors(12); // [2, 2, 3]
@@ -471,11 +471,11 @@ induce factors2 = PrimeFactors(17); // [17]
 induce factors3 = PrimeFactors(100); // [2, 2, 5, 5]
 ```
 
-## Statistik
+## Statistics
 
 ### Sum(array)
 
-Berechnet die Summe eines Arrays.
+Calculates the sum of an array.
 
 ```hyp
 induce numbers = [1, 2, 3, 4, 5];
@@ -484,7 +484,7 @@ induce sum = Sum(numbers); // 15
 
 ### Average(array)
 
-Berechnet den Durchschnitt eines Arrays.
+Calculates the average of an array.
 
 ```hyp
 induce numbers = [1, 2, 3, 4, 5];
@@ -493,7 +493,7 @@ induce avg = Average(numbers); // 3
 
 ### Median(array)
 
-Berechnet den Median eines Arrays.
+Calculates the median of an array.
 
 ```hyp
 induce numbers1 = [1, 2, 3, 4, 5];
@@ -505,7 +505,7 @@ induce median2 = Median(numbers2); // 2.5
 
 ### Mode(array)
 
-Berechnet den Modus eines Arrays.
+Calculates the mode of an array.
 
 ```hyp
 induce numbers = [1, 2, 2, 3, 4, 2, 5];
@@ -514,7 +514,7 @@ induce mode = Mode(numbers); // 2
 
 ### Variance(array)
 
-Berechnet die Varianz eines Arrays.
+Calculates the variance of an array.
 
 ```hyp
 induce numbers = [1, 2, 3, 4, 5];
@@ -523,7 +523,7 @@ induce variance = Variance(numbers); // 2.5
 
 ### StandardDeviation(array)
 
-Berechnet die Standardabweichung eines Arrays.
+Calculates the standard deviation of an array.
 
 ```hyp
 induce numbers = [1, 2, 3, 4, 5];
@@ -532,7 +532,7 @@ induce stdDev = StandardDeviation(numbers); // 1.5811388300841898
 
 ### Min(array)
 
-Findet das Minimum in einem Array.
+Finds the minimum in an array.
 
 ```hyp
 induce numbers = [3, 1, 4, 1, 5, 9, 2, 6];
@@ -541,7 +541,7 @@ induce min = Min(numbers); // 1
 
 ### Max(array)
 
-Findet das Maximum in einem Array.
+Finds the maximum in an array.
 
 ```hyp
 induce numbers = [3, 1, 4, 1, 5, 9, 2, 6];
@@ -550,18 +550,18 @@ induce max = Max(numbers); // 9
 
 ### Range(array)
 
-Berechnet die Spannweite eines Arrays.
+Calculates the range of an array.
 
 ```hyp
 induce numbers = [3, 1, 4, 1, 5, 9, 2, 6];
 induce range = Range(numbers); // 8
 ```
 
-## Zufallszahlen
+## Random Numbers
 
 ### Random()
 
-Generiert eine Zufallszahl zwischen 0 und 1.
+Generates a random number between 0 and 1.
 
 ```hyp
 induce random1 = Random(); // 0.123456789
@@ -570,45 +570,45 @@ induce random2 = Random(); // 0.987654321
 
 ### RandomRange(min, max)
 
-Generiert eine Zufallszahl in einem Bereich.
+Generates a random number in a range.
 
 ```hyp
-induce random1 = RandomRange(1, 10); // Zufällige Ganzzahl zwischen 1 und 10
-induce random2 = RandomRange(0.0, 1.0); // Zufällige Dezimalzahl zwischen 0 und 1
+induce random1 = RandomRange(1, 10); // Random integer between 1 and 10
+induce random2 = RandomRange(0.0, 1.0); // Random decimal between 0 and 1
 ```
 
 ### RandomInt(min, max)
 
-Generiert eine zufällige Ganzzahl.
+Generates a random integer.
 
 ```hyp
-induce random1 = RandomInt(1, 10); // Zufällige Ganzzahl zwischen 1 und 10
-induce random2 = RandomInt(-100, 100); // Zufällige Ganzzahl zwischen -100 und 100
+induce random1 = RandomInt(1, 10); // Random integer between 1 and 10
+induce random2 = RandomInt(-100, 100); // Random integer between -100 and 100
 ```
 
 ### RandomChoice(array)
 
-Wählt ein zufälliges Element aus einem Array.
+Selects a random element from an array.
 
 ```hyp
 induce fruits = ["Apfel", "Banane", "Orange"];
-induce randomFruit = RandomChoice(fruits); // Zufälliges Obst
+induce randomFruit = RandomChoice(fruits); // Random fruit
 ```
 
 ### RandomSample(array, count)
 
-Wählt zufällige Elemente aus einem Array.
+Selects random elements from an array.
 
 ```hyp
 induce numbers = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
-induce sample = RandomSample(numbers, 3); // 3 zufällige Zahlen
+induce sample = RandomSample(numbers, 3); // 3 random numbers
 ```
 
-## Mathematische Konstanten
+## Mathematical Constants
 
 ### PI
 
-Die Kreiszahl π.
+The mathematical constant π.
 
 ```hyp
 induce pi = PI; // 3.141592653589793
@@ -616,7 +616,7 @@ induce pi = PI; // 3.141592653589793
 
 ### E
 
-Die Eulersche Zahl e.
+Euler's number e.
 
 ```hyp
 induce e = E; // 2.718281828459045
@@ -624,7 +624,7 @@ induce e = E; // 2.718281828459045
 
 ### PHI
 
-Der Goldene Schnitt φ.
+The golden ratio φ.
 
 ```hyp
 induce phi = PHI; // 1.618033988749895
@@ -632,7 +632,7 @@ induce phi = PHI; // 1.618033988749895
 
 ### SQRT2
 
-Die Quadratwurzel von 2.
+The square root of 2.
 
 ```hyp
 induce sqrt2 = SQRT2; // 1.4142135623730951
@@ -640,64 +640,64 @@ induce sqrt2 = SQRT2; // 1.4142135623730951
 
 ### SQRT3
 
-Die Quadratwurzel von 3.
+The square root of 3.
 
 ```hyp
 induce sqrt3 = SQRT3; // 1.7320508075688772
 ```
 
-## Praktische Beispiele
+## Practical Examples
 
-### Geometrische Berechnungen
+### Geometric Calculations
 
 ```hyp
 Focus {
     entrance {
-        // Kreis-Berechnungen
+        // Circle calculations
         induce radius = 5;
         induce area = PI * Pow(radius, 2);
         induce circumference = 2 * PI * radius;
 
-        observe "Kreis mit Radius " + radius + ":";
-        observe "Fläche: " + Round(area, 2);
-        observe "Umfang: " + Round(circumference, 2);
+        observe "Circle with radius " + radius + ":";
+        observe "Area: " + Round(area, 2);
+        observe "Circumference: " + Round(circumference, 2);
 
-        // Dreieck-Berechnungen
+        // Triangle calculations
         induce a = 3;
         induce b = 4;
         induce c = Sqrt(Pow(a, 2) + Pow(b, 2)); // Pythagoras
 
-        observe "Rechtwinkliges Dreieck:";
-        observe "Seite a: " + a;
-        observe "Seite b: " + b;
+        observe "Right triangle:";
+        observe "Side a: " + a;
+        observe "Side b: " + b;
         observe "Hypotenuse c: " + Round(c, 2);
 
-        // Volumen einer Kugel
+        // Volume of a sphere
         induce sphereRadius = 3;
         induce volume = (4.0 / 3.0) * PI * Pow(sphereRadius, 3);
-        observe "Kugel-Volumen: " + Round(volume, 2);
+        observe "Sphere volume: " + Round(volume, 2);
     }
 } Relax;
 ```
 
-### Statistische Analyse
+### Statistical Analysis
 
 ```hyp
 Focus {
     entrance {
         induce scores = [85, 92, 78, 96, 88, 91, 87, 94, 82, 89];
 
-        observe "Prüfungsergebnisse: " + scores;
-        observe "Anzahl: " + ArrayLength(scores);
-        observe "Durchschnitt: " + Round(Average(scores), 2);
+        observe "Exam results: " + scores;
+        observe "Count: " + ArrayLength(scores);
+        observe "Average: " + Round(Average(scores), 2);
         observe "Median: " + Median(scores);
         observe "Minimum: " + Min(scores);
         observe "Maximum: " + Max(scores);
-        observe "Spannweite: " + Range(scores);
-        observe "Standardabweichung: " + Round(StandardDeviation(scores), 2);
-        observe "Varianz: " + Round(Variance(scores), 2);
+        observe "Range: " + Range(scores);
+        observe "Standard deviation: " + Round(StandardDeviation(scores), 2);
+        observe "Variance: " + Round(Variance(scores), 2);
 
-        // Notenverteilung
+        // Grade distribution
         induce excellent = 0;
         induce good = 0;
         induce average = 0;
@@ -829,7 +829,7 @@ if (Abs(a - b) < 0.0001) {
     // a und b sind praktisch gleich
 }
 
-// Verwende Round für Ausgaben
+// Verwende Round für Outputn
 observe "Ergebnis: " + Round(result, 4);
 
 // Große Zahlen
@@ -876,13 +876,13 @@ suggestion safeLog(x) {
 }
 ```
 
-## Nächste Schritte
+## Next Steps
 
-- [Utility-Funktionen](./utility-functions) - Allgemeine Hilfsfunktionen
-- [System-Funktionen](./system-functions) - System-Interaktion
-- [Statistik-Funktionen](./statistics-functions) - Erweiterte Statistik
-- [Beispiele](../examples/math-examples) - Weitere mathematische Beispiele
+- [Utility Functions](./utility-functions) - General helper functions
+- [System Functions](./system-functions) - System interaction
+- [Statistics Functions](./statistics-functions) - Advanced statistics
+- [Examples](../examples/math-examples) - More mathematical examples
 
 ---
 
-**Beherrschst du mathematische Funktionen? Dann lerne [Utility-Funktionen](./utility-functions) kennen!** 🔧
+**Mastered mathematical functions? Then learn about [Utility Functions](./utility-functions)!** 🔧

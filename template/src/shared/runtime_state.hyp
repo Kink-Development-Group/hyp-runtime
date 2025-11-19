@@ -1,0 +1,85 @@
+Focus {
+    expose tranceify SessionProfile {
+        subject: string;
+        stage: string;
+        activeCommand: string;
+        loopsCompleted: number;
+        lastSuggestion: string;
+        heartbeat: number;
+        mood: string;
+    }
+
+    expose tranceify PulseMetric {
+        label: string;
+        value: number;
+        unit: string;
+        hint: string;
+    }
+
+    expose suggestion DefaultSessionProfile(): SessionProfile {
+        awaken SessionProfile {
+            subject: "Aurora",
+            stage: "pre-induction",
+            activeCommand: "help",
+            loopsCompleted: 0,
+            lastSuggestion: "No session started yet.",
+            heartbeat: 62,
+            mood: "centered"
+        };
+    }
+
+    expose suggestion UpdateStage(profile: SessionProfile, stage: string, command: string): SessionProfile {
+        profile.stage = stage;
+        profile.activeCommand = command;
+        profile.loopsCompleted = profile.loopsCompleted + 1;
+        profile.lastSuggestion = "Switched to '" + command + "'";
+        awaken profile;
+    }
+
+    expose suggestion RenderSessionProfile(profile: SessionProfile) {
+        observe "🌀 Current session";
+        observe "Subject: " + profile.subject;
+        observe "Phase: " + profile.stage;
+        observe "Active command: " + profile.activeCommand;
+        observe "Total loops: " + profile.loopsCompleted;
+        observe "Last suggestion: " + profile.lastSuggestion;
+        observe "Heart rate: " + profile.heartbeat + " bpm";
+        observe "Mood: " + profile.mood;
+        observe "";
+    }
+
+    expose suggestion DefaultPulseMetrics(): array {
+        induce metrics: array = [
+            PulseMetric {
+                label: "Suggestion Throughput",
+                value: 32,
+                unit: "cmd/min",
+                hint: "Average of the last minute"
+            },
+            PulseMetric {
+                label: "Focus Stability",
+                value: 87,
+                unit: "%",
+                hint: "Stability of the hypnosis flow"
+            },
+            PulseMetric {
+                label: "Anchor Integrity",
+                value: 98,
+                unit: "%",
+                hint: "Percentage of valid triggers"
+            }
+        ];
+        awaken metrics;
+    }
+
+    expose suggestion RenderPulseMetrics(metrics: array) {
+        observe "📟 Pulse report";
+        pendulum (induce i: number = 0; i < Length(metrics); i = i + 1) {
+            induce metric = metrics[i];
+            observe "- " + metric.label + ": " + metric.value + " " + metric.unit + " (" + metric.hint + ")";
+        }
+        observe "";
+    }
+}
+
+Relax

@@ -1,71 +1,59 @@
 Focus {
+    // ===== Neue Sprachfeatures im Überblick =====
 
-// ===== Comprehensive Test Suite for New Features =====
+    observe "=== 1 · Embed (tiefe Bindung) ===";
+    embed deepVar: number = 999;
+    observe deepVar;
 
-observe "=== Test 1: Embed Variables ===";
-embed deepVar: number = 999;
-observe deepVar;  // 999
+    observe "=== 2 · Pendulum als elegante for-Schleife ===";
+    induce sum: number = 0;
+    pendulum (induce i: number = 1; i deeplyLess 6; i = i + 1) {
+        sum = sum + i;
+    }
+    observe "Summe 1..5 = " + sum;
 
-observe "=== Test 2: Pendulum Loops ===";
-induce sum: number = 0;
-pendulum (induce i: number = 1; i <= 5; i = i + 1) {
-    sum = sum + i;
-}
-observe sum;  // 15 (1+2+3+4+5)
+    observe "=== 3 · Oscillate & Anchor ===";
+    induce spotlightOn: boolean = false;
+    anchor previousState = spotlightOn;
+    oscillate spotlightOn;
+    oscillate spotlightOn;
+    observe "Aktueller Zustand nach zwei Umschaltungen: " + spotlightOn;
+    spotlightOn = previousState;
+    observe "Zurück zum Ursprung: " + spotlightOn;
 
-observe "=== Test 3: Oscillate (Toggle) ===";
-induce flag: boolean = false;
-oscillate flag;
-observe flag;  // true
-oscillate flag;
-observe flag;  // false
+    observe "=== 4 · Nullish & Optional Chaining ===";
+    tranceify OptionalNote {
+        content: string?;
+    }
 
-observe "=== Test 4: Anchor (Snapshot) ===";
-induce original: number = 42;
-anchor backup = original;
-original = 100;
-observe backup;  // 42
+    induce note = OptionalNote { content: null };
+    observe note?.content lucidFallback "(keine Notiz)";
 
-observe "=== Test 5: Nullish Coalescing ===";
-induce maybeNull: number = 0;
-induce val1: number = maybeNull ?? 99;
-observe val1;  // 0 (zero is not null)
+    observe "=== 5 · Pattern Matching mit Array-Destrukturierung ===";
+    induce progression = ["Einatmen", "Ausatmen", "Ruhe"];
+    induce patternInfo: string = entrain progression {
+        when [first, second, ...rest] => "Start: " + first + " / " + second + ", Rest: " + ArrayLength(rest)
+        otherwise => "Keine passende Struktur"
+    };
+    observe patternInfo;
 
-observe "=== Test 6: Pattern Matching - Literals ===";
-induce num: number = 42;
-induce result1: string = entrain num {
-    when 0 => "zero"
-    when 42 => "answer"
-    otherwise => "other"
-};
-observe result1;  // answer
+    observe "=== 6 · Validation Builtins ===";
+    observe "Gültige E-Mail? " + IsValidEmail("focus@example.org");
+    observe "Numerischer String? " + IsNumeric("12345");
 
-observe "=== Test 7: Pattern Matching - Type Guards ===";
-induce testVal: number = 15;
-induce result2: string = entrain testVal {
-    when x if x > 20 => "large"
-    when x if x > 10 => "medium"
-    otherwise => "small"
-};
-observe result2;  // medium
+    observe "=== 7 · Hashing Builtins ===";
+    induce phrase: string = "hypnotic focus";
+    observe "HashString: " + HashString(phrase);
+    observe "Palindrome? " + IsPalindrome("reliefpfeiler");
+    observe "Einzigartige Zeichen: " + UniqueCharacters("rêverie");
 
-observe "=== Test 8: Pattern Matching - Arrays ===";
-induce testArr: array = [1, 2, 3, 4];
-induce result3: string = entrain testArr {
-    when [1, 2, ...rest] => "starts with 1,2"
-    otherwise => "no match"
-};
-observe result3;  // starts with 1,2
+    observe "=== 8 · Array Distinct & Count ===";
+    induce responses = ["ja", "ja", "nein", "vielleicht", "ja"];
+    observe "Antworten gesamt: " + ArrayLength(responses);
+    observe "'ja' gezählt: " + ArrayCount(responses, "ja");
+    observe "Antwort-Varianten: " + ArrayDistinct(responses);
 
-observe "=== Test 9: Murmur (Debug Output) ===";
-murmur "This is a debug message";
-
-observe "=== Test 10: Freeze (Constants) ===";
-freeze PI: number = 3.14159;
-observe PI;  // 3.14159
-
-observe "=== All Tests Passed Successfully ===";
-
+    observe "=== Alle neuen Features demonstriert ===";
 }
 
 Relax

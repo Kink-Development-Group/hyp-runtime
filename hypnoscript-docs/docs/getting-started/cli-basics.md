@@ -2,50 +2,50 @@
 title: CLI Basics
 ---
 
-Die HypnoScript Command Line Interface (CLI) ist das schnellste Werkzeug, um HypnoScript-Skripte zu bauen, zu prüfen und auszuführen. Diese Seite führt dich durch die wichtigsten Subcommands und typischen Arbeitsabläufe.
+The HypnoScript Command Line Interface (CLI) is the fastest tool to build, check, and run HypnoScript scripts. This page guides you through the most important subcommands and typical workflows.
 
-## Hilfe & Orientierung
+## Help & Orientation
 
 ```bash
-# Globale Hilfe
+# Global help
 hypnoscript --help
 
-# Version und Features anzeigen
+# Show version and features
 hypnoscript version
 
-# Hilfe für einen Subcommand
+# Help for a subcommand
 hypnoscript run --help
 ```
 
-Die Ausgabe listet immer alle verfügbaren Subcommands sowie deren Optionen auf. Falls ein Befehl unbekannt wirkt, lohnt sich ein Blick in `--help` – der Text wird direkt aus der tatsächlichen CLI generiert.
+The output always lists all available subcommands and their options. If a command seems unfamiliar, it's worth looking at `--help` – the text is generated directly from the actual CLI.
 
-## Skripte ausführen
+## Running Scripts
 
 ```bash
-# Standardausführung
+# Standard execution
 hypnoscript run demo.hyp
 
-# Mit zusätzlicher Ausgabe
+# With additional output
 hypnoscript run demo.hyp --verbose
 
-# Mit Debug-Informationen
+# With debug information
 hypnoscript run demo.hyp --debug
 ```
 
-- `--verbose` gibt Statusmeldungen wie "Running file" oder Erfolgsmeldungen aus.
-- `--debug` zeigt zusätzlich Quelltext, Tokenliste, Type-Checking-Ergebnisse und den Ablauf der Interpretation.
-- Fehler im Type Checker halten die Ausführung nicht auf – sie werden gemeldet, anschließend läuft der Interpreter weiter.
+- `--verbose` outputs status messages like "Running file" or success messages.
+- `--debug` additionally shows source code, token list, type checking results and the interpretation flow.
+- Errors in the type checker don't stop execution – they are reported, then the interpreter continues.
 
-## Analysewerkzeuge
+## Analysis Tools
 
-| Befehl                            | Zweck                                          |
-| --------------------------------- | ---------------------------------------------- |
-| `hypnoscript lex <file>`          | Zeigt alle Token mit Index, Typ und Lexem      |
-| `hypnoscript parse <file>`        | Gibt den formatierten Abstract Syntax Tree aus |
-| `hypnoscript check <file>`        | Prüft Typen und meldet Inkonsistenzen          |
-| `hypnoscript compile-wasm <file>` | Generiert WebAssembly Text Format (`.wat`)     |
+| Command                           | Purpose                                      |
+| --------------------------------- | -------------------------------------------- |
+| `hypnoscript lex <file>`          | Shows all tokens with index, type and lexeme |
+| `hypnoscript parse <file>`        | Outputs the formatted Abstract Syntax Tree   |
+| `hypnoscript check <file>`        | Checks types and reports inconsistencies     |
+| `hypnoscript compile-wasm <file>` | Generates WebAssembly Text Format (`.wat`)   |
 
-Diese Tools lassen sich ideal kombinieren, um Parser- oder Typfehler einzugrenzen. Beispiel:
+These tools can be ideally combined to narrow down parser or type errors. Example:
 
 ```bash
 hypnoscript check scripts/report.hyp
@@ -53,37 +53,37 @@ hypnoscript parse scripts/report.hyp
 hypnoscript compile-wasm scripts/report.hyp -o report.wat
 ```
 
-## Standardbibliothek erkunden
+## Exploring the Standard Library
 
 ```bash
 hypnoscript builtins
 ```
 
-Der Befehl gruppiert alle eingebauten Funktionen nach Kategorie (Math, String, Array, System, ...). Nutze ihn, um schnell passende Helfer zu finden.
+The command groups all built-in functions by category (Math, String, Array, System, ...). Use it to quickly find suitable helpers.
 
-## Typischer Workflow
+## Typical Workflow
 
-1. **Vorbereitung** – `hypnoscript check` auf allen Skripten laufen lassen.
-2. **Fehleranalyse** – bei Problemen `lex` oder `parse` verwenden, um den konkreten Abschnitt zu inspizieren.
-3. **Ausführung** – mit `run` testen, bei Bedarf `--debug` aktivieren.
-4. **Deployment** – optional `compile-wasm`, wenn das Skript im Browser oder in einer WASM-Umgebung laufen soll.
+1. **Preparation** – Run `hypnoscript check` on all scripts.
+2. **Error Analysis** – Use `lex` or `parse` for problems to inspect the specific section.
+3. **Execution** – Test with `run`, activate `--debug` if needed.
+4. **Deployment** – Optionally use `compile-wasm` if the script should run in the browser or a WASM environment.
 
 ```bash
-# Beispiel: komplette Runde
+# Example: complete round
 hypnoscript check examples/inventory.hyp
 hypnoscript run examples/inventory.hyp --debug
 hypnoscript compile-wasm examples/inventory.hyp -o inventory.wat
 ```
 
-## Tipps & Tricks
+## Tips & Tricks
 
-- **Schnelle Iteration:** Nutze `--debug`, sobald etwas merkwürdig wirkt – Token und AST verraten sofort, ob der Parser deine Absicht verstanden hat.
-- **Ausgaben bündeln:** Pipe die Ausgabe in eine Datei (`hypnoscript run script.hyp > output.txt`), um längere Läufe zu dokumentieren.
-- **Platform-agnostisch:** Unter Windows, macOS und Linux sind die Befehle identisch. Einzige Voraussetzung ist, dass der `hypnoscript`-Binary im `PATH` liegt.
-- **Tests als Skripte:** Die Dateien im Ordner `hypnoscript-tests/` lassen sich direkt mit `hypnoscript run` starten. So siehst du reale Beispiele für Kontrollfluss und Sessions.
+- **Quick Iteration:** Use `--debug` as soon as something seems odd – tokens and AST immediately reveal whether the parser understood your intention.
+- **Bundle Outputs:** Pipe the output to a file (`hypnoscript run script.hyp > output.txt`) to document longer runs.
+- **Platform-agnostic:** On Windows, macOS and Linux, the commands are identical. The only requirement is that the `hypnoscript` binary is in the `PATH`.
+- **Tests as Scripts:** The files in the `hypnoscript-tests/` folder can be started directly with `hypnoscript run`. This shows you real examples of control flow and sessions.
 
-## Weiterführende Links
+## Further Links
 
-- [CLI Übersicht](../cli/overview) – Installation, Binary-Varianten und Workflow
-- [CLI-Befehle](../cli/commands) – Vollständige Referenz mit allen Optionen
-- [Sprachreferenz](../language-reference/syntax) – Detaillierte Beschreibung der Grammatik
+- [CLI Overview](../cli/overview) – Installation, binary variants and workflow
+- [CLI Commands](../cli/commands) – Complete reference with all options
+- [Language Reference](../language-reference/syntax) – Detailed grammar description

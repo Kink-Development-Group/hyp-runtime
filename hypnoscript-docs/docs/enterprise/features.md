@@ -2,16 +2,16 @@
 sidebar_position: 1
 ---
 
-# Runtime-Features
+# Runtime Features
 
-HypnoScript bietet umfassende Runtime-Features für professionelle Anwendungen in Unternehmensumgebungen.
+HypnoScript provides comprehensive runtime features for professional applications in enterprise environments.
 
-## Sicherheit
+## Security
 
-### Authentifizierung und Autorisierung
+### Authentication and Authorization
 
 ```hyp
-// Benutzer-Authentifizierung
+// User authentication
 Focus {
     entrance {
         induce credentials = GetCredentials();
@@ -20,41 +20,41 @@ Focus {
         if (IsValidToken(token)) {
             induce permissions = GetUserPermissions(token);
             if (HasPermission(permissions, "admin")) {
-                observe "Administrator-Zugriff gewährt";
+                observe "Administrator access granted";
             } else {
-                observe "Standard-Zugriff gewährt";
+                observe "Standard access granted";
             }
         } else {
-            observe "Authentifizierung fehlgeschlagen";
+            observe "Authentication failed";
         }
     }
 } Relax;
 ```
 
-### Verschlüsselung
+### Encryption
 
 ```hyp
-// Datenverschlüsselung
+// Data encryption
 Focus {
     entrance {
-        induce sensitiveData = "Geheime Daten";
+        induce sensitiveData = "Secret data";
         induce key = GenerateEncryptionKey();
 
-        // Verschlüsseln
+        // Encrypt
         induce encrypted = Encrypt(sensitiveData, key);
-        observe "Verschlüsselt: " + encrypted;
+        observe "Encrypted: " + encrypted;
 
-        // Entschlüsseln
+        // Decrypt
         induce decrypted = Decrypt(encrypted, key);
-        observe "Entschlüsselt: " + decrypted;
+        observe "Decrypted: " + decrypted;
     }
 } Relax;
 ```
 
-### Audit-Logging
+### Audit Logging
 
 ```hyp
-// Audit-Trail
+// Audit trail
 Focus {
     suggestion logAuditEvent(event, user, details) {
         induce auditEntry = {
@@ -69,32 +69,32 @@ Focus {
     }
 
     entrance {
-        logAuditEvent("LOGIN", "admin", "Erfolgreiche Anmeldung");
-        logAuditEvent("DATA_ACCESS", "admin", "Sensible Daten abgerufen");
-        logAuditEvent("LOGOUT", "admin", "Abmeldung");
+        logAuditEvent("LOGIN", "admin", "Successful login");
+        logAuditEvent("DATA_ACCESS", "admin", "Sensitive data retrieved");
+        logAuditEvent("LOGOUT", "admin", "Logout");
     }
 } Relax;
 ```
 
-## Skalierbarkeit
+## Scalability
 
 ### Load Balancing
 
 ```hyp
-// Load Balancer Integration
+// Load balancer integration
 Focus {
     entrance {
         induce instances = GetAvailableInstances();
         induce selectedInstance = SelectOptimalInstance(instances);
 
         induce request = {
-            data: "Verarbeitungsdaten",
+            data: "Processing data",
             priority: "high",
             timeout: 30
         };
 
         induce response = SendToInstance(selectedInstance, request);
-        observe "Antwort von Instance " + selectedInstance.id + ": " + response;
+        observe "Response from instance " + selectedInstance.id + ": " + response;
     }
 } Relax;
 ```
@@ -102,16 +102,16 @@ Focus {
 ### Caching
 
 ```hyp
-// Multi-Level Caching
+// Multi-level caching
 Focus {
     suggestion getCachedData(key) {
-        // L1 Cache (Memory)
+        // L1 cache (memory)
         induce l1Result = GetFromMemoryCache(key);
         if (IsDefined(l1Result)) {
             awaken l1Result;
         }
 
-        // L2 Cache (Redis)
+        // L2 cache (Redis)
         induce l2Result = GetFromRedisCache(key);
         if (IsDefined(l2Result)) {
             StoreInMemoryCache(key, l2Result);
@@ -127,52 +127,52 @@ Focus {
 
     entrance {
         induce data = getCachedData("user_profile_123");
-        observe "Benutzerdaten: " + data;
+        observe "User data: " + data;
     }
 } Relax;
 ```
 
-### Microservices-Integration
+### Microservices Integration
 
 ```hyp
-// Service Discovery und Communication
+// Service discovery and communication
 Focus {
     entrance {
         induce serviceRegistry = GetServiceRegistry();
         induce userService = DiscoverService(serviceRegistry, "user-service");
         induce orderService = DiscoverService(serviceRegistry, "order-service");
 
-        // Service-to-Service Communication
+        // Service-to-service communication
         induce userData = CallService(userService, "getUser", {"id": 123});
         induce orderData = CallService(orderService, "getOrders", {"userId": 123});
 
-        observe "Benutzer: " + userData.name + ", Bestellungen: " + ArrayLength(orderData);
+        observe "User: " + userData.name + ", Orders: " + ArrayLength(orderData);
     }
 } Relax;
 ```
 
-## Monitoring und Observability
+## Monitoring and Observability
 
-### Metriken-Sammlung
+### Metrics Collection
 
 ```hyp
-// Performance-Metriken
+// Performance metrics
 Focus {
     entrance {
         induce startTime = Timestamp();
 
-        // Geschäftslogik
+        // Business logic
         induce result = ProcessBusinessLogic();
 
         induce endTime = Timestamp();
         induce duration = (endTime - startTime) * 1000; // in ms
 
-        // Metriken senden
+        // Send metrics
         SendMetric("business_logic_duration", duration);
         SendMetric("business_logic_success", 1);
         SendMetric("memory_usage", GetMemoryUsage());
 
-        observe "Verarbeitung abgeschlossen in " + duration + "ms";
+        observe "Processing completed in " + duration + "ms";
     }
 } Relax;
 ```
@@ -180,7 +180,7 @@ Focus {
 ### Distributed Tracing
 
 ```hyp
-// Trace-Propagation
+// Trace propagation
 Focus {
     suggestion processWithTracing(operation, data) {
         induce traceId = GetCurrentTraceId();
@@ -211,7 +211,7 @@ Focus {
 ### Health Checks
 
 ```hyp
-// Service Health Monitoring
+// Service health monitoring
 Focus {
     entrance {
         induce healthChecks = [
@@ -227,25 +227,25 @@ Focus {
             induce check = ArrayGet(healthChecks, i);
             if (!check.healthy) {
                 overallHealth = false;
-                observe "Health Check fehlgeschlagen: " + check.name + " - " + check.error;
+                observe "Health check failed: " + check.name + " - " + check.error;
             }
         }
 
         if (overallHealth) {
-            observe "Alle Health Checks bestanden";
+            observe "All health checks passed";
         } else {
-            observe "Einige Health Checks fehlgeschlagen";
+            observe "Some health checks failed";
         }
     }
 } Relax;
 ```
 
-## Datenbank-Integration
+## Database Integration
 
 ### Connection Pooling
 
 ```hyp
-// Datenbank-Pool-Management
+// Database pool management
 Focus {
     entrance {
         induce poolConfig = {
@@ -257,41 +257,41 @@ Focus {
 
         induce connectionPool = CreateConnectionPool(poolConfig);
 
-        // Verbindung aus Pool holen
+        // Get connection from pool
         induce connection = GetConnection(connectionPool);
 
         try {
             induce result = ExecuteQuery(connection, "SELECT * FROM users WHERE id = ?", [123]);
-            observe "Benutzer gefunden: " + result.name;
+            observe "User found: " + result.name;
         } finally {
-            // Verbindung zurück in Pool
+            // Return connection to pool
             ReturnConnection(connectionPool, connection);
         }
     }
 } Relax;
 ```
 
-### Transaktions-Management
+### Transaction Management
 
 ```hyp
-// ACID-Transaktionen
+// ACID transactions
 Focus {
     entrance {
         induce transaction = BeginTransaction();
 
         try {
-            // Transaktions-Operationen
+            // Transaction operations
             ExecuteQuery(transaction, "UPDATE accounts SET balance = balance - 100 WHERE id = 1");
             ExecuteQuery(transaction, "UPDATE accounts SET balance = balance + 100 WHERE id = 2");
             ExecuteQuery(transaction, "INSERT INTO transfers (from_id, to_id, amount) VALUES (1, 2, 100)");
 
-            // Transaktion bestätigen
+            // Commit transaction
             CommitTransaction(transaction);
-            observe "Überweisung erfolgreich";
+            observe "Transfer successful";
         } catch (error) {
-            // Transaktion rückgängig machen
+            // Rollback transaction
             RollbackTransaction(transaction);
-            observe "Überweisung fehlgeschlagen: " + error;
+            observe "Transfer failed: " + error;
         }
     }
 } Relax;
@@ -299,15 +299,15 @@ Focus {
 
 ## Message Queuing
 
-### Asynchrone Verarbeitung
+### Asynchronous Processing
 
 ```hyp
-// Message Queue Integration
+// Message queue integration
 Focus {
     entrance {
         induce messageQueue = ConnectToQueue("order-processing");
 
-        // Nachricht senden
+        // Send message
         induce orderMessage = {
             orderId: 12345,
             customerId: 678,
@@ -316,9 +316,9 @@ Focus {
         };
 
         SendMessage(messageQueue, orderMessage);
-        observe "Bestellung zur Verarbeitung gesendet";
+        observe "Order sent for processing";
 
-        // Nachrichten empfangen
+        // Receive messages
         induce receivedMessage = ReceiveMessage(messageQueue);
         if (IsDefined(receivedMessage)) {
             ProcessOrder(receivedMessage);
@@ -331,18 +331,18 @@ Focus {
 ### Event-Driven Architecture
 
 ```hyp
-// Event Publishing/Subscribing
+// Event publishing/subscribing
 Focus {
     entrance {
         induce eventBus = ConnectToEventBus();
 
-        // Event abonnieren
+        // Subscribe to event
         SubscribeToEvent(eventBus, "order.created", function(event) {
-            observe "Neue Bestellung empfangen: " + event.orderId;
+            observe "New order received: " + event.orderId;
             ProcessOrderNotification(event);
         });
 
-        // Event veröffentlichen
+        // Publish event
         induce orderEvent = {
             type: "order.created",
             orderId: 12345,
@@ -351,17 +351,17 @@ Focus {
         };
 
         PublishEvent(eventBus, orderEvent);
-        observe "Order-Created Event veröffentlicht";
+        observe "Order created event published";
     }
 } Relax;
 ```
 
-## API-Management
+## API Management
 
 ### Rate Limiting
 
 ```hyp
-// API Rate Limiting
+// API rate limiting
 Focus {
     suggestion checkRateLimit(clientId, endpoint) {
         induce key = "rate_limit:" + clientId + ":" + endpoint;
@@ -381,18 +381,18 @@ Focus {
 
         if (checkRateLimit(clientId, endpoint)) {
             induce userData = GetUserData();
-            observe "Benutzerdaten: " + userData;
+            observe "User data: " + userData;
         } else {
-            observe "Rate Limit überschritten";
+            observe "Rate limit exceeded";
         }
     }
 } Relax;
 ```
 
-### API-Versioning
+### API Versioning
 
 ```hyp
-// API Version Management
+// API version management
 Focus {
     entrance {
         induce apiVersion = GetApiVersion();
@@ -400,31 +400,31 @@ Focus {
 
         if (IsCompatibleVersion(apiVersion, clientVersion)) {
             induce data = GetDataForVersion(apiVersion);
-            observe "API-Daten für Version " + apiVersion + ": " + data;
+            observe "API data for version " + apiVersion + ": " + data;
         } else {
-            observe "Inkompatible API-Version. Erwartet: " + apiVersion + ", Erhalten: " + clientVersion;
+            observe "Incompatible API version. Expected: " + apiVersion + ", Received: " + clientVersion;
         }
     }
 } Relax;
 ```
 
-## Konfigurations-Management
+## Configuration Management
 
-### Environment-spezifische Konfiguration
+### Environment-Specific Configuration
 
 ```hyp
-// Multi-Environment Setup
+// Multi-environment setup
 Focus {
     entrance {
         induce environment = GetEnvironment();
         induce config = LoadEnvironmentConfig(environment);
 
-        observe "Umgebung: " + environment;
-        observe "Datenbank: " + config.database.url;
+        observe "Environment: " + environment;
+        observe "Database: " + config.database.url;
         observe "Redis: " + config.redis.url;
-        observe "API-Endpoint: " + config.api.baseUrl;
+        observe "API endpoint: " + config.api.baseUrl;
 
-        // Konfiguration anwenden
+        // Apply configuration
         ApplyConfiguration(config);
     }
 } Relax;
@@ -433,33 +433,33 @@ Focus {
 ### Feature Flags
 
 ```hyp
-// Feature Toggle Management
+// Feature toggle management
 Focus {
     entrance {
         induce featureFlags = GetFeatureFlags();
 
         if (IsFeatureEnabled(featureFlags, "new_ui")) {
-            observe "Neue UI aktiviert";
+            observe "New UI enabled";
             ShowNewUI();
         } else {
-            observe "Alte UI aktiviert";
+            observe "Old UI enabled";
             ShowOldUI();
         }
 
         if (IsFeatureEnabled(featureFlags, "beta_features")) {
-            observe "Beta-Features aktiviert";
+            observe "Beta features enabled";
             EnableBetaFeatures();
         }
     }
 } Relax;
 ```
 
-## Backup und Recovery
+## Backup and Recovery
 
-### Automatische Backups
+### Automatic Backups
 
 ```hyp
-// Backup-Strategie
+// Backup strategy
 Focus {
     entrance {
         induce backupConfig = {
@@ -470,13 +470,13 @@ Focus {
         };
 
         induce backupId = CreateBackup(backupConfig);
-        observe "Backup erstellt: " + backupId;
+        observe "Backup created: " + backupId;
 
-        // Backup validieren
+        // Validate backup
         if (ValidateBackup(backupId)) {
-            observe "Backup validiert erfolgreich";
+            observe "Backup validated successfully";
         } else {
-            observe "Backup-Validierung fehlgeschlagen";
+            observe "Backup validation failed";
         }
     }
 } Relax;
@@ -485,20 +485,20 @@ Focus {
 ### Disaster Recovery
 
 ```hyp
-// Recovery-Prozeduren
+// Recovery procedures
 Focus {
     entrance {
         induce recoveryPlan = LoadRecoveryPlan();
 
         for (induce i = 0; i < ArrayLength(recoveryPlan.steps); induce i = i + 1) {
             induce step = ArrayGet(recoveryPlan.steps, i);
-            observe "Führe Recovery-Schritt aus: " + step.name;
+            observe "Executing recovery step: " + step.name;
 
             try {
                 ExecuteRecoveryStep(step);
-                observe "Recovery-Schritt erfolgreich: " + step.name;
+                observe "Recovery step successful: " + step.name;
             } catch (error) {
-                observe "Recovery-Schritt fehlgeschlagen: " + step.name + " - " + error;
+                observe "Recovery step failed: " + step.name + " - " + error;
                 break;
             }
         }
@@ -506,36 +506,36 @@ Focus {
 } Relax;
 ```
 
-## Compliance und Governance
+## Compliance and Governance
 
-### Daten-GDPR-Compliance
+### Data GDPR Compliance
 
 ```hyp
-// GDPR-Datenverarbeitung
+// GDPR data processing
 Focus {
     entrance {
         induce userConsent = GetUserConsent(userId);
 
         if (HasConsent(userConsent, "data_processing")) {
             induce userData = ProcessUserData(userId);
-            observe "Datenverarbeitung für Benutzer " + userId + " durchgeführt";
+            observe "Data processing for user " + userId + " performed";
         } else {
-            observe "Keine Einwilligung für Datenverarbeitung von Benutzer " + userId;
+            observe "No consent for data processing from user " + userId;
         }
 
-        // Recht auf Löschung
+        // Right to erasure
         if (HasRightToErasure(userId)) {
             DeleteUserData(userId);
-            observe "Benutzerdaten für " + userId + " gelöscht";
+            observe "User data for " + userId + " deleted";
         }
     }
 } Relax;
 ```
 
-### Audit-Compliance
+### Audit Compliance
 
 ```hyp
-// Compliance-Auditing
+// Compliance auditing
 Focus {
     entrance {
         induce auditConfig = {
@@ -551,14 +551,14 @@ Focus {
             ValidateAuditEntry(entry);
         }
 
-        observe "Audit-Trail validiert: " + ArrayLength(auditTrail) + " Einträge";
+        observe "Audit trail validated: " + ArrayLength(auditTrail) + " entries";
     }
 } Relax;
 ```
 
-## Runtime-Konfiguration
+## Runtime Configuration
 
-### Runtime-Konfigurationsdatei
+### Runtime Configuration File
 
 ```json
 {
@@ -619,42 +619,42 @@ Focus {
 
 ## Best Practices
 
-### Sicherheits-Best-Practices
+### Security Best Practices
 
 ```hyp
-// Sichere Datenverarbeitung
+// Secure data processing
 Focus {
     entrance {
-        // Eingabe validieren
+        // Validate input
         induce userInput = GetUserInput();
         if (!ValidateInput(userInput)) {
-            observe "Ungültige Eingabe";
+            observe "Invalid input";
             return;
         }
 
-        // SQL-Injection verhindern
+        // Prevent SQL injection
         induce sanitizedInput = SanitizeInput(userInput);
 
-        // XSS verhindern
+        // Prevent XSS
         induce escapedOutput = EscapeOutput(processedData);
 
-        // Logging ohne sensible Daten
+        // Logging without sensitive data
         LogEvent("data_processed", {
             userId: GetUserId(),
             timestamp: Now(),
-            // Keine sensiblen Daten im Log
+            // No sensitive data in log
         });
     }
 } Relax;
 ```
 
-### Performance-Best-Practices
+### Performance Best Practices
 
 ```hyp
-// Optimierte Datenverarbeitung
+// Optimized data processing
 Focus {
     entrance {
-        // Batch-Verarbeitung
+        // Batch processing
         induce batchSize = 1000;
         induce data = GetLargeDataset();
 
@@ -662,7 +662,7 @@ Focus {
             induce batch = SubArray(data, i, batchSize);
             ProcessBatch(batch);
 
-            // Memory-Management
+            // Memory management
             if (i % 10000 == 0) {
                 CollectGarbage();
             }
@@ -671,13 +671,13 @@ Focus {
 } Relax;
 ```
 
-## Nächste Schritte
+## Next Steps
 
-- [Runtime-Architektur](./architecture) - Runtime-Architektur-Patterns
-- [Runtime-Sicherheit](./security) - Erweiterte Sicherheitsfeatures
-- [Runtime-Monitoring](./monitoring) - Monitoring und Alerting
-- [Runtime-Integration](./integration) - Integration mit Runtime-Systemen
+- [Runtime Architecture](./architecture) - Runtime architecture patterns
+- [Runtime Security](./security) - Advanced security features
+- [Runtime Monitoring](./monitoring) - Monitoring and alerting
+- [Runtime Integration](./integration) - Integration with runtime systems
 
 ---
 
-**Runtime-Features gemeistert? Dann lerne [Runtime-Architektur](./architecture) kennen!** 🏢
+**Mastered runtime features? Then learn about [Runtime Architecture](./architecture)!** 🏢
