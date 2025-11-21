@@ -4,74 +4,74 @@ sidebar_position: 6
 
 # Triggers – Event-Hooks & Callbacks
 
-Triggers sind ein mächtiges Werkzeug in HypnoScript zum Definieren von Event-Hooks, Callbacks und verzögerten Aktionen. Sie kombinieren die Flexibilität von First-Class Functions mit der deklarativen Semantik von Event-Handlern.
+Triggers are a powerful tool in HypnoScript for defining event hooks, callbacks, and delayed actions. They combine the flexibility of first-class functions with the declarative semantics of event handlers.
 
-## Was sind Triggers?
+## What are Triggers?
 
-Ein `trigger` ist eine benannte Callback-Funktion, die auf **Top-Level** (außerhalb von Funktionen, Sessions oder Blöcken) deklariert wird. Triggers sind ideal für:
+A `trigger` is a named callback function that is declared at **top-level** (outside of functions, sessions, or blocks). Triggers are ideal for:
 
-- 🎯 **Event-Handler** – Reaktion auf Benutzer-Interaktionen oder Systemereignisse
-- 🧹 **Cleanup-Aktionen** – Aufräumoperationen nach Programmende
-- ⏰ **Verzögerte Ausführung** – Callbacks für asynchrone Operationen
-- 🔄 **State-Management** – Zustandsänderungs-Handler in komplexen Sessions
+- 🎯 **Event Handlers** – Reacting to user interactions or system events
+- 🧹 **Cleanup Actions** – Cleanup operations after program termination
+- ⏰ **Delayed Execution** – Callbacks for asynchronous operations
+- 🔄 **State Management** – State change handlers in complex sessions
 
-## Grundlegende Syntax
+## Basic Syntax
 
 ```hyp
 trigger triggerName = suggestion(parameter1: type1, parameter2: type2): returnType {
-    // Trigger-Code
+    // Trigger code
 };
 ```
 
-### Wichtige Eigenschaften
+### Key Properties
 
-| Eigenschaft          | Beschreibung                                          |
-| -------------------- | ----------------------------------------------------- |
-| **Scope**            | Nur Top-Level (Programm- oder Modul-Ebene)            |
-| **Deklaration**      | `trigger name = suggestion(...) { ... };`             |
-| **First-Class**      | Können als Parameter übergeben und gespeichert werden |
-| **Event-Orientiert** | Ideal für Event-Handler und Callbacks                 |
+| Property           | Description                               |
+| ------------------ | ----------------------------------------- |
+| **Scope**          | Top-level only (program or module level)  |
+| **Declaration**    | `trigger name = suggestion(...) { ... };` |
+| **First-Class**    | Can be passed as parameters and stored    |
+| **Event-Oriented** | Ideal for event handlers and callbacks    |
 
-> ✅ Der Rust-Parser erzwingt diese Regel ab sofort strikt: Jeder Versuch, einen `trigger` innerhalb eines Blocks, einer Funktion oder Session zu deklarieren, resultiert in dem Fehler _"Triggers can only be declared at the top level"_.
+> ✅ The Rust parser now strictly enforces this rule: Any attempt to declare a `trigger` inside a block, function, or session results in the error _"Triggers can only be declared at the top level"_.
 
-## Einfache Beispiele
+## Simple Examples
 
-### Cleanup-Trigger
+### Cleanup Trigger
 
-Triggers eignen sich perfekt für Aufräumaktionen am Programmende:
+Triggers are perfect for cleanup actions at program end:
 
 ```hyp
 Focus {
     induce resourceHandle: number = 42;
 
     trigger onCleanup = suggestion() {
-        observe "Räume Ressource " + resourceHandle + " auf";
-        // Ressourcen freigeben
+        observe "Cleaning up resource " + resourceHandle;
+        // Release resources
     };
 
     entrance {
-        observe "Programm gestartet";
+        observe "Program started";
     }
 
     finale {
         onCleanup();
-        observe "Programm beendet";
+        observe "Program ended";
     }
 } Relax
 ```
 
-### Event-Handler
+### Event Handler
 
-Triggers als klassische Event-Handler:
+Triggers as classic event handlers:
 
 ```hyp
 Focus {
     trigger onClick = suggestion(buttonId: string) {
-        observe "Button geklickt: " + buttonId;
+        observe "Button clicked: " + buttonId;
     };
 
     trigger onSubmit = suggestion(formData: string) {
-        observe "Formular abgeschickt: " + formData;
+        observe "Form submitted: " + formData;
     };
 
     entrance {
@@ -81,33 +81,33 @@ Focus {
 } Relax
 ```
 
-## Parametrisierte Triggers
+## Parameterized Triggers
 
-Triggers können beliebige Parameter akzeptieren:
+Triggers can accept arbitrary parameters:
 
 ```hyp
 Focus {
     trigger onError = suggestion(errorCode: number, message: string) {
-        observe "Fehler " + errorCode + ": " + message;
+        observe "Error " + errorCode + ": " + message;
     };
 
     trigger onSuccess = suggestion(data: string): boolean {
-        observe "Erfolg: " + data;
+        observe "Success: " + data;
         awaken true;
     };
 
     entrance {
-        onError(404, "Nicht gefunden");
-        induce result: boolean = onSuccess("Daten geladen");
+        onError(404, "Not found");
+        induce result: boolean = onSuccess("Data loaded");
     }
 } Relax
 ```
 
-## Integration mit DeepMind/AuraAsync
+## Integration with DeepMind/AuraAsync
 
-Triggers glänzen in Kombination mit den Builtin-Funktionen:
+Triggers shine in combination with builtin functions:
 
-### Wiederholte Ausführung
+### Repeated Execution
 
 ```hyp
 Focus {
@@ -119,38 +119,38 @@ Focus {
     };
 
     entrance {
-        // Führe trigger 5x im Abstand von 1000ms aus
+        // Execute trigger 5 times at 1000ms intervals
         repeatAction(onTick, 5, 1000);
-        observe "Finale Zählung: " + counter;
+        observe "Final count: " + counter;
     }
 } Relax
 ```
 
-### Verzögerte Ausführung
+### Delayed Execution
 
 ```hyp
 Focus {
     trigger afterDelay = suggestion(message: string) {
-        observe "Verzögerte Nachricht: " + message;
+        observe "Delayed message: " + message;
     };
 
     entrance {
-        observe "Starte Verzögerung...";
-        delayedSuggestion(afterDelay, 2000, "Hallo nach 2 Sekunden!");
-        observe "Verzögerung gestartet";
+        observe "Starting delay...";
+        delayedSuggestion(afterDelay, 2000, "Hello after 2 seconds!");
+        observe "Delay started";
     }
 } Relax
 ```
 
 ## Triggers in Sessions
 
-Während Triggers nur auf Top-Level deklariert werden können, lassen sie sich perfekt mit Sessions kombinieren:
+While triggers can only be declared at top-level, they combine perfectly with sessions:
 
 ```hyp
-// Trigger als Top-Level-Deklaration
+// Trigger as top-level declaration
 trigger onSecondElapsed = suggestion(timer: HypnoTimer) {
     timer.elapsedSeconds = timer.elapsedSeconds + 1;
-    observe "Verstrichene Zeit: " + timer.elapsedSeconds + "s";
+    observe "Elapsed time: " + timer.elapsedSeconds + "s";
 };
 
 session HypnoTimer {
@@ -163,7 +163,7 @@ session HypnoTimer {
     }
 
     suggestion start() {
-        // Rufe Trigger jede Sekunde auf
+        // Call trigger every second
         repeatAction(this.timerCallback, 60, 1000);
     }
 
@@ -180,28 +180,28 @@ Focus {
 } Relax
 ```
 
-## Unterschied zu normalen Funktionen
+## Difference from Regular Functions
 
-| Aspekt          | `suggestion`                            | `trigger`                                   |
+| Aspect          | `suggestion`                            | `trigger`                                   |
 | --------------- | --------------------------------------- | ------------------------------------------- |
-| **Deklaration** | `suggestion name(params): type { ... }` | `trigger name = suggestion(params) { ... }` |
-| **Scope**       | Block-Level (lokal/global)              | **Nur Top-Level**                           |
-| **Semantik**    | Wiederverwendbare Funktion              | Event-Handler/Callback                      |
-| **Verwendung**  | Allgemeine Logik                        | Ereignisgesteuert                           |
-| **Konvention**  | Algorithmen, Berechnungen               | Reaktionen, Cleanup, Events                 |
+| **Declaration** | `suggestion name(params): type { ... }` | `trigger name = suggestion(params) { ... }` |
+| **Scope**       | Block-level (local/global)              | **Top-level only**                          |
+| **Semantics**   | Reusable function                       | Event handler/Callback                      |
+| **Usage**       | General logic                           | Event-driven                                |
+| **Convention**  | Algorithms, calculations                | Reactions, cleanup, events                  |
 
-## Lokale Callbacks in Sessions
+## Local Callbacks in Sessions
 
-Für Callbacks innerhalb von Sessions oder Funktionen verwende **anonyme suggestion-Expressions**:
+For callbacks within sessions or functions, use **anonymous suggestion expressions**:
 
 ```hyp
 session TaskManager {
     conceal taskCallback: suggestion;
 
     suggestion constructor() {
-        // Anonyme suggestion-Expression als lokaler Callback
+        // Anonymous suggestion expression as local callback
         this.taskCallback = suggestion() {
-            observe "Task ausgeführt!";
+            observe "Task executed!";
         };
     }
 
@@ -216,61 +216,61 @@ session TaskManager {
 ### ✅ Do's
 
 ```hyp
-// ✓ Benenne Triggers mit 'on'-Präfix für Klarheit
+// ✓ Name triggers with 'on' prefix for clarity
 trigger onAwaken = suggestion() { ... };
 trigger onError = suggestion(code: number) { ... };
 
-// ✓ Verwende Triggers für Event-Handler
+// ✓ Use triggers for event handlers
 trigger onClick = suggestion(id: string) { ... };
 
-// ✓ Kombiniere mit finale-Blöcken für garantierte Ausführung
+// ✓ Combine with finale blocks for guaranteed execution
 finale {
     onCleanup();
 }
 
-// ✓ Nutze Triggers mit DeepMind-Funktionen
+// ✓ Use triggers with DeepMind functions
 repeatAction(onUpdate, 10, 500);
 ```
 
 ### ❌ Don'ts
 
 ```hyp
-// ✗ Vermeide Trigger innerhalb von Funktionen
+// ✗ Avoid triggers inside functions
 suggestion myFunction() {
-    trigger localTrigger = suggestion() { ... };  // FEHLER!
+    trigger localTrigger = suggestion() { ... };  // ERROR!
 }
 
-// ✗ Vermeide Trigger in Sessions
+// ✗ Avoid triggers in sessions
 session MySession {
-    trigger classTrigger = suggestion() { ... };  // FEHLER!
+    trigger classTrigger = suggestion() { ... };  // ERROR!
 }
 
-// ✗ Verwende stattdessen anonyme Expressions für lokale Callbacks
-this.callback = suggestion() { observe "Lokaler Callback"; };
+// ✗ Use anonymous expressions for local callbacks instead
+this.callback = suggestion() { observe "Local callback"; };
 ```
 
-## Erweiterte Patterns
+## Advanced Patterns
 
 ### Chain of Triggers
 
 ```hyp
 Focus {
     trigger step1 = suggestion() {
-        observe "Schritt 1 abgeschlossen";
+        observe "Step 1 completed";
         step2();
     };
 
     trigger step2 = suggestion() {
-        observe "Schritt 2 abgeschlossen";
+        observe "Step 2 completed";
         step3();
     };
 
     trigger step3 = suggestion() {
-        observe "Alle Schritte abgeschlossen!";
+        observe "All steps completed!";
     };
 
     entrance {
-        step1();  // Startet die Kette
+        step1();  // Starts the chain
     }
 } Relax
 ```
@@ -288,9 +288,9 @@ Focus {
     };
 
     entrance {
-        onDebug("Programm gestartet");
+        onDebug("Program started");
         debugMode = false;
-        onDebug("Diese Nachricht wird nicht angezeigt");
+        onDebug("This message will not be displayed");
     }
 } Relax
 ```
@@ -302,8 +302,8 @@ Focus {
     induce eventRegistry: array = [];
 
     trigger registerEvent = suggestion(eventName: string) {
-        observe "Event registriert: " + eventName;
-        // eventRegistry.push(eventName);  // Wenn Array-Push verfügbar
+        observe "Event registered: " + eventName;
+        // eventRegistry.push(eventName);  // If array push is available
     };
 
     trigger onAppStart = suggestion() {
@@ -324,25 +324,25 @@ Focus {
 } Relax
 ```
 
-## Zusammenfassung
+## Summary
 
-Triggers sind **First-Class Event-Handler** in HypnoScript, die:
+Triggers are **first-class event handlers** in HypnoScript that:
 
-- ✅ Nur auf **Top-Level** deklariert werden
-- ✅ Perfekt für **Event-Handling** und **Callbacks** geeignet sind
-- ✅ Mit **DeepMind/AuraAsync** kombiniert werden können
-- ✅ Als **Parameter** übergeben und **gespeichert** werden können
-- ✅ Durch **Naming-Conventions** (`on*`) klar erkennbar sind
+- ✅ Can only be declared at **top-level**
+- ✅ Are perfect for **event handling** and **callbacks**
+- ✅ Can be combined with **DeepMind/AuraAsync**
+- ✅ Can be **passed as parameters** and **stored**
+- ✅ Are clearly recognizable through **naming conventions** (`on*`)
 
-Für lokale Callbacks innerhalb von Funktionen oder Sessions verwende anonyme `suggestion()`-Expressions.
+For local callbacks within functions or sessions, use anonymous `suggestion()` expressions.
 
-## Nächste Schritte
+## Next Steps
 
-- [Functions](./functions) – Allgemeine Funktionsdefinition
-- [Sessions](./sessions) – Objektorientierte Programmierung
-- [Async & Await](./async-await) – Asynchrone Programmierung
-- [Pattern Matching](./pattern-matching) – Erweiterte Kontrollstrukturen
+- [Functions](./functions) – General function definition
+- [Sessions](./sessions) – Object-oriented programming
+- [Async & Await](./async-await) – Asynchronous programming
+- [Pattern Matching](./pattern-matching) – Advanced control structures
 
 ---
 
-**Bereit für Event-basierte Programmierung? Nutze Triggers für elegante Event-Flows!** 🎯
+**Ready for event-based programming? Use triggers for elegant event flows!** 🎯

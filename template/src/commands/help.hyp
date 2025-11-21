@@ -1,0 +1,43 @@
+Focus {
+    expose suggestion KnownCommands(): array {
+        induce commands: array = [
+            {
+                "name": "help",
+                "summary": "Describes every available suggestion and explains the manifest.",
+                "usage": "hypnoscript run src/main.hyp -- help"
+            },
+            {
+                "name": "status",
+                "summary": "Shows the state of the active session including stage and mood.",
+                "usage": "hypnoscript run src/main.hyp -- status"
+            },
+            {
+                "name": "pulse",
+                "summary": "Creates a compact pulse report with key metrics.",
+                "usage": "hypnoscript run src/main.hyp -- pulse"
+            }
+        ];
+        awaken commands;
+    }
+
+    expose suggestion ShowHelp(reason: string) {
+        observe "🪄 Hypno CLI Help";
+        observe "Reason you are here: " + reason;
+        observe "";
+        observe "Available suggestions:";
+
+        induce commands = KnownCommands();
+        pendulum (induce i: number = 0; i < Length(commands); i = i + 1) {
+            induce cmd = commands[i];
+            observe "• " + cmd["name"] + " — " + cmd["summary"];
+            observe "    Usage: " + cmd["usage"];
+        }
+
+        observe "";
+        observe "Manifest path: trance.json";
+        observe "Adjust rituals, anchors, and suggestions there to register new flows.";
+        observe "";
+    }
+}
+
+Relax

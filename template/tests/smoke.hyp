@@ -1,0 +1,17 @@
+MindLink "../src/shared/runtime_state.hyp";
+
+Focus {
+
+    entrance {
+        observe "🔥 Smoke test";
+        induce profile = DefaultSessionProfile();
+        RenderSessionProfile(profile);
+
+        induce metrics = DefaultPulseMetrics();
+        RenderPulseMetrics(metrics);
+
+        observe "Smoke test complete.";
+    }
+}
+
+Relax

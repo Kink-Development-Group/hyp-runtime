@@ -1,0 +1,51 @@
+{
+  "ritualName": "hypno-cli-starter",
+  "mantra": "0.1.0",
+  "intent": "cli",
+  "induction": {
+    "description": "Starter template for a HypnoScript-powered command-line app focused on status and monitoring commands.",
+    "entryScript": "src/main.hyp",
+    "keywords": ["hypnoscript", "cli", "template", "starter"],
+    "license": "MIT"
+  },
+  "hypnotists": [
+    {
+      "name": "Your Name",
+      "role": "Lead Hypnotist",
+      "contact": "mailto:you@example.com"
+    }
+  ],
+  "auras": {
+    "repository": "https://github.com/your-org/hypno-cli",
+    "homepage": "https://your-org.dev/hypno-cli",
+    "documentation": "docs/index.md",
+    "supportChannel": "https://chat.your-org.dev/hypno"
+  },
+  "suggestions": {
+    "focus": "hypnoscript exec src/main.hyp -- help",
+    "status": "hypnoscript exec src/main.hyp -- status",
+    "pulse": "hypnoscript exec src/main.hyp -- pulse",
+    "watch": "pwsh scripts/watch.ps1 help",
+    "test": "hypnoscript exec tests/smoke.hyp"
+  },
+  "anchors": {
+    "hypnoscript-runtime": "^1.0.0",
+    "hypnoscript-cli": "^1.0.0"
+  },
+  "deepAnchors": {
+    "@hypno/testing-lab": "^0.3.0"
+  },
+  "channels": {
+    "binary": "hypno-cli",
+    "entry": "focus",
+    "targets": ["windows-x64", "linux-x64", "macos-universal"],
+    "telemetry": {
+      "enabled": false,
+      "endpoint": ""
+    }
+  },
+  "triggers": {
+    "preFocus": "scripts/pre-focus.hyp",
+    "postRelax": "scripts/post-relax.hyp"
+  }
+}

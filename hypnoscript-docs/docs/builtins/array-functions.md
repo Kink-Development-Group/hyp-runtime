@@ -2,23 +2,23 @@
 sidebar_position: 2
 ---
 
-# Array-Funktionen
+# Array Functions
 
-:::tip Vollständige Referenz
-Siehe [Builtin-Funktionen Vollständige Referenz](./_complete-reference#array-builtins) für die **aktuelle, vollständige Dokumentation** aller Array-Funktionen mit korrekten Funktionsnamen.
+:::tip Complete Reference
+See [Builtin Functions Complete Reference](./_complete-reference#array-builtins) for the **up-to-date, complete documentation** of all array functions with correct function names.
 :::
 
-:::warning Hinweis
-Diese Seite enthält teilweise veraltete Funktionsnamen. Die korrekte Referenz finden Sie in der [Vollständigen Referenz](./_complete-reference#array-builtins).
+:::warning Note
+This page contains partially outdated function names. The correct reference can be found in the [Complete Reference](./_complete-reference#array-builtins).
 :::
 
-HypnoScript bietet umfangreiche Array-Funktionen für die Arbeit mit Listen und Sammlungen von Daten.
+HypnoScript provides comprehensive array functions for working with lists and data collections.
 
-## Grundlegende Array-Operationen
+## Basic Array Operations
 
 ### ArrayLength(arr)
 
-Gibt die Anzahl der Elemente in einem Array zurück.
+Returns the number of elements in an array.
 
 ```hyp
 induce numbers = [1, 2, 3, 4, 5];
@@ -28,7 +28,7 @@ observe "Array-Länge: " + length; // 5
 
 ### ArrayGet(arr, index)
 
-Ruft ein Element an einem bestimmten Index ab.
+Retrieves an element at a specific index.
 
 ```hyp
 induce fruits = ["Apfel", "Banane", "Orange"];
@@ -38,7 +38,7 @@ induce second = ArrayGet(fruits, 1); // "Banane"
 
 ### ArraySet(arr, index, value)
 
-Setzt ein Element an einem bestimmten Index.
+Sets an element at a specific index.
 
 ```hyp
 induce numbers = [1, 2, 3, 4, 5];
@@ -46,11 +46,11 @@ ArraySet(numbers, 2, 99);
 observe numbers; // [1, 2, 99, 4, 5]
 ```
 
-## Array-Manipulation
+## Array Manipulation
 
 ### ArraySort(arr)
 
-Sortiert ein Array in aufsteigender Reihenfolge.
+Sorts an array in ascending order.
 
 ```hyp
 induce numbers = [3, 1, 4, 1, 5, 9, 2, 6];
@@ -60,17 +60,17 @@ observe sorted; // [1, 1, 2, 3, 4, 5, 6, 9]
 
 ### ShuffleArray(arr)
 
-Mischt die Elemente eines Arrays zufällig.
+Randomly shuffles the elements of an array.
 
 ```hyp
 induce cards = ["Herz", "Karo", "Pik", "Kreuz"];
 induce shuffled = ShuffleArray(cards);
-observe shuffled; // Zufällige Reihenfolge
+observe shuffled; // Random order
 ```
 
 ### ReverseArray(arr)
 
-Kehrt die Reihenfolge der Elemente um.
+Reverses the order of elements.
 
 ```hyp
 induce numbers = [1, 2, 3, 4, 5];
@@ -78,11 +78,11 @@ induce reversed = ReverseArray(numbers);
 observe reversed; // [5, 4, 3, 2, 1]
 ```
 
-## Array-Analyse
+## Array Analysis
 
 ### ArraySum(arr)
 
-Berechnet die Summe aller numerischen Elemente.
+Calculates the sum of all numeric elements.
 
 ```hyp
 induce numbers = [1, 2, 3, 4, 5];
@@ -92,7 +92,7 @@ observe "Summe: " + sum; // 15
 
 ### AverageArray(arr)
 
-Berechnet den Durchschnitt aller numerischen Elemente.
+Calculates the average of all numeric elements.
 
 ```hyp
 induce grades = [85, 92, 78, 96, 88];
@@ -102,7 +102,7 @@ observe "Durchschnitt: " + average; // 87.8
 
 ### MinArray(arr)
 
-Findet das kleinste Element im Array.
+Finds the smallest element in the array.
 
 ```hyp
 induce numbers = [42, 17, 89, 3, 56];
@@ -112,7 +112,7 @@ observe "Minimum: " + min; // 3
 
 ### MaxArray(arr)
 
-Findet das größte Element im Array.
+Finds the largest element in the array.
 
 ```hyp
 induce numbers = [42, 17, 89, 3, 56];
@@ -120,11 +120,11 @@ induce max = MaxArray(numbers);
 observe "Maximum: " + max; // 89
 ```
 
-## Array-Suche
+## Array Search
 
 ### ArrayContains(arr, value)
 
-Prüft, ob ein Wert im Array enthalten ist.
+Checks if a value is contained in the array.
 
 ```hyp
 induce fruits = ["Apfel", "Banane", "Orange"];
@@ -134,7 +134,7 @@ induce hasGrape = ArrayContains(fruits, "Traube"); // false
 
 ### ArrayIndexOf(arr, value)
 
-Findet den Index eines Elements im Array.
+Finds the index of an element in the array.
 
 ```hyp
 induce colors = ["Rot", "Grün", "Blau", "Gelb"];
@@ -144,7 +144,7 @@ observe "Index von Blau: " + index; // 2
 
 ### ArrayLastIndexOf(arr, value)
 
-Findet den letzten Index eines Elements im Array.
+Finds the last index of an element in the array.
 
 ```hyp
 induce numbers = [1, 2, 3, 2, 4, 2, 5];
@@ -152,11 +152,11 @@ induce lastIndex = ArrayLastIndexOf(numbers, 2);
 observe "Letzter Index von 2: " + lastIndex; // 5
 ```
 
-## Array-Filterung
+## Array Filtering
 
 ### FilterArray(arr, condition)
 
-Filtert Array-Elemente basierend auf einer Bedingung.
+Filters array elements based on a condition.
 
 ```hyp
 induce numbers = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
@@ -166,7 +166,7 @@ observe evenNumbers; // [2, 4, 6, 8, 10]
 
 ### RemoveDuplicates(arr)
 
-Entfernt doppelte Elemente aus dem Array.
+Removes duplicate elements from the array.
 
 ```hyp
 induce numbers = [1, 2, 2, 3, 3, 4, 5, 5];
@@ -174,11 +174,11 @@ induce unique = RemoveDuplicates(numbers);
 observe unique; // [1, 2, 3, 4, 5]
 ```
 
-## Array-Transformation
+## Array Transformation
 
 ### MapArray(arr, function)
 
-Wendet eine Funktion auf jedes Element an.
+Applies a function to each element.
 
 ```hyp
 induce numbers = [1, 2, 3, 4, 5];
@@ -188,7 +188,7 @@ observe doubled; // [2, 4, 6, 8, 10]
 
 ### ChunkArray(arr, size)
 
-Teilt ein Array in Chunks der angegebenen Größe.
+Divides an array into chunks of the specified size.
 
 ```hyp
 induce numbers = [1, 2, 3, 4, 5, 6, 7, 8];
@@ -198,7 +198,7 @@ observe chunks; // [[1, 2, 3], [4, 5, 6], [7, 8]]
 
 ### FlattenArray(arr)
 
-Vereinfacht verschachtelte Arrays.
+Flattens nested arrays.
 
 ```hyp
 induce nested = [[1, 2], [3, 4], [5, 6]];
@@ -206,11 +206,11 @@ induce flat = FlattenArray(nested);
 observe flat; // [1, 2, 3, 4, 5, 6]
 ```
 
-## Array-Erstellung
+## Array Creation
 
 ### Range(start, end, step)
 
-Erstellt ein Array mit Zahlen von start bis end.
+Creates an array with numbers from start to end.
 
 ```hyp
 induce range1 = Range(1, 10); // [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
@@ -220,7 +220,7 @@ induce range3 = Range(10, 1, -1); // [10, 9, 8, 7, 6, 5, 4, 3, 2, 1]
 
 ### Repeat(value, count)
 
-Erstellt ein Array mit einem wiederholten Wert.
+Creates an array with a repeated value.
 
 ```hyp
 induce zeros = Repeat(0, 5); // [0, 0, 0, 0, 0]
@@ -229,18 +229,18 @@ induce stars = Repeat("*", 3); // ["*", "*", "*"]
 
 ### CreateArray(size, defaultValue)
 
-Erstellt ein Array mit einer bestimmten Größe und Standardwert.
+Creates an array with a specific size and default value.
 
 ```hyp
 induce emptyArray = CreateArray(5); // [null, null, null, null, null]
 induce filledArray = CreateArray(3, "Hallo"); // ["Hallo", "Hallo", "Hallo"]
 ```
 
-## Array-Statistiken
+## Array Statistics
 
 ### ArrayVariance(arr)
 
-Berechnet die Varianz der Array-Elemente.
+Calculates the variance of array elements.
 
 ```hyp
 induce numbers = [1, 2, 3, 4, 5];
@@ -250,7 +250,7 @@ observe "Varianz: " + variance;
 
 ### ArrayStandardDeviation(arr)
 
-Berechnet die Standardabweichung.
+Calculates the standard deviation.
 
 ```hyp
 induce grades = [85, 92, 78, 96, 88];
@@ -260,7 +260,7 @@ observe "Standardabweichung: " + stdDev;
 
 ### ArrayMedian(arr)
 
-Findet den Median des Arrays.
+Finds the median of the array.
 
 ```hyp
 induce numbers = [1, 3, 5, 7, 9];
@@ -268,11 +268,11 @@ induce median = ArrayMedian(numbers);
 observe "Median: " + median; // 5
 ```
 
-## Array-Vergleiche
+## Array Comparisons
 
 ### ArraysEqual(arr1, arr2)
 
-Vergleicht zwei Arrays auf Gleichheit.
+Compares two arrays for equality.
 
 ```hyp
 induce arr1 = [1, 2, 3];
@@ -284,7 +284,7 @@ induce equal2 = ArraysEqual(arr1, arr3); // false
 
 ### ArrayIntersection(arr1, arr2)
 
-Findet die Schnittmenge zweier Arrays.
+Finds the intersection of two arrays.
 
 ```hyp
 induce arr1 = [1, 2, 3, 4, 5];
@@ -295,7 +295,7 @@ observe intersection; // [3, 4, 5]
 
 ### ArrayUnion(arr1, arr2)
 
-Vereinigt zwei Arrays ohne Duplikate.
+Unites two arrays without duplicates.
 
 ```hyp
 induce arr1 = [1, 2, 3];
@@ -304,9 +304,9 @@ induce union = ArrayUnion(arr1, arr2);
 observe union; // [1, 2, 3, 4, 5]
 ```
 
-## Praktische Beispiele
+## Practical Examples
 
-### Zahlenraten-Spiel
+### Number Guessing Game
 
 ```hyp
 Focus {
@@ -384,13 +384,13 @@ Focus {
 ### Effiziente Array-Operationen
 
 ```hyp
-// Array-Länge einmal berechnen
+// Calculate array length once
 induce length = ArrayLength(arr);
 for (induce i = 0; i < length; induce i = i + 1) {
     // Operationen
 }
 
-// Große Arrays in Chunks verarbeiten
+// Process large arrays in chunks
 induce largeArray = Range(1, 10000);
 induce chunks = ChunkArray(largeArray, 1000);
 for (induce i = 0; i < ArrayLength(chunks); induce i = i + 1) {
@@ -416,13 +416,13 @@ suggestion isValidArray(arr) {
 }
 ```
 
-## Nächste Schritte
+## Next Steps
 
-- [String-Funktionen](./string-functions) - String-Manipulation
-- [Mathematische Funktionen](./math-functions) - Mathematische Operationen
-- [Utility-Funktionen](./utility-functions) - Allgemeine Hilfsfunktionen
-- [Beispiele](../examples/array-examples) - Weitere Array-Beispiele
+- [String Functions](./string-functions) - String manipulation
+- [Mathematical Functions](./math-functions) - Mathematical operations
+- [Utility Functions](./utility-functions) - General helper functions
+- [Examples](../examples/array-examples) - More array examples
 
 ---
 
-**Beherrschst du Array-Funktionen? Dann lerne [String-Funktionen](./string-functions) kennen!** 📝
+**Mastered array functions? Then learn about [String Functions](./string-functions)!** 📝

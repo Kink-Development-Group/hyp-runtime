@@ -95,7 +95,7 @@ export default defineConfig({
   description: 'Code with style - Die hypnotische Programmiersprache',
   base: BASE_PATH,
 
-  // Ignoriere tote Links während der Migration
+  // Ignore dead links during migration
   ignoreDeadLinks: true,
 
   head: [['link', { rel: 'icon', href: `${BASE_PATH}img/favicon.ico` }]],

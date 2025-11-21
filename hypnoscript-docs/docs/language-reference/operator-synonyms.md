@@ -2,31 +2,31 @@
 sidebar_position: 4
 ---
 
-# Hypnotische Operator-Synonyme
+# Hypnotic Operator Synonyms
 
-HypnoScript bietet **hypnotische Aliasnamen** für Standard-Operatoren, die die suggestive Natur der Sprache unterstreichen. Jedes Synonym ist **semantisch identisch** zum Standard-Operator, fügt aber eine theatralische, hypnotische Ebene hinzu.
+HypnoScript offers **hypnotic alias names** for standard operators that emphasize the suggestive nature of the language. Each synonym is **semantically identical** to the standard operator but adds a theatrical, hypnotic layer.
 
-## Philosophie
+## Philosophy
 
 > _"You are feeling very sleepy... Your code is getting deeper... and deeper..."_
 
-HypnoScript behandelt Code als **Suggestion** an den Computer. Die hypnotischen Operator-Synonyme spiegeln diese Metapher wider und machen Code gleichzeitig:
+HypnoScript treats code as a **suggestion** to the computer. The hypnotic operator synonyms reflect this metaphor and make code simultaneously:
 
-- 🎭 **Theatralisch** – Operatoren als hypnotische Formeln
-- 📖 **Lesbar** – Selbsterklärende Bedeutungen
-- 🔄 **Kompatibel** – Mischbar mit Standard-Operatoren
-- 🎨 **Ausdrucksstark** – Verstärkt die hypnotische Thematik
+- 🎭 **Theatrical** – Operators as hypnotic formulas
+- 📖 **Readable** – Self-explanatory meanings
+- 🔄 **Compatible** – Mixable with standard operators
+- 🎨 **Expressive** – Reinforces the hypnotic theme
 
-## Vergleichsoperatoren
+## Comparison Operators
 
-### Gleichheit & Ungleichheit
+### Equality & Inequality
 
-| Standard | Hypnotisches Synonym      | Bedeutung    | Beispiel                      |
-| -------- | ------------------------- | ------------ | ----------------------------- |
-| `==`     | `youAreFeelingVerySleepy` | Gleichheit   | `a youAreFeelingVerySleepy b` |
-| `!=`     | `youCannotResist`         | Ungleichheit | `x youCannotResist y`         |
+| Standard | Hypnotic Synonym          | Meaning    | Example                       |
+| -------- | ------------------------- | ---------- | ----------------------------- |
+| `==`     | `youAreFeelingVerySleepy` | Equality   | `a youAreFeelingVerySleepy b` |
+| `!=`     | `youCannotResist`         | Inequality | `x youCannotResist y`         |
 
-**Verwendung:**
+**Usage:**
 
 ```hyp
 Focus {
@@ -34,33 +34,33 @@ Focus {
         induce age: number = 25;
         induce name: string = "Luna";
 
-        // Standard-Syntax
+        // Standard syntax
         if (age == 25) {
-            observe "Age ist 25";
+            observe "Age is 25";
         }
 
-        // Hypnotische Syntax
+        // Hypnotic syntax
         if (age youAreFeelingVerySleepy 25) {
-            observe "Age ist 25 (hypnotisch)";
+            observe "Age is 25 (hypnotic)";
         }
 
         if (name youCannotResist "Max") {
-            observe "Name ist nicht Max";
+            observe "Name is not Max";
         }
     }
 } Relax
 ```
 
-### Relational (Größer/Kleiner)
+### Relational (Greater/Less)
 
-| Standard | Hypnotisches Synonym      | Bedeutung           | Beispiel                      |
-| -------- | ------------------------- | ------------------- | ----------------------------- |
-| `>`      | `lookAtTheWatch`          | Größer als          | `a lookAtTheWatch b`          |
-| `<`      | `fallUnderMySpell`        | Kleiner als         | `x fallUnderMySpell y`        |
-| `>=`     | `yourEyesAreGettingHeavy` | Größer oder gleich  | `a yourEyesAreGettingHeavy b` |
-| `<=`     | `goingDeeper`             | Kleiner oder gleich | `x goingDeeper y`             |
+| Standard | Hypnotic Synonym          | Meaning              | Example                       |
+| -------- | ------------------------- | -------------------- | ----------------------------- |
+| `>`      | `lookAtTheWatch`          | Greater than         | `a lookAtTheWatch b`          |
+| `<`      | `fallUnderMySpell`        | Less than            | `x fallUnderMySpell y`        |
+| `>=`     | `yourEyesAreGettingHeavy` | Greater or equal     | `a yourEyesAreGettingHeavy b` |
+| `<=`     | `goingDeeper`             | Less or equal        | `x goingDeeper y`             |
 
-**Verwendung:**
+**Usage:**
 
 ```hyp
 Focus {
@@ -68,35 +68,35 @@ Focus {
         induce score: number = 85;
         induce threshold: number = 75;
 
-        // Standard-Syntax
+        // Standard syntax
         if (score > threshold) {
-            observe "Bestanden!";
+            observe "Passed!";
         }
 
-        // Hypnotische Syntax
+        // Hypnotic syntax
         if (score lookAtTheWatch threshold) {
-            observe "Bestanden (hypnotisch)!";
+            observe "Passed (hypnotic)!";
         }
 
         if (score yourEyesAreGettingHeavy 80) {
-            observe "Mindestens 80 Punkte";
+            observe "At least 80 points";
         }
 
         if (score goingDeeper 100) {
-            observe "Unter 100 Punkte";
+            observe "Under 100 points";
         }
     }
 } Relax
 ```
 
-## Logische Operatoren
+## Logical Operators
 
-| Standard | Hypnotisches Synonym | Bedeutung      | Beispiel                 |
+| Standard | Hypnotic Synonym     | Meaning        | Example                  |
 | -------- | -------------------- | -------------- | ------------------------ |
-| `&&`     | `underMyControl`     | Logisches UND  | `a underMyControl b`     |
-| `\|\|`   | `resistanceIsFutile` | Logisches ODER | `x resistanceIsFutile y` |
+| `&&`     | `underMyControl`     | Logical AND    | `a underMyControl b`     |
+| `\|\|`   | `resistanceIsFutile` | Logical OR     | `x resistanceIsFutile y` |
 
-**Verwendung:**
+**Usage:**
 
 ```hyp
 Focus {
@@ -104,36 +104,36 @@ Focus {
         induce age: number = 22;
         induce hasLicense: boolean = true;
 
-        // Standard-Syntax
+        // Standard syntax
         if (age >= 18 && hasLicense == true) {
-            observe "Darf fahren!";
+            observe "May drive!";
         }
 
-        // Hypnotische Syntax
+        // Hypnotic syntax
         if (age yourEyesAreGettingHeavy 18 underMyControl hasLicense youAreFeelingVerySleepy true) {
-            observe "Darf fahren (hypnotisch)!";
+            observe "May drive (hypnotic)!";
         }
 
         induce isWeekend: boolean = false;
         induce isHoliday: boolean = true;
 
         if (isWeekend resistanceIsFutile isHoliday) {
-            observe "Frei heute!";
+            observe "Free today!";
         }
     }
 } Relax
 ```
 
-## Moderne Traum-Semantik
+## Modern Dream Semantics
 
-| Standard | Hypnotisches Synonym | Bedeutung              | Beispiel              |
-| -------- | -------------------- | ---------------------- | --------------------- |
-| `??`     | `lucidFallback`      | Nullish Coalescing     | `x lucidFallback y`   |
-| `?.`     | `dreamReach`         | Optional Chaining      | `obj dreamReach prop` |
-| `?.[`    | `dreamReach[`        | Optional Array Index   | `arr dreamReach[0]`   |
-| `?.(`    | `dreamReach(`        | Optional Function Call | `fn dreamReach(arg)`  |
+| Standard | Hypnotic Synonym | Meaning            | Example               |
+| -------- | ---------------- | ------------------ | --------------------- |
+| `??`     | `lucidFallback`  | Nullish Coalescing | `x lucidFallback y`   |
+| `?.`     | `dreamReach`     | Optional Chaining  | `obj dreamReach prop` |
+| `?.[`    | `dreamReach[`    | Optional Array     | `arr dreamReach[0]`   |
+| `?.(`    | `dreamReach(`    | Optional Call      | `fn dreamReach(arg)`  |
 
-**Verwendung:**
+**Usage:**
 
 ```hyp
 Focus {
@@ -150,10 +150,10 @@ Focus {
     entrance {
         induce maybeValue: number = null;
 
-        // Standard-Syntax
+        // Standard syntax
         induce defaulted: number = maybeValue ?? 100;
 
-        // Hypnotische Syntax
+        // Hypnotic syntax
         induce defaulted2: number = maybeValue lucidFallback 100;
 
         observe "Defaulted: " + defaulted2;  // 100
@@ -167,19 +167,19 @@ Focus {
 } Relax
 ```
 
-## Legacy-Synonyme (Veraltet)
+## Legacy Synonyms (Deprecated)
 
-Diese Synonyme existieren aus historischen Gründen, sollten aber **nicht mehr verwendet** werden:
+These synonyms exist for historical reasons but should **no longer be used**:
 
-| Veraltet        | Ersetzt durch             | Standard |
+| Deprecated      | Replaced by               | Standard |
 | --------------- | ------------------------- | -------- |
 | `notSoDeep`     | `youCannotResist`         | `!=`     |
 | `deeplyGreater` | `yourEyesAreGettingHeavy` | `>=`     |
 | `deeplyLess`    | `goingDeeper`             | `<=`     |
 
-## Kombinierte Beispiele
+## Combined Examples
 
-### Hypnotische Arithmetik mit Guards
+### Hypnotic Arithmetic with Guards
 
 ```hyp
 Focus {
@@ -188,20 +188,20 @@ Focus {
         induce y: number = 42;
         induce z: number = 100;
 
-        // Kombiniere mehrere hypnotische Operatoren
+        // Combine multiple hypnotic operators
         if ((x goingDeeper 100) resistanceIsFutile (y yourEyesAreGettingHeavy 50)) {
-            observe "Bedingung erfüllt – trance tiefer!";
+            observe "Condition met – go deeper!";
         }
 
-        // Komplexer Ausdruck
+        // Complex expression
         if ((x lookAtTheWatch 5) underMyControl (y fallUnderMySpell 50) underMyControl (z youAreFeelingVerySleepy 100)) {
-            observe "x > 5 UND y < 50 UND z == 100";
+            observe "x > 5 AND y < 50 AND z == 100";
         }
     }
 } Relax
 ```
 
-### Pattern Matching mit Synonymen
+### Pattern Matching with Synonyms
 
 ```hyp
 Focus {
@@ -209,18 +209,18 @@ Focus {
         induce score: number = 85;
 
         induce grade: string = entrain score {
-            when s: number if s yourEyesAreGettingHeavy 90 => awaken "Sehr gut"
-            when s: number if s yourEyesAreGettingHeavy 75 => awaken "Gut"
-            when s: number if s yourEyesAreGettingHeavy 60 => awaken "Befriedigend"
-            otherwise => awaken "Nicht bestanden"
+            when s: number if s yourEyesAreGettingHeavy 90 => awaken "Excellent"
+            when s: number if s yourEyesAreGettingHeavy 75 => awaken "Good"
+            when s: number if s yourEyesAreGettingHeavy 60 => awaken "Satisfactory"
+            otherwise => awaken "Not passed"
         };
 
-        observe "Note: " + grade;
+        observe "Grade: " + grade;
     }
 } Relax
 ```
 
-### Null-Safety mit Hypnose
+### Null-Safety with Hypnosis
 
 ```hyp
 Focus {
@@ -232,29 +232,29 @@ Focus {
     entrance {
         induce maybeUser: User = null;
 
-        // Kombiniere dreamReach und lucidFallback
+        // Combine dreamReach and lucidFallback
         induce userName: string = maybeUser dreamReach name lucidFallback "Guest";
         induce userEmail: string = maybeUser dreamReach email lucidFallback "no@email.com";
 
         observe "User: " + userName;  // "Guest"
         observe "Email: " + userEmail;  // "no@email.com"
 
-        // Mit Vergleich
+        // With comparison
         if (userName youCannotResist "Guest") {
-            observe "Eingeloggter Benutzer!";
+            observe "Logged in user!";
         }
     }
 } Relax
 ```
 
-## Stil-Guidelines
+## Style Guidelines
 
-### Konsistente Hypnose
+### Consistent Hypnosis
 
-Wähle **einen Stil** pro Datei/Modul und bleibe dabei:
+Choose **one style** per file/module and stick with it:
 
 ```hyp
-// ✅ Konsistent hypnotisch
+// ✅ Consistently hypnotic
 Focus {
     entrance {
         if ((age yourEyesAreGettingHeavy 18) underMyControl (hasLicense youAreFeelingVerySleepy true)) {
@@ -263,7 +263,7 @@ Focus {
     }
 } Relax
 
-// ✅ Konsistent standard
+// ✅ Consistently standard
 Focus {
     entrance {
         if ((age >= 18) && (hasLicense == true)) {
@@ -272,54 +272,54 @@ Focus {
     }
 } Relax
 
-// ❌ Gemischt (schwer lesbar)
+// ❌ Mixed (hard to read)
 Focus {
     entrance {
         if ((age yourEyesAreGettingHeavy 18) && (hasLicense == true)) {
-            observe "Inkonsistent";
+            observe "Inconsistent";
         }
     }
 } Relax
 ```
 
-### Wann hypnotische Syntax verwenden?
+### When to Use Hypnotic Syntax?
 
-| Szenario                    | Empfehlung                             |
-| --------------------------- | -------------------------------------- |
-| **Produktions-Code**        | Standard-Operatoren (`==`, `>=`, etc.) |
-| **Experimentelle Projekte** | Hypnotische Synonyme für Flair         |
-| **Hypnose-Thematik**        | Konsequent hypnotisch                  |
-| **Tutorials/Demos**         | Standard (vertraut für Einsteiger)     |
-| **Code-Golf/Kunst**         | Hypnotisch (maximaler Ausdruck)        |
+| Scenario                 | Recommendation                         |
+| ------------------------ | -------------------------------------- |
+| **Production code**      | Standard operators (`==`, `>=`, etc.)  |
+| **Experimental projects**| Hypnotic synonyms for flair            |
+| **Hypnosis theme**       | Consistently hypnotic                  |
+| **Tutorials/Demos**      | Standard (familiar to beginners)       |
+| **Code golf/Art**        | Hypnotic (maximum expression)          |
 
-## Vollständige Referenztabelle
+## Complete Reference Table
 
-| Kategorie      | Standard | Hypnotisch                | Bedeutung          |
+| Category       | Standard | Hypnotic                  | Meaning            |
 | -------------- | -------- | ------------------------- | ------------------ |
-| **Gleichheit** | `==`     | `youAreFeelingVerySleepy` | Gleich             |
-|                | `!=`     | `youCannotResist`         | Ungleich           |
-| **Relational** | `>`      | `lookAtTheWatch`          | Größer             |
-|                | `<`      | `fallUnderMySpell`        | Kleiner            |
-|                | `>=`     | `yourEyesAreGettingHeavy` | Größer-gleich      |
-|                | `<=`     | `goingDeeper`             | Kleiner-gleich     |
-| **Logisch**    | `&&`     | `underMyControl`          | UND                |
-|                | `\|\|`   | `resistanceIsFutile`      | ODER               |
+| **Equality**   | `==`     | `youAreFeelingVerySleepy` | Equal              |
+|                | `!=`     | `youCannotResist`         | Not equal          |
+| **Relational** | `>`      | `lookAtTheWatch`          | Greater            |
+|                | `<`      | `fallUnderMySpell`        | Less               |
+|                | `>=`     | `yourEyesAreGettingHeavy` | Greater-or-equal   |
+|                | `<=`     | `goingDeeper`             | Less-or-equal      |
+| **Logical**    | `&&`     | `underMyControl`          | AND                |
+|                | `\|\|`   | `resistanceIsFutile`      | OR                 |
 | **Nullish**    | `??`     | `lucidFallback`           | Nullish-Coalescing |
 |                | `?.`     | `dreamReach`              | Optional-Chaining  |
 
 ## Case-Insensitivity
 
-Alle hypnotischen Operatoren sind **case-insensitive**:
+All hypnotic operators are **case-insensitive**:
 
 ```hyp
-// Alle Varianten funktionieren
+// All variants work
 youAreFeelingVerySleepy
 YOUAREFEELINGVERYSLEEPY
 youarefeelingverysleepy
 YouAreFeelingVerySleepy
 ```
 
-Die **kanonische Form** (in Fehlermeldungen und Dokumentation) ist **camelCase**:
+The **canonical form** (in error messages and documentation) is **camelCase**:
 
 - `youAreFeelingVerySleepy`
 - `yourEyesAreGettingHeavy`
@@ -327,57 +327,57 @@ Die **kanonische Form** (in Fehlermeldungen und Dokumentation) ist **camelCase**
 
 ## Performance
 
-- **Keine Laufzeit-Overhead**: Synonyme werden zu Standard-Operatoren kompiliert
-- **Identische Performance**: `a youAreFeelingVerySleepy b` == `a == b`
-- **Keine Größen-Unterschiede**: Binärdatei-Größe unverändert
+- **No runtime overhead**: Synonyms are compiled to standard operators
+- **Identical performance**: `a youAreFeelingVerySleepy b` == `a == b`
+- **No size differences**: Binary file size unchanged
 
 ## Best Practices
 
 ### ✅ Do's
 
 ```hyp
-// ✓ Konsistenter Stil innerhalb einer Datei
+// ✓ Consistent style within a file
 if (x yourEyesAreGettingHeavy 10 underMyControl y fallUnderMySpell 20) { ... }
 
-// ✓ Lesbare Kombinationen
+// ✓ Readable combinations
 induce result = value lucidFallback default;
 
-// ✓ Selbsterklärende Guards
+// ✓ Self-explanatory guards
 when n: number if n lookAtTheWatch 100 => ...
 ```
 
 ### ❌ Don'ts
 
 ```hyp
-// ✗ Mische nicht Standard und Hypnotisch
+// ✗ Don't mix standard and hypnotic
 if (x >= 10 underMyControl y < 20) { ... }
 
-// ✗ Übertreibe es nicht
+// ✗ Don't overdo it
 if ((((a youAreFeelingVerySleepy b) underMyControl (c lookAtTheWatch d)) resistanceIsFutile ...)) { ... }
 
-// ✗ Verwende keine veralteten Synonyme
-if (x notSoDeep 5) { ... }  // Verwende youCannotResist
+// ✗ Don't use deprecated synonyms
+if (x notSoDeep 5) { ... }  // Use youCannotResist
 ```
 
-## Zusammenfassung
+## Summary
 
-Hypnotische Operator-Synonyme sind:
+Hypnotic operator synonyms are:
 
-- ✅ **Semantisch identisch** zu Standard-Operatoren
-- ✅ **Case-insensitive** (empfohlen: camelCase)
-- ✅ **Performance-neutral** (keine Overhead)
-- ✅ **Optional** (Standard-Operatoren bleiben gültig)
-- ✅ **Ausdrucksstark** (verstärkt hypnotische Thematik)
+- ✅ **Semantically identical** to standard operators
+- ✅ **Case-insensitive** (recommended: camelCase)
+- ✅ **Performance-neutral** (no overhead)
+- ✅ **Optional** (standard operators remain valid)
+- ✅ **Expressive** (reinforces hypnotic theme)
 
-Nutze sie **konsistent** oder **gar nicht** – Mischungen reduzieren Lesbarkeit!
+Use them **consistently** or **not at all** – mixing reduces readability!
 
-## Nächste Schritte
+## Next Steps
 
-- [Operators](./operators) – Vollständige Operator-Referenz
-- [Nullish Operators](./nullish-operators) – Moderne Traum-Semantik
-- [Pattern Matching](./pattern-matching) – Guards mit Synonymen
-- [Syntax](./syntax) – Grundlegende Syntax-Regeln
+- [Operators](./operators) – Complete operator reference
+- [Nullish Operators](./nullish-operators) – Modern dream semantics
+- [Pattern Matching](./pattern-matching) – Guards with synonyms
+- [Syntax](./syntax) – Basic syntax rules
 
 ---
 
-**Bereit für hypnotische Operationen? Nutze Synonyme für maximale Suggestion!** 🌀
+**Ready for hypnotic operations? Use synonyms for maximum suggestion!** 🌀

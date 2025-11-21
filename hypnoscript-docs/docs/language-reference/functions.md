@@ -2,89 +2,89 @@
 sidebar_position: 5
 ---
 
-# Funktionen
+# Functions
 
-Funktionen in HypnoScript werden mit dem Schlüsselwort `suggestion` definiert und ermöglichen die Modularisierung und Wiederverwendung von Code.
+Functions in HypnoScript are defined with the keyword `suggestion` and enable modularization and code reuse.
 
-## Funktionsdefinition
+## Function Definition
 
-### Grundlegende Syntax
+### Basic Syntax
 
 ```hyp
-suggestion funktionsName(parameter1: type1, parameter2: type2): returnType {
-    // Funktionskörper
-    awaken wert; // Return-Statement
+suggestion functionName(parameter1: type1, parameter2: type2): returnType {
+    // Function body
+    awaken value; // Return statement
 }
 ```
 
-### Einfache Funktion ohne Parameter
+### Simple Function without Parameters
 
 ```hyp
 Focus {
-    suggestion begruessung() {
-        observe "Hallo, HypnoScript!";
+    suggestion greeting() {
+        observe "Hello, HypnoScript!";
     }
 
     entrance {
-        begruessung();
+        greeting();
     }
 } Relax;
 ```
 
-### Funktion mit Parametern
+### Function with Parameters
 
 ```hyp
 Focus {
-    suggestion begruesse(name) {
-        observe "Hallo, " + name + "!";
+    suggestion greet(name) {
+        observe "Hello, " + name + "!";
     }
 
     entrance {
-        begruesse("Max");
-        begruesse("Anna");
+        greet("Max");
+        greet("Anna");
     }
 } Relax;
 ```
 
-### Funktion mit Rückgabewert
+### Function with Return Value
 
 ```hyp
 Focus {
-    suggestion addiere(a, b) {
+    suggestion add(a, b) {
         awaken a + b;
     }
 
-    suggestion istGerade(zahl) {
-        awaken zahl % 2 == 0;
+    suggestion isEven(number) {
+        awaken number % 2 == 0;
     }
 
     entrance {
-        induce summe = addiere(5, 3);
-        observe "5 + 3 = " + summe;
+        induce sum = add(5, 3);
+        observe "5 + 3 = " + sum;
 
-        induce check = istGerade(42);
-        observe "42 ist gerade: " + check;
+        induce check = isEven(42);
+        observe "42 is even: " + check;
     }
 } Relax;
 ```
 
-## Parameter
+## Parameters
 
-### Mehrere Parameter
+### Multiple Parameters
 
 ```hyp
 Focus {
-    suggestion rechteckFlaeche(breite, hoehe) {
-        awaken breite * hoehe;
+    suggestion rectangleArea(width, height) {
+        awaken width * height;
     }
 
-    suggestion personInfo(name, alter, stadt) {
-        awaken "Name: " + name + ", Alter: " + alter + ", Stadt: " + stadt;
+    suggestion personInfo(name, age, city) {
+        awaken "Name: " + name + ", Age: " + age + ", City: " + city;
     }
 
     entrance {
-        induce flaeche = rechteckFlaeche(10, 5);
-        observe "Fläche: " + flaeche;
+        induce area = rectangleArea(10, 5);
+        observe "Area: " + area;
 
         induce info = personInfo("Max", 30, "Berlin");
         observe info;
@@ -92,30 +92,30 @@ Focus {
 } Relax;
 ```
 
-### Parameter mit Standardwerten
+### Parameters with Default Values
 
 ```hyp
 Focus {
-    suggestion begruesse(name, titel = "Herr/Frau") {
-        observe titel + " " + name + ", willkommen!";
+    suggestion greet(name, title = "Mr./Ms.") {
+        observe title + " " + name + ", welcome!";
     }
 
     entrance {
-        begruesse("Mustermann"); // Verwendet Standardtitel
-        begruesse("Schmidt", "Dr."); // Überschreibt Standardtitel
+        greet("Mustermann"); // Uses default title
+        greet("Schmidt", "Dr."); // Overrides default title
     }
 } Relax;
 ```
 
-## Rekursive Funktionen
+## Recursive Functions
 
 ```hyp
 Focus {
-    suggestion fakultaet(n) {
+    suggestion factorial(n) {
         if (n <= 1) {
             awaken 1;
         } else {
-            return n * fakultaet(n - 1);
+            return n * factorial(n - 1);
         }
     }
 
@@ -128,7 +128,7 @@ Focus {
     }
 
     entrance {
-        induce fact5 = fakultaet(5);
+        induce fact5 = factorial(5);
         observe "5! = " + fact5;
 
         induce fib10 = fibonacci(10);
@@ -137,178 +137,178 @@ Focus {
 } Relax;
 ```
 
-## Funktionen mit Arrays
+## Functions with Arrays
 
 ```hyp
 Focus {
-    suggestion arraySumme(zahlen) {
-        induce summe = 0;
-        for (induce i = 0; i < ArrayLength(zahlen); induce i = i + 1) {
-            induce summe = summe + ArrayGet(zahlen, i);
+    suggestion arraySum(numbers) {
+        induce sum = 0;
+        for (induce i = 0; i < ArrayLength(numbers); induce i = i + 1) {
+            induce sum = sum + ArrayGet(numbers, i);
         }
-        return summe;
+        return sum;
     }
 
-    suggestion findeMaximum(zahlen) {
-        if (ArrayLength(zahlen) == 0) {
+    suggestion findMaximum(numbers) {
+        if (ArrayLength(numbers) == 0) {
             awaken null;
         }
 
-        induce max = ArrayGet(zahlen, 0);
-        for (induce i = 1; i < ArrayLength(zahlen); induce i = i + 1) {
-            induce wert = ArrayGet(zahlen, i);
-            if (wert > max) {
-                induce max = wert;
+        induce max = ArrayGet(numbers, 0);
+        for (induce i = 1; i < ArrayLength(numbers); induce i = i + 1) {
+            induce value = ArrayGet(numbers, i);
+            if (value > max) {
+                induce max = value;
             }
         }
         return max;
     }
 
-    suggestion filterGerade(zahlen) {
-        induce ergebnis = [];
-        for (induce i = 0; i < ArrayLength(zahlen); induce i = i + 1) {
-            induce zahl = ArrayGet(zahlen, i);
-            if (zahl % 2 == 0) {
-                // Array erweitern (vereinfacht)
-                observe "Gerade Zahl gefunden: " + zahl;
+    suggestion filterEven(numbers) {
+        induce result = [];
+        for (induce i = 0; i < ArrayLength(numbers); induce i = i + 1) {
+            induce number = ArrayGet(numbers, i);
+            if (number % 2 == 0) {
+                // Extend array (simplified)
+                observe "Even number found: " + number;
             }
         }
-        return ergebnis;
+        return result;
     }
 
     entrance {
-        induce testZahlen = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
+        induce testNumbers = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
 
-        induce summe = arraySumme(testZahlen);
-        observe "Summe: " + summe;
+        induce sum = arraySum(testNumbers);
+        observe "Sum: " + sum;
 
-        induce max = findeMaximum(testZahlen);
+        induce max = findMaximum(testNumbers);
         observe "Maximum: " + max;
 
-        filterGerade(testZahlen);
+        filterEven(testNumbers);
     }
 } Relax;
 ```
 
-## Funktionen mit Records
+## Functions with Records
 
 ```hyp
 Focus {
-    suggestion erstellePerson(name, alter, stadt) {
+    suggestion createPerson(name, age, city) {
         awaken {
             name: name,
-            alter: alter,
-            stadt: stadt,
-            volljaehrig: alter >= 18
+            age: age,
+            city: city,
+            ofLegalAge: age >= 18
         };
     }
 
     suggestion personInfo(person) {
-        awaken person.name + " (" + person.alter + ") aus " + person.stadt;
+        awaken person.name + " (" + person.age + ") from " + person.city;
     }
 
-    suggestion istVolljaehrig(person) {
-        awaken person.volljaehrig;
+    suggestion isOfLegalAge(person) {
+        awaken person.ofLegalAge;
     }
 
     entrance {
-        induce person1 = erstellePerson("Max", 25, "Berlin");
-        induce person2 = erstellePerson("Anna", 16, "Hamburg");
+        induce person1 = createPerson("Max", 25, "Berlin");
+        induce person2 = createPerson("Anna", 16, "Hamburg");
 
         observe personInfo(person1);
         observe personInfo(person2);
 
-        observe "Max ist volljährig: " + istVolljaehrig(person1);
-        observe "Anna ist volljährig: " + istVolljaehrig(person2);
+        observe "Max is of legal age: " + isOfLegalAge(person1);
+        observe "Anna is of legal age: " + isOfLegalAge(person2);
     }
 } Relax;
 ```
 
-## Hilfsfunktionen
+## Helper Functions
 
 ```hyp
 Focus {
-    suggestion validiereAlter(alter) {
-        awaken alter >= 0 && alter <= 150;
+    suggestion validateAge(age) {
+        awaken age >= 0 && age <= 150;
     }
 
-    suggestion validiereEmail(email) {
-        // Einfache E-Mail-Validierung
+    suggestion validateEmail(email) {
+        // Simple email validation
         awaken Length(email) > 0 && email != null;
     }
 
-    suggestion berechneBMI(gewicht, groesse) {
-        if (groesse <= 0) {
+    suggestion calculateBMI(weight, height) {
+        if (height <= 0) {
             awaken null;
         }
-        return gewicht / (groesse * groesse);
+        return weight / (height * height);
     }
 
-    suggestion bmiKategorie(bmi) {
+    suggestion bmiCategory(bmi) {
         if (bmi == null) {
-            awaken "Ungültig";
+            awaken "Invalid";
         } else if (bmi < 18.5) {
-            return "Untergewicht";
+            return "Underweight";
         } else if (bmi < 25) {
-            return "Normalgewicht";
+            return "Normal weight";
         } else if (bmi < 30) {
-            return "Übergewicht";
+            return "Overweight";
         } else {
-            return "Adipositas";
+            return "Obesity";
         }
     }
 
     entrance {
-        induce alter = 25;
+        induce age = 25;
         induce email = "test@example.com";
-        induce gewicht = 70;
-        induce groesse = 1.75;
+        induce weight = 70;
+        induce height = 1.75;
 
-        if (validiereAlter(alter)) {
-            observe "Alter ist gültig";
+        if (validateAge(age)) {
+            observe "Age is valid";
         }
 
-        if (validiereEmail(email)) {
-            observe "E-Mail ist gültig";
+        if (validateEmail(email)) {
+            observe "Email is valid";
         }
 
-        induce bmi = berechneBMI(gewicht, groesse);
-        induce kategorie = bmiKategorie(bmi);
-        observe "BMI: " + bmi + " (" + kategorie + ")";
+        induce bmi = calculateBMI(weight, height);
+        induce category = bmiCategory(bmi);
+        observe "BMI: " + bmi + " (" + category + ")";
     }
 } Relax;
 ```
 
-## Mathematische Funktionen
+## Mathematical Functions
 
 ```hyp
 Focus {
-    suggestion potenz(basis, exponent) {
+    suggestion power(base, exponent) {
         if (exponent == 0) {
             awaken 1;
         }
 
-        induce ergebnis = 1;
+        induce result = 1;
         for (induce i = 1; i <= exponent; induce i = i + 1) {
-            induce ergebnis = ergebnis * basis;
+            induce result = result * base;
         }
-        return ergebnis;
+        return result;
     }
 
-    suggestion istPrimzahl(zahl) {
-        if (zahl < 2) {
+    suggestion isPrime(number) {
+        if (number < 2) {
             awaken false;
         }
 
-        for (induce i = 2; i * i <= zahl; induce i = i + 1) {
-            if (zahl % i == 0) {
+        for (induce i = 2; i * i <= number; induce i = i + 1) {
+            if (number % i == 0) {
                 return false;
             }
         }
         return true;
     }
 
-    suggestion ggT(a, b) {
+    suggestion gcd(a, b) {
         while (b != 0) {
             induce temp = b;
             induce b = a % b;
@@ -318,87 +318,87 @@ Focus {
     }
 
     entrance {
-        observe "2^10 = " + potenz(2, 10);
-        observe "17 ist Primzahl: " + istPrimzahl(17);
-        observe "GGT von 48 und 18: " + ggT(48, 18);
+        observe "2^10 = " + power(2, 10);
+        observe "17 is prime: " + isPrime(17);
+        observe "GCD of 48 and 18: " + gcd(48, 18);
     }
 } Relax;
 ```
 
 ## Best Practices
 
-### Funktionen benennen
+### Naming Functions
 
 ```hyp
-// Gut - beschreibende Namen
-suggestion berechneDurchschnitt(zahlen) { ... }
-suggestion istGueltigeEmail(email) { ... }
-suggestion formatiereDatum(datum) { ... }
+// Good - descriptive names
+suggestion calculateAverage(numbers) { ... }
+suggestion isValidEmail(email) { ... }
+suggestion formatDate(date) { ... }
 
-// Schlecht - unklare Namen
+// Bad - unclear names
 suggestion calc(arr) { ... }
 suggestion check(str) { ... }
 suggestion format(d) { ... }
 ```
 
-### Einzelverantwortlichkeit
+### Single Responsibility
 
 ```hyp
-// Gut - eine Funktion, eine Aufgabe
-suggestion validiereAlter(alter) {
-    awaken alter >= 0 && alter <= 150;
+// Good - one function, one task
+suggestion validateAge(age) {
+    awaken age >= 0 && age <= 150;
 }
 
-suggestion berechneAltersgruppe(alter) {
-    if (alter < 18) awaken "Jugendlich";
-    if (alter < 65) return "Erwachsen";
+suggestion calculateAgeGroup(age) {
+    if (age < 18) awaken "Youth";
+    if (age < 65) return "Adult";
     return "Senior";
 }
 
-// Schlecht - zu viele Aufgaben in einer Funktion
-suggestion verarbeitePerson(alter, name, email) {
-    // Validierung, Berechnung, Formatierung alles in einer Funktion
+// Bad - too many tasks in one function
+suggestion processPerson(age, name, email) {
+    // Validation, calculation, formatting all in one function
 }
 ```
 
-### Fehlerbehandlung
+### Error Handling
 
 ```hyp
 Focus {
-    suggestion sichereDivision(a, b) {
+    suggestion safeDivision(a, b) {
         if (b == 0) {
-            observe "Fehler: Division durch Null!";
+            observe "Error: Division by zero!";
             awaken null;
         }
         return a / b;
     }
 
-    suggestion arrayElementSicher(arr, index) {
+    suggestion arrayElementSafe(arr, index) {
         if (index < 0 || index >= ArrayLength(arr)) {
-            observe "Fehler: Index außerhalb des Bereichs!";
+            observe "Error: Index out of range!";
             awaken null;
         }
         return ArrayGet(arr, index);
     }
 
     entrance {
-        induce ergebnis1 = sichereDivision(10, 0);
-        induce ergebnis2 = sichereDivision(10, 2);
+        induce result1 = safeDivision(10, 0);
+        induce result2 = safeDivision(10, 2);
 
-        induce zahlen = [1, 2, 3];
-        induce element1 = arrayElementSicher(zahlen, 5);
-        induce element2 = arrayElementSicher(zahlen, 1);
+        induce numbers = [1, 2, 3];
+        induce element1 = arrayElementSafe(numbers, 5);
+        induce element2 = arrayElementSafe(numbers, 1);
     }
 } Relax;
 ```
 
-## Nächste Schritte
+## Next Steps
 
-- [Sessions](./sessions) - Session-Management
-- [Tranceify](./tranceify) - Hypnotische Anwendungen
-- [Arrays](./arrays) - Array-Operationen
-- [Records](./records) - Objekt-Programmierung
+- [Sessions](./sessions) - Session management
+- [Tranceify](./tranceify) - Hypnotic applications
+- [Arrays](./arrays) - Array operations
+- [Records](./records) - Object programming
 
 ---
 
-**Beherrschst du Funktionen? Dann lerne [Sessions](./sessions) kennen!** 🧠
+**Mastered functions? Then learn about [Sessions](./sessions)!** 🧠

@@ -1,37 +1,37 @@
 # Runtime API Management
 
-HypnoScript bietet umfassende API-Management-Funktionen für Runtime-Umgebungen, einschließlich API-Design, Versionierung, Rate Limiting, Authentifizierung und umfassende Dokumentation.
+HypnoScript provides comprehensive API management features for runtime environments, including API design, versioning, rate limiting, authentication, and comprehensive documentation.
 
-## API-Design
+## API Design
 
-### RESTful API-Struktur
+### RESTful API Structure
 
 ```hyp
-// API-Basis-Konfiguration
+// API Base Configuration
 api {
-    // Basis-URL-Konfiguration
+    // Base URL Configuration
     base_url: {
         development: "http://localhost:8080/api/v1"
         staging: "https://api-staging.example.com/api/v1"
         production: "https://api.example.com/api/v1"
     }
 
-    // API-Versionierung
+    // API Versioning
     versioning: {
         strategy: "url_path"
         current_version: "v1"
         supported_versions: ["v1", "v2"]
         deprecated_versions: ["v0"]
 
-        // Version-Migration
+        // Version Migration
         migration: {
-            grace_period: 365  // Tage
-            notification_interval: 30  // Tage
+            grace_period: 365  // days
+            notification_interval: 30  // days
             auto_redirect: true
         }
     }
 
-    // Content-Type-Konfiguration
+    // Content-Type Configuration
     content_types: {
         request: ["application/json", "application/xml"]
         response: ["application/json", "application/xml"]
@@ -40,26 +40,26 @@ api {
 }
 ```
 
-### Endpoint-Definitionen
+### Endpoint Definitions
 
 ```hyp
-// API-Endpoints
+// API Endpoints
 endpoints {
-    // Script-Management
+    // Script Management
     scripts: {
-        // Scripts auflisten
+        // List scripts
         list: {
             method: "GET"
             path: "/scripts"
-            description: "Liste aller Scripts abrufen"
+            description: "Retrieve list of all scripts"
 
-            // Query-Parameter
+            // Query Parameters
             query_params: {
                 page: {
                     type: "integer"
                     default: 1
                     min: 1
-                    description: "Seitennummer"
+                    description: "Page number"
                 }
 
                 size: {
@@ -67,45 +67,45 @@ endpoints {
                     default: 20
                     min: 1
                     max: 100
-                    description: "Anzahl Einträge pro Seite"
+                    description: "Number of entries per page"
                 }
 
                 status: {
                     type: "string"
                     enum: ["draft", "active", "archived"]
-                    description: "Script-Status filtern"
+                    description: "Filter by script status"
                 }
 
                 created_by: {
                     type: "uuid"
-                    description: "Nach Ersteller filtern"
+                    description: "Filter by creator"
                 }
 
                 search: {
                     type: "string"
                     min_length: 2
-                    description: "Suche in Name und Inhalt"
+                    description: "Search in name and content"
                 }
 
                 sort: {
                     type: "string"
                     enum: ["name", "created_at", "updated_at", "execution_count"]
                     default: "created_at"
-                    description: "Sortierfeld"
+                    description: "Sort field"
                 }
 
                 order: {
                     type: "string"
                     enum: ["asc", "desc"]
                     default: "desc"
-                    description: "Sortierreihenfolge"
+                    description: "Sort order"
                 }
             }
 
-            // Response-Schema
+            // Response Schema
             response: {
                 200: {
-                    description: "Erfolgreiche Abfrage"
+                    description: "Successful query"
                     schema: {
                         type: "object"
                         properties: {
@@ -126,21 +126,21 @@ endpoints {
                 }
 
                 400: {
-                    description: "Ungültige Parameter"
+                    description: "Invalid parameters"
                     schema: {
                         $ref: "#/components/schemas/Error"
                     }
                 }
 
                 401: {
-                    description: "Nicht authentifiziert"
+                    description: "Not authenticated"
                     schema: {
                         $ref: "#/components/schemas/Error"
                     }
                 }
 
                 403: {
-                    description: "Keine Berechtigung"
+                    description: "No permission"
                     schema: {
                         $ref: "#/components/schemas/Error"
                     }
@@ -148,13 +148,13 @@ endpoints {
             }
         }
 
-        // Script erstellen
+        // Create script
         create: {
             method: "POST"
             path: "/scripts"
-            description: "Neues Script erstellen"
+            description: "Create new script"
 
-            // Request-Schema
+            // Request Schema
             request: {
                 content_type: "application/json"
                 schema: {
@@ -166,20 +166,20 @@ endpoints {
                             min_length: 1
                             max_length: 255
                             pattern: "^[a-zA-Z0-9_\\-\\.]+$"
-                            description: "Eindeutiger Script-Name"
+                            description: "Unique script name"
                         }
 
                         content: {
                             type: "string"
                             min_length: 1
                             max_length: 100000
-                            description: "Script-Inhalt"
+                            description: "Script content"
                         }
 
                         description: {
                             type: "string"
                             max_length: 1000
-                            description: "Script-Beschreibung"
+                            description: "Script description"
                         }
 
                         tags: {
@@ -189,35 +189,35 @@ endpoints {
                                 max_length: 50
                             }
                             max_items: 10
-                            description: "Script-Tags"
+                            description: "Script tags"
                         }
 
                         metadata: {
                             type: "object"
-                            description: "Zusätzliche Metadaten"
+                            description: "Additional metadata"
                         }
                     }
                 }
             }
 
-            // Response-Schema
+            // Response Schema
             response: {
                 201: {
-                    description: "Script erfolgreich erstellt"
+                    description: "Script successfully created"
                     schema: {
                         $ref: "#/components/schemas/Script"
                     }
                 }
 
                 400: {
-                    description: "Ungültige Eingabedaten"
+                    description: "Invalid input data"
                     schema: {
                         $ref: "#/components/schemas/ValidationError"
                     }
                 }
 
                 409: {
-                    description: "Script-Name bereits vorhanden"
+                    description: "Script name already exists"
                     schema: {
                         $ref: "#/components/schemas/Error"
                     }
@@ -225,31 +225,31 @@ endpoints {
             }
         }
 
-        // Script abrufen
+        // Retrieve script
         get: {
             method: "GET"
             path: "/scripts/{script_id}"
-            description: "Einzelnes Script abrufen"
+            description: "Retrieve single script"
 
-            // Path-Parameter
+            // Path Parameters
             path_params: {
                 script_id: {
                     type: "uuid"
-                    description: "Script-ID"
+                    description: "Script ID"
                 }
             }
 
-            // Response-Schema
+            // Response Schema
             response: {
                 200: {
-                    description: "Script gefunden"
+                    description: "Script found"
                     schema: {
                         $ref: "#/components/schemas/Script"
                     }
                 }
 
                 404: {
-                    description: "Script nicht gefunden"
+                    description: "Script not found"
                     schema: {
                         $ref: "#/components/schemas/Error"
                     }
@@ -257,16 +257,16 @@ endpoints {
             }
         }
 
-        // Script aktualisieren
+        // Update script
         update: {
             method: "PUT"
             path: "/scripts/{script_id}"
-            description: "Script aktualisieren"
+            description: "Update script"
 
             path_params: {
                 script_id: {
                     type: "uuid"
-                    description: "Script-ID"
+                    description: "Script ID"
                 }
             }
 
@@ -311,14 +311,14 @@ endpoints {
 
             response: {
                 200: {
-                    description: "Script erfolgreich aktualisiert"
+                    description: "Script successfully updated"
                     schema: {
                         $ref: "#/components/schemas/Script"
                     }
                 }
 
                 404: {
-                    description: "Script nicht gefunden"
+                    description: "Script not found"
                     schema: {
                         $ref: "#/components/schemas/Error"
                     }
@@ -326,26 +326,26 @@ endpoints {
             }
         }
 
-        // Script löschen
+        // Delete script
         delete: {
             method: "DELETE"
             path: "/scripts/{script_id}"
-            description: "Script löschen"
+            description: "Delete script"
 
             path_params: {
                 script_id: {
                     type: "uuid"
-                    description: "Script-ID"
+                    description: "Script ID"
                 }
             }
 
             response: {
                 204: {
-                    description: "Script erfolgreich gelöscht"
+                    description: "Script successfully deleted"
                 }
 
                 404: {
-                    description: "Script nicht gefunden"
+                    description: "Script not found"
                     schema: {
                         $ref: "#/components/schemas/Error"
                     }
@@ -354,18 +354,18 @@ endpoints {
         }
     }
 
-    // Script-Ausführung
+    // Script Execution
     executions: {
-        // Script ausführen
+        // Execute script
         execute: {
             method: "POST"
             path: "/scripts/{script_id}/execute"
-            description: "Script ausführen"
+            description: "Execute script"
 
             path_params: {
                 script_id: {
                     type: "uuid"
-                    description: "Script-ID"
+                    description: "Script ID"
                 }
             }
 
@@ -376,7 +376,7 @@ endpoints {
                     properties: {
                         parameters: {
                             type: "object"
-                            description: "Script-Parameter"
+                            description: "Script parameters"
                         }
 
                         timeout: {
@@ -384,19 +384,19 @@ endpoints {
                             min: 1
                             max: 3600
                             default: 300
-                            description: "Timeout in Sekunden"
+                            description: "Timeout in seconds"
                         }
 
                         environment: {
                             type: "string"
                             enum: ["development", "staging", "production"]
                             default: "production"
-                            description: "Ausführungsumgebung"
+                            description: "Execution environment"
                         }
 
                         metadata: {
                             type: "object"
-                            description: "Zusätzliche Metadaten"
+                            description: "Additional metadata"
                         }
                     }
                 }
@@ -404,38 +404,38 @@ endpoints {
 
             response: {
                 202: {
-                    description: "Ausführung gestartet"
+                    description: "Execution started"
                     schema: {
                         type: "object"
                         properties: {
                             execution_id: {
                                 type: "uuid"
-                                description: "Ausführungs-ID"
+                                description: "Execution ID"
                             }
 
                             status: {
                                 type: "string"
                                 enum: ["queued", "running"]
-                                description: "Ausführungsstatus"
+                                description: "Execution status"
                             }
 
                             estimated_duration: {
                                 type: "integer"
-                                description: "Geschätzte Dauer in Sekunden"
+                                description: "Estimated duration in seconds"
                             }
                         }
                     }
                 }
 
                 404: {
-                    description: "Script nicht gefunden"
+                    description: "Script not found"
                     schema: {
                         $ref: "#/components/schemas/Error"
                     }
                 }
 
                 422: {
-                    description: "Script kann nicht ausgeführt werden"
+                    description: "Script cannot be executed"
                     schema: {
                         $ref: "#/components/schemas/Error"
                     }
@@ -443,29 +443,29 @@ endpoints {
             }
         }
 
-        // Ausführungsstatus abrufen
+        // Get execution status
         get_status: {
             method: "GET"
             path: "/executions/{execution_id}"
-            description: "Ausführungsstatus abrufen"
+            description: "Get execution status"
 
             path_params: {
                 execution_id: {
                     type: "uuid"
-                    description: "Ausführungs-ID"
+                    description: "Execution ID"
                 }
             }
 
             response: {
                 200: {
-                    description: "Ausführungsstatus"
+                    description: "Execution status"
                     schema: {
                         $ref: "#/components/schemas/Execution"
                     }
                 }
 
                 404: {
-                    description: "Ausführung nicht gefunden"
+                    description: "Execution not found"
                     schema: {
                         $ref: "#/components/schemas/Error"
                     }
@@ -473,36 +473,36 @@ endpoints {
             }
         }
 
-        // Ausführung abbrechen
+        // Cancel execution
         cancel: {
             method: "POST"
             path: "/executions/{execution_id}/cancel"
-            description: "Ausführung abbrechen"
+            description: "Cancel execution"
 
             path_params: {
                 execution_id: {
                     type: "uuid"
-                    description: "Ausführungs-ID"
+                    description: "Execution ID"
                 }
             }
 
             response: {
                 200: {
-                    description: "Ausführung abgebrochen"
+                    description: "Execution cancelled"
                     schema: {
                         $ref: "#/components/schemas/Execution"
                     }
                 }
 
                 404: {
-                    description: "Ausführung nicht gefunden"
+                    description: "Execution not found"
                     schema: {
                         $ref: "#/components/schemas/Error"
                     }
                 }
 
                 409: {
-                    description: "Ausführung kann nicht abgebrochen werden"
+                    description: "Execution cannot be cancelled"
                     schema: {
                         $ref: "#/components/schemas/Error"
                     }
@@ -513,14 +513,14 @@ endpoints {
 }
 ```
 
-## API-Sicherheit
+## API Security
 
-### Authentifizierung
+### Authentication
 
 ```hyp
-// API-Authentifizierung
+// API Authentication
 authentication {
-    // OAuth2-Konfiguration
+    // OAuth2 Configuration
     oauth2: {
         enabled: true
 
@@ -533,7 +533,7 @@ authentication {
             revocation_endpoint: "https://auth.example.com/oauth/revoke"
         }
 
-        // Client-Konfiguration
+        // Client Configuration
         client: {
             client_id: env.OAUTH_CLIENT_ID
             client_secret: env.OAUTH_CLIENT_SECRET
@@ -549,22 +549,22 @@ authentication {
             ]
         }
 
-        // Token-Konfiguration
+        // Token Configuration
         token: {
-            access_token_lifetime: 3600  // 1 Stunde
-            refresh_token_lifetime: 2592000  // 30 Tage
+            access_token_lifetime: 3600  // 1 hour
+            refresh_token_lifetime: 2592000  // 30 days
             token_type: "Bearer"
         }
     }
 
-    // API-Key-Authentifizierung
+    // API Key Authentication
     api_key: {
         enabled: true
 
-        // API-Key-Header
+        // API Key Header
         header_name: "X-API-Key"
 
-        // API-Key-Validierung
+        // API Key Validation
         validation: {
             key_format: "uuid"
             key_length: 36
@@ -572,7 +572,7 @@ authentication {
             check_revocation: true
         }
 
-        // API-Key-Berechtigungen
+        // API Key Permissions
         permissions: {
             "read:scripts": ["GET /api/v1/scripts", "GET /api/v1/scripts/{id}"]
             "write:scripts": ["POST /api/v1/scripts", "PUT /api/v1/scripts/{id}", "DELETE /api/v1/scripts/{id}"]
@@ -582,11 +582,11 @@ authentication {
         }
     }
 
-    // JWT-Authentifizierung
+    // JWT Authentication
     jwt: {
         enabled: true
 
-        // JWT-Konfiguration
+        // JWT Configuration
         configuration: {
             issuer: "hypnoscript-api"
             audience: "hypnoscript-clients"
@@ -594,32 +594,32 @@ authentication {
             public_key_url: "https://auth.example.com/.well-known/jwks.json"
         }
 
-        // Token-Validierung
+        // Token Validation
         validation: {
             validate_issuer: true
             validate_audience: true
             validate_expiration: true
             validate_signature: true
-            clock_skew: 30  // Sekunden
+            clock_skew: 30  // seconds
         }
     }
 }
 ```
 
-### Autorisierung
+### Authorization
 
 ```hyp
-// API-Autorisierung
+// API Authorization
 authorization {
     // Role-Based Access Control (RBAC)
     rbac: {
         enabled: true
 
-        // Rollen-Definitionen
+        // Role Definitions
         roles: {
             admin: {
                 permissions: ["*"]
-                description: "Vollzugriff auf alle API-Endpoints"
+                description: "Full access to all API endpoints"
             }
 
             developer: {
@@ -629,7 +629,7 @@ authorization {
                     "execute:scripts",
                     "read:executions"
                 ]
-                description: "Entwickler mit Script-Zugriff"
+                description: "Developer with script access"
             }
 
             analyst: {
@@ -637,18 +637,18 @@ authorization {
                     "read:scripts",
                     "read:executions"
                 ]
-                description: "Analyst mit Lesezugriff"
+                description: "Analyst with read access"
             }
 
             viewer: {
                 permissions: [
                     "read:scripts"
                 ]
-                description: "Nur Lesezugriff auf Scripts"
+                description: "Read-only access to scripts"
             }
         }
 
-        // Benutzer-Rollen-Zuweisung
+        // User Role Assignment
         user_roles: {
             "john.doe@example.com": ["admin"]
             "jane.smith@example.com": ["developer", "analyst"]
@@ -660,7 +660,7 @@ authorization {
     abac: {
         enabled: true
 
-        // ABAC-Policies
+        // ABAC Policies
         policies: {
             script_access: {
                 condition: {
@@ -688,18 +688,18 @@ authorization {
 
 ## Rate Limiting
 
-### Rate-Limiting-Konfiguration
+### Rate Limiting Configuration
 
 ```hyp
 // Rate Limiting
 rate_limiting {
-    // Allgemeine Einstellungen
+    // General Settings
     general: {
         enabled: true
         storage: "redis"
         redis_url: env.REDIS_URL
 
-        // Standard-Limits
+        // Default Limits
         default_limits: {
             requests_per_minute: 100
             requests_per_hour: 1000
@@ -707,30 +707,30 @@ rate_limiting {
         }
     }
 
-    // Endpoint-spezifische Limits
+    // Endpoint-Specific Limits
     endpoint_limits: {
-        // Script-Liste
+        // Script List
         "GET /api/v1/scripts": {
             requests_per_minute: 200
             requests_per_hour: 2000
             requests_per_day: 20000
         }
 
-        // Script-Erstellung
+        // Script Creation
         "POST /api/v1/scripts": {
             requests_per_minute: 10
             requests_per_hour: 100
             requests_per_day: 1000
         }
 
-        // Script-Ausführung
+        // Script Execution
         "POST /api/v1/scripts/{id}/execute": {
             requests_per_minute: 5
             requests_per_hour: 50
             requests_per_day: 500
         }
 
-        // Script-Löschung
+        // Script Deletion
         "DELETE /api/v1/scripts/{id}": {
             requests_per_minute: 2
             requests_per_hour: 20
@@ -738,16 +738,16 @@ rate_limiting {
         }
     }
 
-    // Benutzer-spezifische Limits
+    // User-Specific Limits
     user_limits: {
-        // Premium-Benutzer
+        // Premium Users
         premium: {
             requests_per_minute: 500
             requests_per_hour: 5000
             requests_per_day: 50000
         }
 
-        // Runtime-Benutzer
+        // Enterprise Users
         enterprise: {
             requests_per_minute: 1000
             requests_per_hour: 10000
@@ -755,7 +755,7 @@ rate_limiting {
         }
     }
 
-    // Rate-Limiting-Headers
+    // Rate Limiting Headers
     headers: {
         enabled: true
         limit_header: "X-RateLimit-Limit"
@@ -764,10 +764,10 @@ rate_limiting {
         retry_after_header: "Retry-After"
     }
 
-    // Rate-Limiting-Responses
+    // Rate Limiting Responses
     responses: {
         429: {
-            description: "Rate Limit überschritten"
+            description: "Rate limit exceeded"
             schema: {
                 type: "object"
                 properties: {
@@ -778,17 +778,17 @@ rate_limiting {
 
                     retry_after: {
                         type: "integer"
-                        description: "Sekunden bis zum nächsten Versuch"
+                        description: "Seconds until next attempt"
                     }
 
                     limit: {
                         type: "integer"
-                        description: "Aktuelles Limit"
+                        description: "Current limit"
                     }
 
                     remaining: {
                         type: "integer"
-                        description: "Verbleibende Anfragen"
+                        description: "Remaining requests"
                     }
                 }
             }
@@ -797,18 +797,18 @@ rate_limiting {
 }
 ```
 
-## API-Dokumentation
+## API Documentation
 
-### OpenAPI-Spezifikation
+### OpenAPI Specification
 
 ```hyp
-// OpenAPI-Konfiguration
+// OpenAPI Configuration
 openapi {
-    // Basis-Informationen
+    // Basic Information
     info: {
         title: "HypnoScript API"
         version: "1.0.0"
-        description: "Runtime API für HypnoScript-Scripting und -Ausführung"
+        description: "Runtime API for HypnoScript scripting and execution"
         contact: {
             name: "HypnoScript Support"
             email: "api-support@example.com"
@@ -820,23 +820,23 @@ openapi {
         }
     }
 
-    // Server-Konfiguration
+    // Server Configuration
     servers: [
         {
             url: "https://api.example.com/api/v1"
-            description: "Produktions-Server"
+            description: "Production Server"
         },
         {
             url: "https://api-staging.example.com/api/v1"
-            description: "Staging-Server"
+            description: "Staging Server"
         },
         {
             url: "http://localhost:8080/api/v1"
-            description: "Entwicklungs-Server"
+            description: "Development Server"
         }
     ]
 
-    // Sicherheitsschemas
+    // Security Schemes
     security_schemes: {
         oauth2: {
             type: "oauth2"
@@ -845,11 +845,11 @@ openapi {
                     authorizationUrl: "https://auth.example.com/oauth/authorize"
                     tokenUrl: "https://auth.example.com/oauth/token"
                     scopes: {
-                        "read:scripts": "Scripts lesen"
-                        "write:scripts": "Scripts erstellen und bearbeiten"
-                        "execute:scripts": "Scripts ausführen"
-                        "read:executions": "Ausführungen lesen"
-                        "admin:scripts": "Vollzugriff auf Scripts"
+                        "read:scripts": "Read scripts"
+                        "write:scripts": "Create and edit scripts"
+                        "execute:scripts": "Execute scripts"
+                        "read:executions": "Read executions"
+                        "admin:scripts": "Full access to scripts"
                     }
                 }
             }
@@ -859,18 +859,18 @@ openapi {
             type: "apiKey"
             in: "header"
             name: "X-API-Key"
-            description: "API-Key für Authentifizierung"
+            description: "API Key for authentication"
         }
 
         bearerAuth: {
             type: "http"
             scheme: "bearer"
             bearerFormat: "JWT"
-            description: "JWT-Token für Authentifizierung"
+            description: "JWT Token for authentication"
         }
     }
 
-    // Globale Sicherheit
+    // Global Security
     security: [
         {
             oauth2: ["read:scripts"]
@@ -883,7 +883,7 @@ openapi {
         }
     ]
 
-    // Komponenten-Schemas
+    // Component Schemas
     components: {
         schemas: {
             Script: {
@@ -892,33 +892,33 @@ openapi {
                     id: {
                         type: "string"
                         format: "uuid"
-                        description: "Eindeutige Script-ID"
+                        description: "Unique script ID"
                     }
 
                     name: {
                         type: "string"
-                        description: "Script-Name"
+                        description: "Script name"
                     }
 
                     content: {
                         type: "string"
-                        description: "Script-Inhalt"
+                        description: "Script content"
                     }
 
                     description: {
                         type: "string"
-                        description: "Script-Beschreibung"
+                        description: "Script description"
                     }
 
                     version: {
                         type: "integer"
-                        description: "Script-Version"
+                        description: "Script version"
                     }
 
                     status: {
                         type: "string"
                         enum: ["draft", "active", "archived"]
-                        description: "Script-Status"
+                        description: "Script status"
                     }
 
                     tags: {
@@ -926,30 +926,30 @@ openapi {
                         items: {
                             type: "string"
                         }
-                        description: "Script-Tags"
+                        description: "Script tags"
                     }
 
                     created_by: {
                         type: "string"
                         format: "uuid"
-                        description: "Ersteller-ID"
+                        description: "Creator ID"
                     }
 
                     created_at: {
                         type: "string"
                         format: "date-time"
-                        description: "Erstellungsdatum"
+                        description: "Creation date"
                     }
 
                     updated_at: {
                         type: "string"
                         format: "date-time"
-                        description: "Aktualisierungsdatum"
+                        description: "Update date"
                     }
 
                     metadata: {
                         type: "object"
-                        description: "Zusätzliche Metadaten"
+                        description: "Additional metadata"
                     }
                 }
                 required: ["id", "name", "content", "version", "status", "created_by", "created_at"]
@@ -961,63 +961,63 @@ openapi {
                     id: {
                         type: "string"
                         format: "uuid"
-                        description: "Eindeutige Ausführungs-ID"
+                        description: "Unique execution ID"
                     }
 
                     script_id: {
                         type: "string"
                         format: "uuid"
-                        description: "Script-ID"
+                        description: "Script ID"
                     }
 
                     user_id: {
                         type: "string"
                         format: "uuid"
-                        description: "Benutzer-ID"
+                        description: "User ID"
                     }
 
                     status: {
                         type: "string"
                         enum: ["queued", "running", "completed", "failed", "cancelled"]
-                        description: "Ausführungsstatus"
+                        description: "Execution status"
                     }
 
                     started_at: {
                         type: "string"
                         format: "date-time"
-                        description: "Startzeit"
+                        description: "Start time"
                     }
 
                     completed_at: {
                         type: "string"
                         format: "date-time"
-                        description: "Endzeit"
+                        description: "End time"
                     }
 
                     duration_ms: {
                         type: "integer"
-                        description: "Ausführungsdauer in Millisekunden"
+                        description: "Execution duration in milliseconds"
                     }
 
                     result: {
                         type: "object"
-                        description: "Ausführungsergebnis"
+                        description: "Execution result"
                     }
 
                     error_message: {
                         type: "string"
-                        description: "Fehlermeldung"
+                        description: "Error message"
                     }
 
                     environment: {
                         type: "string"
                         enum: ["development", "staging", "production"]
-                        description: "Ausführungsumgebung"
+                        description: "Execution environment"
                     }
 
                     metadata: {
                         type: "object"
-                        description: "Zusätzliche Metadaten"
+                        description: "Additional metadata"
                     }
                 }
                 required: ["id", "script_id", "user_id", "status", "started_at"]
@@ -1028,33 +1028,33 @@ openapi {
                 properties: {
                     error: {
                         type: "string"
-                        description: "Fehlertyp"
+                        description: "Error type"
                     }
 
                     message: {
                         type: "string"
-                        description: "Fehlermeldung"
+                        description: "Error message"
                     }
 
                     code: {
                         type: "string"
-                        description: "Fehlercode"
+                        description: "Error code"
                     }
 
                     details: {
                         type: "object"
-                        description: "Zusätzliche Fehlerdetails"
+                        description: "Additional error details"
                     }
 
                     timestamp: {
                         type: "string"
                         format: "date-time"
-                        description: "Fehlerzeitpunkt"
+                        description: "Error timestamp"
                     }
 
                     request_id: {
                         type: "string"
-                        description: "Request-ID für Tracing"
+                        description: "Request ID for tracing"
                     }
                 }
                 required: ["error", "message", "timestamp"]
@@ -1080,17 +1080,17 @@ openapi {
                             properties: {
                                 field: {
                                     type: "string"
-                                    description: "Feldname"
+                                    description: "Field name"
                                 }
 
                                 message: {
                                     type: "string"
-                                    description: "Feld-spezifische Fehlermeldung"
+                                    description: "Field-specific error message"
                                 }
 
                                 code: {
                                     type: "string"
-                                    description: "Validierungsfehlercode"
+                                    description: "Validation error code"
                                 }
                             }
                         }
@@ -1103,32 +1103,32 @@ openapi {
                 properties: {
                     page: {
                         type: "integer"
-                        description: "Aktuelle Seite"
+                        description: "Current page"
                     }
 
                     size: {
                         type: "integer"
-                        description: "Seitengröße"
+                        description: "Page size"
                     }
 
                     total_elements: {
                         type: "integer"
-                        description: "Gesamtanzahl Elemente"
+                        description: "Total number of elements"
                     }
 
                     total_pages: {
                         type: "integer"
-                        description: "Gesamtanzahl Seiten"
+                        description: "Total number of pages"
                     }
 
                     has_next: {
                         type: "boolean"
-                        description: "Hat nächste Seite"
+                        description: "Has next page"
                     }
 
                     has_previous: {
                         type: "boolean"
-                        description: "Hat vorherige Seite"
+                        description: "Has previous page"
                     }
                 }
             }
@@ -1138,18 +1138,18 @@ openapi {
                 properties: {
                     version: {
                         type: "string"
-                        description: "API-Version"
+                        description: "API version"
                     }
 
                     timestamp: {
                         type: "string"
                         format: "date-time"
-                        description: "Response-Zeitpunkt"
+                        description: "Response timestamp"
                     }
 
                     request_id: {
                         type: "string"
-                        description: "Request-ID"
+                        description: "Request ID"
                     }
                 }
             }
@@ -1158,16 +1158,16 @@ openapi {
 }
 ```
 
-## API-Monitoring
+## API Monitoring
 
-### API-Metriken
+### API Metrics
 
 ```hyp
-// API-Monitoring
+// API Monitoring
 api_monitoring {
-    // Metriken-Sammlung
+    // Metrics Collection
     metrics: {
-        // Request-Metriken
+        // Request Metrics
         requests: {
             total_requests: true
             requests_per_endpoint: true
@@ -1177,7 +1177,7 @@ api_monitoring {
             requests_per_ip: true
         }
 
-        // Performance-Metriken
+        // Performance Metrics
         performance: {
             response_time: {
                 p50: true
@@ -1195,7 +1195,7 @@ api_monitoring {
             availability: true
         }
 
-        // Business-Metriken
+        // Business Metrics
         business: {
             active_users: true
             api_usage_by_feature: true
@@ -1206,12 +1206,12 @@ api_monitoring {
 
     // Alerting
     alerting: {
-        // Performance-Alerts
+        // Performance Alerts
         performance: {
             high_response_time: {
-                threshold: 5000  // 5 Sekunden
+                threshold: 5000  // 5 seconds
                 alert_level: "warning"
-                window_size: 300  // 5 Minuten
+                window_size: 300  // 5 minutes
             }
 
             high_error_rate: {
@@ -1223,11 +1223,11 @@ api_monitoring {
             low_availability: {
                 threshold: 0.99  // 99%
                 alert_level: "critical"
-                window_size: 600  // 10 Minuten
+                window_size: 600  // 10 minutes
             }
         }
 
-        // Security-Alerts
+        // Security Alerts
         security: {
             high_failed_auth: {
                 threshold: 10
@@ -1244,12 +1244,12 @@ api_monitoring {
 
     // Logging
     logging: {
-        // Request-Logging
+        // Request Logging
         request_logging: {
             enabled: true
             log_level: "info"
 
-            // Zu loggende Felder
+            // Fields to Log
             fields: [
                 "timestamp",
                 "method",
@@ -1262,7 +1262,7 @@ api_monitoring {
                 "request_id"
             ]
 
-            // Sensitive Daten maskieren
+            // Mask Sensitive Data
             sensitive_fields: [
                 "password",
                 "api_key",
@@ -1271,12 +1271,12 @@ api_monitoring {
             ]
         }
 
-        // Error-Logging
+        // Error Logging
         error_logging: {
             enabled: true
             log_level: "error"
 
-            // Error-Details
+            // Error Details
             include_stack_trace: true
             include_request_context: true
             include_user_context: true
@@ -1287,48 +1287,48 @@ api_monitoring {
 
 ## Best Practices
 
-### API-Best-Practices
+### API Best Practices
 
-1. **API-Design**
+1. **API Design**
 
-   - RESTful Prinzipien befolgen
-   - Konsistente Namenskonventionen verwenden
-   - Versionierung implementieren
+   - Follow RESTful principles
+   - Use consistent naming conventions
+   - Implement versioning
 
-2. **Sicherheit**
+2. **Security**
 
-   - OAuth2/JWT für Authentifizierung
-   - Rate Limiting implementieren
-   - Input-Validierung durchführen
+   - OAuth2/JWT for authentication
+   - Implement rate limiting
+   - Perform input validation
 
 3. **Performance**
 
-   - Caching-Strategien implementieren
-   - Pagination für große Datensätze
-   - Komprimierung aktivieren
+   - Implement caching strategies
+   - Pagination for large datasets
+   - Enable compression
 
 4. **Monitoring**
 
-   - Umfassende Metriken sammeln
-   - Proaktive Alerting-Systeme
-   - Request-Tracing implementieren
+   - Collect comprehensive metrics
+   - Proactive alerting systems
+   - Implement request tracing
 
-5. **Dokumentation**
-   - OpenAPI-Spezifikationen
-   - Code-Beispiele bereitstellen
-   - Changelog führen
+5. **Documentation**
+   - OpenAPI specifications
+   - Provide code examples
+   - Maintain changelog
 
-### API-Checkliste
+### API Checklist
 
-- [ ] API-Endpoints definiert
-- [ ] Authentifizierung implementiert
-- [ ] Autorisierung konfiguriert
-- [ ] Rate Limiting aktiviert
-- [ ] OpenAPI-Dokumentation erstellt
-- [ ] Monitoring eingerichtet
-- [ ] Error-Handling implementiert
-- [ ] Versionierung konfiguriert
-- [ ] Security-Tests durchgeführt
-- [ ] Performance-Tests durchgeführt
+- [ ] API endpoints defined
+- [ ] Authentication implemented
+- [ ] Authorization configured
+- [ ] Rate limiting enabled
+- [ ] OpenAPI documentation created
+- [ ] Monitoring configured
+- [ ] Error handling implemented
+- [ ] Versioning configured
+- [ ] Security tests performed
+- [ ] Performance tests performed
 
-Diese API-Management-Funktionen stellen sicher, dass HypnoScript in Runtime-Umgebungen sichere, skalierbare und gut dokumentierte APIs bereitstellt.
+These API management features ensure that HypnoScript provides secure, scalable, and well-documented APIs in runtime environments.

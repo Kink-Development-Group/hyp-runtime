@@ -4,43 +4,43 @@ title: Debugging Best Practices
 
 # Debugging Best Practices
 
-HypnoScript bietet verschiedene Mechanismen, um Fehler frühzeitig zu erkennen und die Codequalität zu sichern. Hier sind bewährte Methoden für effektives Debugging:
+HypnoScript offers various mechanisms to detect errors early and ensure code quality. Here are proven methods for effective debugging:
 
-## Assertions nutzen
+## Using Assertions
 
-Verwenden Sie die `assert`-Anweisung, um Annahmen im Code zu überprüfen. Assertion-Fehler werden im CLI und in der Testausgabe hervorgehoben.
+Use the `assert` statement to verify assumptions in the code. Assertion errors are highlighted in the CLI and test output.
 
 ```hyp
-assert(x > 0, "x muss positiv sein");
+assert(x > 0, "x must be positive");
 ```
 
-Assertion-Fehler werden gesammelt und am Ende der Ausführung ausgegeben:
+Assertion errors are collected and output at the end of execution:
 
 ```
 ❌ 1 assertion(s) failed:
-   - x muss positiv sein
+   - x must be positive
 ```
 
-## Tests strukturieren
+## Structuring Tests
 
-- Gruppieren Sie Tests in separaten `.hyp`-Dateien.
-- Nutzen Sie den CLI-Befehl `test`, um alle oder einzelne Tests auszuführen:
+- Group tests in separate `.hyp` files.
+- Use the CLI command `test` to run all or individual tests:
 
 ```bash
 dotnet run --project HypnoScript.CLI -- test test_basic.hyp --debug
 ```
 
-## Debug- und Verbose-Flags
+## Debug and Verbose Flags
 
-- `--debug`: Zeigt zusätzliche Debug-Ausgaben (z.B. Stacktraces bei Fehlern).
-- `--verbose`: Zeigt detaillierte Analysen zu Tokens, AST und Ausführung.
+- `--debug`: Shows additional debug output (e.g., stacktraces on errors).
+- `--verbose`: Shows detailed analysis of tokens, AST, and execution.
 
-## Fehlerausgaben interpretieren
+## Interpreting Error Output
 
-- Assertion-Fehler werden speziell markiert.
-- Prüfen Sie die Zusammenfassung am Ende der Testausgabe auf fehlgeschlagene Assertions.
+- Assertion errors are specially marked.
+- Check the summary at the end of the test output for failed assertions.
 
-## Weitere Tipps
+## Additional Tips
 
-- Setzen Sie Breakpoints strategisch mit `assert` oder durch gezielte Ausgaben (`observe`).
-- Nutzen Sie die CLI-Optionen, um gezielt einzelne Tests oder Module zu debuggen.
+- Set breakpoints strategically with `assert` or through targeted output (`observe`).
+- Use the CLI options to debug specific tests or modules.

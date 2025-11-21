@@ -2,18 +2,18 @@
 sidebar_position: 1
 ---
 
-# Test-Framework Übersicht
+# Test Framework Overview
 
-Das HypnoScript Test-Framework bietet umfassende Testing-Funktionalitäten für Unit-Tests, Integration-Tests und Performance-Tests.
+The HypnoScript test framework provides comprehensive testing functionality for unit tests, integration tests, and performance tests.
 
-## Grundlagen
+## Fundamentals
 
-### Test-Struktur
+### Test Structure
 
-Tests in HypnoScript verwenden eine spezielle Syntax mit `Test`-Blöcken:
+Tests in HypnoScript use a special syntax with `Test` blocks:
 
 ```hyp
-Test "Mein erster Test" {
+Test "My first test" {
     entrance {
         induce result = 2 + 2;
         AssertEqual(result, 4);
@@ -21,28 +21,28 @@ Test "Mein erster Test" {
 } Relax;
 ```
 
-### Test-Ausführung
+### Test Execution
 
 ```bash
-# Alle Tests ausführen
+# Run all tests
 dotnet run --project HypnoScript.CLI -- test *.hyp
 
-# Spezifische Test-Datei
+# Specific test file
 dotnet run --project HypnoScript.CLI -- test test_math.hyp
 
-# Tests mit Filter
+# Tests with filter
 dotnet run --project HypnoScript.CLI -- test *.hyp --filter "math"
 
-# Parallele Ausführung
+# Parallel execution
 dotnet run --project HypnoScript.CLI -- test *.hyp --parallel
 ```
 
-## Test-Syntax
+## Test Syntax
 
-### Einfache Tests
+### Simple Tests
 
 ```hyp
-Test "Addition funktioniert" {
+Test "Addition works" {
     entrance {
         induce a = 5;
         induce b = 3;
@@ -51,27 +51,27 @@ Test "Addition funktioniert" {
     }
 } Relax;
 
-Test "String-Verkettung" {
+Test "String concatenation" {
     entrance {
-        induce str1 = "Hallo";
-        induce str2 = "Welt";
+        induce str1 = "Hello";
+        induce str2 = "World";
         induce result = str1 + " " + str2;
-        AssertEqual(result, "Hallo Welt");
+        AssertEqual(result, "Hello World");
     }
 } Relax;
 ```
 
-### Test mit Setup und Teardown
+### Test with Setup and Teardown
 
 ```hyp
-Test "Datei-Operationen" {
+Test "File operations" {
     setup {
-        WriteFile("test.txt", "Test-Daten");
+        WriteFile("test.txt", "Test data");
     }
 
     entrance {
         induce content = ReadFile("test.txt");
-        AssertEqual(content, "Test-Daten");
+        AssertEqual(content, "Test data");
     }
 
     teardown {
@@ -82,23 +82,23 @@ Test "Datei-Operationen" {
 } Relax;
 ```
 
-### Test-Gruppen
+### Test Groups
 
 ```hyp
-TestGroup "Mathematische Funktionen" {
+TestGroup "Mathematical functions" {
     Test "Addition" {
         entrance {
             AssertEqual(2 + 2, 4);
         }
     } Relax;
 
-    Test "Subtraktion" {
+    Test "Subtraction" {
         entrance {
             AssertEqual(5 - 3, 2);
         }
     } Relax;
 
-    Test "Multiplikation" {
+    Test "Multiplication" {
         entrance {
             AssertEqual(4 * 3, 12);
         }
@@ -108,103 +108,103 @@ TestGroup "Mathematische Funktionen" {
 
 ## Assertions
 
-### Grundlegende Assertions
+### Basic Assertions
 
 ```hyp
-Test "Grundlegende Assertions" {
+Test "Basic assertions" {
     entrance {
-        // Gleichheit
+        // Equality
         AssertEqual(5, 5);
         AssertNotEqual(5, 6);
 
-        // Wahrheitswerte
+        // Boolean values
         AssertTrue(true);
         AssertFalse(false);
 
-        // Null-Checks
+        // Null checks
         AssertNull(null);
-        AssertNotNull("nicht null");
+        AssertNotNull("not null");
 
-        // Leere Checks
+        // Empty checks
         AssertEmpty("");
-        AssertNotEmpty("nicht leer");
+        AssertNotEmpty("not empty");
     }
 } Relax;
 ```
 
-### Erweiterte Assertions
+### Advanced Assertions
 
 ```hyp
-Test "Erweiterte Assertions" {
+Test "Advanced assertions" {
     entrance {
         induce arr = [1, 2, 3, 4, 5];
 
-        // Array-Assertions
+        // Array assertions
         AssertArrayContains(arr, 3);
         AssertArrayNotContains(arr, 6);
         AssertArrayLength(arr, 5);
 
-        // String-Assertions
+        // String assertions
         induce str = "HypnoScript";
         AssertStringContains(str, "Script");
         AssertStringStartsWith(str, "Hypno");
         AssertStringEndsWith(str, "Script");
 
-        // Numerische Assertions
+        // Numeric assertions
         AssertGreaterThan(10, 5);
         AssertLessThan(3, 7);
         AssertGreaterThanOrEqual(5, 5);
         AssertLessThanOrEqual(5, 5);
 
-        // Float-Assertions (mit Toleranz)
+        // Float assertions (with tolerance)
         AssertFloatEqual(3.14159, 3.14, 0.01);
     }
 } Relax;
 ```
 
-### Exception-Assertions
+### Exception Assertions
 
 ```hyp
-Test "Exception-Tests" {
+Test "Exception tests" {
     entrance {
-        // Erwartete Exception
+        // Expected exception
         AssertThrows(function() {
-            throw "Test-Exception";
+            throw "Test exception";
         });
 
-        // Keine Exception
+        // No exception
         AssertDoesNotThrow(function() {
             induce x = 1 + 1;
         });
 
-        // Spezifische Exception
+        // Specific exception
         AssertThrowsWithMessage(function() {
-            throw "Ungültiger Wert";
-        }, "Ungültiger Wert");
+            throw "Invalid value";
+        }, "Invalid value");
     }
 } Relax;
 ```
 
-## Test-Fixtures
+## Test Fixtures
 
-### Globale Fixtures
+### Global Fixtures
 
 ```hyp
-TestFixture "Datenbank-Fixture" {
+TestFixture "Database fixture" {
     setup {
-        // Datenbank-Verbindung aufbauen
+        // Establish database connection
         induce connection = CreateDatabaseConnection();
         SetGlobalFixture("db", connection);
     }
 
     teardown {
-        // Datenbank-Verbindung schließen
+        // Close database connection
         induce connection = GetGlobalFixture("db");
         CloseDatabaseConnection(connection);
     }
 } Relax;
 
-Test "Datenbank-Test" {
+Test "Database test" {
     entrance {
         induce db = GetGlobalFixture("db");
         induce result = ExecuteQuery(db, "SELECT COUNT(*) FROM users");
@@ -213,10 +213,10 @@ Test "Datenbank-Test" {
 } Relax;
 ```
 
-### Test-spezifische Fixtures
+### Test-specific Fixtures
 
 ```hyp
-Test "Mit Fixture" {
+Test "With fixture" {
     fixture {
         induce testData = [1, 2, 3, 4, 5];
         return testData;
@@ -230,12 +230,12 @@ Test "Mit Fixture" {
 } Relax;
 ```
 
-## Test-Parameterisierung
+## Test Parameterization
 
-### Parameterisierte Tests
+### Parameterized Tests
 
 ```hyp
-Test "Addition mit Parametern" {
+Test "Addition with parameters" {
     parameters {
         [2, 3, 5],
         [5, 7, 12],
@@ -251,10 +251,10 @@ Test "Addition mit Parametern" {
 } Relax;
 ```
 
-### Daten-getriebene Tests
+### Data-driven Tests
 
 ```hyp
-Test "String-Tests mit Daten" {
+Test "String tests with data" {
     dataSource "test_data.json"
 
     entrance {
@@ -265,12 +265,12 @@ Test "String-Tests mit Daten" {
 } Relax;
 ```
 
-## Performance-Tests
+## Performance Tests
 
-### Benchmark-Tests
+### Benchmark Tests
 
 ```hyp
-Benchmark "Array-Sortierung" {
+Benchmark "Array sorting" {
     entrance {
         induce arr = Range(1, 1000);
         induce shuffled = Shuffle(arr);
@@ -280,19 +280,19 @@ Benchmark "Array-Sortierung" {
         induce endTime = Timestamp();
 
         induce duration = endTime - startTime;
-        AssertLessThan(duration, 1.0); // Maximal 1 Sekunde
+        AssertLessThan(duration, 1.0); // Maximum 1 second
 
-        // Performance-Metriken speichern
+        // Store performance metrics
         RecordMetric("sort_duration", duration);
         RecordMetric("array_size", Length(arr));
     }
 } Relax;
 ```
 
-### Load-Tests
+### Load Tests
 
 ```hyp
-LoadTest "API-Performance" {
+LoadTest "API performance" {
     iterations 100
     concurrent 10
 
@@ -302,7 +302,7 @@ LoadTest "API-Performance" {
         induce endTime = Timestamp();
 
         induce responseTime = (endTime - startTime) * 1000; // in ms
-        AssertLessThan(responseTime, 500); // Maximal 500ms
+        AssertLessThan(responseTime, 500); // Maximum 500ms
 
         RecordMetric("response_time", responseTime);
         RecordMetric("response_size", Length(response));
@@ -310,40 +310,40 @@ LoadTest "API-Performance" {
 } Relax;
 ```
 
-## Test-Reporting
+## Test Reporting
 
-### Verschiedene Report-Formate
+### Different Report Formats
 
 ```bash
-# Text-Report (Standard)
+# Text report (default)
 dotnet run --project HypnoScript.CLI -- test *.hyp
 
-# JSON-Report
+# JSON report
 dotnet run --project HypnoScript.CLI -- test *.hyp --format json --output test-results.json
 
-# XML-Report (für CI/CD)
+# XML report (for CI/CD)
 dotnet run --project HypnoScript.CLI -- test *.hyp --format xml --output test-results.xml
 
-# HTML-Report
+# HTML report
 dotnet run --project HypnoScript.CLI -- test *.hyp --format html --output test-report.html
 ```
 
-### Coverage-Reporting
+### Coverage Reporting
 
 ```bash
-# Code-Coverage aktivieren
+# Enable code coverage
 dotnet run --project HypnoScript.CLI -- test *.hyp --coverage
 
-# Coverage mit Schwellenwert
+# Coverage with threshold
 dotnet run --project HypnoScript.CLI -- test *.hyp --coverage --coverage-threshold 80
 
-# Coverage-Report generieren
+# Generate coverage report
 dotnet run --project HypnoScript.CLI -- test *.hyp --coverage --coverage-report html
 ```
 
-## Test-Konfiguration
+## Test Configuration
 
-### Test-Konfiguration in hypnoscript.config.json
+### Test Configuration in hypnoscript.config.json
 
 ```json
 {
@@ -371,32 +371,32 @@ dotnet run --project HypnoScript.CLI -- test *.hyp --coverage --coverage-report 
 
 ## Best Practices
 
-### Test-Organisation
+### Test Organization
 
 ```hyp
 // test_math.hyp
-TestGroup "Mathematische Grundoperationen" {
+TestGroup "Basic mathematical operations" {
     Test "Addition" {
         entrance {
             AssertEqual(2 + 2, 4);
         }
     } Relax;
 
-    Test "Subtraktion" {
+    Test "Subtraction" {
         entrance {
             AssertEqual(5 - 3, 2);
         }
     } Relax;
 } Relax;
 
-TestGroup "Erweiterte Mathematik" {
-    Test "Potenzierung" {
+TestGroup "Advanced mathematics" {
+    Test "Exponentiation" {
         entrance {
             AssertEqual(Pow(2, 3), 8);
         }
     } Relax;
 
-    Test "Wurzel" {
+    Test "Square root" {
         entrance {
             AssertFloatEqual(Sqrt(16), 4, 0.001);
         }
@@ -404,39 +404,39 @@ TestGroup "Erweiterte Mathematik" {
 } Relax;
 ```
 
-### Test-Naming
+### Test Naming
 
 ```hyp
-// Gute Test-Namen
+// Good test names
 Test "should_return_sum_when_adding_two_numbers" { ... } Relax;
 Test "should_throw_exception_when_dividing_by_zero" { ... } Relax;
 Test "should_validate_email_format_correctly" { ... } Relax;
 
-// Schlechte Test-Namen
+// Bad test names
 Test "test1" { ... } Relax;
 Test "math" { ... } Relax;
 Test "function" { ... } Relax;
 ```
 
-### Test-Isolation
+### Test Isolation
 
 ```hyp
-Test "Isolierter Test" {
+Test "Isolated test" {
     setup {
-        // Jeder Test bekommt seine eigenen Daten
+        // Each test gets its own data
         induce testFile = "test_" + Timestamp() + ".txt";
-        WriteFile(testFile, "Test-Daten");
+        WriteFile(testFile, "Test data");
         SetTestData("file", testFile);
     }
 
     entrance {
         induce file = GetTestData("file");
         induce content = ReadFile(file);
-        AssertEqual(content, "Test-Daten");
+        AssertEqual(content, "Test data");
     }
 
     teardown {
-        // Aufräumen
+        // Cleanup
         induce file = GetTestData("file");
         if (FileExists(file)) {
             DeleteFile(file);
@@ -445,12 +445,12 @@ Test "Isolierter Test" {
 } Relax;
 ```
 
-### Mocking und Stubbing
+### Mocking and Stubbing
 
 ```hyp
-Test "Mit Mock" {
+Test "With mock" {
     entrance {
-        // Mock-Funktion erstellen
+        // Create mock function
         MockFunction("HttpGet", function(url) {
             return '{"status": "success", "data": "mocked"}';
         });
@@ -461,7 +461,7 @@ Test "Mit Mock" {
         AssertEqual(data.status, "success");
         AssertEqual(data.data, "mocked");
 
-        // Mock entfernen
+        // Remove mock
         UnmockFunction("HttpGet");
     }
 } Relax;
@@ -540,13 +540,13 @@ pipeline {
 }
 ```
 
-## Nächste Schritte
+## Next Steps
 
-- [Test-Assertions](./assertions) - Detaillierte Assertion-Referenz
-- [Test-Fixtures](./fixtures) - Erweiterte Fixture-Funktionen
-- [Performance-Testing](./performance) - Performance-Test-Guide
-- [Test-Reporting](./reporting) - Report-Konfiguration
+- [Test Assertions](./assertions) - Detailed assertion reference
+- [Test Fixtures](./fixtures) - Advanced fixture features
+- [Performance Testing](./performance) - Performance test guide
+- [Test Reporting](./reporting) - Report configuration
 
 ---
 
-**Test-Framework gemeistert? Dann lerne [Test-Assertions](./assertions) kennen!** ✅
+**Mastered the test framework? Learn about [Test Assertions](./assertions) next!** ✅

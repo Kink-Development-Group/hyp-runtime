@@ -2,45 +2,45 @@
 sidebar_position: 1
 ---
 
-# Willkommen bei HypnoScript
+# Welcome to HypnoScript
 
-HypnoScript ist eine moderne, esoterische Programmiersprache, die hypnotische Metaphern mit einer pragmatischen Rust-Toolchain verbindet. Die Syntax erinnert an TypeScript, nutzt aber Schlüsselwörter wie `Focus`, `induce`, `observe` oder `Relax`, um hypnotische Konzepte direkt auszudrücken.
+HypnoScript is a modern, esoteric programming language that combines hypnotic metaphors with a pragmatic Rust toolchain. The syntax resembles TypeScript but uses keywords like `Focus`, `induce`, `observe` or `Relax` to directly express hypnotic concepts.
 
-## Was ist HypnoScript?
+## What is HypnoScript?
 
-Die aktuelle Runtime besteht vollständig aus Rust-Crates und liefert:
+The current runtime consists entirely of Rust crates and provides:
 
-- 🦀 **Native Toolchain** – Lexer, Parser, statischer Type Checker, Interpreter und WASM-Codegenerator sind vollständig in Rust implementiert.
-- 🎯 **Hypnotische Syntax** – Sprachkonstrukte wie `deepFocus`, `snap`, `anchor` oder `oscillate` übersetzen hypnotische Bilder in Code.
-- 🔒 **Statisches Typ-System** – Der Type Checker kennt Zahlen, Strings, Booleans, Arrays, Funktionen und Sessions inklusive Sichtbarkeiten.
-- 📦 **Standardbibliothek** – Mathe-, String-, Array-, Datei-, Statistik-, System-, Zeit- und Validierungs-Builtins stehen direkt bereit.
-- 🛠️ **CLI für den gesamten Workflow** – Ein einzelnes Binary (`hypnoscript`) bietet `run`, `lex`, `parse`, `check`, `compile-wasm`, `builtins` und `version`.
+- 🦀 **Native Toolchain** – Lexer, parser, static type checker, interpreter and WASM code generator are fully implemented in Rust.
+- 🎯 **Hypnotic Syntax** – Language constructs like `deepFocus`, `snap`, `anchor` or `oscillate` translate hypnotic imagery into code.
+- 🔒 **Static Type System** – The type checker knows numbers, strings, booleans, arrays, functions and sessions including visibility modifiers.
+- 📦 **Standard Library** – Math, string, array, file, statistics, system, time and validation builtins are available out of the box.
+- 🛠️ **CLI for the Entire Workflow** – A single binary (`hypnoscript`) offers `run`, `lex`, `parse`, `check`, `compile-wasm`, `builtins` and `version`.
 
-Die Sprache ist plattformübergreifend (Windows/macOS/Linux) und erzeugt native Binaries sowie optional WebAssembly-Ausgabe.
+The language is cross-platform (Windows/macOS/Linux) and generates native binaries as well as optional WebAssembly output.
 
-## Grundelemente der Syntax
+## Syntax Fundamentals
 
-| Konzept                | Beschreibung                                                                                             |
-| ---------------------- | -------------------------------------------------------------------------------------------------------- |
-| `Focus { ... } Relax`  | Umschließt jedes Programm (Entry- und Exit-Punkt).                                                       |
-| `entrance { ... }`     | Optionaler Startblock für Initialisierung oder Begrüßung.                                                |
-| `finale { ... }`       | Optionaler Cleanup-Block, der am Ende garantiert ausgeführt wird.                                        |
-| `induce` / `freeze`    | Deklariert Variablen (`induce`/`implant`) oder Konstanten (`freeze`).                                    |
-| `observe` / `whisper`  | Ausgabe mit bzw. ohne Zeilenumbruch. `command` hebt Text emphatisch hervor.                              |
-| `if`, `while`, `loop`  | Kontrollstrukturen mit hypnotischen Operator-Synonymen (`youAreFeelingVerySleepy`, `underMyControl`, …). |
-| `suggestion`           | Funktionsdefinition (global oder innerhalb von Sessions).                                                |
-| `session`              | Objektorientierte Strukturen mit Feldern (`expose`/`conceal`), Konstruktoren und statischen Mitgliedern. |
-| `anchor` / `oscillate` | Speichert Werte zwischen oder toggelt Booleans.                                                          |
+| Concept                | Description                                                                                          |
+| ---------------------- | ---------------------------------------------------------------------------------------------------- |
+| `Focus { ... } Relax`  | Encloses every program (entry and exit point).                                                       |
+| `entrance { ... }`     | Optional startup block for initialization or greeting.                                               |
+| `finale { ... }`       | Optional cleanup block that is guaranteed to run at the end.                                         |
+| `induce` / `freeze`    | Declares variables (`induce`/`implant`) or constants (`freeze`).                                     |
+| `observe` / `whisper`  | Output with or without newline. `command` highlights text emphatically.                              |
+| `if`, `while`, `loop`  | Control structures with hypnotic operator synonyms (`youAreFeelingVerySleepy`, `underMyControl`, …). |
+| `suggestion`           | Function definition (global or within sessions).                                                     |
+| `session`              | Object-oriented structures with fields (`expose`/`conceal`), constructors and static members.        |
+| `anchor` / `oscillate` | Stores values between calls or toggles booleans.                                                     |
 
 ```hyp
 Focus {
     entrance {
-        observe "Willkommen in der Trance";
+        observe "Welcome to the trance";
     }
 
     induce counter: number = 0;
     while (counter goingDeeper 3) {
-        observe "Tiefe: " + counter;
+        observe "Depth: " + counter;
         counter = counter + 1;
     }
 
@@ -48,54 +48,52 @@ Focus {
         awaken ArraySum(values);
     }
 
-    observe "Summe: " + ToString(hypnoticSum([2, 4, 6]));
+    observe "Sum: " + ToString(hypnoticSum([2, 4, 6]));
 } Relax
 ```
 
-## Standardbibliothek im Überblick
+## Standard Library Overview
 
-Die Builtins sind in Kategorien organisiert. Eine detaillierte Referenz findest du unter [Standardbibliothek](./builtins/overview).
+The builtins are organized into categories. A detailed reference can be found under [Standard Library](./builtins/overview).
 
-- **Mathematik** – `Sin`, `Cos`, `Tan`, `Sqrt`, `Pow`, `Factorial`, `Clamp`, `Gcd`, `Lcm`, `IsPrime`, `Fibonacci`, …
+- **Mathematics** – `Sin`, `Cos`, `Tan`, `Sqrt`, `Pow`, `Factorial`, `Clamp`, `Gcd`, `Lcm`, `IsPrime`, `Fibonacci`, …
 - **Strings** – `Length`, `ToUpper`, `ToLower`, `Trim`, `Reverse`, `Replace`, `Split`, `Substring`, `PadLeft`, `IsWhitespace`, …
 - **Arrays** – `ArrayLength`, `ArrayIsEmpty`, `ArraySum`, `ArrayAverage`, `ArraySlice`, `ArrayDistinct`, …
-- **Dateien** – `ReadFile`, `WriteFile`, `AppendFile`, `ListDirectory`, `GetFileExtension`, …
+- **Files** – `ReadFile`, `WriteFile`, `AppendFile`, `ListDirectory`, `GetFileExtension`, …
 - **System** – `GetOperatingSystem`, `GetUsername`, `GetArgs`, `Exit`, `GetCurrentDirectory`, …
-- **Zeit & Datum** – `CurrentTimestamp`, `CurrentDateTime`, `IsLeapYear`, `DayOfWeek`, …
-- **Statistik** – `Mean`, `Median`, `Mode`, `StandardDeviation`, `Correlation`, `LinearRegression`, …
-- **Validierung** – `IsValidEmail`, `MatchesPattern`, `IsInRange`, `IsNumeric`, `IsLowercase`, …
-- **Hypnotische Kernfunktionen** – `Observe`, `Whisper`, `Command`, `Drift`, `DeepTrance`, `HypnoticCountdown`, `TranceInduction`, `HypnoticVisualization`.
+- **Time & Date** – `CurrentTimestamp`, `CurrentDateTime`, `IsLeapYear`, `DayOfWeek`, …
+- **Statistics** – `Mean`, `Median`, `Mode`, `StandardDeviation`, `Correlation`, `LinearRegression`, …
+- **Validation** – `IsValidEmail`, `MatchesPattern`, `IsInRange`, `IsNumeric`, `IsLowercase`, …
+- **Hypnotic Core Functions** – `Observe`, `Whisper`, `Command`, `Drift`, `DeepTrance`, `HypnoticCountdown`, `TranceInduction`, `HypnoticVisualization`.
 
-## Entwicklungs-Workflow
+## Development Workflow
 
 ```bash
-# Quelle lesen, lexen, parsen, checken und ausführen
+# Read source, lex, parse, check and run
 hypnoscript lex   examples/test.hyp
 hypnoscript parse examples/test.hyp
 hypnoscript check examples/test.hyp
 hypnoscript run   examples/test.hyp
 
-# Zu WebAssembly (wat) generieren
+# Generate to WebAssembly (wat)
 hypnoscript compile-wasm examples/test.hyp --output output.wat
 
-# Listing aller Builtins
+# List all builtins
 hypnoscript builtins
 ```
 
-Der Interpreter führt Programme deterministisch aus. Typprüfungsfehler werden gemeldet, blockieren die Ausführung aber nicht – ideal für exploratives Arbeiten.
+The interpreter executes programs deterministically. Type checking errors are reported but do not block execution – ideal for exploratory work.
 
-## Nächste Schritte
+## Next Steps
 
 - [Installation](./getting-started/installation)
 - [Quick Start](./getting-started/quick-start)
-- [Grundkonzepte](./getting-started/core-concepts)
-- [Sprachreferenz](./language-reference/syntax)
-- [Standardbibliothek](./builtins/overview)
+- [Core Concepts](./getting-started/core-concepts)
+- [Language Reference](./language-reference/syntax)
+- [Standard Library](./builtins/overview)
 
-## Community & Lizenz
+## Community & License
 
 - GitHub: [Kink-Development-Group/hyp-runtime](https://github.com/Kink-Development-Group/hyp-runtime)
 - Issues & Roadmap: [GitHub Issues](https://github.com/Kink-Development-Group/hyp-runtime/issues)
-- Lizenz: [MIT](https://opensource.org/license/mit/)
-
-Tauche ein, hypnotisiere deinen Code und genieße eine Sprache, die humorvollen Flair mit ernstzunehmender Infrastruktur verbindet. 🧠✨
+- License: [MIT](https://opensource.org/license/mit/)

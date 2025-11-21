@@ -140,7 +140,7 @@ function ProcessUserData(userData) {
 }
 ```
 
-### 4. Use Type Checking
+### 4. Use Type checking
 
 ```hypno
 function SafeDivide(a, b) {

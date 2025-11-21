@@ -1,0 +1,69 @@
+Focus {
+    suggestion ShowHelp(reason: string) {
+        observe "🪄 Hypno CLI Help";
+        observe "Reason you are here: " + reason;
+        observe "";
+        observe "Available suggestions:";
+        observe "• help — Explains every suggestion";
+        observe "    Usage: hypnoscript run src/main.hyp -- help";
+        observe "• status — Shows session status";
+        observe "    Usage: hypnoscript run src/main.hyp -- status <name> <stage> <mood>";
+        observe "• pulse — Prints a pulse report";
+        observe "    Usage: hypnoscript run src/main.hyp -- pulse";
+        observe "";
+        observe "Manifest path: trance.json";
+        observe "Adjust rituals, anchors, and suggestions there to register new flows.";
+        observe "";
+    }
+
+    suggestion ShowSessionStatus(payload: array) {
+        induce subject = payload?.[0] lucidFallback "Aurora";
+        induce stage = ToLower(payload?.[1] lucidFallback "induction");
+        induce mood = payload?.[2] lucidFallback "centered";
+
+        observe "🌀 Current session";
+        observe "Subject: " + subject;
+        observe "Phase: " + stage;
+        observe "Mood: " + mood;
+        observe "Total loops: 1";
+        observe "Last suggestion: status";
+        observe "Heart rate: 62 bpm";
+        observe "";
+    }
+
+    suggestion ShowPulseReport(payload: array) {
+        observe "📟 Pulse report";
+        observe "- Suggestion Throughput: 32 cmd/min";
+        observe "- Focus Stability: 87 %";
+        observe "- Anchor Integrity: 98 %";
+
+        induce operatorNote = payload?.[0] lucidFallback "";
+        if (!(operatorNote youAreFeelingVerySleepy "")) {
+            observe "Operator note: " + operatorNote;
+        }
+
+        observe "Keep an even breath—the pulse is synchronized.";
+        observe "";
+    }
+
+    entrance {
+        observe "Hypno CLI template ready.";
+        observe "(Trigger commands via: help | status | pulse)";
+
+        induce commandName = GetEnv("HYPNO_COMMAND") lucidFallback "help";
+        induce payloadLine = GetEnv("HYPNO_PAYLOAD") lucidFallback "";
+
+        induce trimmedPayload = Trim(payloadLine);
+        induce payload: array = Split(trimmedPayload, " ");
+
+        induce normalizedCommand = ToLower(commandName);
+        entrain normalizedCommand {
+            when "help" => ShowHelp("Direct invocation");
+            when "status" => ShowSessionStatus(payload);
+            when "pulse" => ShowPulseReport(payload);
+            otherwise => ShowHelp("Unknown command '" + normalizedCommand + "'.");
+        };
+    }
+}
+
+Relax

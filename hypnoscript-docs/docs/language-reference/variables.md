@@ -2,55 +2,55 @@
 sidebar_position: 2
 ---
 
-# Variablen und Datentypen
+# Variables and Data Types
 
-:::tip Vollständige Referenz
-Siehe [Keywords Referenz](./_keywords-reference#variablen-und-konstanten) für die vollständige Dokumentation aller Variablen-Keywords (induce, implant, freeze, anchor, oscillate).
+:::tip Complete Reference
+See [Keywords Reference](./_keywords-reference#variables-and-constants) for the complete documentation of all variable keywords (induce, implant, freeze, anchor, oscillate).
 :::
 
-In HypnoScript werden Variablen mit dem Schlüsselwort `induce` deklariert. Die Sprache unterstützt statisches Type Checking mit verschiedenen primitiven und komplexen Datentypen.
+In HypnoScript, variables are declared with the keyword `induce`. The language supports static type checking with various primitive and complex data types.
 
-## Variablen deklarieren
+## Declaring Variables
 
 ```hyp
 induce name = "HypnoScript";
-induce zahl = 42;
+induce number = 42;
 induce pi = 3.1415;
-induce aktiv = true;
-induce liste = [1, 2, 3];
+induce active = true;
+induce list = [1, 2, 3];
 induce person = { name: "Max", age: 30 };
 ```
 
-## Unterstützte Datentypen
+## Supported Data Types
 
-| Typ     | Beispiel                   | Beschreibung                     |
-| ------- | -------------------------- | -------------------------------- |
-| String  | "Hallo Welt"               | Zeichenkette                     |
-| Integer | 42                         | Ganzzahl                         |
-| Double  | 3.1415                     | Gleitkommazahl                   |
-| Boolean | true, false                | Wahrheitswert                    |
-| Array   | [1, 2, 3]                  | Liste von Werten                 |
-| Record  | \{ name: "Max", age: 30 \} | Objekt mit Schlüssel/Wert-Paaren |
-| Null    | null                       | Leerer Wert                      |
+| Type    | Example                    | Description                 |
+| ------- | -------------------------- | --------------------------- |
+| String  | "Hello World"              | String of characters        |
+| Integer | 42                         | Whole number                |
+| Double  | 3.1415                     | Floating-point number       |
+| Boolean | true, false                | Truth value                 |
+| Array   | [1, 2, 3]                  | List of values              |
+| Record  | \{ name: "Max", age: 30 \} | Object with key/value pairs |
+| Null    | null                       | Empty value                 |
 
-## Typumwandlung
+## Type Conversion
 
-Viele Builtins unterstützen automatische Typumwandlung. Für explizite Umwandlung:
+Many builtins support automatic type conversion. For explicit conversion:
 
 ```hyp
-induce zahl = "42";
-induce alsZahl = ToNumber(zahl); // 42
-induce alsString = ToString(alsZahl); // "42"
+induce number = "42";
+induce asNumber = ToNumber(number); // 42
+induce asString = ToString(asNumber); // "42"
 ```
 
-## Variablen-Sichtbarkeit
+## Variable Visibility
 
-- Variablen sind im aktuellen Block und in Unterblöcken sichtbar.
-- Funktionsparameter sind nur innerhalb der Funktion sichtbar.
+- Variables are visible in the current block and in sub-blocks.
+- Function parameters are only visible within the function.
 
-## Konstanten
+## Constants
 
-Konstanten werden wie Variablen behandelt, aber per Konvention in Großbuchstaben geschrieben:
+Constants are treated like variables, but by convention written in uppercase:
 
 ```hyp
 induce MAX_COUNT = 100;
@@ -58,21 +58,21 @@ induce MAX_COUNT = 100;
 
 ## Best Practices
 
-- Verwende sprechende Namen (z.B. `benutzerName`, `maxWert`)
-- Nutze Arrays und Records für strukturierte Daten
-- Initialisiere Variablen immer mit einem Wert
+- Use descriptive names (e.g. `userName`, `maxValue`)
+- Use arrays and records for structured data
+- Always initialize variables with a value
 
-## Beispiele
+## Examples
 
 ```hyp
 Focus {
     entrance {
-        induce greeting = "Hallo";
+        induce greeting = "Hello";
         induce count = 5;
         induce values = [1, 2, 3, 4, 5];
         induce user = { name: "Anna", age: 28 };
         observe greeting + ", " + user.name + "!";
-        observe "Werte: " + values;
+        observe "Values: " + values;
     }
 } Relax;
 ```

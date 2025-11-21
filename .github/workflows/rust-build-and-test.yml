@@ -73,22 +73,22 @@ jobs:
       - name: Test CLI functionality (Unix)
         if: runner.os != 'Windows'
         run: |
-          ./target/release/hypnoscript-cli version
-          ./target/release/hypnoscript-cli builtins
-          ./target/release/hypnoscript-cli lex hypnoscript-tests/test_rust_demo.hyp
-          ./target/release/hypnoscript-cli parse hypnoscript-tests/test_rust_demo.hyp
-          ./target/release/hypnoscript-cli check hypnoscript-tests/test_rust_demo.hyp
-          ./target/release/hypnoscript-cli run hypnoscript-tests/test_rust_demo.hyp
+          ./target/release/hypnoscript version
+          ./target/release/hypnoscript builtins
+          ./target/release/hypnoscript lex hypnoscript-tests/test_rust_demo.hyp
+          ./target/release/hypnoscript parse hypnoscript-tests/test_rust_demo.hyp
+          ./target/release/hypnoscript check hypnoscript-tests/test_rust_demo.hyp
+          ./target/release/hypnoscript exec hypnoscript-tests/test_rust_demo.hyp
 
       - name: Test CLI functionality (Windows)
         if: runner.os == 'Windows'
         run: |
-          .\target\release\hypnoscript-cli.exe version
-          .\target\release\hypnoscript-cli.exe builtins
-          .\target\release\hypnoscript-cli.exe lex hypnoscript-tests\test_rust_demo.hyp
-          .\target\release\hypnoscript-cli.exe parse hypnoscript-tests\test_rust_demo.hyp
-          .\target\release\hypnoscript-cli.exe check hypnoscript-tests\test_rust_demo.hyp
-          .\target\release\hypnoscript-cli.exe run hypnoscript-tests\test_rust_demo.hyp
+          .\target\release\hypnoscript.exe version
+          .\target\release\hypnoscript.exe builtins
+          .\target\release\hypnoscript.exe lex hypnoscript-tests\test_rust_demo.hyp
+          .\target\release\hypnoscript.exe parse hypnoscript-tests\test_rust_demo.hyp
+          .\target\release\hypnoscript.exe check hypnoscript-tests\test_rust_demo.hyp
+          .\target\release\hypnoscript.exe exec hypnoscript-tests\test_rust_demo.hyp
 
       - name: Upload test results
         uses: actions/upload-artifact@v4
@@ -104,7 +104,10 @@ jobs:
         with:
           name: hypnoscript-cli-${{ matrix.os }}
           path: |
-            target/release/hypnoscript-cli*
+            target/release/hypnoscript
+            target/release/hypnoscript.exe
+            target/release/hyp
+            target/release/hyp.exe
 
   code-quality:
     if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository
@@ -174,8 +177,8 @@ jobs:
 
       - name: Generate performance report
         run: |
-          ./target/release/hypnoscript-cli run hypnoscript-tests/test_rust_demo.hyp --verbose
-          time ./target/release/hypnoscript-cli run hypnoscript-tests/test_rust_demo.hyp
+          ./target/release/hypnoscript exec hypnoscript-tests/test_rust_demo.hyp --verbose
+          time ./target/release/hypnoscript exec hypnoscript-tests/test_rust_demo.hyp
 
       - name: Upload performance results
         uses: actions/upload-artifact@v4
@@ -239,7 +242,8 @@ jobs:
       - name: Create release package
         run: |
           mkdir -p release
-          cp target/release/hypnoscript-cli release/
+          cp target/release/hypnoscript release/
+          cp target/release/hyp release/
           cp README.md release/
           cp RUST_README.md release/ || true
           cp LICENSE release/ || true

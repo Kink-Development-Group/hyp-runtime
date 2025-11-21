@@ -2,18 +2,18 @@
 sidebar_position: 2
 ---
 
-# Runtime-Architektur
+# Runtime Architecture
 
-Diese Seite beschreibt Architektur-Patterns, Skalierungsstrategien und Best Practices für große HypnoScript-Projekte in Unternehmen.
+This page describes architecture patterns, scaling strategies, and best practices for large HypnoScript projects in enterprises.
 
-## Architektur-Patterns
+## Architecture Patterns
 
-### Schichtenarchitektur (Layered Architecture)
+### Layered Architecture
 
-- **Presentation Layer**: CLI, Web-UI, API-Gateways
-- **Application Layer**: Geschäftslogik, Orchestrierung
-- **Domain Layer**: Kernlogik, Validierung, Regeln
-- **Infrastructure Layer**: Datenbank, Messaging, externe Services
+- **Presentation Layer**: CLI, Web-UI, API Gateways
+- **Application Layer**: Business logic, orchestration
+- **Domain Layer**: Core logic, validation, rules
+- **Infrastructure Layer**: Database, messaging, external services
 
 ```mermaid
 graph TD
@@ -22,11 +22,11 @@ graph TD
   C --> D[Infrastructure]
 ```
 
-### Microservices-Architektur
+### Microservices Architecture
 
-- Services sind unabhängig, kommunizieren über APIs/Events
-- Jeder Service kann eigene HypnoScript-Module nutzen
-- Service Discovery, Load Balancing, API-Gateways
+- Services are independent, communicate via APIs/Events
+- Each service can use its own HypnoScript modules
+- Service Discovery, Load Balancing, API Gateways
 
 ```mermaid
 graph LR
@@ -38,8 +38,8 @@ graph LR
 
 ### Event-Driven Architecture
 
-- Lose Kopplung durch Events und Message Queues
-- Skalierbare, asynchrone Verarbeitung
+- Loose coupling through events and message queues
+- Scalable, asynchronous processing
 
 ```mermaid
 graph LR
@@ -48,11 +48,11 @@ graph LR
   Queue -- Event --> Consumer2
 ```
 
-## Modularisierung
+## Modularization
 
-- Trennung in eigenständige Module (z.B. auth, billing, reporting)
-- Gemeinsame Utility- und Core-Module
-- Klare Schnittstellen (APIs, Contracts)
+- Separation into standalone modules (e.g., auth, billing, reporting)
+- Shared utility and core modules
+- Clear interfaces (APIs, Contracts)
 
 ```bash
 project/
@@ -69,27 +69,27 @@ project/
     └── deploy.sh
 ```
 
-## Skalierung und Deployment
+## Scaling and Deployment
 
-### Skalierungsstrategien
+### Scaling Strategies
 
-- **Horizontal Scaling**: Mehrere Instanzen, Load Balancer
-- **Vertical Scaling**: Mehr Ressourcen pro Instanz
-- **Auto-Scaling**: Dynamische Anpassung je nach Last
+- **Horizontal Scaling**: Multiple instances, load balancer
+- **Vertical Scaling**: More resources per instance
+- **Auto-Scaling**: Dynamic adjustment based on load
 
-### Deployment-Patterns
+### Deployment Patterns
 
-- **Blue-Green Deployment**: Zwei Umgebungen, Umschalten ohne Downtime
-- **Canary Releases**: Neue Version für Teilmenge der Nutzer
-- **Rolling Updates**: Schrittweise Aktualisierung
+- **Blue-Green Deployment**: Two environments, switch without downtime
+- **Canary Releases**: New version for subset of users
+- **Rolling Updates**: Gradual update
 
-### Containerisierung
+### Containerization
 
-- Nutzung von Docker für reproduzierbare Deployments
-- Orchestrierung mit Kubernetes, Docker Swarm
+- Using Docker for reproducible deployments
+- Orchestration with Kubernetes, Docker Swarm
 
 ```yaml
-# Beispiel: Kubernetes Deployment
+# Example: Kubernetes Deployment
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -113,24 +113,24 @@ spec:
 
 ## Observability & Monitoring
 
-- Zentrales Logging (ELK, Grafana, Prometheus)
-- Distributed Tracing (OpenTelemetry, Jaeger)
-- Health Checks, Alerting
+- Centralized logging (ELK, Grafana, Prometheus)
+- Distributed tracing (OpenTelemetry, Jaeger)
+- Health checks, alerting
 
 ## Security & Compliance
 
-- Zentrale Authentifizierung (SSO, OAuth, LDAP)
-- Verschlüsselung (TLS, At-Rest, In-Transit)
-- Audit-Logging, GDPR/DSGVO-Compliance
+- Centralized authentication (SSO, OAuth, LDAP)
+- Encryption (TLS, at-rest, in-transit)
+- Audit logging, GDPR compliance
 
 ## Best Practices
 
-- **Konfigurationsmanagement**: Trennung von Code und Konfiguration
-- **Automatisierte Tests & CI/CD**: Qualität und Sicherheit
+- **Configuration Management**: Separation of code and configuration
+- **Automated Testing & CI/CD**: Quality and security
 - **Infrastructure as Code**: Terraform, Ansible, Helm
-- **Dokumentation & Wissensmanagement**: Zentral gepflegte Doku
+- **Documentation & Knowledge Management**: Centrally maintained documentation
 
-## Beispiel-Architekturdiagramm
+## Example Architecture Diagram
 
 ```mermaid
 graph TD
@@ -145,7 +145,7 @@ graph TD
     Reporting[Reporting Service]
     Core[Core Module]
   end
-  subgraph Infrastruktur
+  subgraph Infrastructure
     DB[(Database)]
     MQ[(Message Queue)]
     Cache[(Redis Cache)]
@@ -164,12 +164,12 @@ graph TD
   LB --> API
 ```
 
-## Nächste Schritte
+## Next Steps
 
-- [Runtime-Sicherheit](./security) – Sicherheitsarchitektur
-- [Runtime-Monitoring](./monitoring) – Monitoring & Alerting
-- [Runtime-Integration](./integration) – Schnittstellen & Integration
+- [Runtime Security](./security) – Security architecture
+- [Runtime Monitoring](./monitoring) – Monitoring & Alerting
+- [Runtime Integration](./integration) – Interfaces & Integration
 
 ---
 
-**Architektur gemeistert? Dann lerne [Runtime-Sicherheit](./security) kennen!** 🏛️
+**Mastered architecture? Then learn about [Runtime Security](./security)!** 🏛️

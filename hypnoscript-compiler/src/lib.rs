@@ -1,59 +1,59 @@
-//! HypnoScript Compiler und Interpreter
+//! HypnoScript Compiler and Interpreter
 //!
-//! Dieses Modul stellt die vollständige Compiler-Infrastruktur und den Interpreter
-//! für HypnoScript bereit.
+//! This module provides the complete compiler infrastructure and interpreter
+//! for HypnoScript.
 //!
-//! ## Architektur
+//! ## Architecture
 //!
-//! Der Compiler unterstützt mehrere Backends:
+//! The compiler supports multiple backends:
 //!
-//! ### 1. Interpreter (Runtime-Ausführung)
-//! - Direktes Ausführen von HypnoScript-Code
-//! - Vollständige Sprachunterstützung inkl. OOP (Sessions)
-//! - Integrierte Built-in-Funktionen
-//! - Ideal für Entwicklung und Debugging
+//! ### 1. Interpreter (Runtime Execution)
+//! - Direct execution of HypnoScript code
+//! - Full language support including OOP (Sessions)
+//! - Integrated built-in functions
+//! - Ideal for development and debugging
 //!
-//! ### 2. Native Code-Generator (Cranelift)
-//! - Kompiliert zu plattformspezifischem Maschinencode
-//! - Unterstützt Windows, macOS und Linux (x86_64, ARM64)
-//! - Optimierte Binaries mit Cranelift-Backend
-//! - Schnellere Alternative zu LLVM
+//! ### 2. Native Code Generator (Cranelift)
+//! - Compiles to platform-specific machine code
+//! - Supports Windows, macOS and Linux (x86_64, ARM64)
+//! - Optimized binaries with Cranelift backend
+//! - Faster alternative to LLVM
 //!
-//! ### 3. WASM-Generator
-//! - **Text Format (.wat)**: Menschenlesbares WebAssembly
-//! - **Binary Format (.wasm)**: Kompaktes binäres WebAssembly
-//! - Browser- und Server-Unterstützung
+//! ### 3. WASM Generator
+//! - **Text Format (.wat)**: Human-readable WebAssembly
+//! - **Binary Format (.wasm)**: Compact binary WebAssembly
+//! - Browser and server support
 //! - Sandboxed Execution
 //!
-//! ## Module
+//! ## Modules
 //!
-//! - **interpreter**: Interpretiert HypnoScript-Code direkt
-//! - **type_checker**: Statische Typprüfung vor der Ausführung
-//! - **optimizer**: Code-Optimierungen (Constant Folding, Dead Code Elimination, etc.)
-//! - **native_codegen**: Generiert plattformspezifischen nativen Code mit Cranelift
-//! - **wasm_codegen**: Generiert WebAssembly Text Format (.wat)
-//! - **wasm_binary**: Generiert WebAssembly Binary Format (.wasm)
+//! - **interpreter**: Interprets HypnoScript code directly
+//! - **type_checker**: Static type checking before execution
+//! - **optimizer**: Code optimizations (Constant Folding, Dead Code Elimination, etc.)
+//! - **native_codegen**: Generates platform-specific native code with Cranelift
+//! - **wasm_codegen**: Generates WebAssembly Text Format (.wat)
+//! - **wasm_binary**: Generates WebAssembly Binary Format (.wasm)
 //!
-//! ## Design-Prinzipien
+//! ## Design Principles
 //!
 //! ### OOP (Object-Oriented Programming)
-//! - Sessions als Klassen-Konstrukte
-//! - Kapselung und Sichtbarkeitsmodifikatoren
-//! - Statische und Instanz-Methoden/Felder
+//! - Sessions as class constructs
+//! - Encapsulation and visibility modifiers
+//! - Static and instance methods/fields
 //!
 //! ### DRY (Don't Repeat Yourself)
-//! - Gemeinsame Infrastruktur in `hypnoscript-core`
-//! - Wiederverwendbare Typsysteme und Symbol-Tables
-//! - Shared Traits für Built-in-Funktionen
+//! - Common infrastructure in `hypnoscript-core`
+//! - Reusable type systems and symbol tables
+//! - Shared traits for built-in functions
 //!
-//! ### Dokumentation
-//! - Umfassende Rustdoc-Kommentare
-//! - Beispiele für jedes Modul
-//! - Unit-Tests als lebende Dokumentation
+//! ### Documentation
+//! - Comprehensive Rustdoc comments
+//! - Examples for each module
+//! - Unit tests as living documentation
 //!
-//! ## Verwendung
+//! ## Usage
 //!
-//! ### Beispiel: Interpretation
+//! ### Example: Interpretation
 //!
 //! ```rust,no_run
 //! use hypnoscript_compiler::Interpreter;
@@ -75,7 +75,7 @@
 //! // interpreter.interpret(&ast).unwrap();
 //! ```
 //!
-//! ### Beispiel: Native Kompilierung
+//! ### Example: Native Compilation
 //!
 //! ```rust,no_run
 //! use hypnoscript_compiler::{NativeCodeGenerator, OptimizationLevel, TargetPlatform};
@@ -94,7 +94,7 @@
 //! // let binary_path = generator.generate(&ast).unwrap();
 //! ```
 //!
-//! ### Beispiel: WASM-Generierung
+//! ### Example: WASM Generation
 //!
 //! ```rust,no_run
 //! use hypnoscript_compiler::{WasmCodeGenerator, WasmBinaryGenerator};
@@ -118,20 +118,20 @@
 //! // fs::write("output.wasm", wasm_bytes).unwrap();
 //! ```
 //!
-//! ## Performance-Vergleich
+//! ## Performance Comparison
 //!
-//! | Backend | Kompilierzeit | Ausführungszeit | Binary-Größe | Use Case |
-//! |---------|--------------|-----------------|--------------|----------|
-//! | Interpreter | Sofort | Langsam | N/A | Entwicklung, Debugging |
-//! | Native (Cranelift) | Schnell | Sehr schnell | Klein | Produktion, Server |
-//! | WASM | Schnell | Schnell | Sehr klein | Web, Embedding |
+//! | Backend | Compile Time | Execution Time | Binary Size | Use Case |
+//! |---------|--------------|----------------|-------------|----------|
+//! | Interpreter | Instant | Slow | N/A | Development, Debugging |
+//! | Native (Cranelift) | Fast | Very Fast | Small | Production, Server |
+//! | WASM | Fast | Fast | Very Small | Web, Embedding |
 //!
-//! ## Sicherheit
+//! ## Security
 //!
-//! - Memory-safe durch Rust
-//! - Type-checked vor Ausführung
+//! - Memory-safe through Rust
+//! - Type-checked before execution
 //! - WASM: Sandboxed Execution
-//! - Native: Optimierte, sichere Code-Generierung
+//! - Native: Optimized, safe code generation
 
 pub mod async_builtins;
 pub mod async_promise;

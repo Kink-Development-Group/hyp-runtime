@@ -2,49 +2,49 @@
 title: CLI Debugging
 ---
 
-Die HypnoScript CLI setzt beim Debugging auf wenige, aber wirkungsvolle Mechanismen. Dieser Leitfaden zeigt, wie du Fehler schnell eingrenzt und welche Befehle dir helfen, den Programmzustand sichtbar zu machen.
+The HypnoScript CLI relies on a few but effective debugging mechanisms. This guide shows how to quickly isolate errors and which commands help make program state visible.
 
-## Debug- und Verbose-Modus
+## Debug and Verbose Mode
 
-- `--debug` zeigt den Quelltext, die erzeugten Tokens, den AST sowie die Ergebnisse des Type Checkers, bevor der Interpreter startet.
-- `--verbose` ergänzt Statusmeldungen (z.B. "Running file" oder "Program executed successfully").
-- Beide Flags lassen sich kombinieren: `hypnoscript run script.hyp --debug --verbose`.
+- `--debug` displays the source code, generated tokens, the AST, and type checker results before the interpreter starts.
+- `--verbose` adds status messages (e.g., "Running file" or "Program executed successfully").
+- Both flags can be combined: `hypnoscript run script.hyp --debug --verbose`.
 
-## Token- und AST-Analyse
+## Token and AST Analysis
 
 ```bash
 hypnoscript lex script.hyp
 hypnoscript parse script.hyp
 ```
 
-- Nutze `lex`, um zu kontrollieren, welche Schlüsselwörter und Literale der Lexer erkennt.
-- `parse` liefert den vollständigen AST – ideal, wenn Kontrollstrukturen oder Sessions nicht wie erwartet aufgebaut werden.
+- Use `lex` to check which keywords and literals the lexer recognizes.
+- `parse` provides the complete AST – ideal when control structures or sessions are not built as expected.
 
-## Typprüfung ohne Ausführung
+## Type Checking Without Execution
 
 ```bash
 hypnoscript check script.hyp
 ```
 
-- Der Type Checker meldet fehlende Funktionen, falsche Rückgabewerte oder ungeeignete Zuweisungen.
-- Die CLI führt das Programm auch bei Typfehlern aus; verwende `check`, um Fehler schon vorher einzufangen.
+- The type checker reports missing functions, incorrect return values, or unsuitable assignments.
+- The CLI executes the program even with type errors; use `check` to catch errors beforehand.
 
-## Typischer Debug-Workflow
+## Typical Debug Workflow
 
 ```bash
 # 1. Type Checking
 hypnoscript check scripts/deep_trance.hyp
 
-# 2. Tokens & AST inspizieren
+# 2. Inspect tokens & AST
 hypnoscript lex scripts/deep_trance.hyp
 hypnoscript parse scripts/deep_trance.hyp
 
-# 3. Mit Debug-Ausgabe ausführen
+# 3. Run with debug output
 hypnoscript run scripts/deep_trance.hyp --debug
 ```
 
-## Tipps
+## Tips
 
-- Kommentiere komplexe Bereiche temporär aus (`//`) und führe den Rest mit `--debug` aus, um das Problem lokal einzugrenzen.
-- Bei Array-Operationen hilft `hypnoscript builtins`, um passende Hilfsfunktionen zu finden (z.B. `ArrayJoin`, `ArrayContains`).
-- Speichere Debug-Ausgaben mit `> debug.log`, falls du sie später vergleichen möchtest (`hypnoscript run script.hyp --debug > debug.log`).
+- Temporarily comment out complex sections (`//`) and run the rest with `--debug` to isolate the problem locally.
+- For array operations, `hypnoscript builtins` helps find suitable helper functions (e.g., `ArrayJoin`, `ArrayContains`).
+- Save debug output with `> debug.log` if you want to compare it later (`hypnoscript run script.hyp --debug > debug.log`).

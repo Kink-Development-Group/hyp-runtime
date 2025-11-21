@@ -1,5 +1,5 @@
 # Labeler-Konfiguration für HypnoScript
-# Siehe https://github.com/actions/labeler für das Konfigurationsformat.
+# See https://github.com/actions/labeler for configuration format.
 
 'area:core':
   - changed-files:

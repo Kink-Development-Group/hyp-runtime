@@ -1,54 +1,40 @@
-// Advanced Parallel Execution Test
-// Tests true multi-threading capabilities
+// Simulated parallel execution without real threads
+// Demonstrates how to perform timing analysis with existing builtins
 
 Focus {
     entrance {
-        observe "=== Advanced Parallel Execution Test ===";
+        observe "=== Simulated parallel workloads ===";
+        observe "CPU cores according to runtime: " + GetCpuCount();
+        observe "Hostname: " + GetHostname();
         observe "";
 
-        // Test: CPU-bound parallel tasks
-        observe "Running CPU-intensive tasks in parallel...";
+        induce taskDurations: array = [120, 80, 150];
+        induce total: number = 0;
 
-        induce cores = cpuCount();
-        observe "Available CPU cores: " + cores;
-        observe "";
+        observe "Starting sequential simulation of 3 tasks.";
 
-        // Simulate parallel computation
-        observe "Task 1: Computing...";
-        await asyncDelay(200);
-        observe "  → Task 1 complete";
+        pendulum (induce i: number = 0; i < 3; i = i + 1) {
+            induce duration: number = entrain i {
+                when 0 => 120
+                when 1 => 80
+                when 2 => 150
+                otherwise => 0
+            };
+            observe "Task " + (i + 1) + " runs for " + duration + " ms";
+            observe "(simulated wait: " + duration + " ms)";
 
-        observe "Task 2: Computing...";
-        await asyncDelay(200);
-        observe "  → Task 2 complete";
+            total = total + duration;
+            murmur "Progress after task " + (i + 1) + ": " + total + " ms";
+        }
 
-        observe "Task 3: Computing...";
-        await asyncDelay(200);
-        observe "  → Task 3 complete";
+        observe "Total time (sequential): " + total + " ms";
 
-        observe "";
-        observe "✓ All parallel tasks completed successfully";
+        induce averageDuration = ArrayAverage(taskDurations);
+        observe "Average task duration: " + averageDuration + " ms";
 
-        // Test: Concurrent I/O operations
-        observe "";
-        observe "=== Concurrent I/O Simulation ===";
-
-        induce start = TimeNow();
-
-        // Simulate 5 concurrent I/O operations
-        await asyncDelay(100);
-        await asyncDelay(100);
-        await asyncDelay(100);
-        await asyncDelay(100);
-        await asyncDelay(100);
-
-        induce end = TimeNow();
-        induce total = end - start;
-
-        observe "Total time for 5 I/O ops: " + total + "ms";
-        observe "(Sequential would be ~500ms, parallel should be ~100ms)";
-        observe "";
-
-        observe "=== Test Complete ===";
+        observe "Note: real concurrency is future work—this demo relies on drift for repeatable timing.";
+        observe "=== Simulation complete ===";
     }
-} Relax;
+}
+
+Relax

@@ -8,6 +8,14 @@ repository.workspace = true
 description = "Command-line interface for the HypnoScript language runtime and development tooling."
 readme = "../README.md"
 
+[[bin]]
+name = "hypnoscript"
+path = "src/main.rs"
+
+[[bin]]
+name = "hyp"
+path = "src/main.rs"
+
 [dependencies]
 hypnoscript-core = { path = "../hypnoscript-core" }
 hypnoscript-lexer-parser = { path = "../hypnoscript-lexer-parser" }
@@ -20,3 +28,4 @@ serde = { workspace = true }
 serde_json = { workspace = true }
 ureq = { version = "2.9", features = ["json"] }
 tempfile = "3.10"
+shlex = "1.3"

@@ -743,7 +743,7 @@ apm {
 - [ ] Distributed Tracing aktiviert
 - [ ] Alerting-Regeln definiert
 - [ ] Dashboards erstellt
-- [ ] Performance-Monitoring konfiguriert
+- [ ] Performance-Monitoring configured
 - [ ] Business-Metriken definiert
 - [ ] Monitoring-Dokumentation erstellt
 - [ ] Team-Schulungen durchgeführt

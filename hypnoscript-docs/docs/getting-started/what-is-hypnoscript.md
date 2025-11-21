@@ -1,51 +1,51 @@
-# Was ist HypnoScript?
+# What is HypnoScript?
 
-HypnoScript ist eine statisch typisierte Skriptsprache mit hypnotischer Syntax. Statt `class`, `function` oder `print` findest du Begriffe wie `session`, `suggestion` und `observe`. Die Rust-basierte Implementierung liefert Lexer, Parser, Type Checker, Interpreter und einen WASM-Codegenerator in einem kompakten Toolchain-Bundle.
+HypnoScript is a statically typed scripting language with hypnotic syntax. Instead of `class`, `function` or `print`, you'll find terms like `session`, `suggestion` and `observe`. The Rust-based implementation provides a lexer, parser, type checker, interpreter and WASM code generator in a compact toolchain bundle.
 
-## Designprinzipien
+## Design Principles
 
-- **Lesbarkeit vor allem** – Hypnotische Schlüsselwörter sollen Spaß machen, ohne die Verständlichkeit zu verlieren.
-- **Statische Sicherheit** – Der Type Checker validiert Variablen, Funktionssignaturen, Rückgabewerte und Session-Mitglieder.
-- **Deterministische Ausführung** – Der Interpreter führt Programme reproduzierbar aus und meldet Typfehler, bricht aber nicht zwangsläufig ab.
-- **Ein Binary, alle Schritte** – Die CLI deckt Lexing, Parsing, Type Checking, Ausführung und optionales WASM-Target ab.
+- **Readability First** – Hypnotic keywords should be fun without losing comprehensibility.
+- **Static Safety** – The type checker validates variables, function signatures, return values and session members.
+- **Deterministic Execution** – The interpreter executes programs reproducibly and reports type errors, but doesn't necessarily abort.
+- **One Binary, All Steps** – The CLI covers lexing, parsing, type checking, execution and optional WASM target.
 
-## Sprache auf einen Blick
+## Language at a Glance
 
-| Element                           | Beschreibung                                                                                        |
-| --------------------------------- | --------------------------------------------------------------------------------------------------- |
-| `Focus { ... } Relax`             | Umschließt jedes Programm. `Relax` markiert das Ende und ist obligatorisch.                         |
-| `entrance { ... }`                | Optionaler Startblock für Initialisierung, Begrüßung oder Setup.                                    |
-| `finale { ... }`                  | Optionaler Cleanup-Block, der vor `Relax` ausgeführt wird.                                          |
-| `induce` / `implant`              | Deklariert veränderbare Variablen mit optionalem Typ.                                               |
-| `freeze`                          | Deklariert Konstanten.                                                                              |
-| `observe` / `whisper` / `command` | Ausgabe mit Zeilenumbruch, ohne Zeilenumbruch bzw. fett/imperativ.                                  |
-| `suggestion`                      | Definiert Funktionen; `awaken` (oder `return`) gibt Werte zurück.                                   |
-| `session`                         | Objektorientierte Strukturen mit `expose` (öffentlich), `conceal` (privat) und `dominant` (static). |
-| `anchor`                          | Speichert den aktuellen Wert eines Ausdrucks für später.                                            |
-| `oscillate`                       | Toggle für boolesche Variablen.                                                                     |
-| `deepFocus`                       | Optionaler Zusatz hinter `if (...)` für etwas dramatischere Bedingungsblöcke.                       |
+| Element                           | Description                                                                                     |
+| --------------------------------- | ----------------------------------------------------------------------------------------------- |
+| `Focus { ... } Relax`             | Wraps every program. `Relax` marks the end and is mandatory.                                    |
+| `entrance { ... }`                | Optional startup block for initialization, greeting or setup.                                   |
+| `finale { ... }`                  | Optional cleanup block that executes before `Relax`.                                            |
+| `induce` / `implant`              | Declares mutable variables with optional type.                                                  |
+| `freeze`                          | Declares constants.                                                                             |
+| `observe` / `whisper` / `command` | Output with newline, without newline, or bold/imperative respectively.                          |
+| `suggestion`                      | Defines functions; `awaken` (or `return`) returns values.                                       |
+| `session`                         | Object-oriented structures with `expose` (public), `conceal` (private) and `dominant` (static). |
+| `anchor`                          | Stores the current value of an expression for later.                                            |
+| `oscillate`                       | Toggle for boolean variables.                                                                   |
+| `deepFocus`                       | Optional addition after `if (...)` for more dramatic conditional blocks.                        |
 
-## Beispielprogramm
+## Example Program
 
 ```hyp
 Focus {
     entrance {
-        observe "Willkommen bei HypnoScript";
+        observe "Welcome to HypnoScript";
     }
 
     freeze MAX_DEPTH: number = 3;
     induce depth: number = 0;
 
     while (depth goingDeeper MAX_DEPTH) {
-        observe "Tiefe: " + depth;
+        observe "Depth: " + depth;
         depth = depth + 1;
     }
 
     suggestion introduce(name: string): string {
-        awaken "Hallo, " + name + "!";
+        awaken "Hello, " + name + "!";
     }
 
-    observe introduce("Hypnotisierte Person");
+    observe introduce("Hypnotized Person");
 
     session Subject {
         expose name: string;
@@ -58,7 +58,7 @@ Focus {
 
         expose suggestion deepen() {
             this.level = this.level + 1;
-            observe this.name + " geht tiefer: " + this.level;
+            observe this.name + " goes deeper: " + this.level;
         }
     }
 
@@ -67,27 +67,27 @@ Focus {
 } Relax
 ```
 
-## Plattform-Komponenten
+## Platform Components
 
-- **Lexer & Parser** – Liefern Token-Streams und ASTs, inkl. hypnotischer Operator-Synonyme (`youAreFeelingVerySleepy`, `underMyControl`, …).
-- **Type Checker** – Registriert alle Builtins, prüft Funktions- und Sessionsignaturen, Sichtbarkeiten und Konversionen.
-- **Interpreter** – Führt AST-Knoten aus, verwaltet Sessions, statische Felder, Trigger und Builtins.
-- **WASM-Codegenerator** – Erstellt WebAssembly Text (.wat) für ausgewählte Konstrukte.
-- **CLI** – `hypnoscript` vereint alle Schritte: `run`, `lex`, `parse`, `check`, `compile-wasm`, `builtins`, `version`.
+- **Lexer & Parser** – Deliver token streams and ASTs, including hypnotic operator synonyms (`youAreFeelingVerySleepy`, `underMyControl`, …).
+- **Type Checker** – Registers all builtins, checks function and session signatures, visibilities and conversions.
+- **Interpreter** – Executes AST nodes, manages sessions, static fields, triggers and builtins.
+- **WASM Code Generator** – Creates WebAssembly Text (.wat) for selected constructs.
+- **CLI** – `hypnoscript` combines all steps: `run`, `lex`, `parse`, `check`, `compile-wasm`, `builtins`, `version`.
 
-## Typische Einsatzfelder
+## Typical Use Cases
 
-- **Skript-Experimente** – Kombination aus ungewöhnlicher Syntax und vertrauten Kontrollstrukturen.
-- **Lehre & Workshops** – Zeigt, wie Parser, Type Checker und Interpreter zusammenarbeiten.
-- **Tooling-Demos** – Beispiel dafür, wie eine Sprache komplett in Rust abgebildet werden kann.
-- **Web-WASM-Experimente** – Programmteile nach `.wat` exportieren und in WebAssembly-Projekten einsetzen.
+- **Script Experiments** – Combination of unusual syntax and familiar control structures.
+- **Teaching & Workshops** – Shows how parser, type checker and interpreter work together.
+- **Tooling Demos** – Example of how a language can be completely implemented in Rust.
+- **Web-WASM Experiments** – Export program parts to `.wat` and use them in WebAssembly projects.
 
-## Weiterführende Ressourcen
+## Further Resources
 
-- [Core Concepts](./core-concepts) – Überblick über Sprachelemente, Typsystem und Runtime.
-- [Installation](./installation) – Lokale Einrichtung der Toolchain.
-- [Quick Start](./quick-start) – Dein erstes Skript in wenigen Minuten.
-- [Sprachreferenz](../language-reference/syntax) – Grammatik, Operatoren, Funktionen, Sessions.
-- [Builtin-Übersicht](../builtins/overview) – Alle Standardfunktionen nach Kategorien.
+- [Core Concepts](./core-concepts) – Overview of language elements, type system and runtime.
+- [Installation](./installation) – Local setup of the toolchain.
+- [Quick Start](./quick-start) – Your first script in minutes.
+- [Language Reference](../language-reference/syntax) – Grammar, operators, functions, sessions.
+- [Builtin Overview](../builtins/overview) – All standard functions by category.
 
-HypnoScript macht hypnotische Metaphern programmierbar – mit einer ehrlichen Rust-Basis unter der Haube.
+HypnoScript makes hypnotic metaphors programmable – with an honest Rust foundation under the hood.

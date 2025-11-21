@@ -1,5 +1,24 @@
 Focus {
-    induce x: number = 42;
-    induce y: number = 10;
-    observe x + y;
-} Relax
+    entrance {
+        observe "🗂️ Dateisystem-Demo";
+    }
+
+    induce fileName: string = "test_compiler_output.txt";
+    induce content: string = "HypnoScript schreibt Dateien.";
+
+    WriteFile(fileName, content);
+    AppendFile(fileName, "\nWeitere Zeile.");
+
+    observe "Datei vorhanden? " + FileExists(fileName);
+    observe "Dateigröße: " + GetFileSize(fileName) + " Bytes";
+
+    induce readBack = ReadFile(fileName);
+    observe "Inhalt:\n" + readBack;
+
+    DeleteFile(fileName);
+    observe "Datei nach Löschung vorhanden? " + FileExists(fileName);
+
+    observe "Dateisystem-Demo abgeschlossen.";
+}
+
+Relax

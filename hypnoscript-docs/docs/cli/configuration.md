@@ -2,24 +2,24 @@
 sidebar_position: 3
 ---
 
-# CLI-Konfiguration
+# CLI Configuration
 
-Die Rust-basierte HypnoScript CLI verzichtet bewusst auf globale Konfigurationsdateien. Stattdessen steuerst du das Verhalten ausschließlich über Subcommands und deren Flags. Dieser Leitfaden zeigt, welche Schalter es gibt und wie du sie mit Shell-Skripten oder Tooling automatisieren kannst.
+The Rust-based HypnoScript CLI deliberately avoids global configuration files. Instead, you control behavior exclusively through subcommands and their flags. This guide shows which switches are available and how to automate them with shell scripts or tooling.
 
-## Laufzeit-Flags der CLI
+## CLI Runtime Flags
 
-| Subcommand                          | Optionen               | Wirkung                                                                   |
+| Subcommand                          | Options                | Effect                                                                    |
 | ----------------------------------- | ---------------------- | ------------------------------------------------------------------------- |
-| `run <file>`                        | `--debug`, `--verbose` | Debug zeigt Tokens, AST und Type Checks, verbose gibt Statusmeldungen aus |
-| `compile-wasm`                      | `--output <file>`      | Wählt den Namen der `.wat`-Datei (Standard: `<input>.wat`)                |
-| `version`                           | _(keine)_              | Gibt Toolchain-Informationen aus                                          |
-| `lex`, `parse`, `check`, `builtins` | _(keine)_              | Nutzen keine Zusatzoptionen                                               |
+| `run <file>`                        | `--debug`, `--verbose` | Debug shows tokens, AST, and type checks; verbose outputs status messages |
+| `compile-wasm`                      | `--output <file>`      | Selects the name of the `.wat` file (default: `<input>.wat`)              |
+| `version`                           | _(none)_               | Outputs toolchain information                                             |
+| `lex`, `parse`, `check`, `builtins` | _(none)_               | Use no additional options                                                 |
 
-Mehr Flags existieren aktuell nicht. Das macht die CLI zwar simpel, aber auch sehr vorhersehbar – gerade für Skripte und CI.
+More flags currently don't exist. This makes the CLI simple but also very predictable – especially for scripts and CI.
 
-## Eigene Wrapper erstellen
+## Creating Custom Wrappers
 
-Wenn du häufig dieselben Optionen verwenden möchtest, lohnt sich ein kleines Wrapper-Skript.
+If you frequently want to use the same options, a small wrapper script is worthwhile.
 
 ### PowerShell (Windows)
 
@@ -38,7 +38,7 @@ function Invoke-HypnoScriptRun {
     hypnoscript @args
 }
 
-# Nutzung
+# Usage
 Invoke-HypnoScriptRun -File 'scripts/demo.hyp' -Verbose
 ```
 
@@ -57,82 +57,82 @@ hyp() {
   esac
 }
 
-# Beispiel
+# Example
 hyp run scripts/demo.hyp
 ```
 
-Solche Wrapper kannst du versionskontrolliert im Projekt ablegen (`scripts/`).
+You can store such wrappers under version control in the project (`scripts/`).
 
-## Projektbezogene Workflows
+## Project-Related Workflows
 
-Auch ohne Konfigurationsdatei kannst du Abläufe bündeln:
+Even without a configuration file, you can bundle processes:
 
 - **`package.json` / npm scripts:** `"check": "hypnoscript check src/**/*.hyp"`
 - **Makefile:** `check: ; hypnoscript check $(FILE)`
-- **CI-Pipeline:** Verwende die `run`, `check` und `compile-wasm` Befehle direkt in deinen Jobs.
+- **CI Pipeline:** Use the `run`, `check`, and `compile-wasm` commands directly in your jobs.
 
-Damit dokumentierst du, wie das Projekt gebaut oder geprüft werden soll – ohne eigene CLI-Config.
+This documents how the project should be built or checked – without custom CLI config.
 
-## Umgebungsvariablen
+## Environment Variables
 
-Die CLI liest derzeit keine speziellen `HYPNOSCRIPT_*` Variablen ein. Du kannst trotzdem Umgebungsvariablen nutzen, um Dateipfade oder Flags zu steuern:
+The CLI currently does not read any special `HYPNOSCRIPT_*` variables. You can still use environment variables to control file paths or flags:
 
 ```bash
 export HYPNO_DEFAULT=examples/intro.hyp
 hypnoscript run "$HYPNO_DEFAULT"
 ```
 
-Oder in PowerShell:
+Or in PowerShell:
 
 ```powershell
 $env:DEFAULT_HYP = 'examples/intro.hyp'
 hypnoscript run $env:DEFAULT_HYP --debug
 ```
 
-Solche Variablen sind rein konventionell – die CLI greift nicht automatisch darauf zu.
+Such variables are purely conventional – the CLI does not automatically access them.
 
-## Empfehlungen
+## Recommendations
 
-- **Dokumentiere Wrapper:** Lege ein README im `scripts/`-Ordner an, damit andere den Workflow nachvollziehen können.
-- **Nutze `--debug` sparsam:** In CI-Pipelines reicht oft `--verbose`. Debug-Ausgaben können riesig werden.
-- **Version pinnen:** Referenziere in Skripten eine konkrete Version (`hypnoscript version`) oder lege den Binary als Artefakt ab, um reproduzierbare Builds zu erhalten.
+- **Document Wrappers:** Create a README in the `scripts/` folder so others can follow the workflow.
+- **Use `--debug` sparingly:** In CI pipelines, `--verbose` is often sufficient. Debug output can become huge.
+- **Pin Version:** Reference a specific version in scripts (`hypnoscript version`) or store the binary as an artifact to get reproducible builds.
 
 ## Troubleshooting
 
-1. **`hypnoscript` wird nicht gefunden**
+1. **`hypnoscript` not found**
 
 ```bash
-# Prüfe, ob der Binary im PATH liegt
+# Check if the binary is in PATH
 which hypnoscript    # macOS/Linux
 Get-Command hypnoscript | Select-Object Source  # PowerShell
 
-# Falls nicht vorhanden: Pfad ergänzen
-export PATH="$PATH:$HOME/.cargo/bin"          # Beispiel Linux
+# If not present: add path
+export PATH="$PATH:$HOME/.cargo/bin"          # Example Linux
 ```
 
-1. **Keine Ausführungsrechte**
+2. **No execution permissions**
 
 ```bash
 chmod +x hypnoscript            # macOS/Linux
-Set-ExecutionPolicy RemoteSigned # Windows PowerShell (falls nötig)
+Set-ExecutionPolicy RemoteSigned # Windows PowerShell (if needed)
 ```
 
-1. **Unerwartete Ausgaben / Syntaxfehler**
+3. **Unexpected output / syntax errors**
 
 ```bash
-# Mit Debug-Infos erneut ausführen
+# Run again with debug info
 hypnoscript run script.hyp --debug
 
-# Tokens prüfen
+# Check tokens
 hypnoscript lex script.hyp
 ```
 
-## Nächste Schritte
+## Next Steps
 
-- [CLI Übersicht](./overview) – Installationswege & Workflow
-- [CLI-Befehle](./commands) – Vollständige Referenz der Subcommands
-- [CLI Basics](../getting-started/cli-basics) – Alltagstaugliche Beispiele
+- [CLI Overview](./overview) – Installation paths & workflow
+- [CLI Commands](./commands) – Complete reference of subcommands
+- [CLI Basics](../getting-started/cli-basics) – Everyday examples
 
 ---
 
-**Tipp:** Baue eigene Wrapper in `scripts/`, um wiederkehrende Aufrufe zu vereinfachen.
+**Tip:** Build custom wrappers in `scripts/` to simplify recurring calls.

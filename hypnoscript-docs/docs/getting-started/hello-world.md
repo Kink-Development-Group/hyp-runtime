@@ -5,89 +5,89 @@ sidebar_position: 3
 
 # Hello World
 
-Dein erstes HypnoScript-Programm!
+Your first HypnoScript program!
 
-## Einfaches Hello World
+## Simple Hello World
 
-Erstelle eine Datei `hello.hyp` mit folgendem Inhalt:
+Create a file `hello.hyp` with the following content:
 
 ```hyp
 Focus {
-    observe "Hallo Welt!";
+    observe "Hello World!";
 } Relax
 ```
 
-Führe das Programm aus:
+Run the program:
 
 ```bash
 hypnoscript hello.hyp
 ```
 
-Ausgabe:
+Output:
 
 ```
-Hallo Welt!
+Hello World!
 ```
 
-## Mit Entrance-Block
+## With Entrance Block
 
-Der `entrance`-Block wird beim Programmstart ausgeführt:
+The `entrance` block is executed at program start:
 
 ```hyp
 Focus {
     entrance {
-        observe "Willkommen in HypnoScript!";
-        observe "Dies ist dein erstes Programm.";
+        observe "Welcome to HypnoScript!";
+        observe "This is your first program.";
     }
 } Relax
 ```
 
-## Mit Variablen
+## With Variables
 
 ```hyp
 Focus {
     entrance {
-        induce name: string = "Entwickler";
-        observe "Hallo, " + name + "!";
-        observe "Willkommen bei HypnoScript.";
+        induce name: string = "Developer";
+        observe "Hello, " + name + "!";
+        observe "Welcome to HypnoScript.";
     }
 } Relax
 ```
 
-## Interaktives Hello World
+## Interactive Hello World
 
 ```hyp
 Focus {
     entrance {
-        observe "=== HypnoScript Willkommens-Programm ===";
+        observe "=== HypnoScript Welcome Program ===";
 
-        induce name: string = "Welt";
+        induce name: string = "World";
         induce version: number = 1.0;
 
-        observe "Hallo, " + name + "!";
+        observe "Hello, " + name + "!";
         observe "HypnoScript Version " + version;
-        observe "Bereit für hypnotische Programmierung!";
+        observe "Ready for hypnotic programming!";
     }
 } Relax
 ```
 
-## Mit Funktionen
+## With Functions
 
 ```hyp
 Focus {
     suggestion greet(name: string) {
-        observe "Hallo, " + name + "!";
-        observe "Schön, dich kennenzulernen.";
+        observe "Hello, " + name + "!";
+        observe "Nice to meet you.";
     }
 
     entrance {
-        greet("HypnoScript-Entwickler");
+        greet("HypnoScript Developer");
     }
 } Relax
 ```
 
-## Nächste Schritte
+## Next Steps
 
-- Lerne über [Variablen und Datentypen](../language-reference/variables.md)
-- Verstehe [Kontrollstrukturen](../language-reference/control-flow.md)
-- Entdecke [Builtin-Funktionen](../builtins/overview.md)
+- Learn about [Variables and Data Types](../language-reference/variables.md)
+- Understand [Control Structures](../language-reference/control-flow.md)
+- Discover [Builtin Functions](../builtins/overview.md)

@@ -4,37 +4,37 @@ sidebar_position: 1
 
 # Syntax
 
-HypnoScript verwendet eine hypnotische Syntax, die sowohl intuitiv als auch mächtig ist. Lerne die grundlegenden Syntax-Regeln und Konzepte kennen.
+HypnoScript uses a hypnotic syntax that is both intuitive and powerful. Learn the fundamental syntax rules and concepts.
 
-## Grundstruktur
+## Basic Structure
 
-### Programm-Struktur
+### Program Structure
 
-Jedes HypnoScript-Programm beginnt mit `Focus` und endet mit `Relax`:
+Every HypnoScript program begins with `Focus` and ends with `Relax`:
 
 ```hyp
 Focus {
-    // Programm-Code hier
+    // Program code here
 } Relax
 ```
 
-### Entrance-Block
+### Entrance Block
 
-> ⚠️ `entrance`-Blöcke sind **nur auf Top-Level** erlaubt – direkt innerhalb von `Focus { ... }`. Wird der Block innerhalb einer Funktion, Session oder eines anderen Blocks deklariert, bricht der Parser mit der Meldung `'entrance' blocks are only allowed at the top level` ab.
+> ⚠️ `entrance` blocks are **only allowed at top level** – directly within `Focus { ... }`. If the block is declared within a function, session, or another block, the parser will abort with the message `'entrance' blocks are only allowed at the top level`.
 
-Der `entrance`-Block wird beim Programmstart ausgeführt:
+The `entrance` block is executed at program startup:
 
 ```hyp
 Focus {
     entrance {
-        observe "Programm gestartet";
+        observe "Program started";
     }
 } Relax
 ```
 
-### Finale-Block
+### Finale Block
 
-Analog zum `entrance`-Block steht `finale { ... }` ausschließlich auf oberster Ebene zur Verfügung und eignet sich für Aufräumarbeiten. Auch hier erzwingt der Parser strikte Top-Level-Platzierung und meldet `'finale' blocks are only allowed at the top level`, falls der Block verschachtelt wird.
+Similar to the `entrance` block, `finale { ... }` is exclusively available at the top level and is suitable for cleanup tasks. Here too, the parser enforces strict top-level placement and reports `'finale' blocks are only allowed at the top level` if the block is nested.
 
 ```hyp
 Focus {
@@ -48,11 +48,11 @@ Focus {
 } Relax
 ```
 
-## Variablen und Zuweisungen
+## Variables and Assignments
 
-### Induce (Variablendeklaration)
+### Induce (Variable Declaration)
 
-Verwende `induce` um Variablen zu deklarieren und Werte zuzuweisen. Typ-Annotationen sind optional aber empfohlen:
+Use `induce` to declare variables and assign values. Type annotations are optional but recommended:
 
 ```hyp
 Focus {
@@ -63,22 +63,22 @@ Focus {
 
         observe "Name: " + name;
         observe "Version: " + version;
-        observe "Aktiv: " + isActive;
+        observe "Active: " + isActive;
     }
 } Relax
 ```
 
-### Datentypen
+### Data Types
 
-HypnoScript unterstützt verschiedene Datentypen:
+HypnoScript supports various data types:
 
 ```hyp
 Focus {
     entrance {
         // Strings
-        induce text: string = "Hallo Welt";
+        induce text: string = "Hello World";
 
-        // Zahlen (nur number Typ)
+        // Numbers (only number type)
         induce integer: number = 42;
         induce decimal: number = 3.14159;
 
@@ -89,31 +89,31 @@ Focus {
         induce numbers: number[] = [1, 2, 3, 4, 5];
         induce names: string[] = ["Alice", "Bob", "Charlie"];
 
-        // Records (mit tranceify definiert)
-        // Siehe Records-Dokumentation für Details
+        // Records (defined with tranceify)
+        // See Records documentation for details
     }
 } Relax
 ```
 
-## Ausgabe
+## Output
 
-### Observe (Ausgabe)
+### Observe (Output)
 
-Verwende `observe` um Text auszugeben:
+Use `observe` to output text:
 
 ```hyp
 Focus {
     entrance {
-        observe "Einfache Ausgabe";
-        observe "Mehrzeilige" + " " + "Ausgabe";
+        observe "Simple output";
+        observe "Multi-line" + " " + "output";
 
         induce name: string = "HypnoScript";
-        observe "Willkommen bei " + name;
+        observe "Welcome to " + name;
     }
 } Relax
 ```
 
-## Kontrollstrukturen
+## Control Structures
 
 ### If-Else
 
@@ -123,27 +123,27 @@ Focus {
         induce age: number = 18;
 
         if (age >= 18) {
-            observe "Volljährig";
+            observe "Of legal age";
         } else {
-            observe "Minderjährig";
+            observe "Minor";
         }
 
-        // Mit else if
+        // With else if
         induce score: number = 85;
         if (score >= 90) {
-            observe "Ausgezeichnet";
+            observe "Excellent";
         } else if (score >= 80) {
-            observe "Gut";
+            observe "Good";
         } else if (score >= 70) {
-            observe "Befriedigend";
+            observe "Satisfactory";
         } else {
-            observe "Verbesserungsbedarf";
+            observe "Needs improvement";
         }
     }
 } Relax
 ```
 
-### While-Schleife
+### While Loop
 
 ```hyp
 Focus {
@@ -151,32 +151,32 @@ Focus {
         induce counter: number = 1;
 
         while (counter <= 5) {
-            observe "Zähler: " + counter;
+            observe "Counter: " + counter;
             counter = counter + 1;
         }
     }
 } Relax
 ```
 
-### Loop-Schleife
+### Loop Statement
 
-`loop` kann wie eine klassische for-Schleife mit Kopf `loop (initialisierung; bedingung; update)` oder als Endlosschleife ohne Kopf verwendet werden. Die Variante `pendulum ( ... )` ist ein Alias für denselben Aufbau, verlangt jedoch immer eine Bedingung und eignet sich für "hin-und-her"-Konstrukte.
+`loop` can be used like a classic for-loop with a header `loop (initialization; condition; update)` or as an infinite loop without a header. The variant `pendulum ( ... )` is an alias for the same structure, but always requires a condition and is suitable for "back-and-forth" constructs.
 
 ```hyp
 Focus {
     entrance {
-        // Loop-Schleife mit Zähler
+        // Loop statement with counter
         loop (induce i: number = 1; i <= 10; i = i + 1) {
             observe "Iteration " + i;
         }
 
-        // Loop-Schleife über Array mit ArrayLength
-        induce fruits: string[] = ["Apfel", "Birne", "Kirsche"];
+        // Loop statement over array with ArrayLength
+        induce fruits: string[] = ["Apple", "Pear", "Cherry"];
         loop (induce i: number = 0; i < ArrayLength(fruits); i = i + 1) {
-            observe "Frucht " + (i + 1) + ": " + ArrayGet(fruits, i);
+            observe "Fruit " + (i + 1) + ": " + ArrayGet(fruits, i);
         }
 
-        // Pendulum benötigt immer einen Kopf und verhält sich wie loop (...)
+        // Pendulum always requires a header and behaves like loop (...)
         pendulum (induce phase: number = -2; phase <= 2; phase = phase + 1) {
             observe "Phase " + phase;
         }
@@ -184,15 +184,15 @@ Focus {
 } Relax
 ```
 
-## Funktionen
+## Functions
 
-### Suggestion (Funktionsdefinition)
+### Suggestion (Function Definition)
 
 ```hyp
 Focus {
-    // Funktion definieren
+    // Define function
     suggestion greet(name: string) {
-        observe "Hallo, " + name + "!";
+        observe "Hello, " + name + "!";
     }
 
     suggestion add(a: number, b: number): number {
@@ -208,7 +208,7 @@ Focus {
     }
 
     entrance {
-        // Funktionen aufrufen
+        // Call functions
         greet("HypnoScript");
 
         induce result: number = add(5, 3);
@@ -220,7 +220,7 @@ Focus {
 } Relax
 ```
 
-### Funktionen mit Rückgabewerten
+### Functions with Return Values
 
 ```hyp
 Focus {
@@ -242,10 +242,10 @@ Focus {
 
     entrance {
         induce area = calculateArea(10, 5);
-        observe "Fläche: " + area;
+        observe "Area: " + area;
 
         induce check = isEven(42);
-        observe "42 ist gerade: " + check;
+        observe "42 is even: " + check;
 
         induce maximum = getMax(15, 8);
         observe "Maximum: " + maximum;
@@ -255,27 +255,27 @@ Focus {
 
 ## Arrays
 
-### Array-Operationen
+### Array Operations
 
 ```hyp
 Focus {
     entrance {
-        // Array erstellen
+        // Create array
         induce numbers = [1, 2, 3, 4, 5];
 
-        // Elemente abrufen
+        // Get elements
         induce first = ArrayGet(numbers, 0);
-        observe "Erstes Element: " + first;
+        observe "First element: " + first;
 
-        // Elemente setzen
+        // Set elements
         ArraySet(numbers, 2, 99);
-        observe "Nach Änderung: " + numbers;
+        observe "After modification: " + numbers;
 
-        // Array-Länge
+        // Array length
         induce length = ArrayLength(numbers);
-        observe "Array-Länge: " + length;
+        observe "Array length: " + length;
 
-        // Array durchsuchen
+        // Iterate through array
         for (induce i = 0; i < Length(numbers); induce i = i + 1) {
             observe "Element " + i + ": " + ArrayGet(numbers, i);
         }
@@ -283,57 +283,57 @@ Focus {
 } Relax;
 ```
 
-### Array-Funktionen
+### Array Functions
 
 ```hyp
 Focus {
     entrance {
         induce numbers = [3, 1, 4, 1, 5, 9, 2, 6];
 
-        // Sortieren
+        // Sort
         induce sorted = ArraySort(numbers);
-        observe "Sortiert: " + sorted;
+        observe "Sorted: " + sorted;
 
-        // Summe
+        // Sum
         induce sum = ArraySum(numbers);
-        observe "Summe: " + sum;
+        observe "Sum: " + sum;
 
-        // Durchschnitt
+        // Average
         induce avg = AverageArray(numbers);
-        observe "Durchschnitt: " + avg;
+        observe "Average: " + avg;
 
-        // Mischen
+        // Shuffle
         induce shuffled = ShuffleArray(numbers);
-        observe "Gemischt: " + shuffled;
+        observe "Shuffled: " + shuffled;
     }
 } Relax;
 ```
 
-## Records (Objekte)
+## Records (Objects)
 
-### Record-Erstellung und -Zugriff
+### Record Creation and Access
 
 ```hyp
 Focus {
     entrance {
-        // Record erstellen
+        // Create record
         induce person = {
             name: "Max Mustermann",
             age: 30,
             city: "Berlin",
-            hobbies: ["Programmierung", "Lesen", "Sport"]
+            hobbies: ["Programming", "Reading", "Sports"]
         };
 
-        // Eigenschaften abrufen
+        // Get properties
         observe "Name: " + person.name;
-        observe "Alter: " + person.age;
-        observe "Stadt: " + person.city;
+        observe "Age: " + person.age;
+        observe "City: " + person.city;
 
-        // Eigenschaften ändern
+        // Modify properties
         induce person.age = 31;
-        observe "Neues Alter: " + person.age;
+        observe "New age: " + person.age;
 
-        // Verschachtelte Records
+        // Nested records
         induce company = {
             name: "HypnoScript GmbH",
             address: {
@@ -347,37 +347,37 @@ Focus {
             ]
         };
 
-        observe "Firma: " + company.name;
-        observe "Adresse: " + company.address.street;
-        observe "Erster Mitarbeiter: " + company.employees[0].name;
+        observe "Company: " + company.name;
+        observe "Address: " + company.address.street;
+        observe "First employee: " + company.employees[0].name;
     }
 } Relax;
 ```
 
 ## Sessions
 
-### Session-Erstellung
+### Session Creation
 
 ```hyp
 Focus {
     entrance {
-        // Session erstellen
-        induce session = Session("MeineSession");
+        // Create session
+        induce session = Session("MySession");
 
-        // Session-Variablen setzen
+        // Set session variables
         SessionSet(session, "user", "Max");
         SessionSet(session, "level", 5);
         SessionSet(session, "preferences", {
             theme: "dark",
-            language: "de"
+            language: "en"
         });
 
-        // Session-Variablen abrufen
+        // Get session variables
         induce user = SessionGet(session, "user");
         induce level = SessionGet(session, "level");
         induce prefs = SessionGet(session, "preferences");
 
-        observe "Benutzer: " + user;
+        observe "User: " + user;
         observe "Level: " + level;
         observe "Theme: " + prefs.theme;
     }
@@ -386,25 +386,25 @@ Focus {
 
 ## Tranceify
 
-### Tranceify für hypnotische Anwendungen
+### Tranceify for Hypnotic Applications
 
 ```hyp
 Focus {
     entrance {
-        // Tranceify-Session starten
-        Tranceify("Entspannung") {
-            observe "Du entspannst dich jetzt...";
-            observe "Atme tief ein...";
-            observe "Und aus...";
-            observe "Du fühlst dich ruhig und entspannt...";
+        // Start tranceify session
+        Tranceify("Relaxation") {
+            observe "You are relaxing now...";
+            observe "Breathe in deeply...";
+            observe "And out...";
+            observe "You feel calm and relaxed...";
         }
 
-        // Mit Parametern
+        // With parameters
         induce clientName = "Anna";
-        Tranceify("Induktion", clientName) {
-            observe "Hallo " + clientName + ", willkommen zu deiner Sitzung...";
-            observe "Du bist in einem sicheren Raum...";
-            observe "Du kannst dich vollständig entspannen...";
+        Tranceify("Induction", clientName) {
+            observe "Hello " + clientName + ", welcome to your session...";
+            observe "You are in a safe space...";
+            observe "You can completely relax...";
         }
     }
 } Relax;
@@ -412,7 +412,7 @@ Focus {
 
 ## Imports
 
-### Module importieren
+### Importing Modules
 
 ```hyp
 import "utils.hyp";
@@ -420,16 +420,16 @@ import "math.hyp" as MathUtils;
 
 Focus {
     entrance {
-        // Funktionen aus importierten Modulen verwenden
+        // Use functions from imported modules
         induce result = MathUtils.calculate(10, 5);
-        observe "Ergebnis: " + result;
+        observe "Result: " + result;
     }
 } Relax;
 ```
 
 ## Assertions
 
-### Assertions für Tests
+### Assertions for Tests
 
 ```hyp
 Focus {
@@ -437,46 +437,46 @@ Focus {
         induce expected = 10;
         induce actual = 5 + 5;
 
-        // Assertion - Programm stoppt bei Fehler
-        assert actual == expected : "Erwartet 10, aber erhalten " + actual;
+        // Assertion - program stops on error
+        assert actual == expected : "Expected 10, but got " + actual;
 
-        observe "Test erfolgreich!";
+        observe "Test successful!";
 
-        // Weitere Assertions
+        // More assertions
         induce name = "HypnoScript";
-        assert Length(name) > 0 : "Name darf nicht leer sein";
-        assert Length(name) <= 50 : "Name zu lang";
+        assert Length(name) > 0 : "Name must not be empty";
+        assert Length(name) <= 50 : "Name too long";
 
-        observe "Alle Tests bestanden!";
+        observe "All tests passed!";
     }
 } Relax;
 ```
 
-## Kommentare
+## Comments
 
-### Kommentare in HypnoScript
+### Comments in HypnoScript
 
 ```hyp
 Focus {
-    // Einzeiliger Kommentar
+    // Single-line comment
 
     entrance {
-        induce name = "HypnoScript"; // Inline-Kommentar
+        induce name = "HypnoScript"; // Inline comment
 
         /*
-         * Mehrzeiliger Kommentar
-         * Kann über mehrere Zeilen gehen
-         * Nützlich für längere Erklärungen
+         * Multi-line comment
+         * Can span multiple lines
+         * Useful for longer explanations
          */
 
-        observe "Hallo " + name;
+        observe "Hello " + name;
     }
 } Relax;
 ```
 
-## Operatoren
+## Operators
 
-### Arithmetische Operatoren
+### Arithmetic Operators
 
 ```hyp
 Focus {
@@ -485,16 +485,16 @@ Focus {
         induce b = 3;
 
         observe "Addition: " + (a + b);        // 13
-        observe "Subtraktion: " + (a - b);     // 7
-        observe "Multiplikation: " + (a * b);  // 30
+        observe "Subtraction: " + (a - b);     // 7
+        observe "Multiplication: " + (a * b);  // 30
         observe "Division: " + (a / b);        // 3.333...
         observe "Modulo: " + (a % b);          // 1
-        observe "Potenz: " + (a ^ b);          // 1000
+        observe "Power: " + (a ^ b);          // 1000
     }
 } Relax;
 ```
 
-### Vergleichsoperatoren
+### Comparison Operators
 
 ```hyp
 Focus {
@@ -502,17 +502,17 @@ Focus {
         induce x = 5;
         induce y = 10;
 
-        observe "Gleich: " + (x == y);         // false
-        observe "Ungleich: " + (x != y);       // true
-        observe "Kleiner: " + (x < y);         // true
-        observe "Größer: " + (x > y);          // false
-        observe "Kleiner gleich: " + (x <= y); // true
-        observe "Größer gleich: " + (x >= y);  // false
+        observe "Equal: " + (x == y);         // false
+        observe "Not equal: " + (x != y);       // true
+        observe "Less than: " + (x < y);         // true
+        observe "Greater than: " + (x > y);          // false
+        observe "Less than or equal: " + (x <= y); // true
+        observe "Greater than or equal: " + (x >= y);  // false
     }
 } Relax;
 ```
 
-### Logische Operatoren
+### Logical Operators
 
 ```hyp
 Focus {
@@ -520,9 +520,9 @@ Focus {
         induce a = true;
         induce b = false;
 
-        observe "UND: " + (a && b);            // false
-        observe "ODER: " + (a || b);           // true
-        observe "NICHT: " + (!a);              // false
+        observe "AND: " + (a && b);            // false
+        observe "OR: " + (a || b);           // true
+        observe "NOT: " + (!a);              // false
         observe "XOR: " + (a ^ b);             // true
     }
 } Relax;
@@ -530,11 +530,11 @@ Focus {
 
 ## Best Practices
 
-### Code-Formatierung
+### Code Formatting
 
 ```hyp
 Focus {
-    // Funktionen am Anfang definieren
+    // Define functions at the beginning
     suggestion calculateSum(a, b) {
         awaken a + b;
     }
@@ -544,63 +544,63 @@ Focus {
     }
 
     entrance {
-        // Hauptlogik im entrance-Block
+        // Main logic in entrance block
         induce input = 42;
 
         if (validateInput(input)) {
             induce result = calculateSum(input, 10);
-            observe "Ergebnis: " + result;
+            observe "Result: " + result;
         } else {
-            observe "Ungültige Eingabe";
+            observe "Invalid input";
         }
     }
 } Relax;
 ```
 
-### Namenskonventionen
+### Naming Conventions
 
-- **Variablen**: camelCase (`userName`, `totalCount`)
-- **Funktionen**: camelCase (`calculateArea`, `validateInput`)
-- **Konstanten**: UPPER_SNAKE_CASE (`MAX_RETRY_COUNT`)
+- **Variables**: camelCase (`userName`, `totalCount`)
+- **Functions**: camelCase (`calculateArea`, `validateInput`)
+- **Constants**: UPPER_SNAKE_CASE (`MAX_RETRY_COUNT`)
 - **Sessions**: PascalCase (`UserSession`, `GameState`)
 
-### Fehlerbehandlung
+### Error Handling
 
 ```hyp
 Focus {
     entrance {
         induce input = "abc";
 
-        // Typprüfung
+        // Type checking
         if (IsNumber(input)) {
             induce number = ToNumber(input);
-            observe "Zahl: " + number;
+            observe "Number: " + number;
         } else {
-            observe "Fehler: Keine gültige Zahl";
+            observe "Error: Not a valid number";
         }
 
-        // Array-Zugriff prüfen
+        // Array access check
         induce array = [1, 2, 3];
         induce index = 5;
 
         if (index >= 0 && index < Length(array)) {
             induce value = ArrayGet(array, index);
-            observe "Wert: " + value;
+            observe "Value: " + value;
         } else {
-            observe "Fehler: Index außerhalb des Bereichs";
+            observe "Error: Index out of range";
         }
     }
 } Relax;
 ```
 
-## Nächste Schritte
+## Next Steps
 
-- [Variablen und Datentypen](./variables) - Detaillierte Informationen zu Variablen
-- [Operatoren](./operators) - Alle verfügbaren Operatoren
-- [Kontrollstrukturen](./control-flow) - If, While, For und mehr
-- [Funktionen](./functions) - Funktionsdefinition und -aufruf
-- [Beispiele](../examples/basic-examples) - Praktische Beispiele
+- [Variables and Data Types](./variables) - Detailed information about variables
+- [Operators](./operators) - All available operators
+- [Control Flow](./control-flow) - If, While, For and more
+- [Functions](./functions) - Function definition and calling
+- [Examples](../examples/basic-examples) - Practical examples
 
 ---
 
-**Beherrschst du die Grundlagen? Dann lerne mehr über [Variablen und Datentypen](./variables)!** 📚
+**Mastered the basics? Then learn more about [Variables and Data Types](./variables)!** 📚

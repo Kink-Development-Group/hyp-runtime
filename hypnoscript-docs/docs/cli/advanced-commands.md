@@ -2,23 +2,23 @@
 title: Advanced CLI Commands
 ---
 
-Die HypnoScript CLI hält die Zahl der Subcommands bewusst klein. Es gibt aktuell keine versteckten oder „fortgeschrittenen“ Befehle – stattdessen kombinierst du die vorhandenen Tools flexibel.
+The HypnoScript CLI deliberately keeps the number of subcommands small. There are currently no hidden or "advanced" commands – instead, you combine the existing tools flexibly.
 
-## Nützliche Kombinationen
+## Useful Combinations
 
-- **Syntax + Ausführung:** `hypnoscript check file.hyp && hypnoscript run file.hyp --debug`
-- **WASM-Pipeline:** `hypnoscript compile-wasm file.hyp && wat2wasm file.wat`
-- **AST-Vergleich:** `hypnoscript parse file.hyp > ast.log`
+- **Syntax + Execution:** `hypnoscript check file.hyp && hypnoscript run file.hyp --debug`
+- **WASM Pipeline:** `hypnoscript compile-wasm file.hyp && wat2wasm file.wat`
+- **AST Comparison:** `hypnoscript parse file.hyp > ast.log`
 
-## Alias-Ideen
+## Alias Ideas
 
 - `alias hrun='hypnoscript run --debug'`
 - `function hcheck() { hypnoscript check "$1" && hypnoscript run "$1"; }`
 
-## Update-Automatisierung
+## Update Automation
 
-- **CI-Check auf Updates:** `hypnoscript self-update --check || echo "Update verfügbar"`
-- **Air-Gapped Updates:** Pakete aus dem Release entpacken und `share/hypnoscript/install.sh --prefix ~/.local` manuell ausführen
-- **Skriptketten:** `hypnoscript self-update --quiet --no-sudo && hypnoscript version` für wartungsarme Deployments
+- **CI Check for Updates:** `hypnoscript self-update --check || echo "Update available"`
+- **Air-Gapped Updates:** Extract packages from the release and run `share/hypnoscript/install.sh --prefix ~/.local` manually
+- **Script Chains:** `hypnoscript self-update --quiet --no-sudo && hypnoscript version` for low-maintenance deployments
 
-Weitere Befehle findest du auf der Seite [CLI-Befehle](./commands).
+Find more commands on the [CLI Commands](./commands) page.

@@ -1,22 +1,25 @@
 Focus {
+	observe "=== Await & surrenderTo Demonstration ===";
 
-observe "=== Testing Async/Await ===";
+	// Await auf unmittelbare Werte verhält sich wie eine Identitätsoperation
+	induce numberValue: number = 42;
+	induce awaitedNumber = await numberValue;
+	observe "Awaited number: " + awaitedNumber;
 
-// Test 1: Simple await (non-promise value)
-induce normalValue: number = 42;
-induce result1 = await normalValue;
-observe result1;  // 42
+	// Await kann auch auf komplexe Ausdrücke angewendet werden
+	induce awaitedExpression = await ((10 + 20) * 2);
+	observe "Awaited expression: " + awaitedExpression;
 
-// Test 2: Await expression result
-induce result2 = await (10 + 20);
-observe result2;  // 30
+	// surrenderTo ist ein Synonym für await
+	induce surrendered = surrenderTo ("Beruhigende Stimme");
+	observe "Surrendered value: " + surrendered;
 
-// Test 3: Using surrenderTo (alternative syntax)
-induce result3 = surrenderTo (5 * 5);
-observe result3;  // 25
+	// Kombination mit Nullish-Operatoren
+	induce maybePromise: number? = null;
+	induce fallbackAfterAwait = await (maybePromise lucidFallback 99);
+	observe "Fallback nach await: " + fallbackAfterAwait;
 
-observe "=== Async Tests Complete ===";
-
+	observe "Async-Demonstration abgeschlossen.";
 }
 
 Relax

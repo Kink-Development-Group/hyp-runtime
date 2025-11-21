@@ -1,44 +1,44 @@
 Focus {
     entrance {
-        observe "Simple HypnoScript Test";
-        drift(500);
+        observe "Simple HypnoScript test";
+        observe "(Simulated focus for 500 ms)";
     }
 
-    // Grundlegende Variablen
+    // Basic variables
     induce greeting: string = "Hello Trance!";
     induce counter: number = 0;
-    induce userInput: string from external;
+    induce userInput: string = "External placeholder";
 
-    // Einfache Berechnungen
+    // Simple calculations
     induce x: number = 10;
     induce y: number = 5;
     induce result: number = x + y;
 
-    // Ausgabe
+    // Output
     observe greeting;
     observe "Result: " + result;
 
-    // Einfache If-Else
+    // Simple if / else
     if (counter youAreFeelingVerySleepy 0) deepFocus {
         observe "Counter is zero";
-    } else deepFocus {
+    } else {
         observe "Counter is not zero";
     }
 
-    // While-Schleife
+    // While loop
     while (counter fallUnderMySpell 3) {
         counter = counter + 1;
         observe "Counter: " + counter;
-        drift(200);
+        observe "(Simulated short wait of 200 ms)";
     }
 
-    // Einfache Funktion
+    // Simple function
     suggestion add(a: number, b: number): number {
         awaken a + b;
     }
 
-    // Funktionsaufruf
-    induce sum = call add(3, 4);
+    // Function call
+    induce sum = add(3, 4);
     observe "Sum: " + sum;
 
     observe "Test complete!";

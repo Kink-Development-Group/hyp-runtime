@@ -49,7 +49,7 @@ Focus {
     while (counter fallUnderMySpell 3) {
         counter = counter + 1;
         observe "Counter in while loop: " + counter;
-        drift(200);
+        drift(50);
     }
 
     // Loop-Statement (for-Schleife)
@@ -85,7 +85,7 @@ Focus {
     }
 
     // Funktionsaufrufe
-    induce sum = call add(7, 8);
+    induce sum = add(7, 8);
     observe "Sum: " + sum;
 
     printMessage("You are feeling very relaxed...");
@@ -95,15 +95,15 @@ Focus {
 
     // Mathematische Funktionen
     induce angle: number = 45;
-    induce sinValue = call Sin(angle);
-    induce cosValue = call Cos(angle);
+    induce sinValue = Sin(angle);
+    induce cosValue = Cos(angle);
     observe "Sin(45) = " + sinValue;
     observe "Cos(45) = " + cosValue;
 
     // String-Funktionen
     induce testString: string = "hypnotic programming";
-    induce upperString = call ToUpper(testString);
-    induce stringLength = call Length(testString);
+    induce upperString = ToUpper(testString);
+    induce stringLength = Length(testString);
     observe "Original: " + testString;
     observe "Uppercase: " + upperString;
     observe "Length: " + stringLength;
@@ -159,17 +159,17 @@ Focus {
     // Hypnotische Countdown
     loop (induce i: number = 3; i > 0; i = i - 1) {
         observe "You are feeling very sleepy... " + i;
-        drift(1000);
+        drift(100);
     }
 
     observe "You are now in a deep hypnotic state!";
-    drift(2000);
+    drift(150);
 
     // ===== FINALE DEMONSTRATION =====;
     observe "=== Final Demonstration ===";
 
     // Komplexe Berechnung
-    induce finalResult = call add(call Sin(30), call Cos(60));
+    induce finalResult = add(Sin(30), Cos(60));
     observe "Final calculation: " + finalResult;
 
     // Array-Manipulation
@@ -177,13 +177,13 @@ Focus {
     observe "Mixed array element 1: " + mixedArray[1];
 
     // String-Manipulation
-    induce finalMessage = call ToUpper("hypnoscript is working perfectly!");
+    induce finalMessage = ToUpper("hypnoscript is working perfectly!");
     observe finalMessage;
 
     observe "=== All tests completed successfully! ===";
     observe "HypnoScript is fully functional! ✓";
 
-    drift(1000);
+    drift(100);
     observe "Program ending...";
 
 } Relax

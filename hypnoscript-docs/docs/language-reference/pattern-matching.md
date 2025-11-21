@@ -4,39 +4,39 @@ sidebar_position: 7
 
 # Pattern Matching – `entrain`/`when`/`otherwise`
 
-Pattern Matching in HypnoScript ist ein mächtiges Werkzeug für **Kontrollflussteuerung** basierend auf **Wert-Mustern**. Der `entrain`-Operator ermöglicht elegante Fallunterscheidungen weit über einfache `if`-`else`-Ketten hinaus.
+Pattern matching in HypnoScript is a powerful tool for **control flow** based on **value patterns**. The `entrain` operator enables elegant case distinctions far beyond simple `if`-`else` chains.
 
-## Konzept
+## Concept
 
-`entrain` (Pattern Matching) wirkt wie ein sanftes Einschwingen auf unterschiedliche Bewusstseinslagen. Der Ausdruck wird **einmal evaluiert**, anschließend werden die `when`-Klauseln der Reihe nach geprüft. Die **erste passende Suggestion gewinnt**; `otherwise` dient als Fallback.
+`entrain` (pattern matching) acts like a gentle synchronization to different states of consciousness. The expression is **evaluated once**, then the `when` clauses are checked in order. The **first matching suggestion wins**; `otherwise` serves as a fallback.
 
-### Grundlegende Syntax
+### Basic Syntax
 
 ```hyp
-entrain <ausdruck> {
-    when <pattern> => <aktion>
-    when <pattern> if <guard> => <aktion>
-    otherwise => <default-aktion>
+entrain <expression> {
+    when <pattern> => <action>
+    when <pattern> if <guard> => <action>
+    otherwise => <default-action>
 }
 ```
 
-> **Hinweis:** Der `otherwise`-Fall akzeptiert optional ein nachgestelltes Komma oder Semikolon (z. B. `otherwise => wert,` oder `otherwise => wert;`). Für einen konsistenten Stil empfehlen wir, auf zusätzliche Trenner zu verzichten und – wie in den Beispielen – lediglich `otherwise => wert` zu verwenden.
+> **Note:** The `otherwise` case optionally accepts a trailing comma or semicolon (e.g., `otherwise => value,` or `otherwise => value;`). For consistent style, we recommend omitting additional separators and – as in the examples – simply using `otherwise => value`.
 
-## Pattern-Typen
+## Pattern Types
 
-| Pattern-Typ       | Syntax                      | Beschreibung                  |
-| ----------------- | --------------------------- | ----------------------------- |
-| **Literal**       | `when 0`, `when "Text"`     | Exakter Wert-Match            |
-| **Typ-Pattern**   | `when value: number`        | Typ-Check mit Binding         |
-| **Identifikator** | `when x`                    | Bindet jeden Wert an Variable |
-| **Array**         | `when [1, 2, ...]`          | Array-Destructuring           |
-| **Record**        | `when Person { name, age }` | Record-Destructuring          |
-| **Guard**         | `when x if x > 10`          | Zusätzliche Bedingung         |
-| **Spread**        | `when [first, ...rest]`     | Rest-Parameter in Arrays      |
+| Pattern Type      | Syntax                      | Description                  |
+| ----------------- | --------------------------- | ---------------------------- |
+| **Literal**       | `when 0`, `when "Text"`     | Exact value match            |
+| **Type Pattern**  | `when value: number`        | Type check with binding      |
+| **Identifier**    | `when x`                    | Binds any value to variable  |
+| **Array**         | `when [1, 2, ...]`          | Array destructuring          |
+| **Record**        | `when Person { name, age }` | Record destructuring         |
+| **Guard**         | `when x if x > 10`          | Additional condition         |
+| **Spread**        | `when [first, ...rest]`     | Rest parameters in arrays    |
 
 ## Literal Pattern Matching
 
-Die einfachste Form: Matche gegen **konkrete Werte**.
+The simplest form: Match against **concrete values**.
 
 ```hyp
 Focus {
@@ -44,18 +44,18 @@ Focus {
         induce value1: number = 1;
 
         induce result1: string = entrain value1 {
-            when 0 => awaken "Null"
-            when 1 => awaken "Eins"
-            when 2 => awaken "Zwei"
-            otherwise => awaken "Andere"
+            when 0 => awaken "Zero"
+            when 1 => awaken "One"
+            when 2 => awaken "Two"
+            otherwise => awaken "Other"
         };
 
-        observe "Result: " + result1;  // Ausgabe: Result: Eins
+        observe "Result: " + result1;  // Output: Result: One
     }
 } Relax
 ```
 
-### String-Literals
+### String Literals
 
 ```hyp
 Focus {
@@ -63,10 +63,10 @@ Focus {
         induce command: string = "start";
 
         induce action: string = entrain command {
-            when "start" => awaken "Starte System..."
-            when "stop" => awaken "Stoppe System..."
-            when "restart" => awaken "Neustart..."
-            otherwise => awaken "Unbekannter Befehl"
+            when "start" => awaken "Starting system..."
+            when "stop" => awaken "Stopping system..."
+            when "restart" => awaken "Restarting..."
+            otherwise => awaken "Unknown command"
         };
 
         observe action;
@@ -74,7 +74,7 @@ Focus {
 } Relax
 ```
 
-### Boolean-Literals
+### Boolean Literals
 
 ```hyp
 Focus {
@@ -82,8 +82,8 @@ Focus {
         induce isActive: boolean = true;
 
         induce status: string = entrain isActive {
-            when true => awaken "Aktiv"
-            when false => awaken "Inaktiv"
+            when true => awaken "Active"
+            when false => awaken "Inactive"
         };
 
         observe "Status: " + status;
@@ -91,9 +91,9 @@ Focus {
 } Relax
 ```
 
-## Typ-Pattern mit Binding
+## Type Pattern with Binding
 
-Prüfe den **Typ** und binde den Wert gleichzeitig an eine Variable:
+Check the **type** and bind the value to a variable simultaneously:
 
 ```hyp
 Focus {
@@ -101,18 +101,18 @@ Focus {
         induce testValue: any = 42;
 
         induce result: string = entrain testValue {
-            when value: number => awaken "Zahl: " + value
+            when value: number => awaken "Number: " + value
             when text: string => awaken "Text: " + text
             when flag: boolean => awaken "Boolean: " + flag
-            otherwise => awaken "Unbekannter Typ"
+            otherwise => awaken "Unknown type"
         };
 
-        observe result;  // Ausgabe: Zahl: 42
+        observe result;  // Output: Number: 42
     }
 } Relax
 ```
 
-### Mit Type Guards
+### With Type Guards
 
 ```hyp
 Focus {
@@ -120,22 +120,22 @@ Focus {
         induce input: any = 100;
 
         induce category: string = entrain input {
-            when n: number if n goingDeeper 0 => awaken "Negativ oder Null"
-            when n: number if n lookAtTheWatch 100 => awaken "Über 100"
+            when n: number if n goingDeeper 0 => awaken "Negative or zero"
+            when n: number if n lookAtTheWatch 100 => awaken "Over 100"
             when n: number => awaken "Normal: " + n
-            otherwise => awaken "Kein Number"
+            otherwise => awaken "Not a number"
         };
 
-        observe category;  // Ausgabe: Über 100
+        observe category;  // Output: Over 100
     }
 } Relax
 ```
 
 ## Array Pattern Matching
 
-Matche gegen **Array-Strukturen** mit Destructuring:
+Match against **array structures** with destructuring:
 
-### Einfaches Array-Matching
+### Simple Array Matching
 
 ```hyp
 Focus {
@@ -143,19 +143,19 @@ Focus {
         induce arr: array = [1, 2, 3];
 
         induce result: string = entrain arr {
-            when [] => awaken "Leeres Array"
-            when [x] => awaken "Einzelnes Element: " + x
-            when [x, y] => awaken "Zwei Elemente: " + x + ", " + y
-            when [x, y, z] => awaken "Drei Elemente: " + x + ", " + y + ", " + z
-            otherwise => awaken "Mehr als drei Elemente"
+            when [] => awaken "Empty array"
+            when [x] => awaken "Single element: " + x
+            when [x, y] => awaken "Two elements: " + x + ", " + y
+            when [x, y, z] => awaken "Three elements: " + x + ", " + y + ", " + z
+            otherwise => awaken "More than three elements"
         };
 
-        observe result;  // Ausgabe: Drei Elemente: 1, 2, 3
+        observe result;  // Output: Three elements: 1, 2, 3
     }
 } Relax
 ```
 
-### Array mit Spread-Operator
+### Array with Spread Operator
 
 ```hyp
 Focus {
@@ -163,20 +163,20 @@ Focus {
         induce numbers: array = [1, 2, 3, 4, 5];
 
         induce result: string = entrain numbers {
-            when [] => awaken "Leer"
+            when [] => awaken "Empty"
             when [first, ...rest] => {
-                observe "Erstes Element: " + first;
+                observe "First element: " + first;
                 observe "Rest: " + rest;
-                awaken "Array mit " + ArrayLength(rest) + " Rest-Elementen";
+                awaken "Array with " + ArrayLength(rest) + " rest elements";
             }
-            otherwise => awaken "Fehler"
+            otherwise => awaken "Error"
         };
 
         observe result;
-        // Ausgabe:
-        // Erstes Element: 1
+        // Output:
+        // First element: 1
         // Rest: [2, 3, 4, 5]
-        // Array mit 4 Rest-Elementen
+        // Array with 4 rest elements
     }
 } Relax
 ```
@@ -191,17 +191,17 @@ Focus {
         induce result: string = entrain matrix {
             when [[a, b], [c, d]] => awaken "2x2 Matrix: " + a + "," + b + "," + c + "," + d
             when [[x], [y]] => awaken "2x1 Matrix"
-            otherwise => awaken "Andere Struktur"
+            otherwise => awaken "Other structure"
         };
 
-        observe result;  // Ausgabe: 2x2 Matrix: 1,2,3,4
+        observe result;  // Output: 2x2 Matrix: 1,2,3,4
     }
 } Relax
 ```
 
 ## Record Pattern Matching
 
-Matche gegen **Tranceify-Records** mit Destructuring:
+Match against **tranceify records** with destructuring:
 
 ```hyp
 Focus {
@@ -219,17 +219,17 @@ Focus {
         };
 
         induce status: string = entrain guest {
-            when Person { name, isInTrance: true } => awaken name + " ist in Trance!"
-            when Person { name, isInTrance: false } => awaken name + " ist wach"
-            otherwise => awaken "Unbekannt"
+            when Person { name, isInTrance: true } => awaken name + " is in trance!"
+            when Person { name, isInTrance: false } => awaken name + " is awake"
+            otherwise => awaken "Unknown"
         };
 
-        observe status;  // Ausgabe: Luna ist in Trance!
+        observe status;  // Output: Luna is in trance!
     }
 } Relax
 ```
 
-### Record mit Guards
+### Record with Guards
 
 ```hyp
 Focus {
@@ -247,20 +247,20 @@ Focus {
         };
 
         induce access: string = entrain user {
-            when User { role: "admin", age } if age yourEyesAreGettingHeavy 18 => awaken "Admin-Zugang"
-            when User { role: "user", age } if age yourEyesAreGettingHeavy 18 => awaken "User-Zugang"
-            when User { age } if age fallUnderMySpell 18 => awaken "Minderjährig"
-            otherwise => awaken "Kein Zugang"
+            when User { role: "admin", age } if age yourEyesAreGettingHeavy 18 => awaken "Admin access"
+            when User { role: "user", age } if age yourEyesAreGettingHeavy 18 => awaken "User access"
+            when User { age } if age fallUnderMySpell 18 => awaken "Minor"
+            otherwise => awaken "No access"
         };
 
-        observe access;  // Ausgabe: Admin-Zugang
+        observe access;  // Output: Admin access
     }
 } Relax
 ```
 
-## Guards – Zusätzliche Bedingungen
+## Guards – Additional Conditions
 
-Guards sind **optionale Bedingungen** nach `if`, die zusätzlich zum Pattern geprüft werden:
+Guards are **optional conditions** after `if` that are checked in addition to the pattern:
 
 ```hyp
 Focus {
@@ -268,19 +268,19 @@ Focus {
         induce score: number = 85;
 
         induce grade: string = entrain score {
-            when s: number if s yourEyesAreGettingHeavy 90 => awaken "Sehr gut"
-            when s: number if s yourEyesAreGettingHeavy 75 => awaken "Gut"
-            when s: number if s yourEyesAreGettingHeavy 60 => awaken "Befriedigend"
-            when s: number if s yourEyesAreGettingHeavy 50 => awaken "Ausreichend"
-            otherwise => awaken "Nicht bestanden"
+            when s: number if s yourEyesAreGettingHeavy 90 => awaken "Excellent"
+            when s: number if s yourEyesAreGettingHeavy 75 => awaken "Good"
+            when s: number if s yourEyesAreGettingHeavy 60 => awaken "Satisfactory"
+            when s: number if s yourEyesAreGettingHeavy 50 => awaken "Sufficient"
+            otherwise => awaken "Not passed"
         };
 
-        observe "Note: " + grade;  // Ausgabe: Note: Gut
+        observe "Grade: " + grade;  // Output: Grade: Good
     }
 } Relax
 ```
 
-### Komplexe Guards
+### Complex Guards
 
 ```hyp
 Focus {
@@ -288,20 +288,20 @@ Focus {
         induce value: number = 15;
 
         induce classification: string = entrain value {
-            when n: number if (n % 2 youAreFeelingVerySleepy 0) underMyControl (n lookAtTheWatch 10) => awaken "Gerade und größer 10"
-            when n: number if (n % 2 youCannotResist 0) underMyControl (n lookAtTheWatch 10) => awaken "Ungerade und größer 10"
-            when n: number if n % 2 youAreFeelingVerySleepy 0 => awaken "Gerade"
-            when n: number => awaken "Ungerade"
+            when n: number if (n % 2 youAreFeelingVerySleepy 0) underMyControl (n lookAtTheWatch 10) => awaken "Even and greater than 10"
+            when n: number if (n % 2 youCannotResist 0) underMyControl (n lookAtTheWatch 10) => awaken "Odd and greater than 10"
+            when n: number if n % 2 youAreFeelingVerySleepy 0 => awaken "Even"
+            when n: number => awaken "Odd"
         };
 
-        observe classification;  // Ausgabe: Ungerade und größer 10
+        observe classification;  // Output: Odd and greater than 10
     }
 } Relax
 ```
 
 ## Multi-Block Bodies
 
-`entrain`-Cases können **mehrere Statements** enthalten:
+`entrain` cases can contain **multiple statements**:
 
 ```hyp
 Focus {
@@ -312,22 +312,22 @@ Focus {
 
         induce result: number = entrain operation {
             when "add" => {
-                observe "Addiere " + a + " + " + b;
+                observe "Adding " + a + " + " + b;
                 induce sum: number = a + b;
                 awaken sum;
             }
             when "sub" => {
-                observe "Subtrahiere " + a + " - " + b;
+                observe "Subtracting " + a + " - " + b;
                 induce diff: number = a - b;
                 awaken diff;
             }
             when "mul" => {
-                observe "Multipliziere " + a + " * " + b;
+                observe "Multiplying " + a + " * " + b;
                 induce product: number = a * b;
                 awaken product;
             }
             otherwise => {
-                observe "Unbekannte Operation: " + operation;
+                observe "Unknown operation: " + operation;
                 awaken 0;
             }
         };
@@ -339,7 +339,7 @@ Focus {
 
 ## Real-World Patterns
 
-### HTTP-Status-Code-Handling
+### HTTP Status Code Handling
 
 ```hyp
 Focus {
@@ -355,7 +355,7 @@ Focus {
             otherwise => awaken "Unknown Status"
         };
 
-        observe message;  // Ausgabe: Client Error: 404
+        observe message;  // Output: Client Error: 404
     }
 } Relax
 ```
@@ -378,7 +378,7 @@ Focus {
             otherwise => awaken "unknown"
         };
 
-        observe "Nächster Zustand: " + nextState;  // Ausgabe: Nächster Zustand: error
+        observe "Next state: " + nextState;  // Output: Next state: error
     }
 } Relax
 ```
@@ -400,16 +400,16 @@ Focus {
 
         entrain cmd {
             when Command { type: "move", args: [x, y] } => {
-                observe "Bewege zu (" + x + ", " + y + ")";
+                observe "Moving to (" + x + ", " + y + ")";
             }
             when Command { type: "rotate", args: [angle] } => {
-                observe "Rotiere um " + angle + " Grad";
+                observe "Rotating by " + angle + " degrees";
             }
             when Command { type: "scale", args: [factor] } => {
-                observe "Skaliere mit Faktor " + factor;
+                observe "Scaling by factor " + factor;
             }
             otherwise => {
-                observe "Unbekannter Befehl";
+                observe "Unknown command";
             }
         };
     }
@@ -421,86 +421,86 @@ Focus {
 ### ✅ Do's
 
 ```hyp
-// ✓ Nutze Pattern Matching für Enums/Variants
+// ✓ Use pattern matching for enums/variants
 entrain status {
     when "pending" => ...
     when "processing" => ...
     when "completed" => ...
 }
 
-// ✓ Verwende Guards für komplexe Bedingungen
+// ✓ Use guards for complex conditions
 when n: number if n > 0 underMyControl n < 100 => ...
 
-// ✓ Destructure Records für sauberen Code
+// ✓ Destructure records for clean code
 when Person { name, age } => ...
 
-// ✓ Nutze Spread für flexible Array-Matching
+// ✓ Use spread for flexible array matching
 when [first, second, ...rest] => ...
 
-// ✓ Gebe immer einen Default/Otherwise an
-otherwise => awaken "Unbekannt"
+// ✓ Always provide a default/otherwise
+otherwise => awaken "Unknown"
 ```
 
 ### ❌ Don'ts
 
 ```hyp
-// ✗ Vermeide zu viele verschachtelte entrain-Statements
+// ✗ Avoid too many nested entrain statements
 entrain a {
-    when x => entrain b {  // Besser: Funktionen extrahieren
+    when x => entrain b {  // Better: extract functions
         when y => ...
     }
 }
 
-// ✗ Vermeide zu komplexe Guards
+// ✗ Avoid overly complex guards
 when n if ((n % 2 == 0) && (n > 10) && (n < 100) || ...) => ...
-// Besser: Helper-Funktion
+// Better: helper function
 
-// ✗ Vergesse nicht otherwise für vollständige Abdeckung
+// ✗ Don't forget otherwise for complete coverage
 entrain value {
     when 1 => ...
     when 2 => ...
-    // Fehlt: otherwise!
+    // Missing: otherwise!
 }
 ```
 
-## Performance-Hinweise
+## Performance Notes
 
-- Pattern Matching ist **optimiert** durch Compiler-Transformationen
-- **Short-Circuit**: Erste passende Klausel gewinnt (keine weiteren Checks)
-- **Destruk turierung** hat **keinen Laufzeit-Overhead** (Compile-Zeit-Transformation)
-- Guards werden **lazy evaluiert** (nur wenn Pattern matched)
+- Pattern matching is **optimized** through compiler transformations
+- **Short-circuit**: First matching clause wins (no further checks)
+- **Destructuring** has **no runtime overhead** (compile-time transformation)
+- Guards are **lazily evaluated** (only when pattern matches)
 
-## Unterschied zu `if`-`else`
+## Difference from `if`-`else`
 
-| Feature            | `if`-`else`          | `entrain` Pattern Matching    |
-| ------------------ | -------------------- | ----------------------------- |
-| **Ausdruck**       | Statement            | Expression (gibt Wert zurück) |
-| **Syntax**         | Traditionell         | Deklarativ                    |
-| **Destructuring**  | Manuell              | Eingebaut                     |
-| **Guards**         | Verschachtelte `if`s | Native Syntax                 |
-| **Exhaustiveness** | Manuell prüfen       | Compiler-Warnung              |
-| **Lesbarkeit**     | Gut für 2-3 Cases    | Exzellent für viele Cases     |
+| Feature           | `if`-`else`         | `entrain` Pattern Matching    |
+| ----------------- | ------------------- | ----------------------------- |
+| **Expression**    | Statement           | Expression (returns value)    |
+| **Syntax**        | Traditional         | Declarative                   |
+| **Destructuring** | Manual              | Built-in                      |
+| **Guards**        | Nested `if`s        | Native syntax                 |
+| **Exhaustiveness**| Manual check        | Compiler warning              |
+| **Readability**   | Good for 2-3 cases  | Excellent for many cases      |
 
-## Zusammenfassung
+## Summary
 
-Pattern Matching mit `entrain` bietet:
+Pattern matching with `entrain` offers:
 
-- ✅ **Deklarative Syntax** für Fallunterscheidungen
-- ✅ **Destructuring** für Arrays und Records
-- ✅ **Type Guards** für Typ-basiertes Matching
-- ✅ **Guards** für zusätzliche Bedingungen
-- ✅ **Expression-Semantik** (gibt Wert zurück)
-- ✅ **Compiler-Optimierungen** für Performance
+- ✅ **Declarative syntax** for case distinctions
+- ✅ **Destructuring** for arrays and records
+- ✅ **Type guards** for type-based matching
+- ✅ **Guards** for additional conditions
+- ✅ **Expression semantics** (returns value)
+- ✅ **Compiler optimizations** for performance
 
-Pattern Matching ist **essentiell** für moderne, funktionale Programmierung in HypnoScript und sollte **bevorzugt** über lange `if`-`else`-Ketten verwendet werden.
+Pattern matching is **essential** for modern, functional programming in HypnoScript and should be **preferred** over long `if`-`else` chains.
 
-## Nächste Schritte
+## Next Steps
 
-- [Control Flow](./control-flow) – Traditionelle Kontrollstrukturen
-- [Tranceify](./tranceify) – Benutzerdefinierte Typen
-- [Functions](./functions) – Funktionsdefinitionen
-- [Arrays](./arrays) – Array-Operationen
+- [Control Flow](./control-flow) – Traditional control structures
+- [Tranceify](./tranceify) – Custom types
+- [Functions](./functions) – Function definitions
+- [Arrays](./arrays) – Array operations
 
 ---
 
-**Bereit für elegante Fallunterscheidungen? Nutze `entrain` für saubere, typsichere Pattern Matches!** 🎯
+**Ready for elegant case distinctions? Use `entrain` for clean, type-safe pattern matches!** 🎯
