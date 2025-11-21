@@ -14,23 +14,23 @@ jobs:
         include:
           - os: ubuntu-latest
             target: x86_64-unknown-linux-gnu
-            artifact_name: hypnoscript-cli
+            artifact_name: hypnoscript
             asset_name: hypnoscript-linux-x64
           - os: ubuntu-latest
             target: x86_64-unknown-linux-musl
-            artifact_name: hypnoscript-cli
+            artifact_name: hypnoscript
             asset_name: hypnoscript-linux-x64-musl
           - os: windows-latest
             target: x86_64-pc-windows-msvc
-            artifact_name: hypnoscript-cli.exe
+            artifact_name: hypnoscript.exe
             asset_name: hypnoscript-windows-x64.exe
           - os: macos-latest
             target: x86_64-apple-darwin
-            artifact_name: hypnoscript-cli
+            artifact_name: hypnoscript
             asset_name: hypnoscript-macos-x64
           - os: macos-latest
             target: aarch64-apple-darwin
-            artifact_name: hypnoscript-cli
+            artifact_name: hypnoscript
             asset_name: hypnoscript-macos-arm64
 
     env:
@@ -121,7 +121,8 @@ jobs:
           section = "devel"
           priority = "optional"
           assets = [
-              ["target/release/hypnoscript-cli", "usr/bin/", "755"],
+              ["target/release/hypnoscript", "usr/bin/", "755"],
+              ["target/release/hyp", "usr/bin/", "755"],
               ["../README.md", "usr/share/doc/hypnoscript/", "644"],
           ]
           EOF
@@ -200,10 +201,10 @@ jobs:
             tar -xzf hypnoscript-*.tar.gz
 
             # Move to PATH
-            sudo mv hypnoscript-* /usr/local/bin/hypnoscript-cli
+            sudo mv hypnoscript-* /usr/local/bin/
 
             # Test installation
-            hypnoscript-cli version
+            hypnoscript version
             ```
 
             ### Windows
@@ -216,7 +217,7 @@ jobs:
             ### Debian/Ubuntu
             ```bash
             sudo dpkg -i hypnoscript_*.deb
-            hypnoscript-cli version
+            hypnoscript version
             ```
 
             ## Checksums
