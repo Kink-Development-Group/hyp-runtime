@@ -172,12 +172,12 @@ cargo test --package hypnoscript-runtime
 ### CLI Tests
 
 ```bash
-hypnoscript-cli version
-hypnoscript-cli builtins
-hypnoscript-cli lex <file>
-hypnoscript-cli parse <file>
-hypnoscript-cli check <file>
-hypnoscript-cli run <file>
+hypnoscript version
+hypnoscript builtins
+hypnoscript lex <file>
+hypnoscript parse <file>
+hypnoscript check <file>
+hypnoscript exec <file>
 ```
 
 ### Performance Tests
