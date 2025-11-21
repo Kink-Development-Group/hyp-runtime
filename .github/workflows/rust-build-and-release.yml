@@ -200,8 +200,9 @@ jobs:
             # Extract the archive
             tar -xzf hypnoscript-*.tar.gz
 
-            # Move to PATH
-            sudo mv hypnoscript-* /usr/local/bin/
+            # Move binaries to PATH (choose the appropriate platform binary)
+            sudo mv hypnoscript-linux-x64 /usr/local/bin/hypnoscript
+            sudo chmod +x /usr/local/bin/hypnoscript
 
             # Test installation
             hypnoscript version
