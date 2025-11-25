@@ -2,132 +2,132 @@
 sidebar_position: 3
 ---
 
-# Typ-System
+# Type System
 
-HypnoScript setzt auf ein **statisches Typ-System**. Jede Variable, jedes Feld und jeder Rückgabewert besitzt einen klar definierten Typ, der bereits zur Übersetzungszeit geprüft wird. Dadurch werden viele Fehler früh erkannt und Laufzeitüberraschungen vermieden.
+HypnoScript relies on a **static type system**. Every variable, every field, and every return value has a clearly defined type that is checked at compile time. This allows many errors to be caught early and avoids runtime surprises.
 
-## Überblick über die Basistypen
+## Overview of Base Types
 
-| Typ        | Beschreibung                                                         | Beispielcode                                |
-| ---------- | -------------------------------------------------------------------- | ------------------------------------------- |
-| `number`   | Gleitkommazahl mit doppelter Genauigkeit                             | `induce temperatur: number = 21.5;`         |
-| `string`   | UTF-8 Text, unterstützt Unicode vollumfänglich                       | `induce begruessung: string = "Hallo";`     |
-| `boolean`  | Wahrheitswert `true` oder `false`                                    | `induce aktiv: boolean = true;`             |
-| `trance`   | Hypnotischer Zustand, wird für Sessions und Suggestionen verwendet   | `induce zustand: trance = induceTrance();`  |
-| `array`    | Geordnete Liste mit einheitlichem Elementtyp                         | `induce zahlen: number[] = [1, 2, 3];`      |
-| `record`   | Benannter Satz von Feldern mit eigenen Typen                         | `induce klient: Klient = { name, alter };`  |
-| `object`   | Dynamisches Objekt, typischerweise für externe Integrationen genutzt | `induce daten: object = loadJson();`        |
-| `function` | Funktionsreferenz mit Parametern und Rückgabewert                    | `induce analyseeinheit = suggestion(...)`   |
-| `session`  | Laufende HypnoScript-Session                                         | `induce sitzung: session = beginSession();` |
-| `unknown`  | Platzhalter, wenn der Typ noch nicht bestimmt werden konnte          | Wird vom Type Checker intern verwendet      |
+| Type       | Description                                              | Example Code                                |
+| ---------- | -------------------------------------------------------- | ------------------------------------------- |
+| `number`   | Double-precision floating-point number                   | `induce temperature: number = 21.5;`        |
+| `string`   | UTF-8 text, fully supports Unicode                       | `induce greeting: string = "Hello";`        |
+| `boolean`  | Truth value `true` or `false`                            | `induce active: boolean = true;`            |
+| `trance`   | Hypnotic state, used for sessions and suggestions        | `induce state: trance = induceTrance();`    |
+| `array`    | Ordered list with uniform element type                   | `induce numbers: number[] = [1, 2, 3];`     |
+| `record`   | Named set of fields with their own types                 | `induce client: Client = { name, age };`    |
+| `object`   | Dynamic object, typically used for external integrations | `induce data: object = loadJson();`         |
+| `function` | Function reference with parameters and return value      | `induce analyzeUnit = suggestion(...)`      |
+| `session`  | Running HypnoScript session                              | `induce meeting: session = beginSession();` |
+| `unknown`  | Placeholder when the type could not yet be determined    | Used internally by the type checker         |
 
-> 💡 **Hinweis:** `record`, `function` und `array` sind **zusammengesetzte Typen**. Sie tragen zusätzliche Informationen (Feldnamen, Parameterliste, Elementtyp), die beim Type Checking berücksichtigt werden.
+> 💡 **Note:** `record`, `function`, and `array` are **composite types**. They carry additional information (field names, parameter list, element type) that is considered during type checking.
 
-Siehe auch [Variablen und Datentypen](./variables.md) für Grundlagen zur Deklaration von Variablen.
+See also [Variables and Data Types](./variables.md) for basics on declaring variables.
 
-## Typannotation und Inferenz
+## Type Annotation and Inference
 
-Du kannst Typen explizit angeben oder dem Compiler die Arbeit überlassen:
+You can specify types explicitly or let the compiler do the work:
 
 ```hyp
-// Explizite Annotation
-induce zaehler: number = 0;
+// Explicit annotation
+induce counter: number = 0;
 
-// Typinferenz durch den Compiler
-induce begruessung = "Willkommen"; // abgeleiteter Typ: string
+// Type inference by the compiler
+induce greeting = "Welcome"; // inferred type: string
 
-// Explizite Parameter- und Rückgabetypen bei Funktionen
-suggestion verdoppeln(wert: number): number {
-    awaken wert * 2;
+// Explicit parameter and return types for functions
+suggestion double(value: number): number {
+    awaken value * 2;
 }
 ```
 
-Der Compiler versucht stets, den konkretesten Typ abzuleiten. Wenn er keine eindeutige Aussage treffen kann, setzt er intern `unknown` ein und meldet eine Typwarnung oder -fehlermeldung.
+The compiler always attempts to infer the most specific type. If it cannot make a clear statement, it internally uses `unknown` and reports a type warning or error.
 
-## Zusammengesetzte Typen
+## Composite Types
 
 ### Arrays
 
-Arrays sind immer homogen. Der Elementtyp steht hinter dem Array-Namen in eckigen Klammern:
+Arrays are always homogeneous. The element type is specified in square brackets after the array name:
 
 ```hyp
-induce namen: string[] = ["Sam", "Alex", "Riley"];
+induce names: string[] = ["Sam", "Alex", "Riley"];
 
-induce messwerte: number[];
-messwerte = collectValues();
+induce measurements: number[];
+measurements = collectValues();
 ```
 
-Bei Operationen auf Arrays achtet der Type Checker darauf, dass nur passende Elemente eingefügt werden.
+For operations on arrays, the type checker ensures that only matching elements are inserted.
 
 ### Records
 
-Records kombinieren mehrere Felder zu einem strukturierten Typ:
+Records combine multiple fields into a structured type:
 
 ```hyp
-induce Klient = record {
+induce Client = record {
     name: string,
-    alter: number,
-    aktiv: boolean
+    age: number,
+    active: boolean
 };
 
-induce klient: Klient = {
+induce client: Client = {
     name: "Mira",
-    alter: 29,
-    aktiv: true
+    age: 29,
+    active: true
 };
 ```
 
-Die Struktur eines Records ist **strukturell** – zwei Records sind kompatibel, wenn sie die gleichen Feldnamen und Typen besitzen.
+The structure of a record is **structural** – two records are compatible if they have the same field names and types.
 
-### Funktionen
+### Functions
 
-Funktionen tragen einen vollständigen Signatur-Typ, bestehend aus Parameterliste und Rückgabewert:
+Functions carry a complete signature type, consisting of parameter list and return value:
 
 ```hyp
-suggestion hypnoticGreeting(name: string, dauer: number): string {
+suggestion hypnoticGreeting(name: string, duration: number): string {
     observe name;
-    observe dauer;
-    awaken "Willkommen zurück";
+    observe duration;
+    awaken "Welcome back";
 }
 ```
 
-Funktionstypen können wie jede andere Wertform gespeichert und weitergegeben werden:
+Function types can be stored and passed like any other value form:
 
 ```hyp
-induce begruessungsFunktion: (string, number) -> string = hypnoticGreeting;
+induce greetingFunction: (string, number) -> string = hypnoticGreeting;
 ```
 
-## Kompatibilitätsregeln
+## Compatibility Rules
 
-Der Type Checker nutzt strenge, aber pragmatische Kompatibilitätsregeln:
+The type checker uses strict but pragmatic compatibility rules:
 
-- **Primitive Typen** müssen exakt übereinstimmen (`number` ist nicht automatisch mit `string` kompatibel).
-- **Arrays** sind kompatibel, wenn ihre Elementtypen kompatibel sind.
-- **Records** vergleichen Feldanzahl, Feldnamen und Feldtypen.
-- **Funktionen** benötigen identische Parameteranzahl sowie kompatible Parameter- und Rückgabetypen.
-- **Sessions** und **Trance-Zustände** sind eigene Typen und werden nicht implizit in andere Typen umgewandelt.
+- **Primitive types** must match exactly (`number` is not automatically compatible with `string`).
+- **Arrays** are compatible if their element types are compatible.
+- **Records** compare field count, field names, and field types.
+- **Functions** require identical parameter count and compatible parameter and return types.
+- **Sessions** and **trance states** are their own types and are not implicitly converted to other types.
 
-Wenn zwei Typen nicht kompatibel sind, meldet der Compiler einen Fehler mit Hinweis auf den erwarteten und den tatsächlich gefundenen Typ.
+If two types are not compatible, the compiler reports an error with information about the expected and the actually found type.
 
-## Arbeit mit `unknown`
+## Working with `unknown`
 
-`unknown` dient als Fallback, wenn der Typ nicht eindeutig ermittelt werden kann – beispielsweise bei dynamischen Datenquellen. Ziel sollte es sein, `unknown` so früh wie möglich in einen konkreten Typ zu überführen:
+`unknown` serves as a fallback when the type cannot be determined unambiguously – for example, with dynamic data sources. The goal should be to convert `unknown` into a concrete type as early as possible:
 
 ```hyp
-induce daten: unknown = loadExternal();
+induce data: unknown = loadExternal();
 
-if (isRecord(daten)) {
-    induce struktur = cast<Klient>(daten);
-    observe struktur.name;
+if (isRecord(data)) {
+    induce structure = cast<Client>(data);
+    observe structure.name;
 } else {
-    warn "Externe Daten konnten nicht interpretiert werden.";
+    warn "External data could not be interpreted.";
 }
 ```
 
-## Weitere Ressourcen
+## Further Resources
 
-- [Kontrollstrukturen](./control-flow.md) – Typsichere Entscheidungs- und Schleifenkonstrukte
-- [Funktionen](./functions.md) – Signaturen, Rückgabewerte und Inline-Funktionen
-- [Records](./records.md) – Detaillierte Einführung in strukturierte Daten
+- [Control Flow](./control-flow.md) – Type-safe decision and loop constructs
+- [Functions](./functions.md) – Signatures, return values, and inline functions
+- [Records](./records.md) – Detailed introduction to structured data
 
-Mit einem klaren Verständnis des Typ-Systems kannst du HypnoScript-Programme schreiben, die sowohl hypnotisch als auch robust sind.```
+With a clear understanding of the type system, you can write HypnoScript programs that are both hypnotic and robust.```

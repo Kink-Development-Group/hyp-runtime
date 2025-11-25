@@ -2,15 +2,15 @@
 sidebar_position: 5
 ---
 
-# Utility-Funktionen
+# Utility-Functionen
 
-Utility-Funktionen bieten allgemeine Hilfsmittel für Typumwandlung, Vergleiche, Zeit, Zufall, Fehlerbehandlung und mehr.
+Utility-Functionen bieten allgemeine Hilfsmittel für Typumwandlung, Vergleiche, Zeit, Zufall, Fehlerbehandlung und mehr.
 
 ## Typumwandlung
 
 ### ToNumber(value)
 
-Konvertiert einen Wert in eine Zahl (Integer oder Float).
+Converts einen Wert in eine Zahl (Integer oder Float).
 
 ```hyp
 induce n1 = ToNumber("42"); // 42
@@ -21,7 +21,7 @@ induce n4 = ToNumber(false); // 0
 
 ### ToString(value)
 
-Konvertiert einen Wert in einen String.
+Converts einen Wert in einen String.
 
 ```hyp
 induce s1 = ToString(42); // "42"
@@ -31,7 +31,7 @@ induce s3 = ToString(true); // "true"
 
 ### ToBoolean(value)
 
-Konvertiert einen Wert in einen booleschen Wert.
+Converts einen Wert in einen booleschen Wert.
 
 ```hyp
 induce b1 = ToBoolean(1); // true
@@ -62,7 +62,7 @@ induce json = StringifyJSON(arr); // "[1,2,3]"
 
 ### IsNull(value)
 
-Prüft, ob ein Wert null ist.
+Checks, ob ein Wert null ist.
 
 ```hyp
 induce n = null;
@@ -71,7 +71,7 @@ induce isNull = IsNull(n); // true
 
 ### IsDefined(value)
 
-Prüft, ob ein Wert definiert ist (nicht null).
+Checks, ob ein Wert definiert ist (nicht null).
 
 ```hyp
 induce x = 42;
@@ -80,7 +80,7 @@ induce isDef = IsDefined(x); // true
 
 ### IsNumber(value)
 
-Prüft, ob ein Wert eine Zahl ist.
+Checks, ob ein Wert eine Zahl ist.
 
 ```hyp
 induce isNum1 = IsNumber(42); // true
@@ -89,7 +89,7 @@ induce isNum2 = IsNumber("42"); // false
 
 ### IsString(value)
 
-Prüft, ob ein Wert ein String ist.
+Checks, ob ein Wert ein String ist.
 
 ```hyp
 induce isStr1 = IsString("Hallo"); // true
@@ -98,7 +98,7 @@ induce isStr2 = IsString(42); // false
 
 ### IsArray(value)
 
-Prüft, ob ein Wert ein Array ist.
+Checks, ob ein Wert ein Array ist.
 
 ```hyp
 induce arr = [1,2,3];
@@ -107,7 +107,7 @@ induce isArr = IsArray(arr); // true
 
 ### IsObject(value)
 
-Prüft, ob ein Wert ein Objekt ist.
+Checks, ob ein Wert ein Objekt ist.
 
 ```hyp
 induce obj = ParseJSON('{"a":1}');
@@ -116,7 +116,7 @@ induce isObj = IsObject(obj); // true
 
 ### IsBoolean(value)
 
-Prüft, ob ein Wert ein boolescher Wert ist.
+Checks, ob ein Wert ein boolescher Wert ist.
 
 ```hyp
 induce isBool1 = IsBoolean(true); // true
@@ -125,7 +125,7 @@ induce isBool2 = IsBoolean(0); // false
 
 ### TypeOf(value)
 
-Gibt den Typ eines Wertes als String zurück.
+Returns den Typ eines Wertes als String .
 
 ```hyp
 induce t1 = TypeOf(42); // "number"
@@ -137,7 +137,7 @@ induce t3 = TypeOf([1,2,3]); // "array"
 
 ### Now()
 
-Gibt das aktuelle Datum und die aktuelle Uhrzeit als String zurück.
+Returns das aktuelle Datum und die aktuelle Uhrzeit als String .
 
 ```hyp
 induce now = Now(); // "2025-05-01T12:34:56Z"
@@ -145,7 +145,7 @@ induce now = Now(); // "2025-05-01T12:34:56Z"
 
 ### Timestamp()
 
-Gibt den aktuellen Unix-Timestamp (Sekunden seit 1970-01-01).
+Returns den aktuellen Unix-Timestamp (Sekunden seit 1970-01-01).
 
 ```hyp
 induce ts = Timestamp(); // 1714569296
@@ -183,7 +183,7 @@ induce sample = Sample(arr, 2); // z.B. [3,5]
 
 ### Try(expr, fallback)
 
-Versucht, einen Ausdruck auszuführen, und gibt im Fehlerfall einen Fallback-Wert zurück.
+Versucht, einen Ausdruck auszuführen, und gibt im Fehlerfall einen Fallback-Wert .
 
 ```hyp
 induce result = Try(Divide(10, 0), "Fehler"); // "Fehler"
@@ -197,7 +197,7 @@ Löst einen Fehler mit einer Nachricht aus.
 Throw("Ungültiger Wert!");
 ```
 
-## Sonstige Utility-Funktionen
+## Sonstige Utility-Functionen
 
 ### Range(start, end, step)
 
@@ -246,7 +246,7 @@ induce chunks = ChunkArray(arr, 2); // [[1,2],[3,4],[5,6]]
 
 ### Flatten(array)
 
-Macht ein verschachteltes Array flach.
+Makes ein verschachteltes Array flach.
 
 ```hyp
 induce nested = [[1,2],[3,4],[5]];
@@ -273,11 +273,11 @@ induce sorted = Sort(arr); // [1,1,3,4,5]
 
 ## Best Practices
 
-- Nutze Typprüfungen (IsNumber, IsString, ...) für robusten Code.
+- Use Typprüfungen (IsNumber, IsString, ...) für robusten Code.
 - Verwende Try für sichere Fehlerbehandlung.
-- Nutze Utility-Funktionen für saubere, lesbare und wiederverwendbare Skripte.
+- Use Utility-Functionen für saubere, lesbare und wiederverwendbare Skripte.
 
-## Beispiele
+## Examplee
 
 ### Dynamische Typumwandlung
 
@@ -322,11 +322,11 @@ Focus {
 } Relax;
 ```
 
-## Nächste Schritte
+## Next Steps
 
-- [System-Funktionen](./system-functions) – Interaktion mit dem System
-- [Beispiele](../examples/utility-examples) – Praktische Utility-Beispiele
+- [System-Functionen](./system-functions) – Interaktion mit dem System
+- [Examplee](../examples/utility-examples) – Praktische Utility-Examplee
 
 ---
 
-**Utility-Funktionen gemeistert? Dann lerne [System-Funktionen](./system-functions) kennen!** 🖥️
+**Utility-Functionen gemeistert? Dann lerne [System-Functionen](./system-functions) kennen!** 🖥️

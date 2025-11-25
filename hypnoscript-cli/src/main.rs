@@ -1,3 +1,5 @@
+mod package;
+
 use anyhow::{Result, anyhow};
 use clap::{Parser, Subcommand};
 use hypnoscript_compiler::{
@@ -5,23 +7,23 @@ use hypnoscript_compiler::{
     WasmBinaryGenerator, WasmCodeGenerator,
 };
 use hypnoscript_lexer_parser::{Lexer, Parser as HypnoParser};
+use package::PackageManager;
 use semver::Version;
 use serde::Deserialize;
 #[cfg(not(target_os = "windows"))]
 use std::io::Write;
+use std::process::{Command, Stdio};
 use std::{env, fs, time::Duration};
 use ureq::{Agent, AgentBuilder};
 
 #[cfg(not(target_os = "windows"))]
-use std::{
-    path::{Path, PathBuf},
-    process::{Command, Stdio},
-};
+use std::path::{Path, PathBuf};
 
 const GITHUB_OWNER: &str = "Kink-Development-Group";
 const GITHUB_REPO: &str = "hyp-runtime";
 const GITHUB_API: &str = "https://api.github.com";
 const DEFAULT_TIMEOUT_SECS: u64 = 20;
+const DEFAULT_PACKAGE_VERSION: &str = "^1.0.0";
 #[cfg(not(target_os = "windows"))]
 const INSTALLER_FALLBACK_URL: &str =
     "https://kink-development-group.github.io/hyp-runtime/install.sh";
@@ -46,8 +48,9 @@ struct Cli {
 
 #[derive(Subcommand)]
 enum Commands {
-    /// Run a HypnoScript file
-    Run {
+    /// Execute a HypnoScript file directly
+    #[command(name = "exec", alias = "execute")]
+    Exec {
         /// Path to the .hyp file
         file: String,
 
@@ -148,6 +151,52 @@ enum Commands {
         no_sudo: bool,
     },
 
+    /// Initialize a new trance.json manifest
+    Init {
+        /// Name of the package
+        #[arg(short, long)]
+        name: Option<String>,
+
+        /// Template to use (cli, library)
+        #[arg(short, long)]
+        template: Option<String>,
+    },
+
+    /// Install all dependencies from trance.json
+    Install,
+
+    /// Add a dependency to trance.json
+    Add {
+        /// Package name
+        package: String,
+
+        /// Version specification (e.g., ^1.0.0)
+        #[arg(short, long)]
+        version: Option<String>,
+
+        /// Add as a development dependency
+        #[arg(short = 'D', long)]
+        dev: bool,
+    },
+
+    /// Remove a dependency from trance.json
+    Remove {
+        /// Package name
+        package: String,
+    },
+
+    /// List all dependencies
+    List,
+
+    /// Run a suggestion (script) from trance.json
+    Run {
+        /// Name of the suggestion to run
+        name: String,
+    },
+
+    /// Validate trance.json manifest
+    Validate,
+
     /// Show version information
     Version,
 
@@ -159,7 +208,7 @@ fn main() -> Result<()> {
     let cli = Cli::parse();
 
     match cli.command {
-        Commands::Run {
+        Commands::Exec {
             file,
             debug,
             verbose,
@@ -412,6 +461,83 @@ fn main() -> Result<()> {
             no_sudo,
         } => {
             handle_self_update(check, include_prerelease, force, quiet, no_sudo)?;
+        }
+
+        Commands::Init { name, template } => {
+            let pm = PackageManager::new();
+            let ritual_name = match name {
+                Some(n) => n,
+                None => {
+                    // Try to get from current directory name
+                    let cwd = env::current_dir()?;
+                    cwd.file_name()
+                        .and_then(|n| n.to_str())
+                        .unwrap_or("my-hypno-package")
+                        .to_string()
+                }
+            };
+
+            pm.init(ritual_name, template.as_deref())?;
+        }
+
+        Commands::Install => {
+            let pm = PackageManager::new();
+            pm.install()?;
+        }
+
+        Commands::Add {
+            package,
+            version,
+            dev,
+        } => {
+            let pm = PackageManager::new();
+            let ver = version.unwrap_or_else(|| DEFAULT_PACKAGE_VERSION.to_string());
+            pm.add_dependency(package, ver, dev)?;
+        }
+
+        Commands::Remove { package } => {
+            let pm = PackageManager::new();
+            pm.remove_dependency(&package)?;
+        }
+
+        Commands::List => {
+            let pm = PackageManager::new();
+            pm.list_dependencies()?;
+        }
+
+        Commands::Run { name } => {
+            let pm = PackageManager::new();
+            let command_str = pm.run_suggestion(&name)?;
+            println!("📜 Running suggestion '{}': {}", name, command_str);
+
+            // Parse and execute the command using proper shell argument parsing
+            let parts = shlex::split(&command_str)
+                .ok_or_else(|| anyhow!("Failed to parse command in suggestion '{}'", name))?;
+
+            if parts.is_empty() {
+                return Err(anyhow!("Empty command in suggestion '{}'", name));
+            }
+
+            let program = &parts[0];
+            let args = &parts[1..];
+
+            let status = Command::new(program)
+                .args(args)
+                .stdin(Stdio::inherit())
+                .stdout(Stdio::inherit())
+                .stderr(Stdio::inherit())
+                .status()
+                .map_err(|e| anyhow!("Failed to execute command '{}': {}", command_str, e))?;
+
+            if !status.success() {
+                let code = status.code().unwrap_or(-1);
+                return Err(anyhow!("Command '{}' exited with code {}", name, code));
+            }
+        }
+
+        Commands::Validate => {
+            let pm = PackageManager::new();
+            pm.validate()?;
         }
 
         Commands::Version => {

@@ -38,93 +38,93 @@ induce mixed: string = "Zahl: " + 42;     // "Zahl: 42"
 
 HypnoScript bietet hypnotische Synonyme für alle Vergleichsoperatoren:
 
-| Hypnotisches Synonym    | Standard | Bedeutung      | Status       |
-| ----------------------- | -------- | -------------- | ------------ |
-| youAreFeelingVerySleepy | ==       | Gleich         | ✅ Empfohlen |
-| youCannotResist         | !=       | Ungleich       | ✅ Empfohlen |
-| lookAtTheWatch          | >        | Größer         | ✅ Empfohlen |
-| fallUnderMySpell        | <        | Kleiner        | ✅ Empfohlen |
-| yourEyesAreGettingHeavy | >=       | Größer gleich  | ✅ Empfohlen |
-| goingDeeper             | <=       | Kleiner gleich | ✅ Empfohlen |
+| Hypnotic Synonym        | Standard | Meaning               | Status         |
+| ----------------------- | -------- | --------------------- | -------------- |
+| youAreFeelingVerySleepy | ==       | Equal                 | ✅ Recommended |
+| youCannotResist         | !=       | Not equal             | ✅ Recommended |
+| lookAtTheWatch          | >        | Greater than          | ✅ Recommended |
+| fallUnderMySpell        | <        | Less than             | ✅ Recommended |
+| yourEyesAreGettingHeavy | >=       | Greater than or equal | ✅ Recommended |
+| goingDeeper             | <=       | Less than or equal    | ✅ Recommended |
 
-**Legacy-Operatoren** (veraltet, aber unterstützt):
+**Legacy Operators** (deprecated, but supported):
 
-| Hypnotisches Synonym | Standard | Hinweis                                           |
-| -------------------- | -------- | ------------------------------------------------- |
-| notSoDeep            | !=       | ⚠️ Verwende stattdessen `youCannotResist`         |
-| deeplyGreater        | >=       | ⚠️ Verwende stattdessen `yourEyesAreGettingHeavy` |
-| deeplyLess           | <=       | ⚠️ Verwende stattdessen `goingDeeper`             |
+| Hypnotic Synonym | Standard | Note                                     |
+| ---------------- | -------- | ---------------------------------------- |
+| notSoDeep        | !=       | ⚠️ Use `youCannotResist` instead         |
+| deeplyGreater    | >=       | ⚠️ Use `yourEyesAreGettingHeavy` instead |
+| deeplyLess       | <=       | ⚠️ Use `goingDeeper` instead             |
 
-## Logische Operatoren
+## Logical Operators
 
-### Standard-Operatoren (Logik)
+### Standard Operators (Logic)
 
-| Operator | Bedeutung | Beispiel        | Ergebnis |
-| -------- | --------- | --------------- | -------- |
-| &&       | Und       | true && false   | false    |
-| \|\|     | Oder      | true \|\| false | true     |
-| !        | Nicht     | !true           | false    |
+| Operator | Meaning | Example         | Result |
+| -------- | ------- | --------------- | ------ |
+| &&       | And     | true && false   | false  |
+| \|\|     | Or      | true \|\| false | true   |
+| !        | Not     | !true           | false  |
 
-### Hypnotische Synonyme (Logik)
+### Hypnotic Synonyms (Logic)
 
-| Hypnotisches Synonym | Standard | Bedeutung      |
-| -------------------- | -------- | -------------- |
-| underMyControl       | &&       | Logisches UND  |
-| resistanceIsFutile   | \|\|     | Logisches ODER |
+| Hypnotic Synonym   | Standard | Meaning     |
+| ------------------ | -------- | ----------- |
+| underMyControl     | &&       | Logical AND |
+| resistanceIsFutile | \|\|     | Logical OR  |
 
-**Hinweis:** Es gibt kein hypnotisches Synonym für den `!` (Nicht)-Operator.
+**Note:** There is no hypnotic synonym for the `!` (Not) operator.
 
-## Priorität der Operatoren
+## Operator Precedence
 
-Von höchster zu niedrigster Priorität:
+From highest to lowest precedence:
 
-1. **Unäre Operatoren:** `!`, `-` (negativ)
-2. **Multiplikativ:** `*`, `/`, `%`
-3. **Additiv:** `+`, `-`
-4. **Vergleich:** `<`, `<=`, `>`, `>=` (und hypnotische Synonyme)
-5. **Gleichheit:** `==`, `!=` (und hypnotische Synonyme)
-6. **Logisches UND:** `&&` (oder `underMyControl`)
-7. **Logisches ODER:** `||` (oder `resistanceIsFutile`)
+1. **Unary Operators:** `!`, `-` (negative)
+2. **Multiplicative:** `*`, `/`, `%`
+3. **Additive:** `+`, `-`
+4. **Comparison:** `<`, `<=`, `>`, `>=` (and hypnotic synonyms)
+5. **Equality:** `==`, `!=` (and hypnotic synonyms)
+6. **Logical AND:** `&&` (or `underMyControl`)
+7. **Logical OR:** `||` (or `resistanceIsFutile`)
 
-Verwende Klammern `( )` für explizite Gruppierung.
+Use parentheses `( )` for explicit grouping.
 
-## Array-Zugriff und Zuweisung
+## Array Access and Assignment
 
-Arrays werden mit eckigen Klammern `[ ]` indiziert (0-basiert):
+Arrays are indexed with square brackets `[ ]` (0-based):
 
 ```hyp
 induce arr: number[] = [10, 20, 30];
-observe arr[0];       // Ausgabe: 10
-observe arr[2];       // Ausgabe: 30
+observe arr[0];       // Output: 10
+observe arr[2];       // Output: 30
 
-arr[1] = 42;          // Zuweisung
-observe arr[1];       // Ausgabe: 42
+arr[1] = 42;          // Assignment
+observe arr[1];       // Output: 42
 ```
 
-Für erweiterte Array-Operationen siehe [Array Builtin-Funktionen](../builtins/array-functions).
+For advanced array operations see [Array Builtin Functions](../builtins/array-functions).
 
-## Zuweisungsoperator
+## Assignment Operator
 
-Der einfache Zuweisungsoperator `=` wird für Zuweisungen verwendet:
+The simple assignment operator `=` is used for assignments:
 
 ```hyp
 induce x: number = 5;
 x = x + 1;  // 6
-x = 10;     // Neuzuweisung
+x = 10;     // Reassignment
 ```
 
-**Wichtig:** Zusammengesetzte Zuweisungsoperatoren (`+=`, `-=`, `*=`, etc.) sind **nicht implementiert**.
+**Important:** Compound assignment operators (`+=`, `-=`, `*=`, etc.) are **not implemented**.
 
-Verwende stattdessen:
+Use instead:
 
 ````hyp
-// FALSCH: x += 5;
-// RICHTIG:
+// WRONG: x += 5;
+// CORRECT:
 x = x + 5;
 
-## Beispiele
+## Examples
 
-### Standard-Operatoren
+### Standard Operators
 
 ```hyp
 Focus {
@@ -145,7 +145,7 @@ Focus {
 } Relax
 ````
 
-### Hypnotische Synonyme
+### Hypnotic Synonyms
 
 ```hyp
 Focus {
@@ -154,37 +154,37 @@ Focus {
         induce y: number = 10;
 
         if (x youAreFeelingVerySleepy y) {
-            observe "x ist gleich y!";
+            observe "x equals y!";
         }
 
         if (x lookAtTheWatch 5 underMyControl y yourEyesAreGettingHeavy 8) {
-            observe "Beide Bedingungen sind wahr!";
+            observe "Both conditions are true!";
         }
 
         if (x fallUnderMySpell 20 resistanceIsFutile y youAreFeelingVerySleepy 10) {
-            observe "Mindestens eine Bedingung ist wahr!";
+            observe "At least one condition is true!";
         }
     }
 } Relax
 ```
 
-### Array-Operationen
+### Array Operations
 
 ```hyp
 Focus {
     entrance {
         induce numbers: number[] = [1, 2, 3, 4, 5];
 
-        observe "Erstes Element: " + numbers[0];
-        observe "Array-Länge: " + ArrayLength(numbers);
+        observe "First element: " + numbers[0];
+        observe "Array length: " + ArrayLength(numbers);
 
         numbers[2] = 99;
-        observe "Geändertes Element: " + numbers[2];
+        observe "Modified element: " + numbers[2];
     }
 } Relax
 ```
 
-### Operatorkombinationen
+### Operator Combinations
 
 ```hyp
 Focus {
@@ -193,28 +193,28 @@ Focus {
         induce y: number = 20;
         induce z: number = 5;
 
-        // Komplexe Ausdrücke mit Prioritäten
-        induce result1: number = x + y * z;     // 110 (Multiplikation zuerst)
-        induce result2: number = (x + y) * z;   // 150 (Klammern zuerst)
+        // Complex expressions with precedence
+        induce result1: number = x + y * z;     // 110 (multiplication first)
+        induce result2: number = (x + y) * z;   // 150 (parentheses first)
 
         observe "result1 = " + result1;
         observe "result2 = " + result2;
 
-        // Logische Operatoren kombinieren
+        // Combining logical operators
         if (x lookAtTheWatch 5 underMyControl y lookAtTheWatch 15) {
-            observe "x > 5 UND y > 15";
+            observe "x > 5 AND y > 15";
         }
 
         if (x fallUnderMySpell 5 resistanceIsFutile y yourEyesAreGettingHeavy 20) {
-            observe "x < 5 ODER y >= 20";
+            observe "x < 5 OR y >= 20";
         }
 
         // Negation
         induce isActive: boolean = true;
         if (!isActive) {
-            observe "Nicht aktiv";
+            observe "Not active";
         } else {
-            observe "Aktiv";
+            observe "Active";
         }
     }
 } Relax
@@ -222,15 +222,15 @@ Focus {
 
 ## Best Practices
 
-1. **Verwende Klammern** bei komplexen Ausdrücken für bessere Lesbarkeit
-2. **Nutze hypnotische Operatoren** konsequent für thematische Konsistenz
-3. **Vermeide Legacy-Operatoren** (`notSoDeep`, `deeplyGreater`, `deeplyLess`)
-4. **Typ-Konsistenz** beachten: Vergleiche nur Werte gleichen Typs
-5. **Explizite Konvertierung** wenn nötig mit Builtin-Funktionen (`ToInt`, `ToDouble`, `ToString`)
+1. **Use parentheses** for complex expressions for better readability
+2. **Use hypnotic operators** consistently for thematic consistency
+3. **Avoid legacy operators** (`notSoDeep`, `deeplyGreater`, `deeplyLess`)
+4. **Type consistency** matters: Only compare values of the same type
+5. **Explicit conversion** when needed with builtin functions (`ToInt`, `ToDouble`, `ToString`)
 
-## Siehe auch
+## See Also
 
-- [Variablen](./variables) - Variablendeklaration und -zuweisung
-- [Kontrollstrukturen](./control-flow) - if, while, loop
-- [Builtin-Funktionen](../builtins/overview) - Verfügbare Standardfunktionen
-- [Syntax](./syntax) - Vollständige Sprachsyntax
+- [Variables](./variables) - Variable declaration and assignment
+- [Control Flow](./control-flow) - if, while, loop
+- [Builtin Functions](../builtins/overview) - Available standard functions
+- [Syntax](./syntax) - Complete language syntax

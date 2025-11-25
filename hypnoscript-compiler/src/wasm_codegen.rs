@@ -4,7 +4,7 @@ use std::collections::HashMap;
 /// WASM code generator for HypnoScript
 ///
 /// Generiert WebAssembly Text Format (.wat) aus HypnoScript AST.
-/// Unterstützt:
+/// Supports:
 /// - Variablen und Funktionen
 /// - Kontrollfluss (if/while/loop)
 /// - Arithmetische und logische Operationen
@@ -22,7 +22,7 @@ pub struct WasmCodeGenerator {
     continue_labels: Vec<String>,
 }
 
-/// Session-Informationen für WASM-Generierung
+/// Session information for WASM generation
 #[derive(Debug, Clone)]
 #[allow(dead_code)]
 struct SessionInfo {
@@ -94,7 +94,7 @@ impl WasmCodeGenerator {
         self.output.clone()
     }
 
-    /// Pre-scan für Sessions und Funktionen
+    /// Pre-scan for sessions and functions
     fn prescan_declarations(&mut self, statements: &[AstNode]) {
         for stmt in statements {
             match stmt {

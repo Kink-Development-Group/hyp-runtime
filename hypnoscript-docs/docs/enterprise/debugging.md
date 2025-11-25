@@ -4,29 +4,29 @@ title: Runtime Debugging
 
 # Runtime Debugging
 
-Die Runtime-Edition von HypnoScript bietet erweiterte Debugging- und Monitoring-Funktionen für große Projekte und Teams.
+The runtime edition of HypnoScript provides extended debugging and monitoring features for large projects and teams.
 
-## Web- und API-Server
+## Web and API Server
 
-- **Web Server:** Echtzeit-Kompilierung, Live-Ausführung, interaktive Entwicklungsumgebung, Performance-Monitoring.
-- **API Server:** REST-API, Authentifizierung, Metriken, Health Checks, Request-Logging.
+- **Web Server:** Real-time compilation, live execution, interactive development environment, performance monitoring.
+- **API Server:** REST API, authentication, metrics, health checks, request logging.
 
 ## Monitoring & Metrics
 
-- Echtzeit-Performance-Metriken (CPU, Speicher, Fehlerquoten)
-- Dashboard-Visualisierung und Alerting (geplant)
+- Real-time performance metrics (CPU, memory, error rates)
+- Dashboard visualization and alerting (planned)
 
 ## Cloud & CI/CD
 
-- Unterstützung für Cloud-Deployment (AWS, Azure, GCP)
-- Integration in CI/CD-Pipelines für automatisierte Tests und Deployments
+- Support for cloud deployment (AWS, Azure, GCP)
+- Integration into CI/CD pipelines for automated tests and deployments
 
-## Testautomatisierung
+## Test Automation
 
-- CLI-Befehl `test` für automatisierte Testläufe und Assertion-Checks
-- Zusammenfassende Testreports mit Hervorhebung von Fehlern und Assertion-Fails
+- CLI command `test` for automated test runs and assertion checks
+- Summary test reports with highlighting of errors and assertion failures
 
-## Tipps
+## Tips
 
-- Nutzen Sie die Monitoring- und API-Features für verteiltes Debugging und Performance-Analyse in großen Umgebungen.
-- Integrieren Sie HypnoScript in Ihre DevOps-Workflows für kontinuierliche Qualitätssicherung.
+- Use the monitoring and API features for distributed debugging and performance analysis in large environments.
+- Integrate HypnoScript into your DevOps workflows for continuous quality assurance.

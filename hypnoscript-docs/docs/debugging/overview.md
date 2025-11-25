@@ -152,7 +152,7 @@ Focus {
 } Relax
 ```
 
-### 4. Use Type Checking
+### 4. Use Type checking
 
 ```hyp
 Focus {
@@ -208,7 +208,7 @@ Focus {
 } Relax
 ```
 
-### 2. Function Parameter Issues
+### 2. Function Parameters Issues
 
 ```hyp
 Focus {

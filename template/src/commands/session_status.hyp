@@ -1,0 +1,29 @@
+MindLink "../shared/runtime_state.hyp";
+
+Focus {
+
+    expose suggestion ShowSessionStatus(payload: array) {
+        induce profile = DefaultSessionProfile();
+
+        if (Length(payload) > 0) {
+            profile.subject = payload[0];
+        }
+
+        induce nextStage: string = "induction";
+        if (Length(payload) > 1) {
+            nextStage = ToLower(payload[1]);
+        }
+
+        induce moodOverride: string = "centered";
+        if (Length(payload) > 2) {
+            moodOverride = payload[2];
+        }
+
+        profile.mood = moodOverride;
+        profile = UpdateStage(profile, nextStage, "status");
+
+        RenderSessionProfile(profile);
+    }
+}
+
+Relax

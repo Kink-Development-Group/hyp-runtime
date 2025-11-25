@@ -1,16 +1,16 @@
-# Runtime-Dokumentation Übersicht
+# Runtime Documentation Overview
 
-Diese Übersicht bietet einen vollständigen Überblick über die Runtime-Dokumentation von HypnoScript, einschließlich aller verfügbaren Funktionen, Best Practices und Implementierungsrichtlinien.
+This overview provides a complete overview of HypnoScript's runtime documentation, including all available features, best practices, and implementation guidelines.
 
-## Dokumentationsstruktur
+## Documentation Structure
 
 ### 📋 Runtime Features
 
 **Datei:** `features.md`
 
-- Umfassende Runtime-Funktionen
-- Skalierbarkeit und Performance
-- Hochverfügbarkeit
+- Comprehensive runtime features
+- Scalability and performance
+- High availability
 - Multi-Tenant-Support
 - Runtime-Integrationen
 
@@ -18,11 +18,11 @@ Diese Übersicht bietet einen vollständigen Überblick über die Runtime-Dokume
 
 **Datei:** `architecture.md`
 
-- Architektur-Patterns
-- Modularisierung
-- Skalierungsstrategien
-- Deployment-Strategien
-- Containerisierung
+- Architecture patterns
+- Modularization
+- Scaling strategies
+- Deployment strategies
+- Containerization
 - Observability
 - Security & Compliance
 
@@ -30,25 +30,25 @@ Diese Übersicht bietet einen vollständigen Überblick über die Runtime-Dokume
 
 **Datei:** `security.md`
 
-- Authentifizierung (LDAP, OAuth2, MFA)
-- Autorisierung (RBAC, ABAC)
-- Verschlüsselung (ruhende und übertragene Daten)
+- Authentication (LDAP, OAuth2, MFA)
+- Authorization (RBAC, ABAC)
+- Encryption (data at rest and in transit)
 - Audit-Logging
-- Compliance-Reporting (SOX, GDPR, PCI DSS)
-- Netzwerksicherheit
+- Compliance reporting (SOX, GDPR, PCI DSS)
+- Network security
 - Incident Response
 
 ### 📊 Runtime Monitoring
 
 **Datei:** `monitoring.md`
 
-- System- und Anwendungs-Metriken
-- Strukturiertes Logging
+- System and application metrics
+- Structured logging
 - Distributed Tracing
-- Proaktive Alerting
-- Grafana-Dashboards
+- Proactive alerting
+- Grafana dashboards
 - Performance-Monitoring (APM)
-- Business-Metriken
+- Business metrics
 
 ### 🗄️ Runtime Database
 
@@ -59,7 +59,7 @@ Diese Übersicht bietet einen vollständigen Überblick über die Runtime-Dokume
 - ORM und Repository-Pattern
 - Transaktionsmanagement
 - Datenbank-Migrationen
-- Performance-Optimierung
+- Performance optimization
 - Backup-Strategien
 
 ### 📨 Runtime Messaging
@@ -78,110 +78,110 @@ Diese Übersicht bietet einen vollständigen Überblick über die Runtime-Dokume
 
 - RESTful API-Design
 - API-Versionierung
-- Authentifizierung (OAuth2, API-Keys, JWT)
+- Authentication (OAuth2, API-Keys, JWT)
 - Rate Limiting
-- OpenAPI-Dokumentation
+- OpenAPI-Documentation
 - API-Monitoring und Metriken
 
 ### 💾 Runtime Backup & Recovery
 
 **Datei:** `backup-recovery.md`
 
-- Backup-Strategien (Full, Incremental, Differential)
+- Backup strategies (full, incremental, differential)
 - Disaster Recovery (RTO/RPO)
 - Business Continuity
 - DR-Sites (Hot, Warm, Cold)
-- Backup-Monitoring und Validierung
+- Backup monitoring and validation
 
-## Runtime-Funktionen im Detail
+## Runtime Features in Detail
 
-### 🔐 Sicherheit & Compliance
+### 🔐 Security & Compliance
 
-#### Authentifizierung
+#### Authentication
 
-- **LDAP-Integration:** Unternehmensweite Benutzerverwaltung
-- **OAuth2-Support:** Sichere API-Authentifizierung
-- **Multi-Faktor-Authentifizierung:** Erhöhte Sicherheit
-- **Session-Management:** Sichere Session-Verwaltung
+- **LDAP-Integration:** Enterprise-wide user management
+- **OAuth2-Support:** Sichere API-Authentication
+- **Multi-Faktor-Authentication:** Increased security
+- **Session-Management:** Secure session management
 
-#### Autorisierung
+#### Authorization
 
-- **Role-Based Access Control (RBAC):** Rollenbasierte Berechtigungen
-- **Attribute-Based Access Control (ABAC):** Kontextbasierte Zugriffskontrolle
-- **Granulare Berechtigungen:** Feingranulare Zugriffskontrolle
+- **Role-Based Access Control (RBAC):** Role-based permissions
+- **Attribute-Based Access Control (ABAC):** Context-based access control
+- **Granulare Berechtigungen:** Fine-grained access control
 
-#### Verschlüsselung
+#### Encryption
 
-- **Datenverschlüsselung:** AES-256-GCM für ruhende Daten
-- **Transport-Verschlüsselung:** TLS 1.3 für übertragene Daten
-- **Schlüsselverwaltung:** AWS KMS Integration
+- **Data encryption:** AES-256-GCM für ruhende Daten
+- **Transport-Encryption:** TLS 1.3 für übertragene Daten
+- **Key management:** AWS KMS Integration
 
 #### Compliance
 
-- **SOX-Compliance:** Finanzberichterstattung
-- **GDPR-Compliance:** Datenschutz
-- **PCI DSS-Compliance:** Zahlungsverkehr
-- **Audit-Logging:** Vollständige Aktivitätsprotokollierung
+- **SOX-Compliance:** Financial reporting
+- **GDPR-Compliance:** Data protection
+- **PCI DSS-Compliance:** Payment processing
+- **Audit-Logging:** Complete activity logging
 
-### 📈 Skalierbarkeit & Performance
+### 📈 Scalability & Performance
 
-#### Horizontale Skalierung
+#### Horizontal scaling
 
-- **Load Balancing:** Automatische Lastverteilung
-- **Auto-Scaling:** Dynamische Ressourcenanpassung
-- **Microservices-Architektur:** Modulare Skalierung
+- **Load Balancing:** Automatic load distribution
+- **Auto-Scaling:** Dynamic resource adjustment
+- **Microservices-Architektur:** Modular scaling
 
-#### Performance-Optimierung
+#### Performance optimization
 
-- **Caching-Strategien:** Redis-Integration
-- **Database-Optimierung:** Query-Optimierung und Indexierung
-- **Connection Pooling:** Effiziente Datenbankverbindungen
+- **Caching strategies:** Redis-Integration
+- **Database-Optimierung:** Query optimization and indexing
+- **Connection Pooling:** Efficient database connections
 
 #### Monitoring & Observability
 
-- **Metriken-Sammlung:** Prometheus-Integration
-- **Log-Aggregation:** ELK-Stack-Support
+- **Metrics collection:** Prometheus-Integration
+- **Log aggregation:** ELK-Stack-Support
 - **Distributed Tracing:** Jaeger-Integration
 - **Performance-Monitoring:** APM-Tools
 
-### 🔄 Hochverfügbarkeit
+### 🔄 High availability
 
 #### Disaster Recovery
 
-- **RTO/RPO-Ziele:** Definierte Recovery-Zeiten
+- **RTO/RPO-Ziele:** Defined recovery times
 - **DR-Sites:** Hot, Warm und Cold Sites
-- **Automatische Failover:** Minimale Ausfallzeiten
+- **Automatische Failover:** Minimal downtime
 
 #### Business Continuity
 
-- **Kritische Funktionen:** Priorisierte Wiederherstellung
-- **Alternative Prozesse:** Redundante Abläufe
+- **Kritische Funktionen:** Prioritized recovery
+- **Alternative Prozesse:** Redundant processes
 - **Kommunikationsplan:** Eskalationsmatrix
 
-### 🗄️ Datenmanagement
+### 🗄️ Data management
 
 #### Multi-Database-Support
 
-- **PostgreSQL:** Vollständige Unterstützung
-- **MySQL:** Runtime-Features
-- **SQL Server:** Windows-Integration
-- **Oracle:** Runtime-Datenbanken
+- **PostgreSQL:** Full support
+- **MySQL:** Runtime features
+- **SQL Server:** Windows integration
+- **Oracle:** Runtime databases
 
 #### Backup-Strategien
 
-- **3-2-1-Regel:** Robuste Backup-Strategie
-- **Automatische Backups:** Zeitgesteuerte Sicherung
+- **3-2-1-Regel:** Robust backup strategy
+- **Automatische Backups:** Time-based backup
 - **Cloud-Backups:** AWS S3, Azure Blob, GCP Storage
-- **Backup-Validierung:** Regelmäßige Tests
+- **Backup-Validierung:** Regular tests
 
 ### 📨 Event-Driven Architecture
 
 #### Message Brokers
 
-- **Apache Kafka:** Hochleistungs-Messaging
-- **RabbitMQ:** Flexible Message Queuing
+- **Apache Kafka:** High-performance messaging
+- **RabbitMQ:** Flexible message queuing
 - **ActiveMQ:** JMS-Support
-- **AWS SQS/SNS:** Cloud-Messaging
+- **AWS SQS/SNS:** Cloud messaging
 
 #### Message Patterns
 
@@ -193,165 +193,165 @@ Diese Übersicht bietet einen vollständigen Überblick über die Runtime-Dokume
 
 #### RESTful APIs
 
-- **OpenAPI-Spezifikation:** Standardisierte Dokumentation
+- **OpenAPI-Spezifikation:** Standardisierte Documentation
 - **API-Versionierung:** Backward Compatibility
-- **Rate Limiting:** DDoS-Schutz
-- **API-Monitoring:** Performance-Tracking
+- **Rate Limiting:** DDoS protection
+- **API-Monitoring:** Performance tracking
 
 #### Sicherheit
 
-- **OAuth2-Authentifizierung:** Sichere API-Zugriffe
-- **API-Key-Management:** Schlüsselverwaltung
-- **JWT-Tokens:** Stateless Authentication
+- **OAuth2-Authentication:** Secure API access
+- **API-Key-Management:** Key management
+- **JWT-Tokens:** Stateless authentication
 
-## Implementierungsrichtlinien
+## Implementation Guidelines
 
-### 🚀 Deployment-Strategien
+### 🚀 Deployment strategies
 
-#### Containerisierung
+#### Containerization
 
-- **Docker-Integration:** Container-basierte Bereitstellung
-- **Kubernetes-Support:** Orchestrierung
-- **Helm-Charts:** Standardisierte Deployments
+- **Docker-Integration:** Container-based deployment
+- **Kubernetes-Support:** Orchestration
+- **Helm-Charts:** Standardized deployments
 
 #### CI/CD-Pipeline
 
-- **Automated Testing:** Qualitätssicherung
+- **Automated Testing:** Quality assurance
 - **Blue-Green Deployment:** Zero-Downtime Deployments
-- **Canary Releases:** Risikominimierung
+- **Canary Releases:** Risk minimization
 
 ### 📊 Monitoring & Alerting
 
 #### Metriken
 
-- **Golden Signals:** Latency, Traffic, Errors, Saturation
-- **Business Metrics:** Geschäftskritische Kennzahlen
-- **Custom Metrics:** Anwendungsspezifische Metriken
+- **Golden Signals:** Latency, traffic, errors, saturation
+- **Business Metrics:** Business-critical metrics
+- **Custom Metrics:** Application-specific metrics
 
 #### Alerting
 
-- **Proaktive Alerts:** Frühzeitige Problemerkennung
-- **Eskalationsmatrix:** Automatische Eskalation
-- **On-Call-Rotation:** 24/7-Support
+- **Proaktive Alerts:** Early problem detection
+- **Eskalationsmatrix:** Automatic escalation
+- **On-Call-Rotation:** 24/7 support
 
-### 🔧 Konfigurationsmanagement
+### 🔧 Configuration Management
 
 #### Environment Management
 
-- **Development:** Entwicklungs-Umgebung
-- **Staging:** Test-Umgebung
-- **Production:** Produktions-Umgebung
+- **Development:** Development environment
+- **Staging:** Test environment
+- **Production:** Production environment
 
 #### Configuration as Code
 
 - **Infrastructure as Code:** Terraform/CloudFormation
-- **Configuration Files:** YAML/JSON-Konfiguration
-- **Secret Management:** Sichere Geheimnisverwaltung
+- **Configuration Files:** YAML/JSON configuration
+- **Secret Management:** Secure secret management
 
 ## Best Practices
 
-### 🛡️ Sicherheits-Best-Practices
+### 🛡️ Security Best Practices
 
-1. **Defense in Depth:** Mehrere Sicherheitsebenen
-2. **Principle of Least Privilege:** Minimale Berechtigungen
-3. **Regular Updates:** Sicherheitspatches
-4. **Security Training:** Mitarbeiter-Schulungen
-5. **Incident Response:** Vorbereitete Reaktionen
+1. **Defense in Depth:** Multiple security layers
+2. **Principle of Least Privilege:** Minimal permissions
+3. **Regular Updates:** Security patches
+4. **Security Training:** Employee training
+5. **Incident Response:** Prepared responses
 
-### 📈 Performance-Best-Practices
+### 📈 Performance Best Practices
 
-1. **Caching-Strategien:** Intelligentes Caching
+1. **Caching strategies:** Intelligent caching
 2. **Database-Optimization:** Query-Optimierung
-3. **Load Balancing:** Effiziente Lastverteilung
-4. **Monitoring:** Proaktive Überwachung
-5. **Capacity Planning:** Ressourcenplanung
+3. **Load Balancing:** Efficient load distribution
+4. **Monitoring:** Proactive monitoring
+5. **Capacity Planning:** Resource planning
 
-### 🔄 Reliability-Best-Practices
+### 🔄 Reliability Best Practices
 
-1. **Redundancy:** Systemredundanz
-2. **Backup-Strategien:** Regelmäßige Backups
-3. **Testing:** Umfassende Tests
-4. **Documentation:** Vollständige Dokumentation
-5. **Training:** Team-Schulungen
+1. **Redundancy:** System redundancy
+2. **Backup-Strategien:** Regular backups
+3. **Testing:** Comprehensive testing
+4. **Documentation:** Vollständige Documentation
+5. **Training:** Team training
 
 ## Compliance & Governance
 
-### 📋 Compliance-Frameworks
+### 📋 Compliance Frameworks
 
 #### SOX (Sarbanes-Oxley)
 
-- **Financial Controls:** Finanzkontrollen
-- **Audit Trails:** Prüfpfade
-- **Access Controls:** Zugriffskontrollen
+- **Financial Controls:** Financial controls
+- **Audit Trails:** Audit trails
+- **Access Controls:** Access controls
 
 #### GDPR (General Data Protection Regulation)
 
-- **Data Protection:** Datenschutz
-- **Privacy by Design:** Datenschutz durch Technik
-- **Right to be Forgotten:** Recht auf Löschung
+- **Data Protection:** Data protection
+- **Privacy by Design:** Data protection durch Technik
+- **Right to be Forgotten:** Right to be forgotten
 
 #### PCI DSS (Payment Card Industry Data Security Standard)
 
-- **Card Data Protection:** Kartendatenschutz
-- **Secure Processing:** Sichere Verarbeitung
-- **Regular Audits:** Regelmäßige Prüfungen
+- **Card Data Protection:** Card data protection
+- **Secure Processing:** Secure processing
+- **Regular Audits:** Regular audits
 
 ### 🏛️ Governance
 
 #### Data Governance
 
-- **Data Classification:** Datenklassifizierung
-- **Data Lineage:** Datenherkunft
-- **Data Quality:** Datenqualität
+- **Data Classification:** Data classification
+- **Data Lineage:** Data lineage
+- **Data Quality:** Data quality
 
 #### IT Governance
 
-- **Change Management:** Änderungsverwaltung
-- **Risk Management:** Risikomanagement
-- **Compliance Monitoring:** Compliance-Überwachung
+- **Change Management:** Change management
+- **Risk Management:** Risk management
+- **Compliance Monitoring:** Compliance monitoring
 
-## Support & Wartung
+## Support & Maintenance
 
-### 🛠️ Support-Struktur
+### 🛠️ Support Structure
 
-#### Support-Levels
+#### Support Levels
 
-- **Level 1:** First-Level-Support
-- **Level 2:** Technical Support
-- **Level 3:** Expert Support
-- **Level 4:** Vendor Support
+- **Level 1:** First-level support
+- **Level 2:** Technical support
+- **Level 3:** Expert support
+- **Level 4:** Vendor support
 
-#### Escalation-Procedures
+#### Escalation Procedures
 
-- **Time-Based Escalation:** Zeitgesteuerte Eskalation
-- **Severity-Based Escalation:** Schweregrad-basierte Eskalation
-- **Management Escalation:** Management-Eskalation
+- **Time-Based Escalation:** Time-based escalation
+- **Severity-Based Escalation:** Severity-based escalation
+- **Management Escalation:** Management escalation
 
-### 📚 Dokumentation & Training
+### 📚 Documentation & Training
 
-#### Dokumentation
+#### Documentation
 
-- **Technical Documentation:** Technische Dokumentation
-- **User Guides:** Benutzerhandbücher
-- **API Documentation:** API-Dokumentation
-- **Troubleshooting Guides:** Fehlerbehebung
+- **Technical Documentation:** Technical documentation
+- **User Guides:** User guides
+- **API Documentation:** API-Documentation
+- **Troubleshooting Guides:** Troubleshooting
 
 #### Training
 
-- **User Training:** Benutzer-Schulungen
-- **Administrator Training:** Administrator-Schulungen
-- **Developer Training:** Entwickler-Schulungen
-- **Security Training:** Sicherheits-Schulungen
+- **User Training:** User training
+- **Administrator Training:** Administrator training
+- **Developer Training:** Developer training
+- **Security Training:** Security training
 
-## Fazit
+## Conclusion
 
-Die Runtime-Dokumentation von HypnoScript bietet eine umfassende Anleitung für die Implementierung und den Betrieb von HypnoScript in Runtime-Umgebungen. Sie deckt alle wichtigen Aspekte ab:
+Die Runtime-Documentation von HypnoScript bietet eine umfassende Anleitung für die Implementierung und den Betrieb von HypnoScript in Runtime-Umgebungen. Sie deckt alle wichtigen Aspekte ab:
 
-- **Sicherheit & Compliance:** Umfassende Sicherheitsfunktionen und Compliance-Frameworks
-- **Skalierbarkeit & Performance:** Optimierte Architektur für hohe Lasten
-- **Hochverfügbarkeit:** Robuste Disaster Recovery und Business Continuity
-- **Monitoring & Observability:** Vollständige Transparenz und Überwachung
-- **API-Management:** Sichere und skalierbare APIs
-- **Backup & Recovery:** Zuverlässige Datensicherung und Wiederherstellung
+- **Security & Compliance:** Comprehensive security features and compliance frameworks
+- **Scalability & Performance:** Optimized architecture for high loads
+- **High availability:** Robust disaster recovery and business continuity
+- **Monitoring & Observability:** Complete transparency and monitoring
+- **API-Management:** Secure and scalable APIs
+- **Backup & Recovery:** Reliable data backup and recovery
 
-Diese Dokumentation stellt sicher, dass HypnoScript in Runtime-Umgebungen den höchsten Standards für Sicherheit, Performance, Zuverlässigkeit und Compliance entspricht.
+This documentation ensures that HypnoScript meets the highest standards for security, performance, reliability, and compliance in runtime environments.
