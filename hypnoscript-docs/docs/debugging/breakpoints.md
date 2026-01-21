@@ -1,89 +1,89 @@
 # Breakpoints
 
-Breakpoints ermöglichen das Pausieren einer HypnoScript-Ausführung an präzisen Stellen, um Variablen und den Programmzustand zu inspizieren.
+Breakpoints pause a HypnoScript execution at precise locations to inspect variables and program state.
 
-## Breakpoints über CLI setzen
+## Set Breakpoints via CLI
 
-### Mit dem --breakpoints Flag
+### Using the --breakpoints Flag
 
-Setzen Sie initiale Breakpoints beim Start des Debug-Modus:
+Set initial breakpoints when starting debug mode:
 
 ```bash
-# Einzelner Breakpoint auf Zeile 10
+# Single breakpoint at line 10
 hypnoscript exec --debug --breakpoints 10 script.hyp
 
-# Mehrere Breakpoints
+# Multiple breakpoints
 hypnoscript exec --debug --breakpoints 10,25,42 script.hyp
 ```
 
-### Interaktiv im Debug-Modus
+### Interactive in Debug Mode
 
-Im interaktiven Debug-Modus können Breakpoints dynamisch gesetzt werden:
+In interactive debug mode, breakpoints can be set dynamically:
 
 ```bash
 (hypno-debug) break 15
-Breakpoint gesetzt auf Zeile 15
+Breakpoint set at line 15
 
 (hypno-debug) b 30
-Breakpoint gesetzt auf Zeile 30
+Breakpoint set at line 30
 ```
 
-## Breakpoint-Befehle
+## Breakpoint Commands
 
-| Befehl          | Alias      | Beschreibung                                      |
-| --------------- | ---------- | ------------------------------------------------- |
-| `break <line>`  | `b <line>` | Setzt einen Breakpoint auf der angegebenen Zeile  |
-| `delete <line>` | `d <line>` | Entfernt den Breakpoint auf der angegebenen Zeile |
-| `breakpoints`   | `bl`       | Zeigt alle aktiven Breakpoints an                 |
-| `clear`         |            | Entfernt alle Breakpoints                         |
+| Command         | Alias      | Description                                  |
+| --------------- | ---------- | -------------------------------------------- |
+| `break <line>`  | `b <line>` | Sets a breakpoint at the specified line      |
+| `delete <line>` | `d <line>` | Removes the breakpoint at the specified line |
+| `breakpoints`   | `bl`       | Shows all active breakpoints                 |
+| `clear`         |            | Removes all breakpoints                      |
 
-## Breakpoints auflisten
+## List Breakpoints
 
 ```bash
 (hypno-debug) breakpoints
-Aktive Breakpoints:
-  Zeile 10
-  Zeile 25
-  Zeile 42
+Active breakpoints:
+  Line 10
+  Line 25
+  Line 42
 
 (hypno-debug) bl
-Aktive Breakpoints:
-  Zeile 10
-  Zeile 25
-  Zeile 42
+Active breakpoints:
+  Line 10
+  Line 25
+  Line 42
 ```
 
-## Breakpoints löschen
+## Remove Breakpoints
 
 ```bash
-# Einzelnen Breakpoint löschen
+# Remove a single breakpoint
 (hypno-debug) delete 25
-Breakpoint auf Zeile 25 entfernt
+Breakpoint removed at line 25
 
-# Alias verwenden
+# Use alias
 (hypno-debug) d 42
-Breakpoint auf Zeile 42 entfernt
+Breakpoint removed at line 42
 
-# Alle Breakpoints löschen
+# Remove all breakpoints
 (hypno-debug) clear
-Alle Breakpoints entfernt
+All breakpoints removed
 ```
 
-## Zustand bei Breakpoint inspizieren
+## Inspect State at a Breakpoint
 
-Wenn die Ausführung an einem Breakpoint pausiert:
+When execution pauses at a breakpoint:
 
 ```bash
--> Breakpoint erreicht auf Zeile 10
+-> Breakpoint hit at line 10
    10 |   induce result = calculate(a, b);
 
 (hypno-debug) locals
-Lokale Variablen:
+Local variables:
   a: Int = 42
   b: Int = 17
 
 (hypno-debug) print result
-result: Null (nicht initialisiert)
+result: Null (not initialized)
 
 (hypno-debug) where
 Call Stack:
@@ -92,56 +92,56 @@ Call Stack:
   #2: <entry> at script.hyp:1
 ```
 
-## Stepping-Kontrolle
+## Stepping Control
 
-Nach einem Breakpoint können Sie die Ausführung steuern:
+After a breakpoint, you can control execution:
 
-| Befehl     | Alias | Beschreibung                                              |
-| ---------- | ----- | --------------------------------------------------------- |
-| `step`     | `s`   | Führt eine Zeile aus und stoppt (step into)               |
-| `next`     | `n`   | Führt eine Zeile aus, springt über Funktionen (step over) |
-| `finish`   | `f`   | Läuft bis zum Ende der aktuellen Funktion (step out)      |
-| `continue` | `c`   | Setzt die Ausführung bis zum nächsten Breakpoint fort     |
+| Command    | Alias | Description                                           |
+| ---------- | ----- | ----------------------------------------------------- |
+| `step`     | `s`   | Executes one line and stops (step into)               |
+| `next`     | `n`   | Executes one line, skipping functions (step over)     |
+| `finish`   | `f`   | Runs until the end of the current function (step out) |
+| `continue` | `c`   | Continues execution to the next breakpoint            |
 
-### Beispiel
+### Example
 
 ```bash
--> Breakpoint erreicht auf Zeile 10
+-> Breakpoint hit at line 10
    10 |   induce result = calculate(a, b);
 
 (hypno-debug) step
-   -> Zeile 20 (in calculate())
+  -> Line 20 (in calculate())
    20 |   awaken a + b;
 
 (hypno-debug) finish
-   -> Zurück in Zeile 11
+  -> Back to line 11
    11 |   observe(result);
 
 (hypno-debug) continue
-Ergebnis: 59
-Programm beendet.
+Result: 59
+Program finished.
 ```
 
-## Breakpoints im Code setzen
+## Set Breakpoints in Code
 
-Sie können auch programmatisch Breakpoints mit der `breakpoint()` Builtin-Funktion setzen:
+You can also set breakpoints programmatically with the `breakpoint()` builtin function:
 
 ```hypnoscript
 Focus
     induce x = 10;
 
-    breakpoint();  // Pausiert hier wenn im Debug-Modus
+    breakpoint();  // Pauses here in debug mode
 
     induce y = x * 2;
     observe(y);
 Relax
 ```
 
-Die `breakpoint()` Funktion wird nur im Debug-Modus aktiv und hat keine Auswirkung bei normaler Ausführung.
+The `breakpoint()` function only activates in debug mode and has no effect during normal execution.
 
 ## Best Practices
 
-1. **Strategische Platzierung**: Setzen Sie Breakpoints vor komplexen Berechnungen oder nach Funktionsaufrufen
-2. **Sparsamer Einsatz**: Zu viele Breakpoints können das Debugging erschweren
-3. **Watch-Expressions nutzen**: Kombinieren Sie Breakpoints mit `--watch` für automatische Variablenüberwachung
-4. **Cleanup nicht vergessen**: Entfernen Sie `breakpoint()` Aufrufe vor dem Produktiveinsatz
+1. **Strategic placement**: Set breakpoints before complex calculations or after function calls
+2. **Use sparingly**: Too many breakpoints can make debugging harder
+3. **Use watch expressions**: Combine breakpoints with `--watch` for automatic variable monitoring
+4. **Remember cleanup**: Remove `breakpoint()` calls before production use

@@ -119,10 +119,10 @@ Focus {
         }
 
         induce address = Address {
-            street: "Musterstraße 123",
+            street: "Example Street 123",
             city: "Berlin",
             zipCode: "10115",
-            country: "Deutschland"
+            country: "Germany"
         };
 
         // Direct field access
@@ -157,7 +157,7 @@ Focus {
         // Create copy with changes
         induce userConfig = defaultConfig with {
             theme: "light",
-            language: "de"
+            language: "en"
         };
 
         observe "Default theme: " + defaultConfig.theme;

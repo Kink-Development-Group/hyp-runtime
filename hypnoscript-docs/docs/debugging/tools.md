@@ -2,35 +2,35 @@
 sidebar_position: 1
 ---
 
-# Debugging-Tools
+# Debugging Tools
 
-HypnoScript bietet umfassende Debugging-Funktionalitäten für die Entwicklung und Fehlerbehebung von Skripten.
+HypnoScript provides comprehensive debugging capabilities for developing and troubleshooting scripts.
 
-## CLI Debug-Befehle
+## CLI Debug Commands
 
-### Debug-Modus starten
+### Start Debug Mode
 
 ```bash
-# Debug-Modus starten
+# Start debug mode
 hypnoscript exec --debug script.hyp
 
-# Mit detaillierter Ausgabe
+# With detailed output
 hypnoscript exec --debug --verbose script.hyp
 
-# Mit initialen Breakpoints
+# With initial breakpoints
 hypnoscript exec --debug --breakpoints 10,25,42 script.hyp
 
-# Mit Watch-Expressions
+# With watch expressions
 hypnoscript exec --debug --watch counter,result script.hyp
 
-# Mit Trace-Datei
+# With trace file
 hypnoscript exec --debug --trace-file debug.log script.hyp
 ```
 
-### Kombinierte Optionen
+### Combined Options
 
 ```bash
-# Vollständige Debug-Session mit allen Optionen
+# Complete debug session with all options
 hypnoscript exec --debug \
     --breakpoints 10,25 \
     --watch x,y,result \
@@ -39,29 +39,29 @@ hypnoscript exec --debug \
     script.hyp
 ```
 
-## Debug Builtin-Funktionen
+## Debug Builtin Functions
 
-HypnoScript bietet mehrere eingebaute Funktionen für das Debugging:
+HypnoScript provides several built-in functions for debugging:
 
 ### inspect(value)
 
-Gibt eine detaillierte Repräsentation eines Wertes zurück, inklusive Typ-Information:
+Returns a detailed representation of a value, including type information:
 
 ```hypnoscript
 Focus
     induce arr = [1, 2, 3];
     observe(inspect(arr));
-    // Ausgabe: Array[Int](3) = [1, 2, 3]
+    // Output: Array[Int](3) = [1, 2, 3]
 
     induce obj = { name: "Test", value: 42 };
     observe(inspect(obj));
-    // Ausgabe: Object { name: String = "Test", value: Int = 42 }
+    // Output: Object { name: String = "Test", value: Int = 42 }
 Relax
 ```
 
 ### typeOf(value)
 
-Gibt den Typ eines Wertes als String zurück:
+Returns the type of a value as a string:
 
 ```hypnoscript
 Focus
@@ -74,7 +74,7 @@ Relax
 
 ### stackTrace()
 
-Gibt den aktuellen Call-Stack als String zurück:
+Returns the current call stack as a string:
 
 ```hypnoscript
 Focus
@@ -87,7 +87,7 @@ Focus
     }
 
     outerFunction();
-    // Ausgabe:
+    // Output:
     // Call Stack:
     //   #0: innerFunction() at script.hyp:3
     //   #1: outerFunction() at script.hyp:7
@@ -97,178 +97,178 @@ Relax
 
 ### dump(value)
 
-Gibt den Wert formatiert auf der Konsole aus und gibt ihn zurück (nützlich für Debugging in Ausdrücken):
+Prints the value in a formatted way and returns it (useful for debugging in expressions):
 
 ```hypnoscript
 Focus
     induce result = dump(calculateValue()) * 2;
-    // Gibt calculateValue() aus und verwendet es weiter
+    // Prints calculateValue() and continues using it
 Relax
 ```
 
-## Assertion-Funktionen
+## Assertion Functions
 
 ### assertEqual(actual, expected, message?)
 
-Prüft, ob zwei Werte gleich sind:
+Checks whether two values are equal:
 
 ```hypnoscript
 Focus
     induce result = calculate(5, 3);
-    assertEqual(result, 8, "Addition sollte 8 ergeben");
+    assertEqual(result, 8, "Addition should yield 8");
 Relax
 ```
 
 ### assertTruthy(value, message?)
 
-Prüft, ob ein Wert als wahr ausgewertet wird:
+Checks whether a value is evaluated as truthy:
 
 ```hypnoscript
 Focus
     induce items = getItems();
-    assertTruthy(ArrayLength(items) > 0, "Items sollten vorhanden sein");
+    assertTruthy(ArrayLength(items) > 0, "Items should be present");
 Relax
 ```
 
-## Timing-Funktionen
+## Timing Functions
 
 ### time(label) / timeEnd(label)
 
-Misst die Ausführungszeit zwischen zwei Punkten:
+Measures execution time between two points:
 
 ```hypnoscript
 Focus
     time("operation");
 
-    // Zeitaufwändige Operation
+    // Time-consuming operation
     induce result = complexCalculation();
 
     timeEnd("operation");
-    // Ausgabe: operation: 123.45ms
+    // Output: operation: 123.45ms
 Relax
 ```
 
 ### measureTime(label, callback)
 
-Misst die Ausführungszeit einer Funktion:
+Measures the execution time of a function:
 
 ```hypnoscript
 Focus
     induce result = measureTime("sort", suggestion() {
         awaken sortArray(largeArray);
     });
-    // Ausgabe: sort: 45.67ms
+    // Output: sort: 45.67ms
 Relax
 ```
 
-## Logging-Funktionen
+## Logging Functions
 
 ### log(message) / warn(message) / error(message)
 
-Verschiedene Log-Level für strukturierte Ausgaben:
+Different log levels for structured output:
 
 ```hypnoscript
 Focus
-    log("Info: Verarbeitung gestartet");
-    warn("Warnung: Datei nicht gefunden, verwende Standard");
-    error("Fehler: Ungültiger Eingabewert");
+    log("Info: processing started");
+    warn("Warning: file not found, using default");
+    error("Error: invalid input value");
 Relax
 ```
 
 ### trace(message)
 
-Gibt eine Nachricht mit Stack-Trace aus:
+Prints a message with stack trace:
 
 ```hypnoscript
 Focus
     suggestion processItem(item) {
-        trace("Verarbeite Item");
-        // Ausgabe enthält aktuelle Position und Call-Stack
+        trace("Processing item");
+        // Output includes current position and call stack
     }
 Relax
 ```
 
 ### breakpoint()
 
-Pausiert die Ausführung im Debug-Modus:
+Pauses execution in debug mode:
 
 ```hypnoscript
 Focus
     induce x = 10;
 
-    breakpoint();  // Pausiert hier wenn --debug aktiv ist
+    breakpoint();  // Pauses here when --debug is active
 
     induce y = x * 2;
 Relax
 ```
 
-## Interaktive Debug-Befehle
+## Interactive Debug Commands
 
-Im interaktiven Debug-Modus stehen diese Befehle zur Verfügung:
+In interactive debug mode, these commands are available:
 
-### Ausführungssteuerung
+### Execution Control
 
-| Befehl     | Alias | Beschreibung                                  |
-| ---------- | ----- | --------------------------------------------- |
-| `continue` | `c`   | Bis zum nächsten Breakpoint fortfahren        |
-| `step`     | `s`   | Eine Zeile ausführen (step into)              |
-| `next`     | `n`   | Eine Zeile ausführen, Funktionen überspringen |
-| `finish`   | `f`   | Bis zum Ende der Funktion laufen              |
-| `run`      | `r`   | Ausführung neu starten                        |
+| Command    | Alias | Description                          |
+| ---------- | ----- | ------------------------------------ |
+| `continue` | `c`   | Continue to the next breakpoint      |
+| `step`     | `s`   | Execute one line (step into)         |
+| `next`     | `n`   | Execute one line, skipping functions |
+| `finish`   | `f`   | Run to the end of the function       |
+| `run`      | `r`   | Restart execution                    |
 
-### Variablen-Inspektion
+### Variable Inspection
 
-| Befehl         | Alias      | Beschreibung                |
-| -------------- | ---------- | --------------------------- |
-| `locals`       | `l`        | Lokale Variablen anzeigen   |
-| `globals`      | `g`        | Globale Variablen anzeigen  |
-| `print <var>`  | `p <var>`  | Variable anzeigen           |
-| `watch <expr>` | `w <expr>` | Watch-Expression hinzufügen |
-| `watches`      |            | Alle Watches anzeigen       |
+| Command        | Alias      | Description            |
+| -------------- | ---------- | ---------------------- |
+| `locals`       | `l`        | Show local variables   |
+| `globals`      | `g`        | Show global variables  |
+| `print <var>`  | `p <var>`  | Print a variable       |
+| `watch <expr>` | `w <expr>` | Add a watch expression |
+| `watches`      |            | Show all watches       |
 
-### Breakpoint-Verwaltung
+### Breakpoint Management
 
-| Befehl          | Alias      | Beschreibung              |
-| --------------- | ---------- | ------------------------- |
-| `break <line>`  | `b <line>` | Breakpoint setzen         |
-| `delete <line>` | `d <line>` | Breakpoint löschen        |
-| `breakpoints`   | `bl`       | Alle Breakpoints anzeigen |
-| `clear`         |            | Alle Breakpoints löschen  |
+| Command         | Alias      | Description           |
+| --------------- | ---------- | --------------------- |
+| `break <line>`  | `b <line>` | Set a breakpoint      |
+| `delete <line>` | `d <line>` | Delete a breakpoint   |
+| `breakpoints`   | `bl`       | Show all breakpoints  |
+| `clear`         |            | Clear all breakpoints |
 
 ### Navigation
 
-| Befehl               | Alias | Beschreibung                   |
+| Command              | Alias | Description                    |
 | -------------------- | ----- | ------------------------------ |
-| `list`               |       | Quellcode um aktuelle Position |
-| `list <start> <end>` |       | Quellcode-Bereich anzeigen     |
-| `where`              | `bt`  | Call-Stack anzeigen            |
-| `help`               |       | Hilfe anzeigen                 |
-| `quit`               |       | Debug-Session beenden          |
+| `list`               |       | Source around current position |
+| `list <start> <end>` |       | Show source range              |
+| `where`              | `bt`  | Show call stack                |
+| `help`               |       | Show help                      |
+| `quit`               |       | Exit debug session             |
 
-## Debug-Trace-Datei
+## Debug Trace File
 
-Mit `--trace-file` wird eine detaillierte Protokolldatei erstellt:
+With `--trace-file`, a detailed trace log is created:
 
 ```bash
 hypnoscript exec --debug --trace-file debug.log script.hyp
 ```
 
-Die Trace-Datei enthält:
+The trace file contains:
 
-- **Ausgeführte Zeilen** mit Zeitstempeln
-- **Variablenänderungen** bei jedem Schritt
-- **Breakpoint-Treffer** mit Kontext
-- **Call-Stack-Änderungen** bei Funktionsaufrufen
-- **Timing-Informationen** für Performance-Analyse
+- **Executed lines** with timestamps
+- **Variable changes** on each step
+- **Breakpoint hits** with context
+- **Call stack changes** on function calls
+- **Timing information** for performance analysis
 
-### Beispiel Trace-Ausgabe
+### Example Trace Output
 
 ```bash
 [00:00.001] EXEC   script.hyp:5   induce x = 10;
 [00:00.001] VAR    x = Int(10)
 [00:00.002] EXEC   script.hyp:6   induce y = 20;
 [00:00.002] VAR    y = Int(20)
-[00:00.003] BREAK  script.hyp:7   Breakpoint erreicht
+[00:00.003] BREAK  script.hyp:7   Breakpoint hit
 [00:00.015] EXEC   script.hyp:7   induce result = x + y;
 [00:00.015] VAR    result = Int(30)
 [00:00.016] CALL   script.hyp:8   -> processResult()
@@ -277,21 +277,21 @@ Die Trace-Datei enthält:
 
 ## Best Practices
 
-### 1. Debugging-Code entfernen
+### 1. Remove Debugging Code
 
-Entfernen Sie Debug-Funktionen vor dem Produktiveinsatz:
+Remove debugging functions before production use:
 
 ```hypnoscript
-// Entwicklung
+// Development
 breakpoint();
 dump(value);
 
-// Produktion - diese Zeilen entfernen
+// Production - remove these lines
 ```
 
-### 2. Sinnvolle Timer-Labels
+### 2. Meaningful Timer Labels
 
-Verwenden Sie beschreibende Labels für Timing:
+Use descriptive labels for timing:
 
 ```hypnoscript
 time("database-query");
@@ -299,28 +299,28 @@ time("json-parsing");
 time("api-call-users");
 ```
 
-### 3. Assertions für Tests
+### 3. Assertions for Tests
 
-Nutzen Sie Assertions für automatisierte Tests:
+Use assertions for automated tests:
 
 ```hypnoscript
 Focus
     induce result = add(2, 3);
-    assertEqual(result, 5, "add() sollte korrekt addieren");
+    assertEqual(result, 5, "add() should add correctly");
 
     induce isEmpty = isListEmpty([]);
-    assertTruthy(isEmpty, "Leere Liste sollte leer sein");
+    assertTruthy(isEmpty, "Empty list should be empty");
 Relax
 ```
 
-### 4. Trace-Dateien für Analyse
+### 4. Trace Files for Analysis
 
-Nutzen Sie Trace-Dateien für Post-Mortem-Analyse:
+Use trace files for post-mortem analysis:
 
 ```bash
-# Trace erstellen
+# Create trace
 hypnoscript exec --debug --trace-file crash.log problematic.hyp
 
-# Später analysieren
+# Analyze later
 cat crash.log | grep "ERROR\|BREAK"
 ```

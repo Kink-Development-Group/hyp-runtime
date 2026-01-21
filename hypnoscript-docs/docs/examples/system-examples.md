@@ -12,13 +12,13 @@ This page shows practical examples for system functions in HypnoScript. The exam
 Focus {
     entrance {
         // Write file
-        WriteFile("beispiel.txt", "Hallo HypnoScript!");
+        WriteFile("example.txt", "Hello HypnoScript!");
         // Read file
-        induce content = ReadFile("beispiel.txt");
+        induce content = ReadFile("example.txt");
         observe "File content: " + content;
         // Create backup
-        induce backupName = "beispiel_backup_" + Timestamp() + ".txt";
-        CopyFile("beispiel.txt", backupName);
+        induce backupName = "example_backup_" + Timestamp() + ".txt";
+        CopyFile("example.txt", backupName);
         observe "Backup created: " + backupName;
     }
 } Relax;
@@ -30,7 +30,7 @@ Focus {
 Focus {
     entrance {
         // Create directory
-        if (!DirectoryExists("daten")) CreateDirectory("daten");
+        if (!DirectoryExists("data")) CreateDirectory("data");
         // List files
         induce files = ListFiles(".");
         observe "Files in current directory: " + files;
@@ -63,7 +63,7 @@ Focus {
 ```hyp
 Focus {
     entrance {
-        induce result = ExecuteCommand("echo Hallo von der Shell!");
+        induce result = ExecuteCommand("echo Hello from the shell!");
         observe "Shell output: " + result;
     }
 } Relax;
@@ -74,9 +74,9 @@ Focus {
 ```hyp
 Focus {
     entrance {
-        SetEnvironmentVariable("MEIN_VAR", "Testwert");
-        induce value = GetEnvironmentVariable("MEIN_VAR");
-        observe "MEIN_VAR: " + value;
+        SetEnvironmentVariable("MY_VAR", "TestValue");
+        induce value = GetEnvironmentVariable("MY_VAR");
+        observe "MY_VAR: " + value;
     }
 } Relax;
 ```
@@ -120,7 +120,7 @@ Focus {
         }
     }
     entrance {
-        observe safeRead("nicht_existierend.txt");
+        observe safeRead("does_not_exist.txt");
     }
 } Relax;
 ```
@@ -131,7 +131,7 @@ Focus {
 Focus {
     entrance {
         // Combined backup and monitoring
-        induce file = "daten.txt";
+        induce file = "data.txt";
         if (FileExists(file)) {
             induce backup = file + ".bak";
             CopyFile(file, backup);
@@ -149,4 +149,3 @@ Focus {
 
 - [System Functions Reference](../builtins/system-functions)
 - [Utility Functions Examples](./utility-examples)
-

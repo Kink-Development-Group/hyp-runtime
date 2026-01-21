@@ -1,135 +1,135 @@
 # Debugging Overview
 
-HypnoScript bietet umfassende Debugging-Funktionen, um Fehler in Ihren Skripten zu identifizieren und zu beheben.
+HypnoScript provides comprehensive debugging features to identify and fix errors in your scripts.
 
-## Debugging-Features
+## Debugging Features
 
-### 1. Interaktiver Debug-Modus
+### 1. Interactive Debug Mode
 
-Der Debug-Modus startet eine interaktive REPL-Session mit voller Kontrolle über die Ausführung:
+Debug mode starts an interactive REPL session with full control over execution:
 
 ```bash
-# Debug-Modus starten
+# Start debug mode
 hypnoscript exec script.hyp --debug
 
-# Mit initialen Breakpoints
+# With initial breakpoints
 hypnoscript exec script.hyp --debug --breakpoints 10,25,42
 
-# Mit Watch-Expressions
+# With watch expressions
 hypnoscript exec script.hyp --debug --watch counter,result
 ```
 
-Im interaktiven Modus können Sie:
+In interactive mode you can:
 
-- Breakpoints setzen und entfernen
-- Schritt-für-Schritt durch den Code navigieren
-- Variablen inspizieren
-- Den Call-Stack anzeigen
+- Set and remove breakpoints
+- Step through code line by line
+- Inspect variables
+- View the call stack
 
-### 2. Builtin Debug-Funktionen
+### 2. Builtin Debug Functions
 
-HypnoScript enthält mehrere eingebaute Funktionen für das Debugging:
+HypnoScript includes several built-in functions for debugging:
 
 ```hyp
 Focus
-    // Detaillierte Wert-Inspektion
+   // Detailed value inspection
     induce data = { name: "Test", value: 42 };
     observe(inspect(data));
 
-    // Typ-Überprüfung
+   // Type checking
     observe(typeOf(data));  // "Object"
 
-    // Stack-Trace ausgeben
+   // Print stack trace
     observe(stackTrace());
 
-    // Debug-Ausgaben mit verschiedenen Leveln
-    log("Info-Nachricht");
-    warn("Warnung");
-    error("Fehler");
-    trace("Mit Stack-Trace");
+   // Debug output with different levels
+   log("Info message");
+   warn("Warning");
+   error("Error");
+   trace("With stack trace");
 
-    // Assertions für Tests
-    assertEqual(1 + 1, 2, "Mathe sollte funktionieren");
-    assertTruthy(data.value > 0, "Wert sollte positiv sein");
+   // Assertions for tests
+   assertEqual(1 + 1, 2, "Math should work");
+   assertTruthy(data.value > 0, "Value should be positive");
 
-    // Performance-Messung
+   // Performance measurement
     time("operation");
     // ... Code ...
-    timeEnd("operation");  // Gibt Zeit aus
+   timeEnd("operation");  // Outputs elapsed time
 
-    // Programmatischer Breakpoint
-    breakpoint();  // Pausiert im Debug-Modus
+   // Programmatic breakpoint
+   breakpoint();  // Pauses in debug mode
 Relax
 ```
 
-### 3. CLI Debug-Optionen
+### 3. CLI Debug Options
 
-| Option                  | Beschreibung                                           |
-| ----------------------- | ------------------------------------------------------ |
-| `--debug`               | Aktiviert den interaktiven Debug-Modus                 |
-| `--verbose`             | Zeigt zusätzliche Informationen während der Ausführung |
-| `--breakpoints <LINES>` | Setzt initiale Breakpoints (komma-separiert)           |
-| `--watch <VARS>`        | Überwacht Variablen (komma-separiert)                  |
-| `--trace-file <FILE>`   | Speichert Debug-Trace in eine Datei                    |
+| Option                  | Description                                   |
+| ----------------------- | --------------------------------------------- |
+| `--debug`               | Enables interactive debug mode                |
+| `--verbose`             | Shows additional information during execution |
+| `--breakpoints <LINES>` | Sets initial breakpoints (comma-separated)    |
+| `--watch <VARS>`        | Watches variables (comma-separated)           |
+| `--trace-file <FILE>`   | Writes debug trace to a file                  |
 
-### 4. Debug-Befehle
+### 4. Debug Commands
 
-Im interaktiven Debug-Modus stehen diese Befehle zur Verfügung:
+In interactive debug mode, these commands are available:
 
-#### Ausführungssteuerung
+#### Execution Control
 
-- `continue` / `c` - Bis zum nächsten Breakpoint fortfahren
-- `step` / `s` - Eine Zeile ausführen (step into)
-- `next` / `n` - Eine Zeile ausführen, Funktionen überspringen
-- `finish` / `f` - Bis zum Ende der Funktion laufen
-- `run` / `r` - Ausführung neu starten
+- `continue` / `c` - Continue to the next breakpoint
+- `step` / `s` - Execute one line (step into)
+- `next` / `n` - Execute one line, skipping functions
+- `finish` / `f` - Run until the end of the function
+- `run` / `r` - Restart execution
 
-#### Breakpoint-Verwaltung
+#### Breakpoint Management
 
-- `break <line>` / `b <line>` - Breakpoint setzen
-- `delete <line>` / `d <line>` - Breakpoint löschen
-- `breakpoints` / `bl` - Alle Breakpoints anzeigen
-- `clear` - Alle Breakpoints löschen
+- `break <line>` / `b <line>` - Set a breakpoint
+- `delete <line>` / `d <line>` - Delete a breakpoint
+- `breakpoints` / `bl` - Show all breakpoints
+- `clear` - Clear all breakpoints
 
-#### Variablen-Inspektion
+#### Variable Inspection
 
-- `locals` / `l` - Lokale Variablen anzeigen
-- `globals` / `g` - Globale Variablen anzeigen
-- `print <var>` / `p <var>` - Variable anzeigen
-- `watch <expr>` / `w <expr>` - Watch-Expression hinzufügen
+- `locals` / `l` - Show local variables
+- `globals` / `g` - Show global variables
+- `print <var>` / `p <var>` - Print a variable
+- `watch <expr>` / `w <expr>` - Add a watch expression
 
 #### Navigation
 
-- `list` - Quellcode um aktuelle Position
-- `where` / `bt` - Call-Stack anzeigen
-- `help` - Hilfe anzeigen
-- `quit` - Debug-Session beenden
+- `list` - Source around current position
+- `where` / `bt` - Show call stack
+- `help` - Show help
+- `quit` - Exit debug session
 
-### 5. Trace-Dateien
+### 5. Trace Files
 
-Mit `--trace-file` können Sie eine detaillierte Protokolldatei erstellen:
+With `--trace-file`, you can create a detailed trace log:
 
 ```bash
 hypnoscript exec script.hyp --debug --trace-file debug.log
 ```
 
-Die Trace-Datei enthält:
+The trace file contains:
 
-- Ausgeführte Zeilen mit Zeitstempeln
-- Variablenänderungen
-- Breakpoint-Treffer
-- Call-Stack-Änderungen
+- Executed lines with timestamps
+- Variable changes
+- Breakpoint hits
+- Call stack changes
 
-### 6. Fehlerberichterstattung
+### 6. Error Reporting
 
-HypnoScript bietet detaillierte Fehlerberichte mit:
+HypnoScript provides detailed error reports with:
 
-- **Zeilennummern und Datei-Positionen**
-- **Stack-Traces** für Funktionsaufrufe
-- **Typ-Informationen** für Variablen
-- **Kontext-Informationen** für besseres Verständnis
+- **Line numbers and file locations**
+- **Stack traces** for function calls
+- **Type information** for variables
+- **Context information** for better understanding
 
-## Beispiel Debug-Session
+## Example Debug Session
 
 ```hyp
 $ hypnoscript exec calculator.hyp --debug --breakpoints 10
@@ -167,10 +167,10 @@ result = 8
 Program finished.
 ```
 
-## Weitere Dokumentation
+## Further Documentation
 
-- [Debug-Modus](./debug-mode) - Vollständige Befehlsreferenz
-- [Breakpoints](./breakpoints) - Detaillierte Breakpoint-Dokumentation
-- [Debugging-Tools](./tools) - Alle Builtin-Funktionen
-- [Best Practices](./best-practices) - Tipps für effektives Debugging
-- [Troubleshooting](./troubleshooting) - Häufige Probleme lösen
+- [Debug Mode](./debug-mode) - Complete command reference
+- [Breakpoints](./breakpoints) - Detailed breakpoint documentation
+- [Debugging Tools](./tools) - All builtin functions
+- [Best Practices](./best-practices) - Tips for effective debugging
+- [Troubleshooting](./troubleshooting) - Solve common issues

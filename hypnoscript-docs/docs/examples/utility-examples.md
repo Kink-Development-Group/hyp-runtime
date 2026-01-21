@@ -27,11 +27,11 @@ Focus {
 ```hyp
 Focus {
     entrance {
-        induce namen = ["Anna", "Ben", "Carla", "Dieter"];
-        induce gewinner = Sample(namen, 1);
-        observe "Winner: " + gewinner;
-        induce gemischt = Shuffle(namen);
-        observe "Random order: " + gemischt;
+        induce names = ["Anna", "Ben", "Carla", "Dieter"];
+        induce winner = Sample(names, 1);
+        observe "Winner: " + winner;
+        induce shuffled = Shuffle(names);
+        observe "Random order: " + shuffled;
     }
 } Relax;
 ```
@@ -42,9 +42,9 @@ Focus {
 Focus {
     entrance {
         induce start = Timestamp();
-        Sleep(500); // 0,5 seconds wait
-        induce ende = Timestamp();
-        observe "Duration: " + (ende - start) + " seconds";
+        Sleep(500); // 0.5 seconds wait
+        induce end = Timestamp();
+        observe "Duration: " + (end - start) + " seconds";
     }
 } Relax;
 ```
@@ -54,13 +54,13 @@ Focus {
 ```hyp
 Focus {
     entrance {
-        induce zahlen = [1,2,3,4,5,2,3,4];
-        induce unique = Unique(zahlen);
+        induce numbers = [1,2,3,4,5,2,3,4];
+        induce unique = Unique(numbers);
         observe "Without duplicates: " + unique;
-        induce sortiert = Sort(unique);
-        observe "Sorted: " + sortiert;
-        induce gepaart = Zip(unique, ["a","b","c","d","e"]);
-        observe "Paired: " + gepaart;
+        induce sorted = Sort(unique);
+        observe "Sorted: " + sorted;
+        induce paired = Zip(unique, ["a","b","c","d","e"]);
+        observe "Paired: " + paired;
     }
 } Relax;
 ```
@@ -96,7 +96,7 @@ Focus {
 } Relax;
 ```
 
-## Range und Repeat
+## Range and Repeat
 
 ```hyp
 Focus {
@@ -124,11 +124,11 @@ Focus {
         }
 
         // Random selection from range
-        induce zahlen = Range(1, 100);
-        induce zufall = Sample(zahlen, 5);
-        observe "5 random numbers: " + zufall;
+        induce numbers = Range(1, 100);
+        induce randomSample = Sample(numbers, 5);
+        observe "5 random numbers: " + randomSample;
 
-        // Array Transformations kombinieren
+        // Combine array transformations
         induce arr = [1,2,2,3,4,4,5];
         induce clean = Sort(Unique(arr));
         observe "Sorted & unique: " + clean;
@@ -142,4 +142,3 @@ Focus {
 
 - [Utility Functions Reference](../builtins/utility-functions)
 - [System Functions Examples](./system-examples)
-
