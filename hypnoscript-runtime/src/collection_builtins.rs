@@ -27,7 +27,7 @@ impl BuiltinModule for CollectionBuiltins {
     fn description_localized(locale: Option<&str>) -> String {
         let locale = crate::localization::detect_locale(locale);
         let msg = LocalizedMessage::new("Set operations and advanced collection utilities")
-            .with_translation("de", "Set-Operationen und erweiterte Collection-Utilities")
+            .with_translation("de", "Set operations and advanced collection utilities")
             .with_translation(
                 "fr",
                 "Opérations d'ensemble et utilitaires de collection avancés",

@@ -47,7 +47,7 @@ impl BuiltinModule for DebugBuiltins {
 
     fn description_localized(locale: Option<&str>) -> String {
         let msg = LocalizedMessage::new("Debugging utilities for HypnoScript programs")
-            .with_translation("de", "Debug-Hilfsmittel für HypnoScript-Programme")
+            .with_translation("de", "Debugging utilities for HypnoScript programs")
             .with_translation(
                 "fr",
                 "Utilitaires de débogage pour les programmes HypnoScript",

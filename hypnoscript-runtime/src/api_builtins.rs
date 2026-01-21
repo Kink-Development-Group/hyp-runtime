@@ -80,11 +80,11 @@ pub struct ApiResponse {
 
 #[derive(Debug, Error)]
 pub enum ApiError {
-    #[error("Ungültige URL: {0}")]
+    #[error("Invalid URL: {0}")]
     InvalidUrl(String),
-    #[error("Netzwerkfehler: {0}")]
+    #[error("Network error: {0}")]
     Network(String),
-    #[error("Serialisierungsfehler: {0}")]
+    #[error("Serialization error: {0}")]
     Serialization(String),
 }
 
@@ -93,9 +93,9 @@ impl ApiError {
     pub fn to_localized_string(&self, locale: Option<&str>) -> String {
         let locale = detect_locale(locale);
         match (locale.language(), self) {
-            ("de", ApiError::InvalidUrl(url)) => format!("Ungültige URL: {url}"),
-            ("de", ApiError::Network(msg)) => format!("Netzwerkfehler: {msg}"),
-            ("de", ApiError::Serialization(msg)) => format!("Serialisierungsfehler: {msg}"),
+            ("de", ApiError::InvalidUrl(url)) => format!("Invalid URL: {url}"),
+            ("de", ApiError::Network(msg)) => format!("Network error: {msg}"),
+            ("de", ApiError::Serialization(msg)) => format!("Serialization error: {msg}"),
             (_, ApiError::InvalidUrl(url)) => format!("Invalid URL: {url}"),
             (_, ApiError::Network(msg)) => format!("Network error: {msg}"),
             (_, ApiError::Serialization(msg)) => format!("Serialization error: {msg}"),

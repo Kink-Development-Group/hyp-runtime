@@ -23,7 +23,7 @@ impl BuiltinModule for CoreBuiltins {
         let msg = LocalizedMessage::new("Core I/O, conversion, and hypnotic induction functions")
             .with_translation(
                 "de",
-                "Kern-I/O-, Konvertierungs- und hypnotische Induktionsfunktionen",
+                "Core I/O, conversion, and hypnotic induction functions",
             )
             .with_translation(
                 "fr",
@@ -90,12 +90,12 @@ impl CoreBuiltins {
         let locale = crate::localization::detect_locale(locale);
 
         let entering_msg = LocalizedMessage::new("Entering deep trance...")
-            .with_translation("de", "Trete in tiefe Trance ein...")
+            .with_translation("de", "Entering deep trance...")
             .with_translation("fr", "Entrer en transe profonde...")
             .with_translation("es", "Entrando en trance profundo...");
 
         let emerging_msg = LocalizedMessage::new("Emerging from trance...")
-            .with_translation("de", "Aus der Trance auftauchen...")
+            .with_translation("de", "Emerging from trance...")
             .with_translation("fr", "Émerger de la transe...")
             .with_translation("es", "Emergiendo del trance...");
 
@@ -114,14 +114,14 @@ impl CoreBuiltins {
         let locale = crate::localization::detect_locale(locale);
 
         let sleepy_msg = LocalizedMessage::new("You are feeling very sleepy... {}")
-            .with_translation("de", "Du fühlst dich sehr schläfrig... {}")
+            .with_translation("de", "You are feeling very sleepy... {}")
             .with_translation("fr", "Vous vous sentez très endormi... {}")
             .with_translation("es", "Te sientes muy somnoliento... {}");
 
         let trance_msg = LocalizedMessage::new("You are now in a deep hypnotic state.")
             .with_translation(
                 "de",
-                "Du befindest dich jetzt in einem tiefen hypnotischen Zustand.",
+                "You are now in a deep hypnotic state.",
             )
             .with_translation(
                 "fr",
@@ -150,7 +150,7 @@ impl CoreBuiltins {
             LocalizedMessage::new("Welcome {}, you are about to enter a deep trance...")
                 .with_translation(
                     "de",
-                    "Willkommen {}, du wirst gleich in eine tiefe Trance eintreten...",
+                    "Welcome {}, you are about to enter a deep trance...",
                 )
                 .with_translation(
                     "fr",
@@ -162,7 +162,7 @@ impl CoreBuiltins {
                 );
 
         let breath_msg = LocalizedMessage::new("Take a deep breath and relax...")
-            .with_translation("de", "Atme tief ein und entspanne dich...")
+            .with_translation("de", "Take a deep breath and relax...")
             .with_translation("fr", "Prenez une profonde inspiration et détendez-vous...")
             .with_translation("es", "Respira profundo y relájate...");
 
@@ -170,7 +170,7 @@ impl CoreBuiltins {
             LocalizedMessage::new("With each breath, you feel more and more relaxed...")
                 .with_translation(
                     "de",
-                    "Mit jedem Atemzug fühlst du dich mehr und mehr entspannt...",
+                    "With each breath, you feel more and more relaxed...",
                 )
                 .with_translation(
                     "fr",
@@ -182,7 +182,7 @@ impl CoreBuiltins {
                 );
 
         let clear_msg = LocalizedMessage::new("Your mind is becoming clear and focused...")
-            .with_translation("de", "Dein Geist wird klar und fokussiert...")
+            .with_translation("de", "Your mind is becoming clear and focused...")
             .with_translation("fr", "Votre esprit devient clair et concentré...")
             .with_translation("es", "Tu mente se vuelve clara y enfocada...");
 
@@ -206,19 +206,19 @@ impl CoreBuiltins {
         let locale = crate::localization::detect_locale(locale);
 
         let imagine_msg = LocalizedMessage::new("Imagine yourself in {}...")
-            .with_translation("de", "Stell dir vor, du bist in {}...")
+            .with_translation("de", "Imagine yourself in {}...")
             .with_translation("fr", "Imaginez-vous dans {}...")
             .with_translation("es", "Imagínate en {}...");
 
         let vivid_msg = LocalizedMessage::new("The colors are vivid, the sounds are clear...")
-            .with_translation("de", "Die Farben sind lebendig, die Geräusche sind klar...")
+            .with_translation("de", "The colors are vivid, the sounds are clear...")
             .with_translation("fr", "Les couleurs sont vives, les sons sont clairs...")
             .with_translation("es", "Los colores son vívidos, los sonidos son claros...");
 
         let peace_msg = LocalizedMessage::new("You feel completely at peace in this place...")
             .with_translation(
                 "de",
-                "Du fühlst dich an diesem Ort vollkommen im Frieden...",
+                "You feel completely at peace in this place...",
             )
             .with_translation(
                 "fr",
@@ -264,7 +264,7 @@ mod tests {
 
     #[test]
     fn test_to_double() {
-        // Test mit Werten, die nicht zu nahe an mathematischen Konstanten liegen
+        // Test values that are not too close to mathematical constants
         assert_eq!(CoreBuiltins::to_double("42.75").unwrap(), 42.75);
         assert_eq!(CoreBuiltins::to_double("0.5").unwrap(), 0.5);
         assert!(CoreBuiltins::to_double("invalid").is_err());

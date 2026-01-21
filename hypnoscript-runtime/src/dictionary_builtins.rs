@@ -38,7 +38,7 @@ impl BuiltinModule for DictionaryBuiltins {
             LocalizedMessage::new("Key-value collection operations for dictionaries and maps")
                 .with_translation(
                     "de",
-                    "Schlüssel-Wert-Sammlungsoperationen für Dictionaries und Maps",
+                    "Key-value collection operations for dictionaries and maps",
                 )
                 .with_translation(
                     "fr",

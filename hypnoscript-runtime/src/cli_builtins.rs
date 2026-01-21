@@ -153,51 +153,36 @@ impl CliBuiltins {
     }
 }
 
-fn render_prompt_suffix(locale: &Locale, default: Option<&str>) -> String {
-    match (locale.language(), default) {
-        ("de", Some(value)) => format!(" (Standard: {value})"),
-        (_, Some(value)) => format!(" (default: {value})"),
-        _ => String::new(),
+fn render_prompt_suffix(_locale: &Locale, default: Option<&str>) -> String {
+    match default {
+        Some(value) => format!(" (default: {value})"),
+        None => String::new(),
     }
 }
 
-fn render_empty_input_error(locale: &Locale) -> &'static str {
-    match locale.language() {
-        "de" => "Eingabe darf nicht leer sein.",
-        _ => "Input cannot be empty.",
+fn render_empty_input_error(_locale: &Locale) -> &'static str {
+    "Input cannot be empty."
+}
+
+fn yes_no_hint(_locale: &Locale, default: bool) -> &'static str {
+    match default {
+        true => "[Y/n]",
+        false => "[y/N]",
     }
 }
 
-fn yes_no_hint(locale: &Locale, default: bool) -> &'static str {
-    match (locale.language(), default) {
-        ("de", true) => "[J/n]",
-        ("de", false) => "[j/N]",
-        (_, true) => "[Y/n]",
-        (_, false) => "[y/N]",
-    }
+fn invalid_confirmation_hint(_locale: &Locale) -> &'static str {
+    "Please answer with 'y' or 'n'."
 }
 
-fn invalid_confirmation_hint(locale: &Locale) -> &'static str {
-    match locale.language() {
-        "de" => "Bitte mit 'j' oder 'n' antworten.",
-        _ => "Please answer with 'y' or 'n'.",
-    }
-}
-
-fn is_yes(answer: &str, locale: &Locale) -> bool {
+fn is_yes(answer: &str, _locale: &Locale) -> bool {
     let normalized = answer.trim().to_lowercase();
-    match locale.language() {
-        "de" => matches!(normalized.as_str(), "j" | "ja"),
-        _ => matches!(normalized.as_str(), "y" | "yes"),
-    }
+    matches!(normalized.as_str(), "y" | "yes")
 }
 
-fn is_no(answer: &str, locale: &Locale) -> bool {
+fn is_no(answer: &str, _locale: &Locale) -> bool {
     let normalized = answer.trim().to_lowercase();
-    match locale.language() {
-        "de" => matches!(normalized.as_str(), "n" | "nein"),
-        _ => matches!(normalized.as_str(), "n" | "no"),
-    }
+    matches!(normalized.as_str(), "n" | "no")
 }
 
 #[cfg(test)]

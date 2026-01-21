@@ -24,7 +24,7 @@ impl BuiltinModule for MathBuiltins {
         )
         .with_translation(
             "de",
-            "Mathematische Funktionen inkl. Trigonometrie, Algebra und Zahlentheorie",
+            "Mathematical functions including trigonometry, algebra, and number theory",
         )
         .with_translation(
             "fr",
