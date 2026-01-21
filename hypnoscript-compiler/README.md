@@ -109,7 +109,7 @@ hypnoscript-compiler/
 │   ├── interpreter.rs      # Runtime interpreter (2392 lines)
 │   ├── type_checker.rs     # Static type checking (1683 lines)
 │   ├── optimizer.rs        # Code optimizations (421 lines)
-│   ├── native_codegen.rs   # Cranelift-Backend mit Auto-Linking
+│   ├── native_codegen.rs   # Cranelift backend with auto-linking
 │   ├── wasm_codegen.rs     # WASM Text Generator
 │   └── wasm_binary.rs      # WASM Binary Generator
 └── Cargo.toml

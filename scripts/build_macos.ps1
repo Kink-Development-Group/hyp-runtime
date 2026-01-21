@@ -1,7 +1,7 @@
 #!/usr/bin/env pwsh
 # build_macos.ps1
-# Erstellt macOS-Binary und DMG/PKG für HypnoScript (Rust-Implementation)
-# Kann unter Windows/Linux mit Cross-Compilation oder nativ auf macOS ausgeführt werden
+# Creates macOS binary and DMG/PKG for HypnoScript (Rust implementation)
+# Can be run on Windows/Linux with cross-compilation or natively on macOS
 
 param(
     [switch]$SkipBuild = $false,
@@ -13,14 +13,14 @@ param(
 
 $ErrorActionPreference = "Stop"
 
-# Konfiguration
+# Configuration
 $NAME = "HypnoScript"
 $BUNDLE_ID = "com.kinkdev.hypnoscript"
 $VERSION = "1.2.0"
 $BINARY_NAME = "hypnoscript-cli"
 $INSTALL_NAME = "hypnoscript"
 
-# Projektverzeichnis ermitteln
+# Determine project directory
 $ScriptDir = Split-Path -Parent $PSScriptRoot
 $ProjectRoot = $ScriptDir
 $ReleaseDir = Join-Path $ProjectRoot "release" "macos-$Architecture"
@@ -30,7 +30,7 @@ Write-Host "Architecture: $Architecture" -ForegroundColor Yellow
 Write-Host "Package Type: $PackageType" -ForegroundColor Yellow
 Write-Host ""
 
-# Check für Cargo
+# Check for Cargo
 if (-not (Get-Command cargo -ErrorAction SilentlyContinue)) {
     Write-Host "Error: cargo is not installed. Please install Rust toolchain first." -ForegroundColor Red
     Write-Host "Visit https://rustup.rs/ to install Rust" -ForegroundColor Yellow
@@ -46,7 +46,7 @@ $RunningOnWindows = $RunningOnWindows -or ($PSVersionTable.PSVersion.Major -le 5
 $TargetX64 = "x86_64-apple-darwin"
 $TargetArm64 = "aarch64-apple-darwin"
 
-# 1. Verzeichnisse vorbereiten
+# 1. Prepare directories
 Write-Host "📦 Preparing release directory..." -ForegroundColor Green
 if (Test-Path $ReleaseDir) {
     Remove-Item -Recurse -Force $ReleaseDir
@@ -75,7 +75,7 @@ if (-not $SkipBuild) {
         Push-Location $ProjectRoot
 
         if ($Architecture -eq 'universal') {
-            # Universal Binary (beide Architekturen)
+            # Universal binary (both architectures)
             Write-Host "  Building for x86_64 (Intel)..." -ForegroundColor Cyan
 
             # Check if targets are installed
@@ -104,12 +104,12 @@ if (-not $SkipBuild) {
             & lipo -create $BinaryX64 $BinaryArm64 -output $BinaryUniversal
             chmod +x $BinaryUniversal
         } elseif ($Architecture -eq 'x64') {
-            # Nur Intel
+            # Intel only
             cargo build --release --package hypnoscript-cli --target $TargetX64
             $BinaryPath = Join-Path "target" $TargetX64 "release" $BINARY_NAME
             Copy-Item $BinaryPath (Join-Path $ReleaseDir $INSTALL_NAME)
         } elseif ($Architecture -eq 'arm64') {
-            # Nur Apple Silicon
+            # Apple Silicon only
             cargo build --release --package hypnoscript-cli --target $TargetArm64
             $BinaryPath = Join-Path "target" $TargetArm64 "release" $BINARY_NAME
             Copy-Item $BinaryPath (Join-Path $ReleaseDir $INSTALL_NAME)
@@ -124,7 +124,7 @@ if ($SkipBuild) {
     if ($RunningOnMacOS) {
         Write-Host "   Using existing binaries from previous build" -ForegroundColor Yellow
     } else {
-        # Erstelle Platzhalter-Readme für Doc-Only Release
+        # Create placeholder README for doc-only release
         $ReadmeContent = @"
 # HypnoScript for macOS
 
@@ -157,7 +157,7 @@ npm run release:macos
     Write-Host "✓ Build completed successfully" -ForegroundColor Green
 }
 
-# 3. Zusätzliche Dateien kopieren
+# 3. Copy additional files
 Write-Host "📄 Adding additional files..." -ForegroundColor Green
 
 $ReadmePath = Join-Path $ProjectRoot "README.md"
@@ -172,7 +172,7 @@ if (Test-Path $LicensePath) {
 
 Set-Content -Path (Join-Path $ReleaseDir "VERSION.txt") -Value $VERSION
 
-# 4. Installation-Script hinzufügen
+# 4. Add installation script
 $InstallerSource = Join-Path $ProjectRoot "install.sh"
 if (Test-Path $InstallerSource) {
     Copy-Item $InstallerSource (Join-Path $ReleaseDir "install.sh") -Force
@@ -180,7 +180,7 @@ if (Test-Path $InstallerSource) {
     Write-Host "⚠ install.sh not found at project root" -ForegroundColor Yellow
 }
 
-# 5. TAR.GZ erstellen (immer)
+# 5. Create TAR.GZ (always)
 if ($PackageType -eq 'tar.gz' -or $PackageType -eq 'all') {
     Write-Host "📦 Creating TAR.GZ archive..." -ForegroundColor Green
 
@@ -189,10 +189,10 @@ if ($PackageType -eq 'tar.gz' -or $PackageType -eq 'all') {
     Push-Location (Join-Path $ProjectRoot "release")
 
     if ($RunningOnMacOS -or $RunningOnLinux) {
-        # Native tar auf macOS/Linux
+        # Native tar on macOS/Linux
         tar -czf (Split-Path -Leaf $TarOut) -C "macos-$Architecture" .
     } elseif ($RunningOnWindows) {
-        # Windows tar (verfügbar ab Windows 10 1803)
+        # Windows tar (available since Windows 10 1803)
         if (Get-Command tar -ErrorAction SilentlyContinue) {
             & tar -czf (Split-Path -Leaf $TarOut) -C "macos-$Architecture" .
         } else {
@@ -213,30 +213,30 @@ if ($PackageType -eq 'tar.gz' -or $PackageType -eq 'all') {
     Write-Host "  Size: $([math]::Round($TarSize, 2)) MB" -ForegroundColor Cyan
 }
 
-# 6. DMG erstellen (nur auf macOS)
+# 6. Create DMG (macOS only)
 if (($PackageType -eq 'dmg' -or $PackageType -eq 'all') -and $RunningOnMacOS) {
     Write-Host "📦 Creating DMG image..." -ForegroundColor Green
 
     $DmgDir = Join-Path $ProjectRoot "release" "dmg-staging"
     $DmgOut = Join-Path $ProjectRoot "release" "$NAME-$VERSION-macos-$Architecture.dmg"
 
-    # DMG staging vorbereiten
+    # Prepare DMG staging
     if (Test-Path $DmgDir) {
         Remove-Item -Recurse -Force $DmgDir
     }
     New-Item -ItemType Directory -Force -Path $DmgDir | Out-Null
 
-    # Binary in staging kopieren
+    # Copy binary into staging
     Copy-Item (Join-Path $ReleaseDir $INSTALL_NAME) $DmgDir
     Copy-Item (Join-Path $ReleaseDir "README.md") $DmgDir -ErrorAction SilentlyContinue
     Copy-Item (Join-Path $ReleaseDir "LICENSE") $DmgDir -ErrorAction SilentlyContinue
 
-    # Symlink zu /usr/local/bin erstellen
+    # Create symlink to /usr/local/bin
     Push-Location $DmgDir
     New-Item -ItemType SymbolicLink -Name "Install to /usr/local/bin" -Target "/usr/local/bin" -ErrorAction SilentlyContinue
     Pop-Location
 
-    # DMG erstellen
+    # Create DMG
     & hdiutil create -volname "$NAME $VERSION" `
         -srcfolder $DmgDir `
         -ov -format UDZO `
@@ -259,7 +259,7 @@ if (($PackageType -eq 'dmg' -or $PackageType -eq 'all') -and $RunningOnMacOS) {
     Write-Host "⚠ DMG creation requires macOS - skipped" -ForegroundColor Yellow
 }
 
-# 7. PKG erstellen (nur auf macOS)
+# 7. Create PKG (macOS only)
 if (($PackageType -eq 'pkg' -or $PackageType -eq 'all') -and $RunningOnMacOS) {
     Write-Host "📦 Creating PKG installer..." -ForegroundColor Green
 
@@ -268,7 +268,7 @@ if (($PackageType -eq 'pkg' -or $PackageType -eq 'all') -and $RunningOnMacOS) {
     $PkgScripts = Join-Path $PkgDir "scripts"
     $PkgOut = Join-Path $ProjectRoot "release" "$NAME-$VERSION-macos-$Architecture.pkg"
 
-    # PKG staging vorbereiten
+    # Prepare PKG staging
     if (Test-Path $PkgDir) {
         Remove-Item -Recurse -Force $PkgDir
     }
@@ -276,7 +276,7 @@ if (($PackageType -eq 'pkg' -or $PackageType -eq 'all') -and $RunningOnMacOS) {
     New-Item -ItemType Directory -Force -Path (Join-Path $PkgRoot "usr" "local" "bin") | Out-Null
     New-Item -ItemType Directory -Force -Path $PkgScripts | Out-Null
 
-    # Binary in staging kopieren
+    # Copy binary into staging
     Copy-Item (Join-Path $ReleaseDir $INSTALL_NAME) (Join-Path $PkgRoot "usr" "local" "bin" $INSTALL_NAME)
 
     # Postinstall script
@@ -289,7 +289,7 @@ exit 0
     Set-Content -Path (Join-Path $PkgScripts "postinstall") -Value $PostInstall
     chmod +x (Join-Path $PkgScripts "postinstall")
 
-    # PKG erstellen
+    # Create PKG
     & pkgbuild --root $PkgRoot `
         --scripts $PkgScripts `
         --identifier $BUNDLE_ID `
@@ -314,7 +314,7 @@ exit 0
     Write-Host "⚠ PKG creation requires macOS - skipped" -ForegroundColor Yellow
 }
 
-# 8. Zusammenfassung
+# 8. Summary
 Write-Host ""
 Write-Host "=== Build Summary ===" -ForegroundColor Cyan
 Write-Host "Architecture: $Architecture" -ForegroundColor Yellow

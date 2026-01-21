@@ -2,13 +2,13 @@
 set -e
 
 # build_deb.sh
-# Erstellt Linux-Binary und .deb-Paket für HypnoScript (Rust-Implementation)
+# Creates Linux binary and .deb package for HypnoScript (Rust implementation)
 
 NAME=hypnoscript
 VERSION=1.2.0
 ARCH=amd64
 
-# Projektverzeichnis ermitteln
+# Determine project directory
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PROJECT_ROOT="$(dirname "$SCRIPT_DIR")"
 
@@ -45,7 +45,7 @@ fi
 echo "=== HypnoScript Linux Release Builder ==="
 echo ""
 
-# 1. Verzeichnisse vorbereiten
+# 1. Prepare directories
 echo "📦 Preparing release directory..."
 rm -rf "$RELEASE_DIR"
 mkdir -p "$RELEASE_DIR"
@@ -55,12 +55,12 @@ echo "🔨 Building HypnoScript CLI (Release)..."
 cd "$PROJECT_ROOT"
 cargo build --release --package hypnoscript-cli
 
-# 3. Binary kopieren
+# 3. Copy binary
 echo "📋 Copying binary..."
 cp "target/release/$BINARY_NAME" "$RELEASE_DIR/$INSTALL_NAME"
 chmod +x "$RELEASE_DIR/$INSTALL_NAME"
 
-# 4. Zusätzliche Dateien
+# 4. Additional files
 echo "📄 Adding additional files..."
 if [ -f "$PROJECT_ROOT/README.md" ]; then
   cp "$PROJECT_ROOT/README.md" "$RELEASE_DIR/"
@@ -72,13 +72,13 @@ fi
 
 echo "$VERSION" > "$RELEASE_DIR/VERSION.txt"
 
-# 5. TAR.GZ-Archiv erstellen (immer)
+# 5. Create TAR.GZ archive (always)
 echo "📦 Creating TAR.GZ archive..."
 cd "$PROJECT_ROOT/release"
 tar -czf "$(basename "$TAR_OUT")" -C linux-x64 .
 cd "$PROJECT_ROOT"
 
-# 6. .deb-Paket bauen (nur wenn fpm verfügbar)
+# 6. Build .deb package (only if fpm is available)
 if [ "$HAS_FPM" = true ]; then
   echo "📦 Creating .deb package..."
   fpm -s dir \
@@ -86,7 +86,7 @@ if [ "$HAS_FPM" = true ]; then
       -n "$NAME" \
       -v "$VERSION" \
       --architecture "$ARCH" \
-      --description "HypnoScript - Esoterische Programmiersprache mit Hypnose-Metaphern" \
+      --description "HypnoScript - Esoteric programming language with hypnosis metaphors" \
       --url "https://github.com/Kink-Development-Group/hyp-runtime" \
       --license "MIT" \
       --maintainer "HypnoScript Team" \
@@ -94,19 +94,19 @@ if [ "$HAS_FPM" = true ]; then
       --deb-compression xz \
       "$RELEASE_DIR/$INSTALL_NAME=$INSTALL_NAME"
 
-  # Paket verschieben
+  # Move package
   mv "${NAME}_${VERSION}_${ARCH}.deb" "$DEB_OUT"
 
-  # Checksum erstellen
+  # Generate checksum
   echo "🔐 Generating SHA256 checksum for .deb..."
   sha256sum "$DEB_OUT" > "${DEB_OUT}.sha256"
 fi
 
-# 7. Checksum für TAR.GZ erstellen
+# 7. Generate checksum for TAR.GZ
 echo "🔐 Generating SHA256 checksum for tar.gz..."
 sha256sum "$TAR_OUT" > "${TAR_OUT}.sha256"
 
-# 8. Informationen ausgeben
+# 8. Output information
 echo ""
 echo "✅ Build complete!"
 echo "📦 TAR.GZ Archive: $TAR_OUT"

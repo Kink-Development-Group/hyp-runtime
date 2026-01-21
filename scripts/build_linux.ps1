@@ -1,7 +1,7 @@
 #!/usr/bin/env pwsh
 # build_linux.ps1
-# Erstellt Linux-Binary und TAR.GZ-Archiv für HypnoScript (Rust-Implementation)
-# Kann unter Windows mit WSL oder direkt unter Linux ausgeführt werden
+# Creates Linux binary and TAR.GZ archive for HypnoScript (Rust implementation)
+# Can be run on Windows with WSL or directly on Linux
 
 param(
     [switch]$SkipBuild = $false
@@ -9,12 +9,12 @@ param(
 
 $ErrorActionPreference = "Stop"
 
-# Konfiguration
+# Configuration
 $NAME = "hypnoscript"
 $VERSION = "1.2.0"
 $ARCH = "amd64"
 
-# Projektverzeichnis ermitteln
+# Determine project directory
 $ScriptDir = Split-Path -Parent $PSScriptRoot
 $ProjectRoot = $ScriptDir
 $ReleaseDir = Join-Path $ProjectRoot "release" "linux-x64"
@@ -25,29 +25,29 @@ $InstallName = "hypnoscript"
 Write-Host "=== HypnoScript Linux Release Builder ===" -ForegroundColor Cyan
 Write-Host ""
 
-# Check für Cargo
+# Check for Cargo
 if (-not (Get-Command cargo -ErrorAction SilentlyContinue)) {
     Write-Host "Error: cargo is not installed. Please install Rust toolchain first." -ForegroundColor Red
     Write-Host "Visit https://rustup.rs/ to install Rust" -ForegroundColor Yellow
     exit 1
 }
 
-# 1. Verzeichnisse vorbereiten
+# 1. Prepare directories
 Write-Host "📦 Preparing release directory..." -ForegroundColor Green
 if (Test-Path $ReleaseDir) {
     Remove-Item -Recurse -Force $ReleaseDir
 }
 New-Item -ItemType Directory -Force -Path $ReleaseDir | Out-Null
 
-# 2. Build für Linux (falls WSL verfügbar, sonst für aktuelles System)
+# 2. Build for Linux (if WSL available, otherwise for current system)
 if (-not $SkipBuild) {
     Write-Host "🔨 Building HypnoScript CLI (Release for Linux)..." -ForegroundColor Green
     Push-Location $ProjectRoot
 
-    # Versuche Cross-Compilation für Linux
+    # Try cross-compilation for Linux
     $LinuxTarget = "x86_64-unknown-linux-gnu"
 
-    # Check ob Linux-Target installiert ist
+    # Check if Linux target is installed
     $InstalledTargets = rustup target list --installed 2>$null
     if ($InstalledTargets -match $LinuxTarget) {
         Write-Host "  Using cross-compilation target: $LinuxTarget" -ForegroundColor Cyan
@@ -66,12 +66,12 @@ if (-not $SkipBuild) {
     $BinaryPath = Join-Path $ProjectRoot "target" "release" $BinaryName
 }
 
-# 3. Binary kopieren
+# 3. Copy binary
 Write-Host "📋 Copying binary..." -ForegroundColor Green
 $DestBinary = Join-Path $ReleaseDir $InstallName
 Copy-Item $BinaryPath $DestBinary -Force
 
-# 4. Zusätzliche Dateien
+# 4. Additional files
 Write-Host "📄 Adding additional files..." -ForegroundColor Green
 
 $ReadmePath = Join-Path $ProjectRoot "README.md"
@@ -86,7 +86,7 @@ if (Test-Path $LicensePath) {
 
 Set-Content -Path (Join-Path $ReleaseDir "VERSION.txt") -Value $VERSION
 
-# Installation-Script hinzufügen
+# Add installation script
 $InstallerSource = Join-Path $ProjectRoot "install.sh"
 if (Test-Path $InstallerSource) {
     Copy-Item $InstallerSource (Join-Path $ReleaseDir "install.sh") -Force
@@ -94,28 +94,28 @@ if (Test-Path $InstallerSource) {
     Write-Host "⚠ Warning: install.sh not found at project root" -ForegroundColor Yellow
 }
 
-# 5. TAR.GZ-Archiv erstellen
+# 5. Create TAR.GZ archive
 Write-Host "📦 Creating TAR.GZ archive..." -ForegroundColor Green
 
-# Unter Windows: tar.exe verwenden (verfügbar ab Windows 10 1803)
+# On Windows: use tar.exe (available since Windows 10 1803)
 if ($IsWindows -or ($PSVersionTable.PSVersion.Major -le 5)) {
     Push-Location (Join-Path $ProjectRoot "release")
     & tar -czf (Split-Path -Leaf $TarOut) -C "linux-x64" .
     Pop-Location
 } else {
-    # Unter Linux: natives tar
+    # On Linux: native tar
     Push-Location (Join-Path $ProjectRoot "release")
     tar -czf (Split-Path -Leaf $TarOut) -C "linux-x64" .
     Pop-Location
 }
 
-# 6. Checksum erstellen
+# 6. Generate checksum
 Write-Host "🔐 Generating SHA256 checksum..." -ForegroundColor Green
 $Hash = Get-FileHash -Path $TarOut -Algorithm SHA256
 $HashString = "$($Hash.Hash.ToLower())  $(Split-Path -Leaf $TarOut)"
 Set-Content -Path "$TarOut.sha256" -Value $HashString
 
-# 7. Informationen ausgeben
+# 7. Output information
 Write-Host ""
 Write-Host "✅ Build complete!" -ForegroundColor Green
 Write-Host "📦 TAR.GZ Archive: $TarOut" -ForegroundColor Cyan
