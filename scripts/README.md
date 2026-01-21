@@ -45,8 +45,8 @@ Creates a Linux release package including:
 
 - `release/linux-x64/hypnoscript`
 - `release/linux-x64/install.sh`
-- `release/hypnoscript-1.0.0-linux-x64.tar.gz`
-- `release/hypnoscript-1.0.0-linux-x64.tar.gz.sha256`
+- `release/hypnoscript-1.2.0-linux-x64.tar.gz`
+- `release/hypnoscript-1.2.0-linux-x64.tar.gz.sha256`
 
 **Requirements**:
 
@@ -57,7 +57,7 @@ Creates a Linux release package including:
 **Installation on Linux**:
 
 ```bash
-tar -xzf hypnoscript-1.0.0-linux-x64.tar.gz
+tar -xzf hypnoscript-1.2.0-linux-x64.tar.gz
 cd linux-x64
 sudo bash install.sh
 ```
@@ -82,9 +82,9 @@ Creates a macOS release package with multiple distribution formats:
 
 - `release/macos-universal/hypnoscript`
 - `release/macos-universal/install.sh`
-- `release/HypnoScript-1.0.0-macos-universal.tar.gz`
-- `release/HypnoScript-1.0.0-macos-universal.dmg` (macOS only)
-- `release/HypnoScript-1.0.0-macos-universal.pkg` (macOS only)
+- `release/hypnoscript-1.2.0-macos-universal.tar.gz`
+- `release/hypnoscript-1.2.0-macos-universal.dmg` (macOS only)
+- `release/hypnoscript-1.2.0-macos-universal.pkg` (macOS only)
 - `.sha256` files for all archives
 
 **Architecture Options**:
@@ -116,20 +116,20 @@ pwsh scripts/build_macos.ps1 -PackageType all     # All formats
 From TAR.GZ:
 
 ```bash
-tar -xzf HypnoScript-1.0.0-macos-universal.tar.gz
+tar -xzf hypnoscript-1.2.0-macos-universal.tar.gz
 cd macos-universal
 sudo bash install.sh
 ```
 
 From DMG:
 
-1. Open `HypnoScript-1.0.0-macos-universal.dmg`
+1. Open `hypnoscript-1.2.0-macos-universal.dmg`
 2. Drag `hypnoscript` to the "Install to /usr/local/bin" symlink
 
 From PKG:
 
 ```bash
-sudo installer -pkg HypnoScript-1.0.0-macos-universal.pkg -target /
+sudo installer -pkg hypnoscript-1.2.0-macos-universal.pkg -target /
 ```
 
 ---
@@ -217,10 +217,10 @@ rustup target add aarch64-apple-darwin     # Apple Silicon
 Version information is defined in:
 
 - `Cargo.toml` (workspace root)
-- `scripts/build_winget.ps1` (line 8: `$VERSION = "1.0.0"`)
-- `scripts/build_linux.ps1` (line 10: `$VERSION = "1.0.0"`)
-- `scripts/build_macos.ps1` (line 11: `$VERSION = "1.0.0"`)
-- `scripts/build_deb.sh` (line 7: `VERSION=1.0.0`)
+- `scripts/build_winget.ps1` (line 8: `$VERSION = "1.2.0"`)
+- `scripts/build_linux.ps1` (line 10: `$VERSION = "1.2.0"`)
+- `scripts/build_macos.ps1` (line 11: `$VERSION = "1.2.0"`)
+- `scripts/build_deb.sh` (line 7: `VERSION=1.2.0`)
 
 **Important**: Keep versions synchronized across all files!
 
@@ -239,15 +239,15 @@ Get-FileHash -Algorithm SHA256 HypnoScript-windows-x64.zip
 **Linux**:
 
 ```bash
-sha256sum hypnoscript-1.0.0-linux-x64.tar.gz
-cat hypnoscript-1.0.0-linux-x64.tar.gz.sha256
+sha256sum hypnoscript-1.2.0-linux-x64.tar.gz
+cat hypnoscript-1.2.0-linux-x64.tar.gz.sha256
 ```
 
 **macOS**:
 
 ```bash
-shasum -a 256 HypnoScript-1.0.0-macos-universal.tar.gz
-cat HypnoScript-1.0.0-macos-universal.tar.gz.sha256
+shasum -a 256 hypnoscript-1.2.0-macos-universal.tar.gz
+cat hypnoscript-1.2.0-macos-universal.tar.gz.sha256
 ```
 
 ---
@@ -277,14 +277,14 @@ release/
 │   └── VERSION.txt
 ├── HypnoScript-windows-x64.zip
 ├── HypnoScript-windows-x64.zip.sha256
-├── hypnoscript-1.0.0-linux-x64.tar.gz
-├── hypnoscript-1.0.0-linux-x64.tar.gz.sha256
-├── HypnoScript-1.0.0-macos-universal.tar.gz
-├── HypnoScript-1.0.0-macos-universal.tar.gz.sha256
-├── HypnoScript-1.0.0-macos-universal.dmg (macOS only)
-├── HypnoScript-1.0.0-macos-universal.dmg.sha256
-├── HypnoScript-1.0.0-macos-universal.pkg (macOS only)
-└── HypnoScript-1.0.0-macos-universal.pkg.sha256
+├── hypnoscript-1.2.0-linux-x64.tar.gz
+├── hypnoscript-1.2.0-linux-x64.tar.gz.sha256
+├── hypnoscript-1.2.0-macos-universal.tar.gz
+├── hypnoscript-1.2.0-macos-universal.tar.gz.sha256
+├── hypnoscript-1.2.0-macos-universal.dmg (macOS only)
+├── hypnoscript-1.2.0-macos-universal.dmg.sha256
+├── hypnoscript-1.2.0-macos-universal.pkg (macOS only)
+└── hypnoscript-1.2.0-macos-universal.pkg.sha256
 ```
 
 ---
@@ -330,10 +330,10 @@ Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser
 
 ### GitHub Releases
 
-1. Create a new release tag (e.g., `v1.0.0`)
+1. Create a new release tag (e.g., `v1.2.0`)
 2. Upload artifacts:
    - `HypnoScript-windows-x64.zip`
-   - `hypnoscript-1.0.0-linux-x64.tar.gz`
+   - `hypnoscript-1.2.0-linux-x64.tar.gz`
    - Checksum files (`.sha256`)
 3. Add release notes
 

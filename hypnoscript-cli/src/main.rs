@@ -1,7 +1,9 @@
+mod debug_repl;
 mod package;
 
 use anyhow::{Result, anyhow};
 use clap::{Parser, Subcommand};
+use debug_repl::{DebugConfig, run_debug_session};
 use hypnoscript_compiler::{
     Interpreter, NativeCodeGenerator, OptimizationLevel, Optimizer, TargetPlatform, TypeChecker,
     WasmBinaryGenerator, WasmCodeGenerator,
@@ -23,7 +25,7 @@ const GITHUB_OWNER: &str = "Kink-Development-Group";
 const GITHUB_REPO: &str = "hyp-runtime";
 const GITHUB_API: &str = "https://api.github.com";
 const DEFAULT_TIMEOUT_SECS: u64 = 20;
-const DEFAULT_PACKAGE_VERSION: &str = "^1.0.0";
+const DEFAULT_PACKAGE_VERSION: &str = "^1.2.0";
 #[cfg(not(target_os = "windows"))]
 const INSTALLER_FALLBACK_URL: &str =
     "https://kink-development-group.github.io/hyp-runtime/install.sh";
@@ -54,13 +56,25 @@ enum Commands {
         /// Path to the .hyp file
         file: String,
 
-        /// Enable debug mode
+        /// Enable debug mode (interactive debugger)
         #[arg(short, long)]
         debug: bool,
 
         /// Enable verbose output
         #[arg(short, long)]
         verbose: bool,
+
+        /// Set breakpoints at specific lines (comma-separated)
+        #[arg(long, value_delimiter = ',')]
+        breakpoints: Option<Vec<usize>>,
+
+        /// Watch expressions to monitor (comma-separated)
+        #[arg(long, value_delimiter = ',')]
+        watch: Option<Vec<String>>,
+
+        /// Output trace information to file
+        #[arg(long)]
+        trace_file: Option<String>,
     },
 
     /// Lex a HypnoScript file (tokenize)
@@ -212,6 +226,9 @@ fn main() -> Result<()> {
             file,
             debug,
             verbose,
+            breakpoints,
+            watch,
+            trace_file,
         } => {
             if verbose {
                 println!("Running file: {}", file);
@@ -219,17 +236,27 @@ fn main() -> Result<()> {
 
             let source = fs::read_to_string(&file)?;
 
+            // If debug mode is enabled, start interactive debug session
             if debug {
-                println!("Source code:");
-                println!("{}", source);
-                println!("\n--- Lexing ---");
+                let config = DebugConfig::new()
+                    .with_breakpoints(breakpoints.unwrap_or_default())
+                    .with_watches(watch.unwrap_or_default())
+                    .with_verbose(verbose)
+                    .with_trace_file(trace_file);
+
+                return run_debug_session(source, config);
+            }
+
+            // Normal execution mode
+            if verbose {
+                println!("Source code: {} bytes", source.len());
             }
 
             // Lex
             let mut lexer = Lexer::new(&source);
             let tokens = lexer.lex().map_err(into_anyhow)?;
 
-            if debug {
+            if verbose {
                 println!("Tokens: {}", tokens.len());
             }
 
@@ -237,8 +264,8 @@ fn main() -> Result<()> {
             let mut parser = HypnoParser::new(tokens);
             let ast = parser.parse_program().map_err(into_anyhow)?;
 
-            if debug {
-                println!("\n--- Type Checking ---");
+            if verbose {
+                println!("AST parsed successfully");
             }
 
             // Type check
@@ -249,13 +276,11 @@ fn main() -> Result<()> {
                 for error in errors {
                     eprintln!("  - {}", error);
                 }
-                if !debug {
-                    eprintln!("\nContinuing execution despite type errors...");
-                }
+                eprintln!("\nContinuing execution despite type errors...");
             }
 
-            if debug {
-                println!("\n--- Executing ---");
+            if verbose {
+                println!("Executing program...");
             }
 
             // Execute

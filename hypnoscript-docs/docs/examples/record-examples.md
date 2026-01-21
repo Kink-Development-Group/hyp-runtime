@@ -395,7 +395,7 @@ Focus {
     // Create configuration
     induce config = AppConfig {
         appName: "HypnoScript Runtime",
-        version: "1.0.0",
+        version: "1.2.0",
         environment: "production",
         database: DatabaseConfig {
             host: "localhost",

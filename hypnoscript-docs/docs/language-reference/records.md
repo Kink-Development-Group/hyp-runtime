@@ -92,7 +92,7 @@ Focus {
             categories: ["Software", "Programming", "Hypnosis"],
             inStock: true,
             metadata: {
-                version: "1.0.0",
+                version: "1.2.0",
                 releaseDate: "2025-01-15"
             }
         };

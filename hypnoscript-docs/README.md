@@ -27,7 +27,7 @@ npm run preview
 
 ## 📁 Projektstruktur
 
-```
+```bash
 HypnoScript.Dokumentation/
 ├── docs/                    # Dokumentationsseiten
 │   ├── .vitepress/         # VitePress-Konfiguration
@@ -55,12 +55,14 @@ HypnoScript.Dokumentation/
 
 1. Erstelle eine neue `.md` Datei im entsprechenden Verzeichnis unter `docs/`
 2. Füge Frontmatter hinzu (optional):
+
    ```markdown
    ---
    title: Seitentitel
    description: Beschreibung
    ---
    ```
+
 3. Aktualisiere `docs/.vitepress/config.mts` um die Seite in die Sidebar einzufügen
 
 ### Styling anpassen
@@ -82,7 +84,7 @@ Die Dokumentation wird automatisch zu GitHub Pages deployed über GitHub Actions
 
 - **Trigger**: Push zu `main` Branch mit Änderungen in `HypnoScript.Dokumentation/`
 - **Workflow**: `.github/workflows/deploy-docs.yml`
-- **URL**: https://Kink-Development-Group.github.io/hyp-runtime/
+- **URL**: <https://Kink-Development-Group.github.io/hyp-runtime/>
 
 ### Manuelles Deployment
 

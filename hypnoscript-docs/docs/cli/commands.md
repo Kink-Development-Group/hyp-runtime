@@ -376,7 +376,7 @@ hypnoscript version
 ### Output
 
 ```
-HypnoScript v1.0.0
+HypnoScript v1.2.0
 The Hypnotic Programming Language
 
 Migrated from C# to Rust for improved performance

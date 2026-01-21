@@ -807,7 +807,7 @@ openapi {
     // Basic Information
     info: {
         title: "HypnoScript API"
-        version: "1.0.0"
+        version: "1.2.0"
         description: "Runtime API for HypnoScript scripting and execution"
         contact: {
             name: "HypnoScript Support"
@@ -1290,25 +1290,21 @@ api_monitoring {
 ### API Best Practices
 
 1. **API Design**
-
    - Follow RESTful principles
    - Use consistent naming conventions
    - Implement versioning
 
 2. **Security**
-
    - OAuth2/JWT for authentication
    - Implement rate limiting
    - Perform input validation
 
 3. **Performance**
-
    - Implement caching strategies
    - Pagination for large datasets
    - Enable compression
 
 4. **Monitoring**
-
    - Collect comprehensive metrics
    - Proactive alerting systems
    - Implement request tracing
