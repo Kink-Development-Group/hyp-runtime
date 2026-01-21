@@ -23,7 +23,7 @@ Returns the number of elements in an array.
 ```hyp
 induce numbers = [1, 2, 3, 4, 5];
 induce length = ArrayLength(numbers);
-observe "Array-Länge: " + length; // 5
+observe "Array length: " + length; // 5
 ```
 
 ### ArrayGet(arr, index)
@@ -31,9 +31,9 @@ observe "Array-Länge: " + length; // 5
 Retrieves an element at a specific index.
 
 ```hyp
-induce fruits = ["Apfel", "Banane", "Orange"];
-induce first = ArrayGet(fruits, 0); // "Apfel"
-induce second = ArrayGet(fruits, 1); // "Banane"
+induce fruits = ["Apple", "Banana", "Orange"];
+induce first = ArrayGet(fruits, 0); // "Apple"
+induce second = ArrayGet(fruits, 1); // "Banana"
 ```
 
 ### ArraySet(arr, index, value)
@@ -63,7 +63,7 @@ observe sorted; // [1, 1, 2, 3, 4, 5, 6, 9]
 Randomly shuffles the elements of an array.
 
 ```hyp
-induce cards = ["Herz", "Karo", "Pik", "Kreuz"];
+induce cards = ["Hearts", "Diamonds", "Spades", "Clubs"];
 induce shuffled = ShuffleArray(cards);
 observe shuffled; // Random order
 ```
@@ -87,7 +87,7 @@ Calculates the sum of all numeric elements.
 ```hyp
 induce numbers = [1, 2, 3, 4, 5];
 induce sum = ArraySum(numbers);
-observe "Summe: " + sum; // 15
+observe "Sum: " + sum; // 15
 ```
 
 ### AverageArray(arr)
@@ -97,7 +97,7 @@ Calculates the average of all numeric elements.
 ```hyp
 induce grades = [85, 92, 78, 96, 88];
 induce average = AverageArray(grades);
-observe "Durchschnitt: " + average; // 87.8
+observe "Average: " + average; // 87.8
 ```
 
 ### MinArray(arr)
@@ -127,9 +127,9 @@ observe "Maximum: " + max; // 89
 Checks if a value is contained in the array.
 
 ```hyp
-induce fruits = ["Apfel", "Banane", "Orange"];
-induce hasApple = ArrayContains(fruits, "Apfel"); // true
-induce hasGrape = ArrayContains(fruits, "Traube"); // false
+induce fruits = ["Apple", "Banana", "Orange"];
+induce hasApple = ArrayContains(fruits, "Apple"); // true
+induce hasGrape = ArrayContains(fruits, "Grape"); // false
 ```
 
 ### ArrayIndexOf(arr, value)
@@ -137,9 +137,9 @@ induce hasGrape = ArrayContains(fruits, "Traube"); // false
 Finds the index of an element in the array.
 
 ```hyp
-induce colors = ["Rot", "Grün", "Blau", "Gelb"];
-induce index = ArrayIndexOf(colors, "Blau");
-observe "Index von Blau: " + index; // 2
+induce colors = ["Red", "Green", "Blue", "Yellow"];
+induce index = ArrayIndexOf(colors, "Blue");
+observe "Index of Blue: " + index; // 2
 ```
 
 ### ArrayLastIndexOf(arr, value)
@@ -149,7 +149,7 @@ Finds the last index of an element in the array.
 ```hyp
 induce numbers = [1, 2, 3, 2, 4, 2, 5];
 induce lastIndex = ArrayLastIndexOf(numbers, 2);
-observe "Letzter Index von 2: " + lastIndex; // 5
+observe "Last index of 2: " + lastIndex; // 5
 ```
 
 ## Array Filtering
@@ -233,7 +233,7 @@ Creates an array with a specific size and default value.
 
 ```hyp
 induce emptyArray = CreateArray(5); // [null, null, null, null, null]
-induce filledArray = CreateArray(3, "Hallo"); // ["Hallo", "Hallo", "Hallo"]
+induce filledArray = CreateArray(3, "Hello"); // ["Hello", "Hello", "Hello"]
 ```
 
 ## Array Statistics
@@ -245,7 +245,7 @@ Calculates the variance of array elements.
 ```hyp
 induce numbers = [1, 2, 3, 4, 5];
 induce variance = ArrayVariance(numbers);
-observe "Varianz: " + variance;
+observe "Variance: " + variance;
 ```
 
 ### ArrayStandardDeviation(arr)
@@ -255,7 +255,7 @@ Calculates the standard deviation.
 ```hyp
 induce grades = [85, 92, 78, 96, 88];
 induce stdDev = ArrayStandardDeviation(grades);
-observe "Standardabweichung: " + stdDev;
+observe "Standard deviation: " + stdDev;
 ```
 
 ### ArrayMedian(arr)
@@ -316,39 +316,39 @@ Focus {
         induce maxGuesses = 10;
 
         for (induce i = 1; i <= maxGuesses; induce i = i + 1) {
-            induce guess = 25 + i * 2; // Vereinfachte Eingabe
+            induce guess = 25 + i * 2; // Simplified input
             induce guesses = ArrayUnion(guesses, [guess]);
 
             if (guess == secretNumber) {
-                observe "Gewonnen! Versuche: " + ArrayLength(guesses);
+                observe "You won! Attempts: " + ArrayLength(guesses);
                 break;
             } else if (guess < secretNumber) {
-                observe "Zu niedrig!";
+                observe "Too low!";
             } else {
-                observe "Zu hoch!";
+                observe "Too high!";
             }
         }
 
-        observe "Alle Versuche: " + guesses;
+        observe "All attempts: " + guesses;
     }
 } Relax;
 ```
 
-### Notenverwaltung
+### Grade Management
 
 ```hyp
 Focus {
     entrance {
         induce grades = [85, 92, 78, 96, 88, 91, 83, 89];
 
-        observe "Noten: " + grades;
-        observe "Anzahl: " + ArrayLength(grades);
-        observe "Durchschnitt: " + AverageArray(grades);
-        observe "Beste Note: " + MaxArray(grades);
-        observe "Schlechteste Note: " + MinArray(grades);
+        observe "Grades: " + grades;
+        observe "Count: " + ArrayLength(grades);
+        observe "Average: " + AverageArray(grades);
+        observe "Best grade: " + MaxArray(grades);
+        observe "Worst grade: " + MinArray(grades);
 
         induce sortedGrades = ArraySort(grades);
-        observe "Sortiert: " + sortedGrades;
+        observe "Sorted: " + sortedGrades;
 
         induce median = ArrayMedian(sortedGrades);
         observe "Median: " + median;
@@ -356,38 +356,38 @@ Focus {
 } Relax;
 ```
 
-### Datenanalyse
+### Data Analysis
 
 ```hyp
 Focus {
     entrance {
         induce temperatures = [22.5, 24.1, 19.8, 26.3, 23.7, 21.2, 25.9];
 
-        observe "Temperaturen: " + temperatures;
-        observe "Durchschnitt: " + AverageArray(temperatures);
+        observe "Temperatures: " + temperatures;
+        observe "Average: " + AverageArray(temperatures);
         observe "Maximum: " + MaxArray(temperatures);
         observe "Minimum: " + MinArray(temperatures);
 
         induce variance = ArrayVariance(temperatures);
         induce stdDev = ArrayStandardDeviation(temperatures);
-        observe "Varianz: " + variance;
-        observe "Standardabweichung: " + stdDev;
+        observe "Variance: " + variance;
+        observe "Standard deviation: " + stdDev;
 
         induce warmDays = FilterArray(temperatures, "x > 25");
-        observe "Warme Tage (>25°C): " + warmDays;
+        observe "Warm days (>25°C): " + warmDays;
     }
 } Relax;
 ```
 
 ## Best Practices
 
-### Effiziente Array-Operationen
+### Efficient Array Operations
 
 ```hyp
 // Calculate array length once
 induce length = ArrayLength(arr);
 for (induce i = 0; i < length; induce i = i + 1) {
-    // Operationen
+    // Operations
 }
 
 // Process large arrays in chunks
@@ -395,14 +395,14 @@ induce largeArray = Range(1, 10000);
 induce chunks = ChunkArray(largeArray, 1000);
 for (induce i = 0; i < ArrayLength(chunks); induce i = i + 1) {
     induce chunk = ArrayGet(chunks, i);
-    // Chunk verarbeiten
+    // Process chunk
 }
 ```
 
-### Fehlerbehandlung
+### Error Handling
 
 ```hyp
-// Sichere Array-Zugriffe
+// Safe array access
 suggestion safeArrayGet(arr, index) {
     if (index < 0 || index >= ArrayLength(arr)) {
         awaken null;
@@ -410,7 +410,7 @@ suggestion safeArrayGet(arr, index) {
     return ArrayGet(arr, index);
 }
 
-// Array-Validierung
+// Array validation
 suggestion isValidArray(arr) {
     awaken arr != null && ArrayLength(arr) > 0;
 }

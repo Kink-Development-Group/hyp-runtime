@@ -962,25 +962,21 @@ backup_monitoring {
 ### Backup Best Practices
 
 1. **3-2-1 Rule**
-
    - 3 copies of data
    - 2 different storage media
    - 1 copy offsite
 
 2. **Backup Validation**
-
    - Regular backup tests
    - Perform recovery tests
    - Verify data integrity
 
 3. **Encryption**
-
    - Encrypt backup data
    - Manage keys securely
    - Transport-Encryption
 
 4. **Monitoring**
-
    - Monitor backup status
    - Automatic alerting
    - Regular reports
@@ -993,19 +989,16 @@ backup_monitoring {
 ### Recovery Best Practices
 
 1. **RTO/RPO Definition**
-
    - Define clear objectives
    - Regular review
    - Business validation
 
 2. **Testing**
-
    - Regular DR tests
    - Complete recovery tests
    - Documentation of results
 
 3. **Automation**
-
    - Automatic failover
    - Script-based recovery
    - Monitoring and alerting
@@ -1019,7 +1012,7 @@ backup_monitoring {
 
 - [ ] Backup strategy defined
 - [ ] RTO/RPO objectives set
-- [ ] Backup-Automation implementiert
+- [ ] Backup automation implemented
 - [ ] Encryption configured
 - [ ] Monitoring configured
 - [ ] DR plan created

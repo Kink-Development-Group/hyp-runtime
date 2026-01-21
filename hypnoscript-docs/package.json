@@ -23,14 +23,14 @@
   "engines": {
     "node": ">=18.0"
   },
-  "description": "Vollständige Dokumentation für HypnoScript - Die hypnotische Programmiersprache",
+  "description": "Complete documentation for HypnoScript - the hypnotic programming language",
   "keywords": [
     "hypnoscript",
     "programming-language",
     "documentation",
     "docusaurus",
     "hypnotic",
-    "german"
+    "english"
   ],
   "author": "HypnoScript Team",
   "license": "MIT",

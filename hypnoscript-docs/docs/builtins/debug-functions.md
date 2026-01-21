@@ -4,29 +4,29 @@ sidebar_position: 18
 
 # Debug Functions
 
-Diese Funktionen helfen bei der Entwicklung und Fehlerbehebung von HypnoScript-Programmen.
+These functions help with development and troubleshooting of HypnoScript programs.
 
-## Inspektion
+## Inspection
 
 ### inspect(value)
 
-Gibt eine detaillierte Repräsentation eines Wertes zurück, inklusive Typ-Information.
+Returns a detailed representation of a value, including type information.
 
 ```hyp
 Focus
     induce arr = [1, 2, 3];
     observe(inspect(arr));
-    // Ausgabe: Array[Int](3) = [1, 2, 3]
+    // Output: Array[Int](3) = [1, 2, 3]
 
     induce obj = { name: "Test", value: 42 };
     observe(inspect(obj));
-    // Ausgabe: Object { name: String = "Test", value: Int = 42 }
+    // Output: Object { name: String = "Test", value: Int = 42 }
 Relax
 ```
 
 ### typeOf(value)
 
-Gibt den Typ eines Wertes als String zurück.
+Returns the type of a value as a string.
 
 ```hyp
 Focus
@@ -40,7 +40,7 @@ Relax
 
 ### stackTrace()
 
-Gibt den aktuellen Call-Stack als String zurück.
+Returns the current call stack as a string.
 
 ```hyp
 Focus
@@ -53,7 +53,7 @@ Focus
     }
 
     outerFunction();
-    // Ausgabe:
+    // Output:
     // Call Stack:
     //   #0: innerFunction() at script.hyp:3
     //   #1: outerFunction() at script.hyp:7
@@ -63,13 +63,13 @@ Relax
 
 ### dump(value)
 
-Gibt den Wert formatiert aus und gibt ihn zurück. Nützlich für Debugging in Ausdrücken.
+Prints a formatted value and returns it. Useful for debugging in expressions.
 
 ```hyp
 Focus
-    // Inline-Debugging
+    // Inline debugging
     induce result = dump(calculate(5, 3)) * 2;
-    // Gibt calculate(5, 3) aus und verwendet das Ergebnis weiter
+    // Prints calculate(5, 3) and continues using the result
 Relax
 ```
 
@@ -77,27 +77,27 @@ Relax
 
 ### assertEqual(actual, expected, message?)
 
-Prüft, ob zwei Werte gleich sind. Wirft einen Fehler wenn nicht.
+Checks whether two values are equal. Throws an error otherwise.
 
 ```hyp
 Focus
     induce result = add(2, 3);
-    assertEqual(result, 5);                    // Ohne Nachricht
-    assertEqual(result, 5, "add sollte 5 ergeben");  // Mit Nachricht
+    assertEqual(result, 5);                    // Without message
+    assertEqual(result, 5, "add should return 5");  // With message
 Relax
 ```
 
 ### assertTruthy(value, message?)
 
-Prüft, ob ein Wert als wahr ausgewertet wird.
+Checks whether a value evaluates to true.
 
 ```hyp
 Focus
     induce items = getItems();
-    assertTruthy(ArrayLength(items) > 0, "Sollte Items enthalten");
+    assertTruthy(ArrayLength(items) > 0, "Should contain items");
 
     induce user = getCurrentUser();
-    assertTruthy(user, "User sollte existieren");
+    assertTruthy(user, "User should exist");
 Relax
 ```
 
@@ -105,20 +105,20 @@ Relax
 
 ### time(label)
 
-Startet einen Timer mit dem angegebenen Label.
+Starts a timer with the given label.
 
 ```hyp
 Focus
     time("database-query");
 
-    // Zeitaufwändige Operation...
+    // Time-consuming operation...
     induce result = queryDatabase();
 Relax
 ```
 
 ### timeEnd(label)
 
-Beendet den Timer und gibt die vergangene Zeit aus.
+Ends the timer and prints the elapsed time.
 
 ```hyp
 Focus
@@ -127,21 +127,21 @@ Focus
     induce result = complexCalculation();
 
     timeEnd("operation");
-    // Ausgabe: operation: 123.45ms
+    // Output: operation: 123.45ms
 Relax
 ```
 
 ### measureTime(label, callback)
 
-Misst die Ausführungszeit einer Funktion und gibt das Ergebnis zurück.
+Measures the execution time of a function and returns the result.
 
 ```hyp
 Focus
     induce sorted = measureTime("sort", suggestion() {
         awaken sortArray(largeArray);
     });
-    // Ausgabe: sort: 45.67ms
-    // sorted enthält das sortierte Array
+    // Output: sort: 45.67ms
+    // sorted contains the sorted array
 Relax
 ```
 
@@ -149,45 +149,45 @@ Relax
 
 ### log(message)
 
-Gibt eine Info-Nachricht aus.
+Prints an info message.
 
 ```hyp
 Focus
-    log("Verarbeitung gestartet");
-    log("Schritt 1 abgeschlossen");
+    log("Processing started");
+    log("Step 1 completed");
 Relax
 ```
 
 ### warn(message)
 
-Gibt eine Warnung aus.
+Prints a warning.
 
 ```hyp
 Focus
-    warn("Konfiguration nicht gefunden, verwende Standard");
-    warn("Deprecated API-Aufruf");
+    warn("Configuration not found, using default");
+    warn("Deprecated API call");
 Relax
 ```
 
 ### error(message)
 
-Gibt eine Fehlermeldung aus.
+Prints an error message.
 
 ```hyp
 Focus
-    error("Kritischer Fehler: Datei nicht gefunden");
+    error("Critical error: file not found");
 Relax
 ```
 
 ### trace(message)
 
-Gibt eine Nachricht mit Stack-Trace aus.
+Prints a message with stack trace.
 
 ```hyp
 Focus
     suggestion processItem(item) {
-        trace("Verarbeite Item");
-        // Ausgabe enthält Nachricht + aktuellen Call-Stack
+        trace("Processing item");
+        // Output contains message + current call stack
     }
 Relax
 ```
@@ -196,52 +196,52 @@ Relax
 
 ### breakpoint()
 
-Pausiert die Ausführung wenn im Debug-Modus (`--debug`).
+Pauses execution when in debug mode (`--debug`).
 
 ```hyp
 Focus
     induce x = 10;
 
-    breakpoint();  // Pausiert hier im Debug-Modus
+    breakpoint();  // Pauses here in debug mode
 
     induce y = x * 2;
     observe(y);
 Relax
 ```
 
-Bei normaler Ausführung (ohne `--debug`) hat diese Funktion keine Auswirkung.
+In normal execution (without `--debug`) this function has no effect.
 
-## Verwendung
+## Usage
 
-### Debugging aktivieren
+### Enable Debugging
 
 ```bash
-# Debug-Modus starten
+# Start debug mode
 hypnoscript exec script.hyp --debug
 
-# Mit initialen Breakpoints
+# With initial breakpoints
 hypnoscript exec script.hyp --debug --breakpoints 10,25
 
-# Mit Watch-Expressions
+# With watch expressions
 hypnoscript exec script.hyp --debug --watch counter,result
 ```
 
-### Debugging-Code entfernen
+### Remove Debugging Code
 
-Vor dem Produktiveinsatz sollten Debug-Aufrufe entfernt werden:
+Before production use, debug calls should be removed:
 
 ```hyp
-// Entwicklung
+// Development
 breakpoint();
 dump(value);
 time("operation");
 timeEnd("operation");
 
-// Diese Zeilen vor Production entfernen
+// Remove these lines before production
 ```
 
-## Siehe auch
+## See also
 
-- [Debug-Modus](../debugging/debug-mode) - Interaktiver Debugger
-- [Breakpoints](../debugging/breakpoints) - Breakpoint-Verwaltung
-- [Debugging-Tools](../debugging/tools) - Vollständige Referenz
+- [Debug Mode](../debugging/debug-mode) - Interactive debugger
+- [Breakpoints](../debugging/breakpoints) - Breakpoint management
+- [Debugging Tools](../debugging/tools) - Complete reference

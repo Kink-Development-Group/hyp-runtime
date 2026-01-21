@@ -741,114 +741,114 @@ Focus {
     }
 
     entrance {
-        // Zinseszins
+        // Compound interest
         induce principal = 10000;
-        induce rate = 5; // 5% pro Jahr
-        induce time = 10; // 10 Jahre
-        induce compounds = 12; // Monatlich
+        induce rate = 5; // 5% per year
+        induce time = 10; // 10 years
+        induce compounds = 12; // Monthly
 
         induce finalAmount = calculateCompoundInterest(principal, rate / 100, time, compounds);
-        observe "Zinseszins-Berechnung:";
-        observe "Anfangskapital: €" + principal;
-        observe "Zinssatz: " + rate + "%";
-        observe "Laufzeit: " + time + " Jahre";
-        observe "Endkapital: €" + Round(finalAmount, 2);
-        observe "Gewinn: €" + Round(finalAmount - principal, 2);
+        observe "Compound interest calculation:";
+        observe "Principal: €" + principal;
+        observe "Rate: " + rate + "%";
+        observe "Term: " + time + " years";
+        observe "Final amount: €" + Round(finalAmount, 2);
+        observe "Profit: €" + Round(finalAmount - principal, 2);
 
-        // Kreditberechnung
+        // Loan calculation
         induce loanAmount = 200000;
-        induce loanRate = 3.5; // 3.5% pro Jahr
+        induce loanRate = 3.5; // 3.5% per year
         induce loanYears = 30;
 
         induce monthlyPayment = calculateLoanPayment(loanAmount, loanRate, loanYears);
         induce totalPayment = monthlyPayment * loanYears * 12;
         induce totalInterest = totalPayment - loanAmount;
 
-        observe "Kreditberechnung:";
-        observe "Kreditsumme: €" + loanAmount;
-        observe "Zinssatz: " + loanRate + "%";
-        observe "Laufzeit: " + loanYears + " Jahre";
-        observe "Monatliche Rate: €" + Round(monthlyPayment, 2);
-        observe "Gesamtzinsen: €" + Round(totalInterest, 2);
-        observe "Gesamtrückzahlung: €" + Round(totalPayment, 2);
+        observe "Loan calculation:";
+        observe "Loan amount: €" + loanAmount;
+        observe "Rate: " + loanRate + "%";
+        observe "Term: " + loanYears + " years";
+        observe "Monthly payment: €" + Round(monthlyPayment, 2);
+        observe "Total interest: €" + Round(totalInterest, 2);
+        observe "Total repayment: €" + Round(totalPayment, 2);
     }
 } Relax;
 ```
 
-### Wissenschaftliche Berechnungen
+### Scientific Calculations
 
 ```hyp
 Focus {
     entrance {
-        // Physikalische Berechnungen
+        // Physics calculations
         induce mass = 10; // kg
         induce velocity = 20; // m/s
         induce kineticEnergy = 0.5 * mass * Pow(velocity, 2);
 
-        observe "Kinetische Energie:";
-        observe "Masse: " + mass + " kg";
-        observe "Geschwindigkeit: " + velocity + " m/s";
-        observe "Energie: " + Round(kineticEnergy, 2) + " J";
+        observe "Kinetic energy:";
+        observe "Mass: " + mass + " kg";
+        observe "Velocity: " + velocity + " m/s";
+        observe "Energy: " + Round(kineticEnergy, 2) + " J";
 
-        // Chemische Berechnungen
+        // Chemistry calculations
         induce temperature = 25; // Celsius
         induce kelvin = temperature + 273.15;
-        observe "Temperaturumrechnung:";
+        observe "Temperature conversion:";
         observe "Celsius: " + temperature + "°C";
         observe "Kelvin: " + Round(kelvin, 2) + " K";
 
-        // Trigonometrische Anwendungen
-        induce angle = 30; // Grad
+        // Trigonometric applications
+        induce angle = 30; // Degrees
         induce radians = DegreesToRadians(angle);
         induce sinValue = Sin(radians);
         induce cosValue = Cos(radians);
         induce tanValue = Tan(radians);
 
-        observe "Trigonometrie (" + angle + "°):";
-        observe "Sinus: " + Round(sinValue, 4);
-        observe "Kosinus: " + Round(cosValue, 4);
-        observe "Tangens: " + Round(tanValue, 4);
+        observe "Trigonometry (" + angle + "°):";
+        observe "Sine: " + Round(sinValue, 4);
+        observe "Cosine: " + Round(cosValue, 4);
+        observe "Tangent: " + Round(tanValue, 4);
 
-        // Logarithmische Skalen
-        induce ph = 7; // pH-Wert
+        // Logarithmic scales
+        induce ph = 7; // pH value
         induce hConcentration = Pow(10, -ph);
-        observe "pH-Berechnung:";
-        observe "pH-Wert: " + ph;
-        observe "H+-Konzentration: " + hConcentration + " mol/L";
+        observe "pH calculation:";
+        observe "pH value: " + ph;
+        observe "H+ concentration: " + hConcentration + " mol/L";
     }
 } Relax;
 ```
 
 ## Best Practices
 
-### Numerische Genauigkeit
+### Numerical Accuracy
 
 ```hyp
-// Vermeide Gleitkomma-Vergleiche
+// Avoid floating-point comparisons
 if (Abs(a - b) < 0.0001) {
-    // a und b sind praktisch gleich
+    // a and b are practically equal
 }
 
-// Verwende Round für Outputn
+// Use Round for output
 observe "Ergebnis: " + Round(result, 4);
 
-// Große Zahlen
+// Large numbers
 induce largeNumber = 123456789;
 induce formatted = FormatString("{0:N0}", largeNumber);
 observe "Zahl: " + formatted; // 123,456,789
 ```
 
-### Performance-Optimierung
+### Performance Optimization
 
 ```hyp
-// Caching von Konstanten
+// Cache constants
 induce PI_OVER_180 = PI / 180;
 
 suggestion degreesToRadians(degrees) {
     awaken degrees * PI_OVER_180;
 }
 
-// Vermeide wiederholte Berechnungen
+// Avoid repeated calculations
 suggestion calculateDistance(x1, y1, x2, y2) {
     induce dx = x2 - x1;
     induce dy = y2 - y1;
@@ -856,12 +856,12 @@ suggestion calculateDistance(x1, y1, x2, y2) {
 }
 ```
 
-### Fehlerbehandlung
+### Error Handling
 
 ```hyp
 suggestion safeDivision(numerator, denominator) {
     if (denominator == 0) {
-        observe "Fehler: Division durch Null!";
+        observe "Error: division by zero!";
         awaken 0;
     }
     return numerator / denominator;
@@ -869,7 +869,7 @@ suggestion safeDivision(numerator, denominator) {
 
 suggestion safeLog(x) {
     if (x <= 0) {
-        observe "Fehler: Logarithmus nur für positive Zahlen!";
+        observe "Error: logarithm only for positive numbers!";
         awaken 0;
     }
     return Log(x);

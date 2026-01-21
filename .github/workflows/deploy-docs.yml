@@ -35,7 +35,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
         with:
-          fetch-depth: 0 # Für VitePress lastUpdated-Feature
+          fetch-depth: 0 # For VitePress lastUpdated feature
 
       - name: Setup Rust
         uses: actions-rust-lang/setup-rust-toolchain@v1

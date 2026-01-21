@@ -1,18 +1,18 @@
-//! Code-Optimierungs-Module für HypnoScript
+//! Code optimization module for HypnoScript
 //!
-//! Dieses Modul implementiert verschiedene Optimierungs-Pässe für den
-//! HypnoScript-Compiler. Die Optimierungen verbessern die Performance
-//! und reduzieren die Größe des generierten Codes.
+//! This module implements various optimization passes for the
+//! HypnoScript compiler. The optimizations improve performance
+//! and reduce the size of the generated code.
 //!
-//! ## Implementierte Optimierungen
+//! ## Implemented optimizations
 //!
-//! - **Constant Folding**: Berechnet konstante Ausdrücke zur Compile-Zeit
-//! - **Dead Code Elimination**: Entfernt unerreichbaren Code
-//! - **Common Subexpression Elimination**: Vermeidet redundante Berechnungen
-//! - **Loop Invariant Code Motion**: Verschiebt invariante Berechnungen aus Schleifen
-//! - **Inlining**: Fügt kleine Funktionen inline ein
+//! - **Constant Folding**: Computes constant expressions at compile time
+//! - **Dead Code Elimination**: Removes unreachable code
+//! - **Common Subexpression Elimination**: Avoids redundant calculations
+//! - **Loop Invariant Code Motion**: Moves invariant computations out of loops
+//! - **Inlining**: Inlines small functions
 //!
-//! ## Verwendung
+//! ## Usage
 //!
 //! ```rust,no_run
 //! use hypnoscript_compiler::optimizer::Optimizer;
@@ -28,32 +28,32 @@ use hypnoscript_lexer_parser::ast::AstNode;
 use std::collections::{HashMap, HashSet};
 use thiserror::Error;
 
-/// Fehlertypen für die Optimierung
+/// Error types for optimization
 #[derive(Error, Debug)]
 pub enum OptimizationError {
-    #[error("Optimierung fehlgeschlagen: {0}")]
+    #[error("Optimization failed: {0}")]
     OptimizationFailed(String),
 
-    #[error("Ungültiger AST-Knoten: {0}")]
+    #[error("Invalid AST node: {0}")]
     InvalidAstNode(String),
 }
 
-/// Optimierungs-Konfiguration
+/// Optimization configuration
 #[derive(Debug, Clone)]
 pub struct OptimizationConfig {
-    /// Constant Folding aktivieren
+    /// Enable constant folding
     pub constant_folding: bool,
-    /// Dead Code Elimination aktivieren
+    /// Enable dead code elimination
     pub dead_code_elimination: bool,
-    /// Common Subexpression Elimination aktivieren
+    /// Enable common subexpression elimination
     pub cse: bool,
-    /// Loop Invariant Code Motion aktivieren
+    /// Enable loop invariant code motion
     pub licm: bool,
-    /// Function Inlining aktivieren
+    /// Enable function inlining
     pub inlining: bool,
-    /// Maximale Inlining-Tiefe
+    /// Maximum inlining depth
     pub max_inline_depth: usize,
-    /// Maximale Inlining-Größe (AST-Knoten)
+    /// Maximum inlining size (AST nodes)
     pub max_inline_size: usize,
 }
 
@@ -72,7 +72,7 @@ impl Default for OptimizationConfig {
 }
 
 impl OptimizationConfig {
-    /// Erstellt eine Konfiguration ohne Optimierungen
+    /// Creates a configuration without optimizations
     pub fn none() -> Self {
         Self {
             constant_folding: false,
@@ -85,28 +85,28 @@ impl OptimizationConfig {
         }
     }
 
-    /// Erstellt eine Konfiguration mit allen Optimierungen
+    /// Creates a configuration with all optimizations
     pub fn all() -> Self {
         Self::default()
     }
 }
 
-/// HypnoScript Code-Optimizer
+/// HypnoScript code optimizer
 ///
-/// Wendet verschiedene Optimierungs-Pässe auf den AST an, um die
-/// Performance zu verbessern und die Code-Größe zu reduzieren.
+/// Applies various optimization passes to the AST to improve
+/// performance and reduce code size.
 pub struct Optimizer {
-    /// Optimierungs-Konfiguration
+    /// Optimization configuration
     config: OptimizationConfig,
-    /// Konstanten-Environment
+    /// Constant environment
     constants: HashMap<String, ConstantValue>,
-    /// Verwendete Variablen
+    /// Used variables
     used_variables: HashSet<String>,
-    /// Optimierungs-Statistiken
+    /// Optimization statistics
     stats: OptimizationStats,
 }
 
-/// Konstanter Wert zur Compile-Zeit
+/// Constant value at compile time
 #[derive(Debug, Clone, PartialEq)]
 #[allow(dead_code)]
 enum ConstantValue {
@@ -115,18 +115,18 @@ enum ConstantValue {
     Boolean(bool),
 }
 
-/// Statistiken über durchgeführte Optimierungen
+/// Statistics about performed optimizations
 #[derive(Debug, Clone, Default)]
 pub struct OptimizationStats {
-    /// Anzahl gefalteter Konstanten
+    /// Number of folded constants
     pub folded_constants: usize,
-    /// Anzahl entfernter toter Code-Blöcke
+    /// Number of removed dead code blocks
     pub eliminated_dead_code: usize,
-    /// Anzahl eliminierter gemeinsamer Subausdrücke
+    /// Number of eliminated common subexpressions
     pub eliminated_common_subexpr: usize,
-    /// Anzahl verschobener Loop-Invarianten
+    /// Number of moved loop invariants
     pub moved_loop_invariants: usize,
-    /// Anzahl inline eingefügter Funktionen
+    /// Number of inlined functions
     pub inlined_functions: usize,
 }
 
@@ -137,9 +137,9 @@ impl Default for Optimizer {
 }
 
 impl Optimizer {
-    /// Erstellt einen neuen Optimizer mit Standard-Konfiguration
+    /// Creates a new optimizer with default configuration
     ///
-    /// # Beispiele
+    /// # Examples
     ///
     /// ```
     /// use hypnoscript_compiler::optimizer::Optimizer;
@@ -155,11 +155,11 @@ impl Optimizer {
         }
     }
 
-    /// Erstellt einen Optimizer mit benutzerdefinierter Konfiguration
+    /// Creates an optimizer with a custom configuration
     ///
-    /// # Argumente
+    /// # Arguments
     ///
-    /// * `config` - Die Optimierungs-Konfiguration
+    /// * `config` - The optimization configuration
     pub fn with_config(config: OptimizationConfig) -> Self {
         Self {
             config,
@@ -169,29 +169,29 @@ impl Optimizer {
         }
     }
 
-    /// Aktiviert alle Optimierungen
+    /// Enables all optimizations
     pub fn enable_all_optimizations(&mut self) {
         self.config = OptimizationConfig::all();
     }
 
-    /// Deaktiviert alle Optimierungen
+    /// Disables all optimizations
     pub fn disable_all_optimizations(&mut self) {
         self.config = OptimizationConfig::none();
     }
 
-    /// Optimiert den AST
+    /// Optimizes the AST
     ///
-    /// # Argumente
+    /// # Arguments
     ///
-    /// * `program` - Der zu optimierende AST
+    /// * `program` - The AST to optimize
     ///
-    /// # Rückgabe
+    /// # Returns
     ///
-    /// Der optimierte AST
+    /// The optimized AST
     ///
-    /// # Fehler
+    /// # Errors
     ///
-    /// Gibt einen `OptimizationError` zurück, wenn die Optimierung fehlschlägt
+    /// Returns an `OptimizationError` when optimization fails
     pub fn optimize(&mut self, program: &AstNode) -> Result<AstNode, OptimizationError> {
         // Reset statistics
         self.stats = OptimizationStats::default();
@@ -228,7 +228,7 @@ impl Optimizer {
         Ok(optimized)
     }
 
-    /// Gibt die Optimierungs-Statistiken zurück
+    /// Returns the optimization statistics
     pub fn stats(&self) -> &OptimizationStats {
         &self.stats
     }
@@ -237,8 +237,8 @@ impl Optimizer {
 
     /// Pass 1: Constant Folding
     ///
-    /// Berechnet konstante Ausdrücke zur Compile-Zeit.
-    /// Beispiel: `2 + 3` wird zu `5`
+    /// Computes constant expressions at compile time.
+    /// Example: `2 + 3` becomes `5`
     fn constant_folding_pass(&mut self, node: &AstNode) -> Result<AstNode, OptimizationError> {
         match node {
             AstNode::Program(statements) => {
@@ -303,44 +303,44 @@ impl Optimizer {
                 })
             }
 
-            // Für andere Knoten: Rekursiv durchlaufen
+            // For other nodes: traverse recursively
             _ => Ok(node.clone()),
         }
     }
 
     /// Pass 2: Dead Code Elimination
     ///
-    /// Entfernt unerreichbaren Code, z.B. nach return oder in if(false)-Zweigen.
+    /// Removes unreachable code, e.g. after return or in if(false) branches.
     fn dead_code_elimination_pass(&mut self, node: &AstNode) -> Result<AstNode, OptimizationError> {
-        // TODO: Implementierung
-        // Placeholder für zukünftige Implementierung
+        // TODO: Implementation
+        // Placeholder for future implementation
         Ok(node.clone())
     }
 
     /// Pass 3: Common Subexpression Elimination
     ///
-    /// Erkennt und eliminiert redundante Berechnungen.
+    /// Detects and eliminates redundant computations.
     fn cse_pass(&mut self, node: &AstNode) -> Result<AstNode, OptimizationError> {
-        // TODO: Implementierung
-        // Placeholder für zukünftige Implementierung
+        // TODO: Implementation
+        // Placeholder for future implementation
         Ok(node.clone())
     }
 
     /// Pass 4: Loop Invariant Code Motion
     ///
-    /// Verschiebt Berechnungen, die sich in Schleifen nicht ändern, vor die Schleife.
+    /// Moves computations that do not change inside loops before the loop.
     fn licm_pass(&mut self, node: &AstNode) -> Result<AstNode, OptimizationError> {
-        // TODO: Implementierung
-        // Placeholder für zukünftige Implementierung
+        // TODO: Implementation
+        // Placeholder for future implementation
         Ok(node.clone())
     }
 
     /// Pass 5: Function Inlining
     ///
-    /// Fügt kleine Funktionen inline ein, um Funktionsaufruf-Overhead zu vermeiden.
+    /// Inlines small functions to avoid function call overhead.
     fn inlining_pass(&mut self, node: &AstNode) -> Result<AstNode, OptimizationError> {
-        // TODO: Implementierung
-        // Placeholder für zukünftige Implementierung
+        // TODO: Implementation
+        // Placeholder for future implementation
         Ok(node.clone())
     }
 }

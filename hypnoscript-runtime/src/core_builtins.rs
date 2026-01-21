@@ -119,10 +119,7 @@ impl CoreBuiltins {
             .with_translation("es", "Te sientes muy somnoliento... {}");
 
         let trance_msg = LocalizedMessage::new("You are now in a deep hypnotic state.")
-            .with_translation(
-                "de",
-                "You are now in a deep hypnotic state.",
-            )
+            .with_translation("de", "You are now in a deep hypnotic state.")
             .with_translation(
                 "fr",
                 "Vous êtes maintenant dans un état hypnotique profond.",
@@ -148,10 +145,7 @@ impl CoreBuiltins {
 
         let welcome_msg =
             LocalizedMessage::new("Welcome {}, you are about to enter a deep trance...")
-                .with_translation(
-                    "de",
-                    "Welcome {}, you are about to enter a deep trance...",
-                )
+                .with_translation("de", "Welcome {}, you are about to enter a deep trance...")
                 .with_translation(
                     "fr",
                     "Bienvenue {}, vous êtes sur le point d'entrer en transe profonde...",
@@ -168,10 +162,7 @@ impl CoreBuiltins {
 
         let relaxed_msg =
             LocalizedMessage::new("With each breath, you feel more and more relaxed...")
-                .with_translation(
-                    "de",
-                    "With each breath, you feel more and more relaxed...",
-                )
+                .with_translation("de", "With each breath, you feel more and more relaxed...")
                 .with_translation(
                     "fr",
                     "À chaque respiration, vous vous sentez de plus en plus détendu...",
@@ -216,10 +207,7 @@ impl CoreBuiltins {
             .with_translation("es", "Los colores son vívidos, los sonidos son claros...");
 
         let peace_msg = LocalizedMessage::new("You feel completely at peace in this place...")
-            .with_translation(
-                "de",
-                "You feel completely at peace in this place...",
-            )
+            .with_translation("de", "You feel completely at peace in this place...")
             .with_translation(
                 "fr",
                 "Vous vous sentez complètement en paix dans cet endroit...",

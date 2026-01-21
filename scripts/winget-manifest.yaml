@@ -15,7 +15,7 @@ Installers:
       - RelativeFilePath: HypnoScript.CLI.exe
         PortableCommandAlias: hypnoscript
 ShortDescription: HypnoScript CLI & Runtime
-Description: HypnoScript ist eine moderne, hypnotische Programmiersprache mit CLI und Runtime.
+Description: HypnoScript is a modern, hypnotic programming language with CLI and runtime.
 Tags:
   - HypnoScript
   - CLI

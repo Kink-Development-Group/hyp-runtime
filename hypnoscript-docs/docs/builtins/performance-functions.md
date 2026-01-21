@@ -4,137 +4,137 @@ title: Performance Functions
 
 # Performance Functions
 
-HypnoScript bietet umfangreiche Performance-Functionen für die Überwachung und Optimierung von Skripten.
+HypnoScript provides extensive performance functions for monitoring and optimizing scripts.
 
 ## Overview
 
-Performance-Functionen ermöglichen es Ihnen, die Ausführungszeit, Speichernutzung und andere Performance-Metriken Ihrer HypnoScript-Programme zu überwachen und zu optimieren.
+Performance functions let you monitor and optimize execution time, memory usage, and other performance metrics for HypnoScript programs.
 
-## Basic Performance-Functionen
+## Basic Performance Functions
 
 ### Benchmark
 
-Misst die Ausführungszeit einer Function über mehrere Iterationen.
+Measures execution time for a function over multiple iterations.
 
 ```hyp
 induce result = Benchmark(function() {
-    // Code zum Messen
+    // Code to measure
     return someValue;
-}, 1000); // 1000 Iterationen
+}, 1000); // 1000 iterations
 
-observe "Durchschnittliche Ausführungszeit: " + result + " ms";
+observe "Average execution time: " + result + " ms";
 ```
 
 **Parameters:**
 
-- `function`: Die zu messende Function
-- `iterations`: Anzahl der Iterationen
+- `function`: Function to measure
+- `iterations`: Number of iterations
 
-**Return value:** Durchschnittliche Ausführungszeit in Millisekunden
+**Return value:** Average execution time in milliseconds
 
 ### GetPerformanceMetrics
 
-Sammelt umfassende Performance-Metriken des aktuellen Systems.
+Collects comprehensive performance metrics for the current system.
 
 ```hyp
 induce metrics = GetPerformanceMetrics();
-observe "CPU-Auslastung: " + metrics.cpuUsage + "%";
-observe "Speichernutzung: " + metrics.memoryUsage + " MB";
-observe "Verfügbarer Speicher: " + metrics.availableMemory + " MB";
+observe "CPU usage: " + metrics.cpuUsage + "%";
+observe "Memory usage: " + metrics.memoryUsage + " MB";
+observe "Available memory: " + metrics.availableMemory + " MB";
 ```
 
-**Return value:** Dictionary mit Performance-Metriken
+**Return value:** Dictionary with performance metrics
 
 ### GetExecutionTime
 
-Misst die Ausführungszeit eines Code-Blocks.
+Measures execution time of a code block.
 
 ```hyp
 induce startTime = GetCurrentTime();
-// Code zum Messen
+// Code to measure
 induce endTime = GetCurrentTime();
 induce executionTime = (endTime - startTime) * 1000; // in ms
-observe "Ausführungszeit: " + executionTime + " ms";
+observe "Execution time: " + executionTime + " ms";
 ```
 
-## Speicher-Management
+## Memory Management
 
 ### GetMemoryUsage
 
-Returns die aktuelle Speichernutzung .
+Returns current memory usage.
 
 ```hyp
 induce memoryUsage = GetMemoryUsage();
-observe "Aktuelle Speichernutzung: " + memoryUsage + " MB";
+observe "Current memory usage: " + memoryUsage + " MB";
 ```
 
-**Return value:** Speichernutzung in Megabyte
+**Return value:** Memory usage in megabytes
 
 ### GetAvailableMemory
 
-Returns den availableen Speicher .
+Returns available memory.
 
 ```hyp
 induce availableMemory = GetAvailableMemory();
-observe "Verfügbarer Speicher: " + availableMemory + " MB";
+observe "Available memory: " + availableMemory + " MB";
 ```
 
-**Return value:** Verfügbarer Speicher in Megabyte
+**Return value:** Available memory in megabytes
 
 ### ForceGarbageCollection
 
-Erzwingt eine Garbage Collection.
+Forces garbage collection.
 
 ```hyp
 ForceGarbageCollection();
-observe "Garbage Collection durchgeführt";
+observe "Garbage collection completed";
 ```
 
-## CPU-Monitoring
+## CPU Monitoring
 
 ### GetCPUUsage
 
-Returns die aktuelle CPU-Auslastung .
+Returns current CPU usage.
 
 ```hyp
 induce cpuUsage = GetCPUUsage();
-observe "CPU-Auslastung: " + cpuUsage + "%";
+observe "CPU usage: " + cpuUsage + "%";
 ```
 
-**Return value:** CPU-Auslastung in Prozent
+**Return value:** CPU usage in percent
 
 ### GetProcessorCount
 
-Returns die Anzahl der availableen Prozessoren .
+Returns the number of available processors.
 
 ```hyp
 induce processorCount = GetProcessorCount();
-observe "Anzahl Prozessoren: " + processorCount;
+observe "Processor count: " + processorCount;
 ```
 
-**Return value:** Anzahl der Prozessoren
+**Return value:** Processor count
 
-## Profiling-Functionen
+## Profiling Functions
 
 ### StartProfiling
 
-Startet das Performance-Profiling.
+Starts performance profiling.
 
 ```hyp
 StartProfiling("my-profile");
-// Code zum Profilen
+// Code to profile
 StopProfiling();
 induce profileData = GetProfileData("my-profile");
-observe "Profil-Daten: " + profileData;
+observe "Profile data: " + profileData;
 ```
 
 **Parameters:**
 
-- `profileName`: Name des Profils
+- `profileName`: Profile name
 
 ### StopProfiling
 
-Stoppt das Performance-Profiling.
+Stops performance profiling.
 
 ```hyp
 StartProfiling("test");
@@ -144,59 +144,59 @@ StopProfiling();
 
 ### GetProfileData
 
-Returns die Profil-Daten .
+Returns profile data.
 
 ```hyp
 induce profileData = GetProfileData("my-profile");
-observe "Funktionsaufrufe: " + profileData.functionCalls;
-observe "Ausführungszeit: " + profileData.executionTime;
+observe "Function calls: " + profileData.functionCalls;
+observe "Execution time: " + profileData.executionTime;
 ```
 
 **Parameters:**
 
-- `profileName`: Name des Profils
+- `profileName`: Profile name
 
-**Return value:** Dictionary mit Profil-Daten
+**Return value:** Dictionary with profile data
 
-## Optimierungs-Functionen
+## Optimization Functions
 
 ### OptimizeMemory
 
-Executes Speicheroptimierungen durch.
+Executes memory optimizations.
 
 ```hyp
 OptimizeMemory();
-observe "Speicheroptimierung durchgeführt";
+observe "Memory optimization completed";
 ```
 
 ### OptimizeCPU
 
-Executes CPU-Optimierungen durch.
+Executes CPU optimizations.
 
 ```hyp
 OptimizeCPU();
-observe "CPU-Optimierung durchgeführt";
+observe "CPU optimization completed";
 ```
 
-## Monitoring-Functionen
+## Monitoring Functions
 
 ### StartMonitoring
 
-Startet das kontinuierliche Performance-Monitoring.
+Starts continuous performance monitoring.
 
 ```hyp
-StartMonitoring(5000); // Alle 5 Sekunden
+StartMonitoring(5000); // Every 5 seconds
 // Code
 StopMonitoring();
 ```
 
 **Parameters:**
 
-- `interval`: Intervall in Millisekunden
+- `interval`: Interval in milliseconds
 
 ### StopMonitoring
 
-Stoppt das Performance-Monitoring.
+Stops performance monitoring.
 
 ```hyp
 StartMonitoring(1000);
@@ -206,55 +206,55 @@ StopMonitoring();
 
 ### GetMonitoringData
 
-Returns die Monitoring-Daten .
+Returns monitoring data.
 
 ```hyp
 induce monitoringData = GetMonitoringData();
-observe "Durchschnittliche CPU-Auslastung: " + monitoringData.avgCpuUsage;
-observe "Maximale Speichernutzung: " + monitoringData.maxMemoryUsage;
+observe "Average CPU usage: " + monitoringData.avgCpuUsage;
+observe "Peak memory usage: " + monitoringData.maxMemoryUsage;
 ```
 
-**Return value:** Dictionary mit Monitoring-Daten
+**Return value:** Dictionary with monitoring data
 
-## Advanced Performance-Functionen
+## Advanced Performance Functions
 
 ### GetSystemInfo
 
-Returns detaillierte System-Informationen .
+Returns detailed system information.
 
 ```hyp
 induce systemInfo = GetSystemInfo();
-observe "Betriebssystem: " + systemInfo.os;
-observe "Architektur: " + systemInfo.architecture;
-observe "Framework-Version: " + systemInfo.frameworkVersion;
+observe "Operating system: " + systemInfo.os;
+observe "Architecture: " + systemInfo.architecture;
+observe "Framework version: " + systemInfo.frameworkVersion;
 ```
 
-**Return value:** Dictionary mit System-Informationen
+**Return value:** Dictionary with system information
 
 ### GetProcessInfo
 
-Returns Informationen über den aktuellen Prozess .
+Returns information about the current process.
 
 ```hyp
 induce processInfo = GetProcessInfo();
-observe "Prozess-ID: " + processInfo.processId;
-observe "Arbeitsspeicher: " + processInfo.workingSet + " MB";
-observe "CPU-Zeit: " + processInfo.cpuTime + " ms";
+observe "Process ID: " + processInfo.processId;
+observe "Working set: " + processInfo.workingSet + " MB";
+observe "CPU time: " + processInfo.cpuTime + " ms";
 ```
 
-**Return value:** Dictionary mit Prozess-Informationen
+**Return value:** Dictionary with process information
 
 ## Best Practices
 
-### Performance-Monitoring
+### Performance Monitoring
 
 ```hyp
 Focus {
     entrance {
-        // Monitoring starten
+        // Start monitoring
         StartMonitoring(1000);
 
-        // Performance-kritischer Code
+        // Performance-critical code
         induce result = Benchmark(function() {
             // Code needing optimization
             induce sum = 0;
@@ -264,84 +264,84 @@ Focus {
             return sum;
         }, 100);
 
-        // Monitoring stoppen
+        // Stop monitoring
         StopMonitoring();
 
-        // Ergebnisse auswerten
+        // Evaluate results
         induce monitoringData = GetMonitoringData();
         if (monitoringData.avgCpuUsage > 80) {
-            observe "WARNUNG: Hohe CPU-Auslastung erkannt!";
+            observe "WARNING: High CPU usage detected!";
         }
 
-        observe "Benchmark-Ergebnis: " + result + " ms";
+        observe "Benchmark result: " + result + " ms";
     }
 } Relax;
 ```
 
-### Speicheroptimierung
+### Memory Optimization
 
 ```hyp
 Focus {
     entrance {
         induce initialMemory = GetMemoryUsage();
 
-        // Speicherintensive Operationen
+        // Memory-intensive operations
         induce largeArray = [];
         for (induce i = 0; i < 100000; induce i = i + 1) {
-            ArrayPush(largeArray, "Element " + i);
+            ArrayPush(largeArray, "Item " + i);
         }
 
         induce memoryAfterOperation = GetMemoryUsage();
-        observe "Speicherzuwachs: " + (memoryAfterOperation - initialMemory) + " MB";
+        observe "Memory increase: " + (memoryAfterOperation - initialMemory) + " MB";
 
-        // Speicheroptimierung
+        // Memory optimization
         ForceGarbageCollection();
         OptimizeMemory();
 
         induce memoryAfterOptimization = GetMemoryUsage();
-        observe "Speicher nach Optimierung: " + memoryAfterOptimization + " MB";
+        observe "Memory after optimization: " + memoryAfterOptimization + " MB";
     }
 } Relax;
 ```
 
-### Profiling-Workflow
+### Profiling Workflow
 
 ```hyp
 Focus {
     entrance {
-        // Profiling starten
+        // Start profiling
         StartProfiling("main-operation");
 
-        // Hauptoperation
+        // Main operation
         induce result = PerformMainOperation();
 
-        // Profiling stoppen
+        // Stop profiling
         StopProfiling();
 
-        // Profil-Daten analysieren
+        // Analyze profile data
         induce profileData = GetProfileData("main-operation");
 
         if (profileData.executionTime > 1000) {
-            observe "WARNUNG: Operation dauert länger als 1 Sekunde!";
+            observe "WARNING: Operation takes longer than 1 second!";
         }
 
-        observe "Profil-Ergebnis: " + profileData;
+        observe "Profile result: " + profileData;
     }
 } Relax;
 ```
 
-## Fehlerbehandlung
+## Error Handling
 
-Performance-Functionen können bei unerwarteten Systemzuständen Fehler werfen:
+Performance functions can throw errors under unexpected system conditions:
 
 ```hyp
 Focus {
     entrance {
         try {
             induce metrics = GetPerformanceMetrics();
-            observe "Performance-Metriken: " + metrics;
+            observe "Performance metrics: " + metrics;
         } catch (error) {
-            observe "Fehler beim Abrufen der Performance-Metriken: " + error;
+            observe "Error retrieving performance metrics: " + error;
         }
     }
 } Relax;
@@ -349,10 +349,10 @@ Focus {
 
 ## Next Steps
 
-- [System Functions](./system-functions) - System-spezifische Functionen
-- [Utility Functions](./utility-functions) - Allgemeine Hilfsfunktionen
-- [Testing Performance](../testing/performance) - Performance-Testing-Guide
+- [System Functions](./system-functions) - System-specific functions
+- [Utility Functions](./utility-functions) - General helper functions
+- [Testing Performance](../testing/performance) - Performance testing guide
 
 ---
 
-**Performance-Optimierung gemeistert? Dann lerne [System Functions](./system-functions) kennen!** ✅
+**Mastered performance optimization? Then explore [System Functions](./system-functions)!** ✅

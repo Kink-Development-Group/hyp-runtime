@@ -294,7 +294,10 @@ impl SessionDefinition {
                     "Duplicate session field '{}' in session '{}'",
                     field.name, self.name
                 ),
-                &format!("Doppeltes Feld '{}' in Session '{}'", field.name, self.name),
+                &format!(
+                    "Duplicate field '{}' in session '{}'",
+                    field.name, self.name
+                ),
             )));
         }
         self.field_order.push(field.name.clone());
@@ -315,7 +318,10 @@ impl SessionDefinition {
                     "Duplicate session field '{}' in session '{}'",
                     field.name, self.name
                 ),
-                &format!("Doppeltes Feld '{}' in Session '{}'", field.name, self.name),
+                &format!(
+                    "Duplicate field '{}' in session '{}'",
+                    field.name, self.name
+                ),
             )));
         }
         self.static_field_order.push(field.name.clone());
@@ -335,10 +341,7 @@ impl SessionDefinition {
             if self.constructor.is_some() {
                 return Err(InterpreterError::Runtime(localized(
                     &format!("Multiple constructors declared in session '{}'", self.name),
-                    &format!(
-                        "Mehrere Konstruktoren in Session '{}' deklariert",
-                        self.name
-                    ),
+                    &format!("Multiple constructors declared in session '{}'", self.name),
                 )));
             }
             self.constructor = Some(method);
@@ -353,7 +356,7 @@ impl SessionDefinition {
                         method.name, self.name
                     ),
                     &format!(
-                        "Doppelte statische Methode '{}' in Session '{}'",
+                        "Duplicate static method '{}' in session '{}'",
                         method.name, self.name
                     ),
                 )));
@@ -367,7 +370,7 @@ impl SessionDefinition {
                         method.name, self.name
                     ),
                     &format!(
-                        "Doppelte Methode '{}' in Session '{}'",
+                        "Duplicate method '{}' in session '{}'",
                         method.name, self.name
                     ),
                 )));
@@ -406,7 +409,7 @@ impl SessionDefinition {
                     name, self.name
                 ),
                 &format!(
-                    "Statisches Feld '{}' nicht in Session '{}' gefunden",
+                    "Static field '{}' not found on session '{}'",
                     name, self.name
                 ),
             ))),
@@ -1386,7 +1389,7 @@ impl Interpreter {
                 }
                 _ => Err(InterpreterError::Runtime(localized(
                     "Invalid assignment target",
-                    "Ungültiges Zuweisungsziel",
+                    "Invalid assignment target",
                 ))),
             },
 
@@ -1791,11 +1794,11 @@ impl Interpreter {
             Value::Session(session) => self.instantiate_session(session.clone(), args),
             Value::Null => Err(InterpreterError::Runtime(localized(
                 "Cannot call null value",
-                "Null-Wert kann nicht aufgerufen werden",
+                "Cannot call null value",
             ))),
             _ => Err(InterpreterError::Runtime(localized(
                 "Value is not callable",
-                "Wert ist nicht aufrufbar",
+                "Value is not callable",
             ))),
         }
     }
@@ -1813,7 +1816,7 @@ impl Interpreter {
                     args.len()
                 ),
                 &format!(
-                    "Erwartet {} Argumente, erhalten {}",
+                    "Expected {} arguments, received {}",
                     function.parameters.len(),
                     args.len()
                 ),
@@ -1915,7 +1918,7 @@ impl Interpreter {
                     definition.name()
                 ),
                 &format!(
-                    "Konstruktor in Session '{}' darf nicht statisch sein",
+                    "Constructor in session '{}' cannot be static",
                     definition.name()
                 ),
             )));
@@ -1979,7 +1982,7 @@ impl Interpreter {
                         args.len()
                     ),
                     &format!(
-                        "Konstruktor der Session '{}' erwartet {} Argumente, erhalten {}",
+                        "Constructor for session '{}' expects {} arguments, received {}",
                         session.name(),
                         constructor.parameters.len(),
                         args.len()
@@ -2000,7 +2003,7 @@ impl Interpreter {
                     session.name()
                 ),
                 &format!(
-                    "Session '{}' definiert keinen Konstruktor, dennoch wurden Argumente übergeben",
+                    "Session '{}' does not define a constructor but arguments were provided",
                     session.name()
                 ),
             )));
@@ -2122,7 +2125,7 @@ impl Interpreter {
                         property
                     ),
                     &format!(
-                        "Session-Instanz von '{}' besitzt kein Mitglied '{}'",
+                        "Session instance of '{}' has no member '{}'",
                         definition.name(),
                         property
                     ),
@@ -2161,7 +2164,7 @@ impl Interpreter {
                         property
                     ),
                     &format!(
-                        "Session '{}' besitzt kein statisches Mitglied '{}'",
+                        "Session '{}' has no static member '{}'",
                         session_rc.name(),
                         property
                     ),
@@ -2180,10 +2183,7 @@ impl Interpreter {
             }
             other => Err(InterpreterError::Runtime(localized(
                 &format!("Cannot access member '{}' on value '{}'", property, other),
-                &format!(
-                    "Mitglied '{}' kann auf Wert '{}' nicht zugegriffen werden",
-                    property, other
-                ),
+                &format!("Cannot access member '{}' on value '{}'", property, other),
             ))),
         }
     }
@@ -2217,7 +2217,7 @@ impl Interpreter {
                 {
                     return Err(InterpreterError::Runtime(localized(
                         &format!("Cannot assign to method '{}'", property),
-                        &format!("Zuweisung zur Methode '{}' nicht möglich", property),
+                        &format!("Cannot assign to method '{}'", property),
                     )));
                 }
 
@@ -2229,7 +2229,7 @@ impl Interpreter {
                             definition.name()
                         ),
                         &format!(
-                            "Statisches Feld '{}' muss über die Session '{}' gesetzt werden",
+                            "Assign static field '{}' through session '{}', not an instance",
                             property,
                             definition.name()
                         ),
@@ -2243,7 +2243,7 @@ impl Interpreter {
                         property
                     ),
                     &format!(
-                        "Session-Instanz von '{}' besitzt kein Feld '{}'",
+                        "Session instance of '{}' has no field '{}'",
                         definition.name(),
                         property
                     ),
@@ -2264,10 +2264,7 @@ impl Interpreter {
                 if session_rc.get_static_method_definition(property).is_some() {
                     return Err(InterpreterError::Runtime(localized(
                         &format!("Cannot assign to static method '{}'", property),
-                        &format!(
-                            "Zuweisung zu statischer Methode '{}' nicht möglich",
-                            property
-                        ),
+                        &format!("Cannot assign to static method '{}'", property),
                     )));
                 }
 
@@ -2278,7 +2275,7 @@ impl Interpreter {
                         property
                     ),
                     &format!(
-                        "Session '{}' besitzt kein statisches Feld '{}'",
+                        "Session '{}' has no static field '{}'",
                         session_rc.name(),
                         property
                     ),
@@ -2286,7 +2283,7 @@ impl Interpreter {
             }
             _ => Err(InterpreterError::Runtime(localized(
                 "Assignment target is not a session member",
-                "Zuweisungsziel ist kein Session-Mitglied",
+                "Assignment target is not a session member",
             ))),
         }
     }
@@ -2305,7 +2302,7 @@ impl Interpreter {
                     member_kind, member_name, session_name
                 ),
                 &format!(
-                    "Zugriff auf privates {} '{}' der Session '{}' verweigert",
+                    "Access denied to private {} '{}' of session '{}'",
                     member_kind, member_name, session_name
                 ),
             )));
@@ -3218,10 +3215,7 @@ impl Interpreter {
             if is_const {
                 return Err(InterpreterError::Runtime(localized(
                     &format!("Cannot reassign constant variable '{}'", name),
-                    &format!(
-                        "Konstante Variable '{}' kann nicht neu zugewiesen werden",
-                        name
-                    ),
+                    &format!("Cannot reassign constant variable '{}'", name),
                 )));
             }
             Ok(())

@@ -118,7 +118,7 @@ connection_pooling {
 
 ## ORM (Object-Relational Mapping)
 
-### Entity-Definitionen
+### Entity Definitions
 
 ```hyp
 // Entity models
@@ -375,7 +375,7 @@ entities {
 }
 ```
 
-### Repository-Pattern
+### Repository Pattern
 
 ```hyp
 // Repository implementations
@@ -543,7 +543,7 @@ repositories {
 
 ## Transaction Management
 
-### Transaktions-Konfiguration
+### Transaction Configuration
 
 ```hyp
 // Transaction management
@@ -623,7 +623,7 @@ transactions {
 }
 ```
 
-### Transaktions-Beispiele
+### Transaction Examples
 
 ```hyp
 // Transaction examples
@@ -706,9 +706,9 @@ transaction_examples {
 }
 ```
 
-## Datenbank-Migrationen
+## Database Migrations
 
-### Migrations-System
+### Migration System
 
 ```hyp
 // Migrations configuration
@@ -756,7 +756,7 @@ migrations {
 }
 ```
 
-### Migrations-Beispiele
+### Migration Examples
 
 ```hyp
 // Migration examples
@@ -887,9 +887,9 @@ migration_examples {
 }
 ```
 
-## Datenbank-Optimierung
+## Database Optimization
 
-### Performance-Optimierung
+### Performance Optimization
 
 ```hyp
 // Database optimization
@@ -961,25 +961,21 @@ database_optimization {
 ### Database Best Practices
 
 1. **Connection Management**
-
    - Use connection pooling
    - Close connections properly
    - Configure timeouts
 
 2. **Transaction Management**
-
    - Prefer short transactions
    - Choose isolation levels consciously
    - Define rollback strategies
 
 3. **Query Optimization**
-
    - Place indexes strategically
    - Avoid N+1 query problem
    - Use prepared statements
 
 4. **Security**
-
    - Prevent SQL injection
    - Use parameterized queries
    - Minimize permissions

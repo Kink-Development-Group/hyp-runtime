@@ -7,7 +7,7 @@ HypnoScript provides comprehensive messaging and queuing features for runtime en
 ### Broker Configuration
 
 ```hyp
-// Message Broker-Konfiguration
+// Message broker configuration
 messaging {
     // Apache Kafka
     kafka: {
@@ -17,7 +17,7 @@ messaging {
             "kafka-3.example.com:9092"
         ]
 
-        // Producer-Konfiguration
+        // Producer configuration
         producer: {
             acks: "all"
             retries: 3
@@ -35,7 +35,7 @@ messaging {
             }
         }
 
-        // Consumer-Konfiguration
+        // Consumer configuration
         consumer: {
             group_id: "hypnoscript-consumer-group"
             auto_offset_reset: "earliest"
@@ -72,7 +72,7 @@ messaging {
             network_recovery_interval: 5000
         }
 
-        // Channel-Pooling
+        // Channel pooling
         channel_pool: {
             max_channels: 100
             channel_timeout: 30000
@@ -100,7 +100,7 @@ messaging {
             keep_alive: true
         }
 
-        // Session-Pooling
+        // Session pooling
         session_pool: {
             max_sessions: 200
             session_timeout: 60000
@@ -113,16 +113,16 @@ messaging {
         access_key_id: env.AWS_ACCESS_KEY_ID
         secret_access_key: env.AWS_SECRET_ACCESS_KEY
 
-        // SQS-Konfiguration
+        // SQS configuration
         sqs: {
             max_messages: 10
             visibility_timeout: 30
             wait_time_seconds: 20
-            message_retention_period: 1209600  // 14 Tage
+            message_retention_period: 1209600  // 14 days
             receive_message_wait_time_seconds: 20
         }
 
-        // SNS-Konfiguration
+        // SNS configuration
         sns: {
             message_structure: "json"
             message_attributes: true
@@ -136,11 +136,11 @@ messaging {
 ### Event Definitions
 
 ```hyp
-// Event-Schema-Definitionen
+// Event schema definitions
 events {
-    // Script-Events
+    // Script events
     ScriptEvents: {
-        // Script erstellt
+        // Script created
         ScriptCreated: {
             event_type: "script.created"
             version: "1.0"
@@ -161,7 +161,7 @@ events {
             }
         }
 
-        // Script aktualisiert
+        // Script updated
         ScriptUpdated: {
             event_type: "script.updated"
             version: "1.0"
@@ -230,9 +230,9 @@ events {
         }
     }
 
-    // User-Events
+    // User events
     UserEvents: {
-        // Benutzer registriert
+        // User registered
         UserRegistered: {
             event_type: "user.registered"
             version: "1.0"
@@ -252,7 +252,7 @@ events {
             }
         }
 
-        // Benutzer angemeldet
+        // User logged in
         UserLoggedIn: {
             event_type: "user.logged_in"
             version: "1.0"
@@ -273,9 +273,9 @@ events {
         }
     }
 
-    // System-Events
+    // System events
     SystemEvents: {
-        // System-Start
+        // System start
         SystemStarted: {
             event_type: "system.started"
             version: "1.0"
@@ -296,7 +296,7 @@ events {
             }
         }
 
-        // System-Fehler
+        // System error
         SystemError: {
             event_type: "system.error"
             version: "1.0"
@@ -324,14 +324,14 @@ events {
 ### Event Producer
 
 ```hyp
-// Event-Producer-Konfiguration
+// Event producer configuration
 event_producers {
-    // Script-Event-Producer
+    // Script event producer
     ScriptEventProducer: {
         broker: "kafka"
         topic_prefix: "hypnoscript.events"
 
-        // Event-Mapping
+        // Event mapping
         events: {
             "script.created": {
                 topic: "script-events"
@@ -374,7 +374,7 @@ event_producers {
             }
         }
 
-        // Event-Serialisierung
+        // Event serialization
         serialization: {
             format: "json"
             compression: "snappy"
@@ -384,7 +384,7 @@ event_producers {
             }
         }
 
-        // Event-Validierung
+        // Event validation
         validation: {
             schema_validation: true
             required_fields: ["event_type", "payload", "metadata"]
@@ -392,7 +392,7 @@ event_producers {
         }
     }
 
-    // User-Event-Producer
+    // User event producer
     UserEventProducer: {
         broker: "kafka"
         topic_prefix: "hypnoscript.user"
@@ -420,14 +420,14 @@ event_producers {
 ### Event Consumer
 
 ```hyp
-// Event-Consumer-Konfiguration
+// Event consumer configuration
 event_consumers {
-    // Script-Event-Consumer
+    // Script event consumer
     ScriptEventConsumer: {
         broker: "kafka"
         group_id: "script-event-processor"
 
-        // Topic-Subscription
+        // Topic subscription
         topics: [
             {
                 name: "script-events"
@@ -441,7 +441,7 @@ event_consumers {
             }
         ]
 
-        // Event-Handler
+        // Event handler
         handlers: {
             "script.created": {
                 handler: "ScriptCreatedHandler"
@@ -474,7 +474,7 @@ event_consumers {
             }
         }
 
-        // Consumer-Einstellungen
+        // Consumer settings
         settings: {
             max_poll_records: 100
             max_poll_interval_ms: 300000
@@ -484,7 +484,7 @@ event_consumers {
         }
     }
 
-    // Analytics-Event-Consumer
+    // Analytics event consumer
     AnalyticsEventConsumer: {
         broker: "kafka"
         group_id: "analytics-processor"
@@ -523,20 +523,20 @@ event_consumers {
 }
 ```
 
-## message patterns
+## Message Patterns
 
 ### Request-Reply Pattern
 
 ```hyp
 // Request-Reply Pattern
 request_reply {
-    // Script-Validierung
+    // Script validation
     script_validation: {
         request_topic: "script.validation.request"
         reply_topic: "script.validation.reply"
         correlation_id_header: "correlation_id"
 
-        // Request-Schema
+        // Request schema
         request_schema: {
             script_id: "uuid"
             content: "string"
@@ -544,7 +544,7 @@ request_reply {
             timeout: "integer"
         }
 
-        // Reply-Schema
+        // Reply schema
         reply_schema: {
             script_id: "uuid"
             valid: "boolean"
@@ -553,8 +553,8 @@ request_reply {
             validation_time_ms: "integer"
         }
 
-        // Timeout-Konfiguration
-        timeout: 30000  // 30 Sekunden
+        // Timeout configuration
+        timeout: 30000  // 30 seconds
         retry_policy: {
             max_retries: 3
             backoff_strategy: "exponential"
@@ -584,7 +584,7 @@ request_reply {
             execution_time_ms: "integer"
         }
 
-        timeout: 300000  // 5 Minuten
+        timeout: 300000  // 5 minutes
         retry_policy: {
             max_retries: 2
             backoff_strategy: "exponential"
@@ -609,7 +609,7 @@ pub_sub {
             partition_strategy: "hash"
             partition_key: "script_id"
 
-            // Message-Format
+            // Message format
             message_format: {
                 type: "json"
                 compression: "snappy"
@@ -646,7 +646,7 @@ pub_sub {
         ]
     }
 
-    // System-Events
+    // System events
     system_events: {
         topic: "system.events"
 
@@ -684,9 +684,9 @@ pub_sub {
 ```hyp
 // Dead Letter Queue Pattern
 dead_letter_queue {
-    // DLQ-Konfiguration
+    // DLQ configuration
     dlq_config: {
-        // Haupt-Queue
+        // Main queue
         main_queue: {
             name: "script-execution-queue"
             max_retries: 3
@@ -694,23 +694,23 @@ dead_letter_queue {
             dlq_name: "script-execution-dlq"
         }
 
-        // DLQ-Queue
+        // DLQ queue
         dlq_queue: {
             name: "script-execution-dlq"
-            message_retention: 2592000  // 30 Tage
+            message_retention: 2592000  // 30 days
             max_redelivery: 1
         }
     }
 
-    // DLQ-Handler
+    // DLQ handlers
     dlq_handlers: {
-        // Fehleranalyse
+        // Error analysis
         error_analysis: {
             handler: "DLQErrorAnalysisHandler"
             concurrency: 2
             timeout: 60000
 
-            // Fehler-Kategorisierung
+            // Error categorization
             error_categories: {
                 validation_error: {
                     action: "log_and_alert"
@@ -727,13 +727,13 @@ dead_letter_queue {
             }
         }
 
-        // Manuelle Verarbeitung
+        // Manual processing
         manual_processing: {
             handler: "DLQManualProcessingHandler"
             concurrency: 1
             timeout: 300000
 
-            // Benutzer-Interface
+            // User interface
             ui: {
                 enabled: true
                 endpoint: "/api/dlq/manual-processing"
@@ -750,13 +750,13 @@ dead_letter_queue {
 ### Message Guarantees
 
 ```hyp
-// Message-Garantien
+// Message guarantees
 message_guarantees {
     // At-Least-Once Delivery
     at_least_once: {
         enabled: true
 
-        // Producer-Garantien
+        // Producer guarantees
         producer: {
             acks: "all"
             retries: 3
@@ -764,7 +764,7 @@ message_guarantees {
             transactional: true
         }
 
-        // Consumer-Garantien
+        // Consumer guarantees
         consumer: {
             manual_commit: true
             commit_sync: true
@@ -776,7 +776,7 @@ message_guarantees {
     exactly_once: {
         enabled: true
 
-        // Idempotenz
+        // Idempotence
         idempotence: {
             enabled: true
             key_strategy: "message_id"
@@ -784,7 +784,7 @@ message_guarantees {
             ttl: 86400  // 24 Stunden
         }
 
-        // Transaktionale Verarbeitung
+        // Transactional processing
         transactional: {
             enabled: true
             isolation_level: "read_committed"
@@ -792,17 +792,17 @@ message_guarantees {
         }
     }
 
-    // Message-Ordering
+    // Message ordering
     message_ordering: {
         enabled: true
 
-        // Partition-Key-Strategie
+        // Partition key strategy
         partition_key: {
             strategy: "hash"
             fields: ["script_id", "user_id"]
         }
 
-        // Consumer-Gruppen
+        // Consumer groups
         consumer_groups: {
             single_partition_consumers: true
             max_concurrent_partitions: 1
@@ -814,11 +814,11 @@ message_guarantees {
 ### Message Monitoring
 
 ```hyp
-// Message-Monitoring
+// Message monitoring
 message_monitoring {
-    // Metriken
+    // Metrics
     metrics: {
-        // Producer-Metriken
+        // Producer metrics
         producer: {
             message_count: true
             message_size: true
@@ -827,7 +827,7 @@ message_monitoring {
             retry_count: true
         }
 
-        // Consumer-Metriken
+        // Consumer metrics
         consumer: {
             message_count: true
             processing_latency: true
@@ -836,7 +836,7 @@ message_monitoring {
             commit_latency: true
         }
 
-        // Queue-Metriken
+        // Queue metrics
         queue: {
             queue_size: true
             queue_depth: true
@@ -847,23 +847,23 @@ message_monitoring {
 
     // Alerting
     alerting: {
-        // Consumer-Lag
+        // Consumer lag
         consumer_lag: {
             threshold: 1000
             alert_level: "warning"
             escalation_time: 300  // 5 Minuten
         }
 
-        // Error-Rate
+        // Error rate
         error_rate: {
             threshold: 0.05  // 5%
             alert_level: "critical"
             window_size: 300  // 5 Minuten
         }
 
-        // Processing-Latency
+        // Processing latency
         processing_latency: {
-            threshold: 30000  // 30 Sekunden
+            threshold: 30000  // 30 seconds
             alert_level: "warning"
             percentile: 95
         }
@@ -873,13 +873,13 @@ message_monitoring {
     tracing: {
         enabled: true
 
-        // Trace-Propagation
+        // Trace propagation
         trace_propagation: {
             headers: ["x-trace-id", "x-span-id", "x-correlation-id"]
             baggage: true
         }
 
-        // Span-Creation
+        // Span creation
         span_creation: {
             producer_send: true
             consumer_receive: true
@@ -894,45 +894,41 @@ message_monitoring {
 ### Messaging Best Practices
 
 1. **Message Design**
-
-   - Immutable Events verwenden
-   - Schema-Versionierung implementieren
-   - Backward Compatibility gewährleisten
+   - Use immutable events
+   - Implement schema versioning
+   - Ensure backward compatibility
 
 2. **Reliability**
-
-   - Idempotente Consumer implementieren
-   - Dead Letter Queues konfigurieren
-   - Retry-Policies definieren
+   - Implement idempotent consumers
+   - Configure dead letter queues
+   - Define retry policies
 
 3. **Performance**
-
-   - Batch-Processing verwenden
-   - Partitioning-Strategien optimieren
-   - Consumer-Gruppen richtig konfigurieren
+   - Use batch processing
+   - Optimize partitioning strategies
+   - Configure consumer groups correctly
 
 4. **Monitoring**
-
-   - Consumer-Lag überwachen
-   - Error-Rates tracken
-   - Message-Age monitoren
+   - Monitor consumer lag
+   - Track error rates
+   - Monitor message age
 
 5. **Security**
-   - Message-Verschlüsselung aktivieren
-   - Authentication/Authorization implementieren
-   - Audit-Logging aktivieren
+   - Enable message encryption
+   - Implement authentication/authorization
+   - Enable audit logging
 
 ### Messaging Checklist
 
-- [ ] Message Broker konfiguriert
-- [ ] Event-Schemas definiert
-- [ ] Producer/Consumer implementiert
-- [ ] Message patterns ausgewählt
-- [ ] Dead Letter Queues eingerichtet
+- [ ] Message broker configured
+- [ ] Event schemas defined
+- [ ] Producer/consumer implemented
+- [ ] Message patterns selected
+- [ ] Dead letter queues set up
 - [ ] Monitoring configured
 - [ ] Security implemented
 - [ ] Performance optimized
 - [ ] Error handling defined
 - [ ] Documentation created
 
-These messaging and queuing features ensure that HypnoScript in runtime environments skalierbare, zuverlässige und event-driven Architekturen unterstützt.
+These messaging and queuing features ensure that HypnoScript in runtime environments supports scalable, reliable, event-driven architectures.

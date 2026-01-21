@@ -1,15 +1,15 @@
 # Runtime Monitoring & Observability
 
-HypnoScript bietet umfassende Monitoring- und Observability-Funktionen für Runtime-Umgebungen, einschließlich Metriken, Logging, Distributed Tracing und proaktive Alerting-Systeme.
+HypnoScript provides comprehensive monitoring and observability features for runtime environments, including metrics, logging, distributed tracing, and proactive alerting systems.
 
-## Monitoring-Architektur
+## Monitoring Architecture
 
-### Überblick
+### Overview
 
 ```hyp
-// Monitoring-Stack-Konfiguration
+// Monitoring stack configuration
 monitoring {
-    // Datensammlung
+    // Data collection
     collection: {
         metrics: "prometheus"
         logs: "fluentd"
@@ -17,7 +17,7 @@ monitoring {
         events: "kafka"
     }
 
-    // Speicherung
+    // Storage
     storage: {
         metrics: "influxdb"
         logs: "elasticsearch"
@@ -25,7 +25,7 @@ monitoring {
         events: "kafka"
     }
 
-    // Visualisierung
+    // Visualization
     visualization: {
         dashboards: "grafana"
         alerting: "alertmanager"
@@ -34,14 +34,14 @@ monitoring {
 }
 ```
 
-## Metriken
+## Metrics
 
-### System-Metriken
+### System Metrics
 
 ```hyp
-// System-Monitoring
+// System monitoring
 system_metrics {
-    // CPU-Metriken
+    // CPU metrics
     cpu: {
         usage_percent: true
         load_average: true
@@ -49,7 +49,7 @@ system_metrics {
         interrupts: true
     }
 
-    // Memory-Metriken
+    // Memory metrics
     memory: {
         usage_bytes: true
         available_bytes: true
@@ -57,7 +57,7 @@ system_metrics {
         page_faults: true
     }
 
-    // Disk-Metriken
+    // Disk metrics
     disk: {
         usage_percent: true
         io_operations: true
@@ -65,7 +65,7 @@ system_metrics {
         latency: true
     }
 
-    // Network-Metriken
+    // Network metrics
     network: {
         bytes_sent: true
         bytes_received: true
@@ -77,12 +77,12 @@ system_metrics {
 }
 ```
 
-### Anwendungs-Metriken
+### Application Metrics
 
 ```hyp
-// Anwendungs-Monitoring
+// Application monitoring
 application_metrics {
-    // Performance-Metriken
+    // Performance metrics
     performance: {
         response_time: {
             p50: true
@@ -98,7 +98,7 @@ application_metrics {
         availability: true
     }
 
-    // Business-Metriken
+    // Business metrics
     business: {
         active_users: true
         script_executions: true
@@ -106,7 +106,7 @@ application_metrics {
         revenue_impact: true
     }
 
-    // Custom-Metriken
+    // Custom metrics
     custom: {
         script_complexity: true
         execution_duration: true
@@ -116,18 +116,18 @@ application_metrics {
 }
 ```
 
-### Metriken-Konfiguration
+### Metrics Configuration
 
 ```hyp
-// Metriken-Sammlung
+// Metrics collection
 metrics_collection {
-    // Prometheus-Konfiguration
+    // Prometheus configuration
     prometheus: {
         scrape_interval: "15s"
         evaluation_interval: "15s"
         retention_days: 30
 
-        // Service Discovery
+        // Service discovery
         service_discovery: {
             kubernetes: true
             consul: true
@@ -147,7 +147,7 @@ metrics_collection {
         ]
     }
 
-    // Custom-Metriken
+    // Custom metrics
     custom_metrics: {
         script_execution_time: {
             type: "histogram"
@@ -170,25 +170,25 @@ metrics_collection {
 
 ## Logging
 
-### Strukturiertes Logging
+### Structured Logging
 
 ```hyp
-// Logging-Konfiguration
+// Logging configuration
 logging {
-    // Log-Levels
+    // Log levels
     levels: {
         development: "debug"
         staging: "info"
         production: "warn"
     }
 
-    // Log-Format
+    // Log format
     format: {
         type: "json"
         timestamp: "iso8601"
         include_metadata: true
 
-        // Standard-Felder
+        // Standard fields
         standard_fields: [
             "timestamp",
             "level",
@@ -201,7 +201,7 @@ logging {
         ]
     }
 
-    // Log-Rotation
+    // Log rotation
     rotation: {
         max_size: "100MB"
         max_files: 10
@@ -211,12 +211,12 @@ logging {
 }
 ```
 
-### Log-Aggregation
+### Log Aggregation
 
 ```hyp
-// Log-Aggregation
+// Log aggregation
 log_aggregation {
-    // Fluentd-Konfiguration
+    // Fluentd configuration
     fluentd: {
         input: {
             type: "tail"
@@ -266,12 +266,12 @@ log_aggregation {
 
 ## Distributed Tracing
 
-### Tracing-Konfiguration
+### Tracing Configuration
 
 ```hyp
 // Distributed Tracing
 tracing {
-    // Jaeger-Konfiguration
+    // Jaeger configuration
     jaeger: {
         endpoint: "http://jaeger.example.com:14268/api/traces"
         service_name: "hypnoscript"
@@ -280,7 +280,7 @@ tracing {
         // Sampling
         sampling: {
             type: "probabilistic"
-            param: 0.1  // 10% der Traces
+            param: 0.1  // 10% of traces
         }
 
         // Tags
@@ -291,9 +291,9 @@ tracing {
         }
     }
 
-    // Trace-Konfiguration
+    // Trace configuration
     trace_config: {
-        // Automatische Instrumentierung
+        // Automatic instrumentation
         auto_instrumentation: {
             http: true
             database: true
@@ -301,14 +301,14 @@ tracing {
             messaging: true
         }
 
-        // Custom Spans
+        // Custom spans
         custom_spans: {
             script_execution: true
             data_processing: true
             external_api_call: true
         }
 
-        // Trace-Propagation
+        // Trace propagation
         propagation: {
             headers: ["x-trace-id", "x-span-id"]
             baggage: true
@@ -317,12 +317,12 @@ tracing {
 }
 ```
 
-### Trace-Analyse
+### Trace Analysis
 
 ```hyp
-// Trace-Analyse
+// Trace analysis
 trace_analysis {
-    // Performance-Analyse
+    // Performance analysis
     performance: {
         slow_query_detection: {
             threshold: "1s"
@@ -333,14 +333,14 @@ trace_analysis {
         dependency_mapping: true
     }
 
-    // Error-Analyse
+    // Error analysis
     error_analysis: {
         error_tracking: true
         error_grouping: true
         error_trends: true
     }
 
-    // Business-Traces
+    // Business traces
     business_traces: {
         user_journey_tracking: true
         conversion_funnel: true
@@ -351,12 +351,12 @@ trace_analysis {
 
 ## Alerting
 
-### Alert-Konfiguration
+### Alert Configuration
 
 ```hyp
-// Alerting-System
+// Alerting system
 alerting {
-    // Alertmanager-Konfiguration
+    // Alertmanager configuration
     alertmanager: {
         global: {
             smtp_smarthost: "smtp.example.com:587"
@@ -423,12 +423,12 @@ alerting {
 }
 ```
 
-### Alert-Regeln
+### Alert Rules
 
 ```hyp
 // Prometheus Alert Rules
 alert_rules {
-    // System-Alerts
+    // System alerts
     system_alerts: {
         high_cpu_usage: {
             expr: '100 - (avg by(instance) (irate(node_cpu_seconds_total{mode="idle"}[5m])) * 100) > 80'
@@ -470,7 +470,7 @@ alert_rules {
         }
     }
 
-    // Anwendungs-Alerts
+    // Application alerts
     application_alerts: {
         high_error_rate: {
             expr: 'rate(hypnoscript_errors_total[5m]) / rate(hypnoscript_requests_total[5m]) * 100 > 5'
@@ -516,12 +516,12 @@ alert_rules {
 
 ## Dashboards
 
-### Grafana-Dashboards
+### Grafana Dashboards
 
 ```hyp
-// Dashboard-Konfiguration
+// Dashboard configuration
 dashboards {
-    // System-Dashboard
+    // System dashboard
     system_dashboard: {
         title: "HypnoScript System Overview"
         refresh: "30s"
@@ -568,7 +568,7 @@ dashboards {
         ]
     }
 
-    // Anwendungs-Dashboard
+    // Application dashboard
     application_dashboard: {
         title: "HypnoScript Application Metrics"
         refresh: "15s"
@@ -613,7 +613,7 @@ dashboards {
         ]
     }
 
-    // Business-Dashboard
+    // Business dashboard
     business_dashboard: {
         title: "HypnoScript Business Metrics"
         refresh: "1m"
@@ -653,30 +653,30 @@ dashboards {
 }
 ```
 
-## Performance-Monitoring
+## Performance Monitoring
 
 ### APM (Application Performance Monitoring)
 
 ```hyp
-// APM-Konfiguration
+// APM configuration
 apm {
-    // Performance-Tracking
+    // Performance tracking
     performance_tracking: {
-        // Method-Level-Tracking
+        // Method-level tracking
         method_tracking: {
             enabled: true
             threshold: "100ms"
             include_arguments: false
         }
 
-        // Database-Tracking
+        // Database tracking
         database_tracking: {
             enabled: true
             slow_query_threshold: "1s"
             include_sql: false
         }
 
-        // External-Call-Tracking
+        // External call tracking
         external_call_tracking: {
             enabled: true
             timeout_threshold: "5s"
@@ -684,7 +684,7 @@ apm {
         }
     }
 
-    // Resource-Monitoring
+    // Resource monitoring
     resource_monitoring: {
         memory_leak_detection: true
         gc_monitoring: true
@@ -692,7 +692,7 @@ apm {
         connection_pool_monitoring: true
     }
 
-    // Business-Transaction-Monitoring
+    // Business transaction monitoring
     business_transaction_monitoring: {
         user_journey_tracking: true
         conversion_funnel_monitoring: true
@@ -703,49 +703,45 @@ apm {
 
 ## Best Practices
 
-### Monitoring-Best-Practices
+### Monitoring Best Practices
 
 1. **Golden Signals**
-
    - Latency (Response Time)
    - Traffic (Request Rate)
    - Errors (Error Rate)
    - Saturation (Resource Usage)
 
-2. **Alerting-Strategien**
+2. **Alerting Strategies**
+   - Few but meaningful alerts
+   - Define different severity levels
+   - Set up automatic escalation
 
-   - Wenige, aber aussagekräftige Alerts
-   - Verschiedene Schweregrade definieren
-   - Automatische Eskalation einrichten
+3. **Dashboard Design**
+   - Place key metrics prominently
+   - Use consistent color schemes
+   - Add contextual information
 
-3. **Dashboard-Design**
+4. **Logging Strategies**
+   - Use structured logging
+   - Mask sensitive data
+   - Configure log rotation
 
-   - Wichtige Metriken prominent platzieren
-   - Konsistente Farbgebung verwenden
-   - Kontextuelle Informationen hinzufügen
+5. **Tracing Strategies**
+   - Implement distributed tracing
+   - Use sampling for performance
+   - Add business context
 
-4. **Logging-Strategien**
+### Monitoring Checklist
 
-   - Strukturiertes Logging verwenden
-   - Sensitive Daten maskieren
-   - Log-Rotation konfigurieren
-
-5. **Tracing-Strategien**
-   - Distributed Tracing implementieren
-   - Sampling für Performance
-   - Business-Kontext hinzufügen
-
-### Monitoring-Checkliste
-
-- [ ] System-Metriken konfiguriert
-- [ ] Anwendungs-Metriken implementiert
-- [ ] Logging-System eingerichtet
-- [ ] Distributed Tracing aktiviert
-- [ ] Alerting-Regeln definiert
-- [ ] Dashboards erstellt
+- [ ] System metrics configured
+- [ ] Application metrics implemented
+- [ ] Logging system set up
+- [ ] Distributed tracing enabled
+- [ ] Alerting rules defined
+- [ ] Dashboards created
 - [ ] Performance-Monitoring configured
-- [ ] Business-Metriken definiert
-- [ ] Monitoring-Dokumentation erstellt
-- [ ] Team-Schulungen durchgeführt
+- [ ] Business metrics defined
+- [ ] Monitoring documentation created
+- [ ] Team training completed
 
-Diese Monitoring- und Observability-Funktionen stellen sicher, dass HypnoScript in Runtime-Umgebungen vollständig überwacht und proaktiv auf Probleme reagiert werden kann.
+These monitoring and observability features ensure that HypnoScript in runtime environments is fully monitored and can respond proactively to issues.

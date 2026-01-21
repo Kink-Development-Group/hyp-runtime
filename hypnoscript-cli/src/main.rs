@@ -419,11 +419,11 @@ fn main() -> Result<()> {
                 Err(e) => {
                     println!("⚠️  {}", e);
                     println!(
-                        "\nHinweis: Native Code-Generierung wird in einer zukünftigen Version implementiert."
+                        "\nNote: Native code generation will be implemented in a future version."
                     );
-                    println!("Verwenden Sie stattdessen:");
-                    println!("  - 'hypnoscript run {}' für Interpretation", input);
-                    println!("  - 'hypnoscript compile-wasm {}' für WebAssembly", input);
+                    println!("Use instead:");
+                    println!("  - 'hypnoscript run {}' for interpretation", input);
+                    println!("  - 'hypnoscript compile-wasm {}' for WebAssembly", input);
                 }
             }
         }
@@ -475,7 +475,7 @@ fn main() -> Result<()> {
             let output_file = output.unwrap_or_else(|| input.replace(".hyp", ".opt.hyp"));
             println!("✅ Optimized AST available (output generation not yet implemented)");
             println!("   Would write to: {}", output_file);
-            println!("\nOptimierter AST:\n{:#?}", optimized_ast);
+            println!("\nOptimized AST:\n{:#?}", optimized_ast);
         }
 
         Commands::SelfUpdate {
