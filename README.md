@@ -357,7 +357,7 @@ cargo clippy --all-targets --all-features
 
 `ToInt`, `ToDouble`, `ToString`, `ToBoolean`
 
-A complete list is available via `hypnoscript-cli builtins` and in the Docusaurus documentation.
+A complete list is available via `hypnoscript builtins` and in the Docusaurus documentation.
 
 ---
 

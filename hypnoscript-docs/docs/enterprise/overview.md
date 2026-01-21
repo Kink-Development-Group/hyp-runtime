@@ -1,8 +1,8 @@
-# Runtime-Documentation Übersicht
+# Runtime Documentation Overview
 
-Diese Übersicht bietet einen vollständigen Überblick über die Runtime-Documentation von HypnoScript, einschließlich aller verfügbaren Funktionen, Best Practices und Implementation Guidelines.
+This overview provides a complete overview of HypnoScript's runtime documentation, including all available features, best practices, and implementation guidelines.
 
-## Documentationsstruktur
+## Documentation Structure
 
 ### 📋 Runtime Features
 
@@ -331,7 +331,7 @@ Diese Übersicht bietet einen vollständigen Überblick über die Runtime-Docume
 
 #### Documentation
 
-- **Technical Documentation:** Technische Documentation
+- **Technical Documentation:** Technical documentation
 - **User Guides:** User guides
 - **API Documentation:** API-Documentation
 - **Troubleshooting Guides:** Troubleshooting
@@ -354,4 +354,4 @@ Die Runtime-Documentation von HypnoScript bietet eine umfassende Anleitung für 
 - **API-Management:** Secure and scalable APIs
 - **Backup & Recovery:** Reliable data backup and recovery
 
-Diese Documentation stellt sicher, dass HypnoScript in Runtime-Umgebungen den höchsten Standards für Sicherheit, Performance, Zuverlässigkeit und Compliance entspricht.
+This documentation ensures that HypnoScript meets the highest standards for security, performance, reliability, and compliance in runtime environments.

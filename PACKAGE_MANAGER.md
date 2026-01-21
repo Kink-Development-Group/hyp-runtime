@@ -121,19 +121,19 @@ The `trance.json` file follows the HypnoScript theming with hypnotic terminology
 
 ### Field Descriptions
 
-| Field | Description | npm Equivalent |
-|-------|-------------|----------------|
-| `ritualName` | Package name | `name` |
-| `mantra` | Package version (semver) | `version` |
-| `intent` | Project type (cli, library) | N/A |
-| `induction` | Package metadata | Combined from multiple fields |
-| `hypnotists` | Contributors/authors | `contributors` |
-| `auras` | Links and resources | `repository`, `homepage`, etc. |
-| `suggestions` | Runnable scripts | `scripts` |
-| `anchors` | Production dependencies | `dependencies` |
-| `deepAnchors` | Development dependencies | `devDependencies` |
-| `channels` | Binary/CLI configuration | `bin` |
-| `triggers` | Lifecycle hooks | `scripts` (lifecycle) |
+| Field         | Description                 | npm Equivalent                 |
+| ------------- | --------------------------- | ------------------------------ |
+| `ritualName`  | Package name                | `name`                         |
+| `mantra`      | Package version (semver)    | `version`                      |
+| `intent`      | Project type (cli, library) | N/A                            |
+| `induction`   | Package metadata            | Combined from multiple fields  |
+| `hypnotists`  | Contributors/authors        | `contributors`                 |
+| `auras`       | Links and resources         | `repository`, `homepage`, etc. |
+| `suggestions` | Runnable scripts            | `scripts`                      |
+| `anchors`     | Production dependencies     | `dependencies`                 |
+| `deepAnchors` | Development dependencies    | `devDependencies`              |
+| `channels`    | Binary/CLI configuration    | `bin`                          |
+| `triggers`    | Lifecycle hooks             | `scripts` (lifecycle)          |
 
 ## The trance-lock.json Lock File
 
@@ -164,6 +164,7 @@ hypnoscript init --template cli
 ```
 
 Creates a project with:
+
 - Binary configuration in `channels`
 - Default scripts for running and testing
 - CLI-specific metadata
@@ -177,6 +178,7 @@ hypnoscript init --template library
 ```
 
 Creates a project with:
+
 - Library-focused structure
 - Build and test scripts
 - Entry point at `src/lib.hyp`
@@ -222,5 +224,7 @@ The package manager is part of the HypnoScript CLI. To contribute:
 4. Submit a pull request
 
 ## License
+
+MIT License - Same as HypnoScript Runtime
 
 MIT License - Same as HypnoScript Runtime
