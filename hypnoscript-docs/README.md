@@ -1,185 +1,185 @@
-# HypnoScript Dokumentation
+# HypnoScript Documentation
 
-Dies ist die vollständige Dokumentation für HypnoScript - Die hypnotische Programmiersprache. Die Dokumentation wird mit [VitePress](https://vitepress.dev/) erstellt und automatisch zu GitHub Pages deployed.
+This is the complete documentation for HypnoScript — the hypnotic programming language. The documentation is built with [VitePress](https://vitepress.dev/) and is automatically deployed to GitHub Pages.
 
-## 🚀 Schnellstart
+## 🚀 Quick Start
 
-### Voraussetzungen
+### Prerequisites
 
-- Node.js 18.0 oder höher
-- npm, yarn oder pnpm
+- Node.js 18.0 or higher
+- npm, yarn, or pnpm
 
 ### Installation
 
 ```bash
-# Dependencies installieren
+# Install dependencies
 npm install
 
-# Entwicklungsserver starten
+# Start the dev server
 npm run dev
 
-# Dokumentation bauen
+# Build documentation
 npm run build
 
-# Vorschau der gebauten Dokumentation
+# Preview the built documentation
 npm run preview
 ```
 
-## 📁 Projektstruktur
+## 📁 Project Structure
 
 ```bash
 HypnoScript.Dokumentation/
-├── docs/                    # Dokumentationsseiten
-│   ├── .vitepress/         # VitePress-Konfiguration
-│   │   ├── config.mts      # Hauptkonfiguration
-│   │   └── theme/          # Custom Theme
-│   │       ├── index.ts    # Theme-Einstiegspunkt
+├── docs/                    # Documentation pages
+│   ├── .vitepress/         # VitePress configuration
+│   │   ├── config.mts      # Main configuration
+│   │   └── theme/          # Custom theme
+│   │       ├── index.ts    # Theme entry point
 │   │       └── style.css   # Custom CSS
 │   ├── index.md            # Homepage
-│   ├── intro.md            # Einführung
-│   ├── getting-started/    # Erste Schritte
-│   ├── language-reference/ # Sprachreferenz
-│   ├── builtins/           # Builtin-Funktionen
+│   ├── intro.md            # Introduction
+│   ├── getting-started/    # Getting started
+│   ├── language-reference/ # Language reference
+│   ├── builtins/           # Builtin functions
 │   ├── cli/                # CLI & Tools
-│   ├── examples/           # Beispiele
-│   ├── development/        # Entwicklung
-│   └── reference/          # Referenz
-├── static/                 # Statische Dateien
-│   └── img/                # Bilder
+│   ├── examples/           # Examples
+│   ├── development/        # Development
+│   └── reference/          # Reference
+├── static/                 # Static files
+│   └── img/                # Images
 └── package.json            # Dependencies
 ```
 
-## 🛠️ Entwicklung
+## 🛠️ Development
 
-### Neue Seite hinzufügen
+### Add a New Page
 
-1. Erstelle eine neue `.md` Datei im entsprechenden Verzeichnis unter `docs/`
-2. Füge Frontmatter hinzu (optional):
+1. Create a new `.md` file in the appropriate directory under `docs/`
+2. Add frontmatter (optional):
 
    ```markdown
    ---
-   title: Seitentitel
-   description: Beschreibung
+   title: Page Title
+   description: Description
    ---
    ```
 
-3. Aktualisiere `docs/.vitepress/config.mts` um die Seite in die Sidebar einzufügen
+3. Update `docs/.vitepress/config.mts` to include the page in the sidebar
 
-### Styling anpassen
+### Customize Styling
 
 - Custom CSS: `docs/.vitepress/theme/style.css`
-- Theme-Komponenten: `docs/.vitepress/theme/index.ts`
+- Theme components: `docs/.vitepress/theme/index.ts`
 
-### Lokale Entwicklung
+### Local Development
 
 ```bash
 npm run dev
 ```
 
-Öffne [http://localhost:5173](http://localhost:5173) im Browser.
+Open [http://localhost:5173](http://localhost:5173) in your browser.
 
 ## 🚀 Deployment
 
-Die Dokumentation wird automatisch zu GitHub Pages deployed über GitHub Actions:
+The documentation is automatically deployed to GitHub Pages via GitHub Actions:
 
-- **Trigger**: Push zu `main` Branch mit Änderungen in `HypnoScript.Dokumentation/`
+- **Trigger**: Push to `main` with changes in `HypnoScript.Dokumentation/`
 - **Workflow**: `.github/workflows/deploy-docs.yml`
 - **URL**: <https://Kink-Development-Group.github.io/hyp-runtime/>
 
-### Manuelles Deployment
+### Manual Deployment
 
 ```bash
 npm run build
-# Die gebaute Dokumentation befindet sich in docs/.vitepress/dist/
+# The built documentation is located in docs/.vitepress/dist/
 ```
 
-## 📚 Dokumentationsstruktur
+## 📚 Documentation Structure
 
-### Erste Schritte
+### Getting Started
 
-- Installation und Setup
-- Schnellstart-Guide
+- Installation and setup
+- Quick start guide
 - Hello World
-- CLI-Grundlagen
+- CLI basics
 
-### Sprachreferenz
+### Language Reference
 
 - Syntax
-- Variablen und Datentypen
-- Operatoren
-- Kontrollstrukturen
-- Funktionen
-- Sessions und Tranceify
-- Arrays und Records
-- Imports und Assertions
+- Variables and data types
+- Operators
+- Control structures
+- Functions
+- Sessions and Tranceify
+- Arrays and records
+- Imports and assertions
 
-### Builtin-Funktionen
+### Builtin Functions
 
-- Übersicht aller 200+ Funktionen
-- Array-Funktionen
-- String-Funktionen
-- Mathematische Funktionen
-- Utility-Funktionen
-- System-Funktionen
-- Zeit- und Datumsfunktionen
-- Statistik-Funktionen
-- Hashing/Encoding
-- Hypnotische Spezialfunktionen
-- Dictionary-Funktionen
-- Datei-Funktionen
-- Netzwerk-Funktionen
-- Validierung-Funktionen
-- Performance-Funktionen
+- Overview of all 200+ functions
+- Array functions
+- String functions
+- Math functions
+- Utility functions
+- System functions
+- Time and date functions
+- Statistics functions
+- Hashing/encoding
+- Hypnotic specialty functions
+- Dictionary functions
+- File functions
+- Network functions
+- Validation functions
+- Performance functions
 
 ### CLI & Tools
 
-- CLI-Übersicht
-- Kommandos
-- Konfiguration
+- CLI overview
+- Commands
+- Configuration
 - Testing
 - Debugging
-- Runtime-Features
+- Runtime features
 
-### Beispiele
+### Examples
 
-- Grundlegende Beispiele
-- Array-Beispiele
-- String-Beispiele
-- Mathematische Beispiele
-- Datei-Beispiele
-- Hypnotische Beispiele
-- Erweiterte Beispiele
+- Basic examples
+- Array examples
+- String examples
+- Math examples
+- File examples
+- Hypnotic examples
+- Advanced examples
 
-### Entwicklung
+### Development
 
-- Architektur
+- Architecture
 - Contributing
 - Building
 - Testing
 - Debugging
 - Extending
 
-## 🔁 Installer-Synchronisation
+## 🔁 Installer Synchronization
 
-Der neue einheitliche Installer (`install.sh`) lebt im Repository-Wurzelverzeichnis und wird automatisch in die Dokumentation gespiegelt. Das Script `scripts/sync-installer.mjs` kopiert ihn vor jedem `dev`, `build` oder `preview`-Lauf nach `static/install.sh` (siehe `package.json`-`pre*`-Hooks). Dadurch steht im veröffentlichen Handbuch exakt derselbe Installer zum Download bereit, der auch in den Release-Archiven enthalten ist.
+The unified installer (`install.sh`) lives in the repository root and is automatically mirrored into the documentation. The `scripts/sync-installer.mjs` script copies it to `static/install.sh` before every `dev`, `build`, or `preview` run (see the `package.json` `pre*` hooks). This ensures the published handbook provides the exact same installer that ships inside release archives.
 
-Manueller Lauf – z.B. nach Änderungen am Installer ohne Dokumentations-Build:
+Manual run — for example, after changes to the installer without a docs build:
 
 ```bash
 npm run sync-installer
 ```
 
-Alternativ kannst du das Script direkt ausführen:
+Alternatively, run the script directly:
 
 ```bash
 node ./scripts/sync-installer.mjs
 ```
 
-Die GitHub-Actions, die Releases bauen, führen denselben Schritt aus und legen das Skript zusätzlich in den Release-Archiven (`share/hypnoscript/install.sh`) ab.
+The GitHub Actions that build releases run the same step and also place the script into the release archives (`share/hypnoscript/install.sh`).
 
-### Referenz
+### Reference
 
-- Grammatik
+- Grammar
 - AST
 - Interpreter
 - Compiler
@@ -187,33 +187,33 @@ Die GitHub-Actions, die Releases bauen, führen denselben Schritt aus und legen 
 - API
 - Changelog
 
-## 🌐 Internationalisierung
+## 🌐 Internationalization
 
-Die Dokumentation unterstützt mehrere Sprachen:
+The documentation supports multiple languages:
 
-- **Deutsch** (Standard)
-- **Englisch**
+- **German** (default)
+- **English**
 
-### Neue Sprache hinzufügen
+### Add a New Language
 
-1. Aktualisiere `docusaurus.config.js`:
+1. Update `docusaurus.config.js`:
 
    ```javascript
    i18n: {
      defaultLocale: 'de',
-     locales: ['de', 'en', 'neue-sprache'],
+     locales: ['de', 'en', 'new-language'],
    },
    ```
 
-2. Erstelle Übersetzungen:
+2. Generate translations:
 
    ```bash
    npm run write-translations
    ```
 
-## 🔍 Suchfunktion
+## 🔍 Search
 
-Die Dokumentation verwendet Algolia für die Suchfunktion. Konfiguration in `docusaurus.config.js`:
+The documentation uses Algolia for search. Configure it in `docusaurus.config.js`:
 
 ```javascript
 algolia: {
@@ -225,27 +225,27 @@ algolia: {
 
 ## 📝 Blog
 
-Blog-Posts können unter `blog/` hinzugefügt werden. Jede `.md` Datei wird automatisch als Blog-Post erkannt.
+Blog posts can be added under `blog/`. Each `.md` file is automatically treated as a blog post.
 
 ## 🤝 Contributing
 
-1. Fork das Repository
-2. Erstelle einen Feature-Branch
-3. Mache deine Änderungen
-4. Teste lokal mit `npm start`
-5. Erstelle einen Pull Request
+1. Fork the repository
+2. Create a feature branch
+3. Make your changes
+4. Test locally with `npm start`
+5. Open a pull request
 
-## 📄 Lizenz
+## 📄 License
 
-MIT License - siehe [LICENSE](../../LICENSE) für Details.
+MIT License — see [LICENSE](../../LICENSE) for details.
 
 ## 🔗 Links
 
-- **Live-Dokumentation**: <https://Kink-Development-Group.github.io/hyp-runtime/>
-- **GitHub Repository**: <https://github.com/Kink-Development-Group/hyp-runtime>
+- **Live documentation**: <https://Kink-Development-Group.github.io/hyp-runtime/>
+- **GitHub repository**: <https://github.com/Kink-Development-Group/hyp-runtime>
 - **Docusaurus**: <https://docusaurus.io/>
 - **Issues**: <https://github.com/Kink-Development-Group/hyp-runtime/issues>
 
 ---
 
-**Bereit, die hypnotische Welt der Programmierung zu dokumentieren?** 🧠✨
+**Ready to document the hypnotic world of programming?** 🧠✨

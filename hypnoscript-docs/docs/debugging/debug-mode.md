@@ -1,152 +1,152 @@
 # Debug Mode
 
-Der Debug-Modus bietet eine interaktive REPL-Umgebung für das Debugging von HypnoScript-Programmen mit Breakpoints, Schritt-für-Schritt-Ausführung und Variablen-Inspektion.
+Debug mode provides an interactive REPL environment for debugging HypnoScript programs with breakpoints, step-by-step execution, and variable inspection.
 
-## Debug-Modus aktivieren
+## Enable Debug Mode
 
-Starten Sie ein Skript mit dem `--debug` Flag:
+Start a script with the `--debug` flag:
 
 ```bash
 hypnoscript exec --debug session.hyp
 ```
 
-## CLI Debug-Optionen
+## CLI Debug Options
 
-| Option                  | Beschreibung                                                           |
-| ----------------------- | ---------------------------------------------------------------------- |
-| `--debug`               | Aktiviert den interaktiven Debug-Modus                                 |
-| `--breakpoints <LINES>` | Setzt initiale Breakpoints auf den angegebenen Zeilen (z.B. `5,10,15`) |
-| `--watch <VARS>`        | Überwacht Variablen während der Ausführung (z.B. `counter,result`)     |
-| `--trace-file <FILE>`   | Speichert Debug-Trace in eine Datei                                    |
-| `--verbose`             | Aktiviert ausführliche Ausgabe                                         |
+| Option                  | Description                                                      |
+| ----------------------- | ---------------------------------------------------------------- |
+| `--debug`               | Enables interactive debug mode                                   |
+| `--breakpoints <LINES>` | Sets initial breakpoints at the specified lines (e.g. `5,10,15`) |
+| `--watch <VARS>`        | Watches variables during execution (e.g. `counter,result`)       |
+| `--trace-file <FILE>`   | Writes a debug trace to a file                                   |
+| `--verbose`             | Enables verbose output                                           |
 
-### Beispiel mit Optionen
+### Example with Options
 
 ```bash
-# Debug mit initialen Breakpoints und Watch-Expressions
+# Debug with initial breakpoints and watch expressions
 hypnoscript exec --debug --breakpoints 5,12,25 --watch x,y,result myscript.hyp
 ```
 
-## Debug-Befehle
+## Debug Commands
 
-Im interaktiven Debug-Modus stehen folgende Befehle zur Verfügung:
+In interactive debug mode, the following commands are available:
 
-### Ausführungssteuerung
+### Execution Control
 
-| Befehl     | Alias | Beschreibung                                              |
-| ---------- | ----- | --------------------------------------------------------- |
-| `continue` | `c`   | Setzt die Ausführung bis zum nächsten Breakpoint fort     |
-| `step`     | `s`   | Führt eine Zeile aus und stoppt (step into)               |
-| `next`     | `n`   | Führt eine Zeile aus, springt über Funktionen (step over) |
-| `finish`   | `f`   | Läuft bis zum Ende der aktuellen Funktion (step out)      |
-| `run`      | `r`   | Startet die Ausführung von Anfang an                      |
+| Command    | Alias | Description                                            |
+| ---------- | ----- | ------------------------------------------------------ |
+| `continue` | `c`   | Continues execution until the next breakpoint          |
+| `step`     | `s`   | Executes one line and stops (step into)                |
+| `next`     | `n`   | Executes one line, skipping over functions (step over) |
+| `finish`   | `f`   | Runs until the end of the current function (step out)  |
+| `run`      | `r`   | Starts execution from the beginning                    |
 
-### Breakpoint-Verwaltung
+### Breakpoint Management
 
-| Befehl          | Alias      | Beschreibung                                      |
-| --------------- | ---------- | ------------------------------------------------- |
-| `break <line>`  | `b <line>` | Setzt einen Breakpoint auf der angegebenen Zeile  |
-| `delete <line>` | `d <line>` | Entfernt den Breakpoint auf der angegebenen Zeile |
-| `breakpoints`   | `bl`       | Zeigt alle aktiven Breakpoints an                 |
-| `clear`         |            | Entfernt alle Breakpoints                         |
+| Command         | Alias      | Description                                  |
+| --------------- | ---------- | -------------------------------------------- |
+| `break <line>`  | `b <line>` | Sets a breakpoint at the specified line      |
+| `delete <line>` | `d <line>` | Removes the breakpoint at the specified line |
+| `breakpoints`   | `bl`       | Shows all active breakpoints                 |
+| `clear`         |            | Removes all breakpoints                      |
 
-### Variablen-Inspektion
+### Variable Inspection
 
-| Befehl         | Alias      | Beschreibung                     |
-| -------------- | ---------- | -------------------------------- |
-| `locals`       | `l`        | Zeigt alle lokalen Variablen an  |
-| `globals`      | `g`        | Zeigt alle globalen Variablen an |
-| `print <var>`  | `p <var>`  | Zeigt den Wert einer Variable an |
-| `watch <expr>` | `w <expr>` | Fügt eine Watch-Expression hinzu |
-| `unwatch <id>` |            | Entfernt eine Watch-Expression   |
-| `watches`      |            | Zeigt alle Watch-Expressions an  |
+| Command        | Alias      | Description                   |
+| -------------- | ---------- | ----------------------------- |
+| `locals`       | `l`        | Shows all local variables     |
+| `globals`      | `g`        | Shows all global variables    |
+| `print <var>`  | `p <var>`  | Shows the value of a variable |
+| `watch <expr>` | `w <expr>` | Adds a watch expression       |
+| `unwatch <id>` |            | Removes a watch expression    |
+| `watches`      |            | Shows all watch expressions   |
 
-### Quellcode-Anzeige
+### Source View
 
-| Befehl               | Alias | Beschreibung                             |
+| Command              | Alias | Description                              |
 | -------------------- | ----- | ---------------------------------------- |
-| `list`               |       | Zeigt Quellcode um die aktuelle Position |
-| `list <start> <end>` |       | Zeigt Quellcode von Zeile start bis end  |
-| `where`              | `bt`  | Zeigt den aktuellen Call-Stack           |
+| `list`               |       | Shows source around the current position |
+| `list <start> <end>` |       | Shows source from line start to end      |
+| `where`              | `bt`  | Shows the current call stack             |
 
-### Sonstige Befehle
+### Other Commands
 
-| Befehl | Beschreibung              |
-| ------ | ------------------------- |
-| `help` | Zeigt die Hilfe an        |
-| `quit` | Beendet die Debug-Sitzung |
+| Command | Description            |
+| ------- | ---------------------- |
+| `help`  | Shows the help         |
+| `quit`  | Ends the debug session |
 
-## Beispiel Debug-Sitzung
+## Example Debug Session
 
 ```bash
 $ hypnoscript exec --debug examples/calculator.hyp
 
 HypnoScript Debugger v1.2.0
-Typ 'help' für verfügbare Befehle.
+Type 'help' for available commands.
 
 (hypno-debug) b 10
-Breakpoint gesetzt auf Zeile 10
+Breakpoint set at line 10
 
 (hypno-debug) b 25
-Breakpoint gesetzt auf Zeile 25
+Breakpoint set at line 25
 
 (hypno-debug) run
-Starte Ausführung...
+Starting execution...
 
--> Breakpoint erreicht auf Zeile 10
+-> Breakpoint hit at line 10
    10 |   induce result = calculate(a, b);
 
 (hypno-debug) locals
-Lokale Variablen:
+Local variables:
   a: Int = 42
   b: Int = 17
 
 (hypno-debug) step
-   11 |   observe("Ergebnis: " + result);
+   11 |   observe("Result: " + result);
 
 (hypno-debug) print result
 result = 59
 
 (hypno-debug) continue
-Ergebnis: 59
+Result: 59
 
--> Breakpoint erreicht auf Zeile 25
+-> Breakpoint hit at line 25
 
 (hypno-debug) where
-Call Stack:
+Call stack:
   #0: main() at calculator.hyp:25
   #1: <entry> at calculator.hyp:1
 
 (hypno-debug) continue
-Programm beendet.
+Program finished.
 
 (hypno-debug) quit
 ```
 
-## Quellcode-Kontext
+## Source Context
 
-Wenn die Ausführung pausiert, zeigt der Debugger den Quellcode-Kontext mit der aktuellen Position an:
+When execution is paused, the debugger shows source context with the current position:
 
 ```hyp
     8 |   induce a = 42;
     9 |   induce b = 17;
  -> 10 |   induce result = calculate(a, b);
-   11 |   observe("Ergebnis: " + result);
+   11 |   observe("Result: " + result);
    12 | }
 ```
 
-Der Pfeil `->` markiert die aktuelle Ausführungsposition.
+The arrow `->` marks the current execution position.
 
-## Watch-Expressions
+## Watch Expressions
 
-Watch-Expressions werden automatisch bei jedem Stopp ausgewertet:
+Watch expressions are evaluated automatically on each stop:
 
 ```bash
 (hypno-debug) watch counter
-Watch #1 hinzugefügt: counter
+Watch #1 added: counter
 
 (hypno-debug) watch result * 2
-Watch #2 hinzugefügt: result * 2
+Watch #2 added: result * 2
 
 (hypno-debug) step
    15 |   counter = counter + 1;
@@ -156,27 +156,27 @@ Watch Values:
   #2 result * 2 = 118
 ```
 
-## Trace-Datei
+## Trace File
 
-Mit `--trace-file` können Sie die Debug-Ausführung in eine Datei protokollieren:
+With `--trace-file`, you can log debug execution to a file:
 
 ```bash
 hypnoscript exec --debug --trace-file debug.log myscript.hyp
 ```
 
-Die Trace-Datei enthält:
+The trace file contains:
 
-- Ausgeführte Zeilen mit Zeitstempeln
-- Variablenänderungen
-- Breakpoint-Treffer
-- Call-Stack-Änderungen
+- Executed lines with timestamps
+- Variable changes
+- Breakpoint hits
+- Call stack changes
 
-## Performance-Hinweise
+## Performance Notes
 
-Der Debug-Modus verlangsamt die Ausführung erheblich, da jede Instruktion überwacht wird. Verwenden Sie ihn für:
+Debug mode slows execution significantly because every instruction is monitored. Use it for:
 
-- Entwicklung und Fehlersuche
-- Verstehen des Programmablaufs
-- Testen neuer Features
+- Development and troubleshooting
+- Understanding program flow
+- Testing new features
 
-Für produktive Ausführung deaktivieren Sie den Debug-Modus.
+Disable debug mode for production execution.

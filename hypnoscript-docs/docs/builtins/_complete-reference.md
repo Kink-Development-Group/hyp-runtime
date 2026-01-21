@@ -295,113 +295,113 @@ All array functions use the `Array` prefix to distinguish from string functions 
 
 ### Format Validation
 
-| Function             | Signature                    | Description               |
-| -------------------- | ---------------------------- | ------------------------- |
-| `IsValidEmail`       | `(email: string) -> boolean` | Email validation          |
-| `IsValidUrl`         | `(url: string) -> boolean`   | URL-Validierung           |
-| `IsValidPhoneNumber` | `(phone: string) -> boolean` | Telefonnummer-Validierung |
+| Function             | Signature                    | Description             |
+| -------------------- | ---------------------------- | ----------------------- |
+| `IsValidEmail`       | `(email: string) -> boolean` | Email validation        |
+| `IsValidUrl`         | `(url: string) -> boolean`   | URL validation          |
+| `IsValidPhoneNumber` | `(phone: string) -> boolean` | Phone number validation |
 
-### Zeichen-Prüfungen
+### Character Checks
 
-| Function         | Signatur                 | Description               |
-| ---------------- | ------------------------ | ------------------------- |
-| `IsAlphanumeric` | `(s: string) -> boolean` | Nur Buchstaben und Zahlen |
-| `IsAlphabetic`   | `(s: string) -> boolean` | Nur Buchstaben            |
-| `IsNumeric`      | `(s: string) -> boolean` | Nur Zahlen                |
-| `IsLowercase`    | `(s: string) -> boolean` | Nur Kleinbuchstaben       |
-| `IsUppercase`    | `(s: string) -> boolean` | Nur Großbuchstaben        |
+| Function         | Signature                | Description              |
+| ---------------- | ------------------------ | ------------------------ |
+| `IsAlphanumeric` | `(s: string) -> boolean` | Letters and numbers only |
+| `IsAlphabetic`   | `(s: string) -> boolean` | Letters only             |
+| `IsNumeric`      | `(s: string) -> boolean` | Numbers only             |
+| `IsLowercase`    | `(s: string) -> boolean` | Lowercase only           |
+| `IsUppercase`    | `(s: string) -> boolean` | Uppercase only           |
 
-### Weitere Validierungen
+### Additional Validation
 
-| Function         | Signatur                                               | Description         |
-| ---------------- | ------------------------------------------------------ | ------------------- |
-| `IsInRange`      | `(value: number, min: number, max: number) -> boolean` | Wertebereich prüfen |
-| `MatchesPattern` | `(text: string, pattern: string) -> boolean`           | Regex-Match         |
+| Function         | Signature                                              | Description       |
+| ---------------- | ------------------------------------------------------ | ----------------- |
+| `IsInRange`      | `(value: number, min: number, max: number) -> boolean` | Check value range |
+| `MatchesPattern` | `(text: string, pattern: string) -> boolean`           | Regex match       |
 
 ## Hashing Builtins
 
-### Hash-Functionen
+### Hash Functions
 
-| Function       | Signatur                   | Description        |
-| -------------- | -------------------------- | ------------------ |
-| `HashString`   | `(s: string) -> number`    | String hashen      |
-| `HashNumber`   | `(n: number) -> number`    | Number hashen      |
-| `SimpleRandom` | `(seed: number) -> number` | Pseudo-Zufallszahl |
+| Function       | Signature                  | Description         |
+| -------------- | -------------------------- | ------------------- |
+| `HashString`   | `(s: string) -> number`    | Hash string         |
+| `HashNumber`   | `(n: number) -> number`    | Hash number         |
+| `SimpleRandom` | `(seed: number) -> number` | Pseudorandom number |
 
-### String-Analyse
+### String Analysis
 
-| Function           | Signatur                                    | Description         |
-| ------------------ | ------------------------------------------- | ------------------- |
-| `AreAnagrams`      | `(s1: string, s2: string) -> boolean`       | Checks Anagramme    |
-| `IsPalindrome`     | `(s: string) -> boolean`                    | Checks Palindrom    |
-| `CountOccurrences` | `(text: string, pattern: string) -> number` | Vorkommen zählen    |
-| `RemoveDuplicates` | `(s: string) -> string`                     | Duplikate entfernen |
-| `UniqueCharacters` | `(s: string) -> string`                     | Eindeutige Zeichen  |
-| `ReverseWords`     | `(s: string) -> string`                     | Wörter umkehren     |
-| `TitleCase`        | `(s: string) -> string`                     | Title Case Format   |
+| Function           | Signature                                   | Description       |
+| ------------------ | ------------------------------------------- | ----------------- |
+| `AreAnagrams`      | `(s1: string, s2: string) -> boolean`       | Checks anagrams   |
+| `IsPalindrome`     | `(s: string) -> boolean`                    | Checks palindrome |
+| `CountOccurrences` | `(text: string, pattern: string) -> number` | Count occurrences |
+| `RemoveDuplicates` | `(s: string) -> string`                     | Remove duplicates |
+| `UniqueCharacters` | `(s: string) -> string`                     | Unique characters |
+| `ReverseWords`     | `(s: string) -> string`                     | Reverse words     |
+| `TitleCase`        | `(s: string) -> string`                     | Title Case Format |
 
 ## DeepMind Builtins (Higher-Order Functions)
 
-### Kontrollfluss
+### Control Flow
 
-| Function            | Signatur                                                      | Description              |
-| ------------------- | ------------------------------------------------------------- | ------------------------ |
-| `RepeatAction`      | `(times: number, action: () -> void) -> void`                 | Aktion n-mal wiederholen |
-| `DelayedSuggestion` | `(action: () -> void, delay: number) -> void`                 | Verzögerte Ausführung    |
-| `IfTranced`         | `(cond: boolean, then: () -> void, else: () -> void) -> void` | Bedingte Ausführung      |
+| Function            | Signature                                                     | Description           |
+| ------------------- | ------------------------------------------------------------- | --------------------- |
+| `RepeatAction`      | `(times: number, action: () -> void) -> void`                 | Repeat action n times |
+| `DelayedSuggestion` | `(action: () -> void, delay: number) -> void`                 | Delayed execution     |
+| `IfTranced`         | `(cond: boolean, then: () -> void, else: () -> void) -> void` | Conditional execution |
 
-### Schleifen
+### Loops
 
-| Function      | Signatur                                                 | Description                   |
-| ------------- | -------------------------------------------------------- | ----------------------------- |
-| `RepeatUntil` | `(action: () -> void, condition: () -> boolean) -> void` | Wiederhole bis Bedingung wahr |
-| `RepeatWhile` | `(condition: () -> boolean, action: () -> void) -> void` | Wiederhole solange wahr       |
+| Function      | Signature                                                | Description                 |
+| ------------- | -------------------------------------------------------- | --------------------------- |
+| `RepeatUntil` | `(action: () -> void, condition: () -> boolean) -> void` | Repeat until condition true |
+| `RepeatWhile` | `(condition: () -> boolean, action: () -> void) -> void` | Repeat while condition true |
 
-### Functionskomposition
+### Function Composition
 
-| Function  | Signatur                             | Description                  |
-| --------- | ------------------------------------ | ---------------------------- |
-| `Compose` | `(f: B -> C, g: A -> B) -> (A -> C)` | Functionskomposition f(g(x)) |
-| `Pipe`    | `(f: A -> B, g: B -> C) -> (A -> C)` | Functions-Pipeline g(f(x))   |
+| Function  | Signature                            | Description         |
+| --------- | ------------------------------------ | ------------------- |
+| `Compose` | `(f: B -> C, g: A -> B) -> (A -> C)` | Composition f(g(x)) |
+| `Pipe`    | `(f: A -> B, g: B -> C) -> (A -> C)` | Pipeline g(f(x))    |
 
-### Fehlerbehandlung
+### Error Handling (Higher-Order)
 
-| Function          | Signatur                                                    | Description |
+| Function          | Signature                                                   | Description |
 | ----------------- | ----------------------------------------------------------- | ----------- |
-| `TryOrAwaken`     | `(try: () -> void, catch: (error: string) -> void) -> void` | Try-Catch   |
-| `EnsureAwakening` | `(main: () -> void, cleanup: () -> void) -> void`           | Try-Finally |
+| `TryOrAwaken`     | `(try: () -> void, catch: (error: string) -> void) -> void` | Try/Catch   |
+| `EnsureAwakening` | `(main: () -> void, cleanup: () -> void) -> void)           | Try/Finally |
 
-### Weitere
+### Additional
 
-| Function             | Signatur                            | Description                    |
-| -------------------- | ----------------------------------- | ------------------------------ |
-| `SequentialTrance`   | `(actions: (() -> void)[]) -> void` | Aktionen sequentiell ausführen |
-| `MeasureTranceDepth` | `(action: () -> void) -> number`    | Ausführungszeit messen         |
-| `Memoize`            | `(f: A -> R) -> (A -> R)`           | Function mit Caching           |
+| Function             | Signature                           | Description                  |
+| -------------------- | ----------------------------------- | ---------------------------- |
+| `SequentialTrance`   | `(actions: (() -> void)[]) -> void` | Execute actions sequentially |
+| `MeasureTranceDepth` | `(action: () -> void) -> number`    | Measure execution time       |
+| `Memoize`            | `(f: A -> R) -> (A -> R)`           | Function with caching        |
 
-## Usageshinweise
+## Usage Notes
 
-### Namenskonventionen
+### Naming Conventions
 
-- **PascalCase** für Functionsnamen (z.B. `CalculateMean`, `ToUpper`)
-- **Case-Insensitive** Matching beim Aufruf
-- **Typ-Parameters** `T` für generische Functionen
+- **PascalCase** for function names (e.g. `CalculateMean`, `ToUpper`)
+- **Case-insensitive** matching on call
+- **Type parameters** `T` for generic functions
 
-### Fehlerbehandlung
+### Error Handling
 
-- Functionen die fehlschlagen können werfen Runtime-Errors
-- Use `TryOrAwaken` für Fehlerbehandlung
-- Validiere Inputn mit Validation-Builtins
+- Functions that can fail throw runtime errors
+- Use `TryOrAwaken` for error handling
+- Validate inputs with validation builtins
 
 ### Performance
 
-- Array-Operationen erstellen neue Arrays (immutabel)
-- Use `Memoize` für teure Berechnungen
-- `MeasureTranceDepth` für Performance-Profiling
+- Array operations create new arrays (immutable)
+- Use `Memoize` for expensive computations
+- Use `MeasureTranceDepth` for performance profiling
 
-## See auch
+## See Also
 
-- [Detaillierte Array-Functionen](./array-functions)
-- [Detaillierte String-Functionen](./string-functions)
-- [Detaillierte Math-Functionen](./math-functions)
-- [CLI Builtin-Command](../cli/commands#builtins)
+- [Detailed Array Functions](./array-functions)
+- [Detailed String Functions](./string-functions)
+- [Detailed Math Functions](./math-functions)
+- [CLI builtin command](../cli/commands#builtins)

@@ -153,7 +153,7 @@ hypnoscript lex <FILE>
 
 ### Output
 
-Lists alle Token mit Index und Typ:
+Lists all tokens with index and type:
 
 ```
 === Tokens ===
@@ -167,9 +167,9 @@ Total tokens: 42
 
 ### Usage
 
-- **Syntax-Debugging**: Verstehen wie der Lexer Code interpretiert
-- **Token-Analyse**: Prüfen ob Schlüsselwörter korrekt erkannt werden
-- **Lernzwecke**: Verstehen wie HypnoScript-Code tokenisiert wird
+- **Syntax debugging**: Understand how the lexer interprets code
+- **Token analysis**: Verify that keywords are recognized correctly
+- **Learning**: See how HypnoScript code is tokenized
 
 ### Example
 
@@ -195,14 +195,14 @@ hypnoscript parse <FILE>
 
 ### Output
 
-Shows den AST in formatierter Form:
+Shows the AST in a formatted representation:
 
 ```
 === AST ===
 Program([
     FocusBlock([
         ObserveStatement(
-            StringLiteral("Hallo Welt")
+            StringLiteral("Hello World")
         ),
         VariableDeclaration {
             name: "x",
@@ -216,9 +216,9 @@ Program([
 
 ### Usage
 
-- **Struktur-Analyse**: Verstehen wie Code geparst wird
-- **Compiler-Debugging**: Probleme im Parser identifizieren
-- **Entwicklung**: AST-Struktur für Compiler-Erweiterungen verstehen
+- **Structure analysis**: Understand how code is parsed
+- **Compiler debugging**: Identify parser issues
+- **Development**: Understand AST structure for compiler extensions
 
 ### Example
 
@@ -244,13 +244,13 @@ hypnoscript check <FILE>
 
 ### Output
 
-**Ohne Fehler:**
+**No errors:**
 
 ```
 ✅ No type errors found!
 ```
 
-**Mit Fehlern:**
+**With errors:**
 
 ```
 ❌ Type errors found:
@@ -259,22 +259,22 @@ hypnoscript check <FILE>
   - Function 'unknown' not defined at line 12
 ```
 
-### Type checking Regeln
+### Type checking rules
 
-Der Type Checker prüft:
+The type checker validates:
 
-- ✅ Variablendeklarationen
-- ✅ Functionsaufrufe und -signaturen
-- ✅ Typ-Kompatibilität in Zuweisungen
-- ✅ Array-Typen
-- ✅ Session-Member-Zugriffe
-- ✅ Return-Statement Typen
+- ✅ Variable declarations
+- ✅ Function calls and signatures
+- ✅ Type compatibility in assignments
+- ✅ Array types
+- ✅ Session member access
+- ✅ Return statement types
 
 ### Usage
 
-- **Vor Deployment**: Typ-Fehler frühzeitig finden
-- **Entwicklung**: Code-Qualität sicherstellen
-- **CI/CD**: Als Teil der Build-Pipeline
+- **Before deployment**: Catch type errors early
+- **Development**: Ensure code quality
+- **CI/CD**: Use as part of the build pipeline
 
 ### Example
 
@@ -342,15 +342,15 @@ hypnoscript compile-wasm script.hyp
 wat2wasm script.wat -o script.wasm
 ```
 
-### WASM-Integration
+### WASM Integration
 
-Nach Kompilierung kann das WASM-Modul in verschiedenen Umgebungen verwendet werden:
+After compilation, the WASM module can be used in different environments:
 
 **Web (JavaScript):**
 
 ```javascript
 WebAssembly.instantiateStreaming(fetch('script.wasm')).then((module) => {
-  // Nutze exportierte Funktionen
+  // Use exported functions
 });
 ```
 
@@ -576,7 +576,7 @@ fi
 ### CI/CD Integration
 
 ```yaml
-# GitHub Actions Beispiel
+# GitHub Actions example
 steps:
   - name: Install HypnoScript
     run: cargo install --path hypnoscript-cli
