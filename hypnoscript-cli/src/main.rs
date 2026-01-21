@@ -877,7 +877,7 @@ fn find_shared_installer(metadata: Option<&InstallMetadata>) -> Option<PathBuf> 
 #[cfg(not(target_os = "windows"))]
 fn download_installer(agent: &Agent) -> Result<InstallerScript> {
     let response = agent.get(INSTALLER_FALLBACK_URL).call()?;
-    let script = response.into_string()?;
+    let script = response.into_body().read_to_string()?;
 
     let mut temp_file = Builder::new()
         .prefix("hypnoscript-installer-")
