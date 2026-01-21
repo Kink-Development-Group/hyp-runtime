@@ -14,7 +14,7 @@ hypnoscript --help
 hypnoscript version
 
 # Help for a subcommand
-hypnoscript run --help
+hypnoscript exec --help
 ```
 
 The output always lists all available subcommands and their options. If a command seems unfamiliar, it's worth looking at `--help` – the text is generated directly from the actual CLI.
@@ -23,17 +23,26 @@ The output always lists all available subcommands and their options. If a comman
 
 ```bash
 # Standard execution
-hypnoscript run demo.hyp
+hypnoscript exec demo.hyp
 
 # With additional output
-hypnoscript run demo.hyp --verbose
+hypnoscript exec demo.hyp --verbose
 
-# With debug information
-hypnoscript run demo.hyp --debug
+# With interactive debug mode
+hypnoscript exec demo.hyp --debug
+
+# Debug with breakpoints
+hypnoscript exec demo.hyp --debug --breakpoints 10,25
+
+# Debug with watch expressions
+hypnoscript exec demo.hyp --debug --watch counter,result
 ```
 
 - `--verbose` outputs status messages like "Running file" or success messages.
-- `--debug` additionally shows source code, token list, type checking results and the interpretation flow.
+- `--debug` starts an interactive debugger with breakpoints, stepping and variable inspection.
+- `--breakpoints` sets initial breakpoints at specific lines (comma-separated).
+- `--watch` monitors variables during execution.
+- `--trace-file` saves debug trace to a file for later analysis.
 - Errors in the type checker don't stop execution – they are reported, then the interpreter continues.
 
 ## Analysis Tools
@@ -65,22 +74,22 @@ The command groups all built-in functions by category (Math, String, Array, Syst
 
 1. **Preparation** – Run `hypnoscript check` on all scripts.
 2. **Error Analysis** – Use `lex` or `parse` for problems to inspect the specific section.
-3. **Execution** – Test with `run`, activate `--debug` if needed.
+3. **Execution** – Test with `exec`, activate `--debug` if needed.
 4. **Deployment** – Optionally use `compile-wasm` if the script should run in the browser or a WASM environment.
 
 ```bash
 # Example: complete round
 hypnoscript check examples/inventory.hyp
-hypnoscript run examples/inventory.hyp --debug
+hypnoscript exec examples/inventory.hyp --debug
 hypnoscript compile-wasm examples/inventory.hyp -o inventory.wat
 ```
 
 ## Tips & Tricks
 
-- **Quick Iteration:** Use `--debug` as soon as something seems odd – tokens and AST immediately reveal whether the parser understood your intention.
-- **Bundle Outputs:** Pipe the output to a file (`hypnoscript run script.hyp > output.txt`) to document longer runs.
+- **Quick Iteration:** Use `--debug` as soon as something seems odd – set breakpoints and step through the code to understand the flow.
+- **Bundle Outputs:** Pipe the output to a file (`hypnoscript exec script.hyp > output.txt`) to document longer runs.
 - **Platform-agnostic:** On Windows, macOS and Linux, the commands are identical. The only requirement is that the `hypnoscript` binary is in the `PATH`.
-- **Tests as Scripts:** The files in the `hypnoscript-tests/` folder can be started directly with `hypnoscript run`. This shows you real examples of control flow and sessions.
+- **Tests as Scripts:** The files in the `hypnoscript-tests/` folder can be started directly with `hypnoscript exec`. This shows you real examples of control flow and sessions.
 
 ## Further Links
 

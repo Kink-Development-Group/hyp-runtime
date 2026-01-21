@@ -95,12 +95,14 @@ All builtins are compactly available via `hypnoscript builtins`.
 hypnoscript lex file.hyp       # Show tokens
 hypnoscript parse file.hyp     # Inspect AST
 hypnoscript check file.hyp     # Type checking
-hypnoscript run file.hyp       # Execute
+hypnoscript exec file.hyp      # Execute
 hypnoscript compile-wasm file.hyp -o file.wat
 hypnoscript version            # Toolchain info
 ```
 
-- `--debug` with the `run` command shows intermediate steps (source, tokens, type check).
+- `--debug` with the `exec` command starts an interactive debugger with breakpoints and stepping.
+- `--breakpoints` sets initial breakpoints (e.g., `--breakpoints 10,25`).
+- `--watch` monitors variables during debugging.
 - `--verbose` adds additional status messages.
 
 ## Where to Continue Reading

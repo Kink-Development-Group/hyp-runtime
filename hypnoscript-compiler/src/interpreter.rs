@@ -41,6 +41,10 @@ fn localized(en: &str, de: &str) -> String {
     format!("{} (DE: {})", en, de)
 }
 
+/// Type alias for debug pause callback to reduce type complexity.
+type DebugPauseCallback =
+    Box<dyn Fn(&mut Interpreter, crate::debug::PauseReason) -> crate::debug::StepMode>;
+
 #[derive(Clone, Copy, Debug)]
 enum ScopeLayer {
     Local,
@@ -767,7 +771,7 @@ pub struct Interpreter {
 
     /// Callback invoked when debugger pauses (for REPL integration)
     #[allow(dead_code)]
-    debug_pause_callback: Option<Box<dyn Fn(&mut Self, crate::debug::PauseReason) -> crate::debug::StepMode>>,
+    debug_pause_callback: Option<DebugPauseCallback>,
 }
 
 impl Default for Interpreter {
@@ -1014,7 +1018,10 @@ impl Interpreter {
     #[allow(dead_code)]
     fn debug_push_frame(&mut self, function_name: &str, line: usize) {
         if let Some(ref mut state) = self.debug_state {
-            state.push_frame(crate::debug::CallFrame::new(function_name.to_string(), line));
+            state.push_frame(crate::debug::CallFrame::new(
+                function_name.to_string(),
+                line,
+            ));
         }
     }
 
@@ -1028,9 +1035,7 @@ impl Interpreter {
 
     /// Triggers a programmatic breakpoint from code.
     pub fn trigger_breakpoint(&mut self) -> Option<crate::debug::PauseReason> {
-        self.debug_state
-            .as_mut()
-            .map(|s| s.trigger_breakpoint())
+        self.debug_state.as_mut().map(|s| s.trigger_breakpoint())
     }
 
     pub fn execute_program(&mut self, program: AstNode) -> Result<(), InterpreterError> {
@@ -3738,7 +3743,10 @@ Focus {
         assert!(globals.contains_key("x"));
         assert!(globals.contains_key("y"));
         assert_eq!(globals.get("x").unwrap(), &Value::Number(42.0));
-        assert_eq!(globals.get("y").unwrap(), &Value::String("hello".to_string()));
+        assert_eq!(
+            globals.get("y").unwrap(),
+            &Value::String("hello".to_string())
+        );
     }
 
     #[test]
@@ -3791,6 +3799,9 @@ Focus {
         assert!(result.is_ok());
 
         // Verify execution completed correctly
-        assert_eq!(interpreter.get_variable("sum").unwrap(), Value::Number(30.0));
+        assert_eq!(
+            interpreter.get_variable("sum").unwrap(),
+            Value::Number(30.0)
+        );
     }
 }

@@ -104,7 +104,7 @@ hypnoscript builtins
 
 # Minimal test program
 echo 'Focus { entrance { observe "Installation successful!"; } } Relax' > test.hyp
-hypnoscript run test.hyp
+hypnoscript exec test.hyp
 ```
 
 Expected output (abbreviated):

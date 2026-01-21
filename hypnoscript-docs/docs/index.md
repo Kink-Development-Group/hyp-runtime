@@ -91,7 +91,14 @@ Focus {
 ### Running
 
 ```bash
-hypnoscript run my_script.hyp
+hypnoscript exec my_script.hyp
+```
+
+### Debugging
+
+```bash
+# Interactive debug mode with breakpoints
+hypnoscript exec my_script.hyp --debug --breakpoints 10,25
 ```
 
 ## Why HypnoScript?

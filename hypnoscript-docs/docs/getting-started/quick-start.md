@@ -55,7 +55,7 @@ Highlights:
 ## 3. Run Script
 
 ```bash
-hypnoscript run hello_trance.hyp
+hypnoscript exec hello_trance.hyp
 ```
 
 The output should show the greeting, the sum, and the small while loop.
@@ -96,7 +96,6 @@ Focus {
 ```
 
 ## 5. Control Structures
-
 
 ```hyp
 if (total lookAtTheWatch 10) {

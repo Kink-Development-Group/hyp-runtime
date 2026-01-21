@@ -395,11 +395,11 @@ impl DebugState {
         let frame = self.call_stack.pop();
 
         // Check if we should break for step-out
-        if let Some(depth) = self.step_out_depth {
-            if self.call_stack.len() < depth {
-                self.break_on_next = true;
-                self.step_out_depth = None;
-            }
+        if let Some(depth) = self.step_out_depth
+            && self.call_stack.len() < depth
+        {
+            self.break_on_next = true;
+            self.step_out_depth = None;
         }
 
         frame
@@ -681,7 +681,9 @@ impl DebugCommand {
         match cmd.as_str() {
             "b" | "break" => {
                 let line = arg
-                    .ok_or_else(|| DebugError::InvalidCommand("break requires a line number".into()))?
+                    .ok_or_else(|| {
+                        DebugError::InvalidCommand("break requires a line number".into())
+                    })?
                     .parse::<usize>()
                     .map_err(|_| DebugError::InvalidCommand("invalid line number".into()))?;
                 Ok(DebugCommand::Break(line))
@@ -691,13 +693,15 @@ impl DebugCommand {
                     if arg_str == "all" || arg_str == "*" {
                         Ok(DebugCommand::DeleteAll)
                     } else {
-                        let line = arg_str
-                            .parse::<usize>()
-                            .map_err(|_| DebugError::InvalidCommand("invalid line number".into()))?;
+                        let line = arg_str.parse::<usize>().map_err(|_| {
+                            DebugError::InvalidCommand("invalid line number".into())
+                        })?;
                         Ok(DebugCommand::Delete(line))
                     }
                 } else {
-                    Err(DebugError::InvalidCommand("delete requires a line number or 'all'".into()))
+                    Err(DebugError::InvalidCommand(
+                        "delete requires a line number or 'all'".into(),
+                    ))
                 }
             }
             "c" | "continue" => Ok(DebugCommand::Continue),
@@ -706,7 +710,9 @@ impl DebugCommand {
             "o" | "out" => Ok(DebugCommand::StepOut),
             "p" | "print" => {
                 let expr = arg
-                    .ok_or_else(|| DebugError::InvalidCommand("print requires an expression".into()))?
+                    .ok_or_else(|| {
+                        DebugError::InvalidCommand("print requires an expression".into())
+                    })?
                     .to_string();
                 Ok(DebugCommand::Print(expr))
             }
@@ -714,13 +720,17 @@ impl DebugCommand {
             "st" | "stack" => Ok(DebugCommand::Stack),
             "w" | "watch" => {
                 let expr = arg
-                    .ok_or_else(|| DebugError::InvalidCommand("watch requires an expression".into()))?
+                    .ok_or_else(|| {
+                        DebugError::InvalidCommand("watch requires an expression".into())
+                    })?
                     .to_string();
                 Ok(DebugCommand::Watch(expr))
             }
             "unwatch" => {
                 let id = arg
-                    .ok_or_else(|| DebugError::InvalidCommand("unwatch requires a watch ID".into()))?
+                    .ok_or_else(|| {
+                        DebugError::InvalidCommand("unwatch requires a watch ID".into())
+                    })?
                     .parse::<usize>()
                     .map_err(|_| DebugError::InvalidCommand("invalid watch ID".into()))?;
                 Ok(DebugCommand::Unwatch(id))
@@ -735,7 +745,10 @@ impl DebugCommand {
                 Ok(DebugCommand::List(line))
             }
             "" => Err(DebugError::InvalidCommand("empty command".into())),
-            _ => Err(DebugError::InvalidCommand(format!("unknown command: {}", cmd))),
+            _ => Err(DebugError::InvalidCommand(format!(
+                "unknown command: {}",
+                cmd
+            ))),
         }
     }
 }
@@ -865,7 +878,10 @@ mod tests {
 
         state.pause(PauseReason::Breakpoint(10));
         assert!(state.is_paused());
-        assert!(matches!(state.pause_reason(), Some(PauseReason::Breakpoint(10))));
+        assert!(matches!(
+            state.pause_reason(),
+            Some(PauseReason::Breakpoint(10))
+        ));
 
         state.resume();
         assert!(!state.is_paused());
@@ -878,7 +894,10 @@ mod tests {
         state.set_breakpoint(10);
 
         assert!(state.should_pause(5).is_none());
-        assert!(matches!(state.should_pause(10), Some(PauseReason::Breakpoint(10))));
+        assert!(matches!(
+            state.should_pause(10),
+            Some(PauseReason::Breakpoint(10))
+        ));
     }
 
     #[test]
@@ -909,11 +928,26 @@ mod tests {
 
     #[test]
     fn test_command_parsing() {
-        assert_eq!(DebugCommand::parse("break 10").unwrap(), DebugCommand::Break(10));
-        assert_eq!(DebugCommand::parse("b 20").unwrap(), DebugCommand::Break(20));
-        assert_eq!(DebugCommand::parse("delete 10").unwrap(), DebugCommand::Delete(10));
-        assert_eq!(DebugCommand::parse("d all").unwrap(), DebugCommand::DeleteAll);
-        assert_eq!(DebugCommand::parse("continue").unwrap(), DebugCommand::Continue);
+        assert_eq!(
+            DebugCommand::parse("break 10").unwrap(),
+            DebugCommand::Break(10)
+        );
+        assert_eq!(
+            DebugCommand::parse("b 20").unwrap(),
+            DebugCommand::Break(20)
+        );
+        assert_eq!(
+            DebugCommand::parse("delete 10").unwrap(),
+            DebugCommand::Delete(10)
+        );
+        assert_eq!(
+            DebugCommand::parse("d all").unwrap(),
+            DebugCommand::DeleteAll
+        );
+        assert_eq!(
+            DebugCommand::parse("continue").unwrap(),
+            DebugCommand::Continue
+        );
         assert_eq!(DebugCommand::parse("c").unwrap(), DebugCommand::Continue);
         assert_eq!(DebugCommand::parse("step").unwrap(), DebugCommand::StepInto);
         assert_eq!(DebugCommand::parse("s").unwrap(), DebugCommand::StepInto);
@@ -921,13 +955,22 @@ mod tests {
         assert_eq!(DebugCommand::parse("n").unwrap(), DebugCommand::StepOver);
         assert_eq!(DebugCommand::parse("out").unwrap(), DebugCommand::StepOut);
         assert_eq!(DebugCommand::parse("o").unwrap(), DebugCommand::StepOut);
-        assert_eq!(DebugCommand::parse("print x").unwrap(), DebugCommand::Print("x".to_string()));
-        assert_eq!(DebugCommand::parse("p myVar").unwrap(), DebugCommand::Print("myVar".to_string()));
+        assert_eq!(
+            DebugCommand::parse("print x").unwrap(),
+            DebugCommand::Print("x".to_string())
+        );
+        assert_eq!(
+            DebugCommand::parse("p myVar").unwrap(),
+            DebugCommand::Print("myVar".to_string())
+        );
         assert_eq!(DebugCommand::parse("locals").unwrap(), DebugCommand::Locals);
         assert_eq!(DebugCommand::parse("l").unwrap(), DebugCommand::Locals);
         assert_eq!(DebugCommand::parse("stack").unwrap(), DebugCommand::Stack);
         assert_eq!(DebugCommand::parse("st").unwrap(), DebugCommand::Stack);
-        assert_eq!(DebugCommand::parse("watch counter").unwrap(), DebugCommand::Watch("counter".to_string()));
+        assert_eq!(
+            DebugCommand::parse("watch counter").unwrap(),
+            DebugCommand::Watch("counter".to_string())
+        );
         assert_eq!(DebugCommand::parse("help").unwrap(), DebugCommand::Help);
         assert_eq!(DebugCommand::parse("quit").unwrap(), DebugCommand::Quit);
     }
@@ -953,7 +996,10 @@ mod tests {
 
     #[test]
     fn test_pause_reason_display() {
-        assert_eq!(format!("{}", PauseReason::Breakpoint(10)), "Breakpoint at line 10");
+        assert_eq!(
+            format!("{}", PauseReason::Breakpoint(10)),
+            "Breakpoint at line 10"
+        );
         assert_eq!(format!("{}", PauseReason::Step), "Step completed");
         assert_eq!(format!("{}", PauseReason::UserRequest), "Paused by user");
     }

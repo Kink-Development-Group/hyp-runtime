@@ -156,7 +156,10 @@ pub use async_runtime::{
 pub use channel_system::{
     BroadcastChannel, ChannelMessage, ChannelRegistry, ChannelType, MpscChannel, WatchChannel,
 };
-pub use debug::{CallFrame, DebugCommand, DebugError, DebugResult, DebugState, PauseReason, StepMode, WatchExpression, format_help as debug_help};
+pub use debug::{
+    CallFrame, DebugCommand, DebugError, DebugResult, DebugState, PauseReason, StepMode,
+    WatchExpression, format_help as debug_help,
+};
 pub use interpreter::{Interpreter, InterpreterError, Value};
 pub use native_codegen::{
     NativeCodeGenerator, NativeCodegenError, OptimizationLevel, TargetPlatform,

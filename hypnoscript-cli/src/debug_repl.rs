@@ -19,15 +19,13 @@
 //! before and during program execution.
 
 use anyhow::{Result, anyhow};
-use hypnoscript_compiler::{
-    DebugCommand, Interpreter, StepMode, debug_help,
-};
+use hypnoscript_compiler::{DebugCommand, Interpreter, StepMode, debug_help};
 use hypnoscript_lexer_parser::{Lexer, Parser as HypnoParser};
 use std::collections::HashSet;
 use std::io::{self, Write};
 
 /// Configuration for a debug session.
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Default)]
 pub struct DebugConfig {
     /// Initial breakpoints to set (line numbers)
     pub breakpoints: Vec<usize>,
@@ -37,17 +35,6 @@ pub struct DebugConfig {
     pub verbose: bool,
     /// Path to trace output file (if any)
     pub trace_file: Option<String>,
-}
-
-impl Default for DebugConfig {
-    fn default() -> Self {
-        Self {
-            breakpoints: Vec::new(),
-            watch_expressions: Vec::new(),
-            verbose: false,
-            trace_file: None,
-        }
-    }
 }
 
 impl DebugConfig {
@@ -319,7 +306,10 @@ impl DebugSession {
                         .map(|(name, value)| format!("  {} = {}", name, value))
                         .collect::<Vec<_>>()
                         .join("\n");
-                    Ok(CommandResult::Output(format!("Local variables:\n{}", output)))
+                    Ok(CommandResult::Output(format!(
+                        "Local variables:\n{}",
+                        output
+                    )))
                 }
             }
 
@@ -516,14 +506,14 @@ impl DebugSession {
         let breakpoints: HashSet<usize> = self.interpreter.breakpoints().into_iter().collect();
 
         let mut output = String::new();
-        for i in start..=end {
+        for (i, line) in lines.iter().enumerate().skip(start).take(end - start + 1) {
             let line_num = i + 1;
             let marker = if breakpoints.contains(&line_num) {
                 "●"
             } else {
                 " "
             };
-            output.push_str(&format!("{} {:4} | {}\n", marker, line_num, lines[i]));
+            output.push_str(&format!("{} {:4} | {}\n", marker, line_num, line));
         }
 
         output
@@ -532,7 +522,10 @@ impl DebugSession {
     /// Prints welcome message.
     fn print_welcome(&self) {
         println!("╔══════════════════════════════════════════════════════════════╗");
-        println!("║           HypnoScript Debugger v{}                  ║", env!("CARGO_PKG_VERSION"));
+        println!(
+            "║           HypnoScript Debugger v{}                  ║",
+            env!("CARGO_PKG_VERSION")
+        );
         println!("║  Type 'help' for available commands, 'quit' to exit         ║");
         println!("╚══════════════════════════════════════════════════════════════╝");
         println!();
@@ -641,7 +634,9 @@ mod tests {
 
     #[test]
     fn test_list_source() {
-        let source = "line 1\nline 2\nline 3\nline 4\nline 5\nline 6\nline 7\nline 8\nline 9\nline 10".to_string();
+        let source =
+            "line 1\nline 2\nline 3\nline 4\nline 5\nline 6\nline 7\nline 8\nline 9\nline 10"
+                .to_string();
         let config = DebugConfig::default();
         let session = DebugSession::new(source, config).unwrap();
 

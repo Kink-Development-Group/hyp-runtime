@@ -1,285 +1,176 @@
 # Debugging Overview
 
-HypnoScript provides comprehensive debugging capabilities to help you identify and fix issues in your scripts.
+HypnoScript bietet umfassende Debugging-Funktionen, um Fehler in Ihren Skripten zu identifizieren und zu beheben.
 
-## Debugging Features
+## Debugging-Features
 
-### 1. Built-in Debugging Functions
+### 1. Interaktiver Debug-Modus
 
-HypnoScript includes several built-in functions for debugging:
-
-```hyp
-// Print debug information
-DebugPrint("Variable value: " + myVariable);
-DebugPrintType(myVariable);
-
-// Memory and performance debugging
-DebugPrintMemory();
-DebugPrintStackTrace();
-DebugPrintEnvironment();
-
-// Performance metrics
-var metrics = GetPerformanceMetrics();
-DebugPrint("CPU Time: " + metrics["cpu_time"]);
-DebugPrint("Memory Usage: " + metrics["memory_usage"]);
-```
-
-### 2. CLI Debugging Options
-
-Use the `--debug` flag with CLI commands for enhanced debugging:
+Der Debug-Modus startet eine interaktive REPL-Session mit voller Kontrolle über die Ausführung:
 
 ```bash
-# Run with debug output
-dotnet run -- run script.hyp --debug
+# Debug-Modus starten
+hypnoscript exec script.hyp --debug
 
-# Compile with debug information
-dotnet run -- compile script.hyp --debug
+# Mit initialen Breakpoints
+hypnoscript exec script.hyp --debug --breakpoints 10,25,42
 
-# Analyze with detailed output
-dotnet run -- analyze script.hyp --debug
+# Mit Watch-Expressions
+hypnoscript exec script.hyp --debug --watch counter,result
 ```
 
-### 3. Configuration-Based Debugging
+Im interaktiven Modus können Sie:
 
-Configure debugging behavior in your application settings:
+- Breakpoints setzen und entfernen
+- Schritt-für-Schritt durch den Code navigieren
+- Variablen inspizieren
+- Den Call-Stack anzeigen
 
-```json
-{
-  "Development": {
-    "DebugMode": true,
-    "DetailedErrorReporting": true,
-    "EnableProfiling": true,
-    "EnableStackTrace": true
-  }
-}
+### 2. Builtin Debug-Funktionen
+
+HypnoScript enthält mehrere eingebaute Funktionen für das Debugging:
+
+```hyp
+Focus
+    // Detaillierte Wert-Inspektion
+    induce data = { name: "Test", value: 42 };
+    observe(inspect(data));
+
+    // Typ-Überprüfung
+    observe(typeOf(data));  // "Object"
+
+    // Stack-Trace ausgeben
+    observe(stackTrace());
+
+    // Debug-Ausgaben mit verschiedenen Leveln
+    log("Info-Nachricht");
+    warn("Warnung");
+    error("Fehler");
+    trace("Mit Stack-Trace");
+
+    // Assertions für Tests
+    assertEqual(1 + 1, 2, "Mathe sollte funktionieren");
+    assertTruthy(data.value > 0, "Wert sollte positiv sein");
+
+    // Performance-Messung
+    time("operation");
+    // ... Code ...
+    timeEnd("operation");  // Gibt Zeit aus
+
+    // Programmatischer Breakpoint
+    breakpoint();  // Pausiert im Debug-Modus
+Relax
 ```
 
-### 4. Error Reporting
+### 3. CLI Debug-Optionen
 
-HypnoScript provides detailed error reporting with:
+| Option                  | Beschreibung                                           |
+| ----------------------- | ------------------------------------------------------ |
+| `--debug`               | Aktiviert den interaktiven Debug-Modus                 |
+| `--verbose`             | Zeigt zusätzliche Informationen während der Ausführung |
+| `--breakpoints <LINES>` | Setzt initiale Breakpoints (komma-separiert)           |
+| `--watch <VARS>`        | Überwacht Variablen (komma-separiert)                  |
+| `--trace-file <FILE>`   | Speichert Debug-Trace in eine Datei                    |
 
-- **Line numbers and file locations**
-- **Stack traces** for function calls
-- **Type information** for variables
-- **Context information** for better error understanding
+### 4. Debug-Befehle
 
-### 5. Performance Profiling
+Im interaktiven Debug-Modus stehen diese Befehle zur Verfügung:
 
-Use the profiling command to analyze script performance:
+#### Ausführungssteuerung
+
+- `continue` / `c` - Bis zum nächsten Breakpoint fortfahren
+- `step` / `s` - Eine Zeile ausführen (step into)
+- `next` / `n` - Eine Zeile ausführen, Funktionen überspringen
+- `finish` / `f` - Bis zum Ende der Funktion laufen
+- `run` / `r` - Ausführung neu starten
+
+#### Breakpoint-Verwaltung
+
+- `break <line>` / `b <line>` - Breakpoint setzen
+- `delete <line>` / `d <line>` - Breakpoint löschen
+- `breakpoints` / `bl` - Alle Breakpoints anzeigen
+- `clear` - Alle Breakpoints löschen
+
+#### Variablen-Inspektion
+
+- `locals` / `l` - Lokale Variablen anzeigen
+- `globals` / `g` - Globale Variablen anzeigen
+- `print <var>` / `p <var>` - Variable anzeigen
+- `watch <expr>` / `w <expr>` - Watch-Expression hinzufügen
+
+#### Navigation
+
+- `list` - Quellcode um aktuelle Position
+- `where` / `bt` - Call-Stack anzeigen
+- `help` - Hilfe anzeigen
+- `quit` - Debug-Session beenden
+
+### 5. Trace-Dateien
+
+Mit `--trace-file` können Sie eine detaillierte Protokolldatei erstellen:
 
 ```bash
-dotnet run -- profile script.hyp --verbose
+hypnoscript exec script.hyp --debug --trace-file debug.log
 ```
 
-This provides:
+Die Trace-Datei enthält:
 
-- Execution time analysis
-- Memory usage tracking
-- Function call frequency
-- Performance bottlenecks identification
+- Ausgeführte Zeilen mit Zeitstempeln
+- Variablenänderungen
+- Breakpoint-Treffer
+- Call-Stack-Änderungen
 
-### 6. Logging System
+### 6. Fehlerberichterstattung
 
-Configure logging levels and outputs:
+HypnoScript bietet detaillierte Fehlerberichte mit:
 
-```json
-{
-  "Logging": {
-    "LogLevel": "DEBUG",
-    "EnableFileLogging": true,
-    "LogFilePath": "logs/hypnoscript.log",
-    "IncludeTimestamps": true,
-    "IncludeThreadInfo": true
-  }
-}
-```
+- **Zeilennummern und Datei-Positionen**
+- **Stack-Traces** für Funktionsaufrufe
+- **Typ-Informationen** für Variablen
+- **Kontext-Informationen** für besseres Verständnis
 
-### 7. Interactive Debugging
-
-For interactive debugging sessions:
-
-```bash
-# Start with interactive mode
-dotnet run -- run script.hyp --debug --verbose
-
-# Use breakpoints and step-through execution
-# (Available in development builds)
-```
-
-## Debugging Best Practices
-
-### 1. Use Descriptive Variable Names
+## Beispiel Debug-Session
 
 ```hyp
-// Good
-induce userName: string = "John";
-induce userAge: number = 25;
+$ hypnoscript exec calculator.hyp --debug --breakpoints 10
 
-// Avoid
-induce a: string = "John";
-induce b: number = 25;
+HypnoScript Debugger v1.2.0
+Type 'help' for available commands.
+
+(hypno-debug) run
+Starting execution...
+
+-> Breakpoint hit at line 10
+   10 |   induce result = add(a, b);
+
+(hypno-debug) locals
+Local variables:
+  a: Int = 5
+  b: Int = 3
+
+(hypno-debug) step
+   -> Line 15 (in add())
+   15 |   awaken x + y;
+
+(hypno-debug) print x
+x = 5
+
+(hypno-debug) finish
+   -> Back in line 11
+   11 |   observe(result);
+
+(hypno-debug) print result
+result = 8
+
+(hypno-debug) continue
+8
+Program finished.
 ```
 
-### 2. Add Debug Statements Strategically
+## Weitere Dokumentation
 
-```hyp
-Focus {
-  induce counter: number = 0;
-  DebugPrint("Starting loop with counter: " + counter);
-
-  while (counter < 10) {
-    DebugPrint("Counter value: " + counter);
-    counter = counter + 1;
-  }
-
-  DebugPrint("Loop completed. Final counter: " + counter);
-} Relax
-```
-
-### 3. Validate Input Data
-
-```hyp
-Focus {
-  induce userInput: string = Input("Enter a number: ");
-
-  if (IsNumber(userInput)) {
-    induce number: number = ToInt(userInput);
-    DebugPrint("Valid number entered: " + number);
-  } else {
-    DebugPrint("Invalid input: " + userInput);
-    Observe("Please enter a valid number");
-  }
-} Relax
-```
-
-### 4. Use Type checking
-
-```hyp
-Focus {
-  induce data: any = GetData();
-
-  if (IsString(data)) {
-    DebugPrint("Data is string: " + data);
-  } else if (IsNumber(data)) {
-    DebugPrint("Data is number: " + data);
-  } else if (IsArray(data)) {
-    DebugPrint("Data is array with " + ArrayLength(data) + " elements");
-  } else {
-    DebugPrint("Unknown data type: " + TypeOf(data));
-  }
-} Relax
-```
-
-### 5. Monitor Performance
-
-```hyp
-Focus {
-  var startTime = GetCurrentTime();
-
-  // Your code here
-  induce result: number = CalculateComplexOperation();
-
-  var endTime = GetCurrentTime();
-  var duration = endTime - startTime;
-
-  DebugPrint("Operation took " + duration + " seconds");
-
-  if (duration > 5) {
-    DebugPrint("WARNING: Operation took longer than expected");
-  }
-} Relax
-```
-
-## Common Debugging Scenarios
-
-### 1. Variable Scope Issues
-
-```hyp
-Focus {
-  induce globalVar: string = "Global";
-
-  Tranceify LocalScope {
-    induce localVar: string = "Local";
-    DebugPrint("Inside scope - Global: " + globalVar + ", Local: " + localVar);
-  }
-
-  DebugPrint("Outside scope - Global: " + globalVar);
-  // localVar is not accessible here
-} Relax
-```
-
-### 2. Function Parameters Issues
-
-```hyp
-Focus {
-  function ValidateUser(name: string, age: number): boolean {
-    DebugPrint("Validating user: " + name + ", age: " + age);
-
-    if (IsNullOrEmpty(name)) {
-      DebugPrint("ERROR: Name is null or empty");
-      return false;
-    }
-
-    if (age < 0 || age > 150) {
-      DebugPrint("ERROR: Invalid age: " + age);
-      return false;
-    }
-
-    DebugPrint("User validation successful");
-    return true;
-  }
-
-  induce isValid: boolean = ValidateUser("John", 25);
-  DebugPrint("Validation result: " + isValid);
-} Relax
-```
-
-### 3. Array and Collection Issues
-
-```hyp
-Focus {
-  induce numbers: number[] = [1, 2, 3, 4, 5];
-  DebugPrint("Array length: " + ArrayLength(numbers));
-
-  for (induce i: number = 0; i < ArrayLength(numbers); i = i + 1) {
-    DebugPrint("Element " + i + ": " + numbers[i]);
-  }
-
-  // Check for out-of-bounds access
-  if (ArrayLength(numbers) > 10) {
-    DebugPrint("WARNING: Large array detected");
-  }
-} Relax
-```
-
-## Debugging Tools Integration
-
-### 1. IDE Integration
-
-- **Visual Studio Code**: Use the HypnoScript extension for syntax highlighting and debugging
-- **Visual Studio**: Full debugging support with breakpoints and variable inspection
-- **JetBrains Rider**: Advanced debugging features with step-through execution
-
-### 2. External Tools
-
-- **Log analyzers**: Parse and analyze log files for patterns
-- **Performance profilers**: Detailed performance analysis
-- **Memory analyzers**: Track memory usage and identify leaks
-
-### 3. Continuous Integration
-
-- **Automated testing**: Catch issues early in development
-- **Code quality checks**: Ensure code meets standards
-- **Performance regression testing**: Monitor performance over time
-
-## Getting Help
-
-If you encounter issues that you can't resolve with the debugging tools:
-
-1. **Check the logs**: Look for error messages and warnings
-2. **Review the documentation**: Consult the language reference
-3. **Search the community**: Check forums and GitHub issues
-4. **Create a minimal example**: Reproduce the issue in a simple script
-5. **Report the issue**: Include debug output and error messages
-
-Remember: Good debugging practices lead to more maintainable and reliable code!
+- [Debug-Modus](./debug-mode) - Vollständige Befehlsreferenz
+- [Breakpoints](./breakpoints) - Detaillierte Breakpoint-Dokumentation
+- [Debugging-Tools](./tools) - Alle Builtin-Funktionen
+- [Best Practices](./best-practices) - Tipps für effektives Debugging
+- [Troubleshooting](./troubleshooting) - Häufige Probleme lösen

@@ -4,494 +4,323 @@ sidebar_position: 1
 
 # Debugging-Tools
 
-HypnoScript bietet umfassende Debugging-Functionalitäten für die Entwicklung und Fehlerbehebung von Skripten.
+HypnoScript bietet umfassende Debugging-Funktionalitäten für die Entwicklung und Fehlerbehebung von Skripten.
 
-## Debug-Modi
+## CLI Debug-Befehle
 
-### Basic Debug-Modus
+### Debug-Modus starten
 
 ```bash
 # Debug-Modus starten
-dotnet run --project HypnoScript.CLI -- debug script.hyp
+hypnoscript exec --debug script.hyp
 
 # Mit detaillierter Ausgabe
-dotnet run --project HypnoScript.CLI -- debug script.hyp --verbose
+hypnoscript exec --debug --verbose script.hyp
 
-# Mit Timeout
-dotnet run --project HypnoScript.CLI -- debug script.hyp --timeout 60
+# Mit initialen Breakpoints
+hypnoscript exec --debug --breakpoints 10,25,42 script.hyp
+
+# Mit Watch-Expressions
+hypnoscript exec --debug --watch counter,result script.hyp
+
+# Mit Trace-Datei
+hypnoscript exec --debug --trace-file debug.log script.hyp
 ```
 
-### Schritt-für-Schritt-Debugging
+### Kombinierte Optionen
 
 ```bash
-# Schritt-für-Schritt-Ausführung
-dotnet run --project HypnoScript.CLI -- debug script.hyp --step
-
-# Mit Variablen-Anzeige
-dotnet run --project HypnoScript.CLI -- debug script.hyp --step --variables
-
-# Mit Call-Stack
-dotnet run --project HypnoScript.CLI -- debug script.hyp --step --call-stack
+# Vollständige Debug-Session mit allen Optionen
+hypnoscript exec --debug \
+    --breakpoints 10,25 \
+    --watch x,y,result \
+    --trace-file session.log \
+    --verbose \
+    script.hyp
 ```
 
-### Trace-Modus
+## Debug Builtin-Funktionen
 
-```bash
-# Ausführungs-Trace aktivieren
-dotnet run --project HypnoScript.CLI -- debug script.hyp --trace
+HypnoScript bietet mehrere eingebaute Funktionen für das Debugging:
 
-# Trace in Datei speichern
-dotnet run --project HypnoScript.CLI -- debug script.hyp --trace --output trace.log
+### inspect(value)
 
-# Detaillierter Trace
-dotnet run --project HypnoScript.CLI -- debug script.hyp --trace --detailed
+Gibt eine detaillierte Repräsentation eines Wertes zurück, inklusive Typ-Information:
+
+```hypnoscript
+Focus
+    induce arr = [1, 2, 3];
+    observe(inspect(arr));
+    // Ausgabe: Array[Int](3) = [1, 2, 3]
+
+    induce obj = { name: "Test", value: 42 };
+    observe(inspect(obj));
+    // Ausgabe: Object { name: String = "Test", value: Int = 42 }
+Relax
 ```
 
-## Breakpoints
+### typeOf(value)
 
-### Breakpoint-File erstellen
+Gibt den Typ eines Wertes als String zurück:
 
-```txt
-# breakpoints.txt
-10          # Zeile 10
-25          # Zeile 25
-math.hyp:15 # Zeile 15 in math.hyp
-utils.hyp:* # Alle Zeilen in utils.hyp
+```hypnoscript
+Focus
+    observe(typeOf(42));       // "Int"
+    observe(typeOf("Hello"));  // "String"
+    observe(typeOf([1,2,3]));  // "Array"
+    observe(typeOf(true));     // "Bool"
+Relax
 ```
 
-### Breakpoints verwenden
+### stackTrace()
 
-```bash
-# Mit Breakpoint-Datei
-dotnet run --project HypnoScript.CLI -- debug script.hyp --breakpoints breakpoints.txt
+Gibt den aktuellen Call-Stack als String zurück:
 
-# Interaktive Breakpoints
-dotnet run --project HypnoScript.CLI -- debug script.hyp --interactive
-
-# Bedingte Breakpoints
-dotnet run --project HypnoScript.CLI -- debug script.hyp --breakpoints conditional.txt
-```
-
-### Bedingte Breakpoints
-
-```txt
-# conditional.txt
-10:result > 100          # Zeile 10, wenn result > 100
-15:IsEmpty(input)        # Zeile 15, wenn input leer ist
-20:ArrayLength(arr) == 0 # Zeile 20, wenn Array leer ist
-```
-
-## Variablen-Inspektion
-
-### Variablen anzeigen
-
-```bash
-# Alle Variablen anzeigen
-dotnet run --project HypnoScript.CLI -- debug script.hyp --variables
-
-# Spezifische Variablen überwachen
-dotnet run --project HypnoScript.CLI -- debug script.hyp --watch "result,sum,total"
-
-# Variablen-Historie
-dotnet run --project HypnoScript.CLI -- debug script.hyp --variable-history
-```
-
-### Variablen-Monitoring
-
-```bash
-# Variablen in Echtzeit überwachen
-dotnet run --project HypnoScript.CLI -- debug script.hyp --monitor-variables
-
-# Variablen-Änderungen loggen
-dotnet run --project HypnoScript.CLI -- debug script.hyp --log-variables --output var-changes.log
-```
-
-## Call-Stack und Performance
-
-### Call-Stack-Analyse
-
-```bash
-# Call-Stack anzeigen
-dotnet run --project HypnoScript.CLI -- debug script.hyp --call-stack
-
-# Detaillierter Call-Stack
-dotnet run --project HypnoScript.CLI -- debug script.hyp --call-stack --detailed
-
-# Call-Stack in Datei
-dotnet run --project HypnoScript.CLI -- debug script.hyp --call-stack --output stack.log
-```
-
-### Performance-Profiling
-
-```bash
-# Performance-Profiling aktivieren
-dotnet run --project HypnoScript.CLI -- debug script.hyp --profile
-
-# Profiling-Report generieren
-dotnet run --project HypnoScript.CLI -- debug script.hyp --profile --output profile.json
-
-# Memory-Profiling
-dotnet run --project HypnoScript.CLI -- debug script.hyp --profile --memory
-```
-
-## Debugging-Commande
-
-### Interaktive Debugging-Commande
-
-```bash
-# Debug-Session starten
-dotnet run --project HypnoScript.CLI -- debug script.hyp --interactive
-
-# Verfügbare Befehle:
-# continue (c)     - Weiter ausführen
-# step (s)         - Nächste Zeile
-# next (n)         - Nächste Anweisung
-# break (b)        - Breakpoint setzen
-# variables (v)    - Variablen anzeigen
-# stack (st)       - Call-Stack anzeigen
-# quit (q)         - Beenden
-```
-
-### Example für interaktive Session
-
-```bash
-$ dotnet run --project HypnoScript.CLI -- debug script.hyp --interactive
-
-HypnoScript Debugger v1.0
-> break 15
-Breakpoint set at line 15
-> continue
-Stopped at line 15: induce result = a + b;
-> variables
-a = 5
-b = 3
-> step
-Stopped at line 16: observe "Ergebnis: " + result;
-> variables
-a = 5
-b = 3
-result = 8
-> continue
-Ergebnis: 8
-Debug session ended.
-```
-
-## Debugging in der Praxis
-
-### Einfaches Debugging-Example
-
-```hyp
-Focus {
-    entrance {
-        induce a = 5;
-        induce b = 3;
-
-        // Debug point 1: Check values
-        observe "Debug: a = " + a + ", b = " + b;
-
-        induce result = a + b;
-
-        // Debug point 2: Check result
-        observe "Debug: result = " + result;
-
-        if (result > 10) {
-            observe "Ergebnis ist größer als 10";
-        } else {
-            observe "Ergebnis ist kleiner oder gleich 10";
-        }
-    }
-} Relax;
-```
-
-### Debugging mit Breakpoints
-
-```hyp
-Focus {
-    suggestion calculateSum(a, b) {
-        // Breakpoint hier setzen
-        induce sum = a + b;
-        awaken sum;
+```hypnoscript
+Focus
+    suggestion innerFunction() {
+        observe(stackTrace());
     }
 
-    entrance {
-        induce x = 10;
-        induce y = 20;
-
-        // Breakpoint hier setzen
-        induce total = calculateSum(x, y);
-
-        observe "Summe: " + total;
+    suggestion outerFunction() {
+        innerFunction();
     }
-} Relax;
+
+    outerFunction();
+    // Ausgabe:
+    // Call Stack:
+    //   #0: innerFunction() at script.hyp:3
+    //   #1: outerFunction() at script.hyp:7
+    //   #2: <main> at script.hyp:10
+Relax
 ```
 
-### Debugging mit Trace
+### dump(value)
 
-```hyp
-Focus {
-    entrance {
-        observe "=== Debug-Trace Start ===";
+Gibt den Wert formatiert auf der Konsole aus und gibt ihn zurück (nützlich für Debugging in Ausdrücken):
 
-        induce numbers = [1, 2, 3, 4, 5];
-        observe "Debug: Array erstellt: " + numbers;
+```hypnoscript
+Focus
+    induce result = dump(calculateValue()) * 2;
+    // Gibt calculateValue() aus und verwendet es weiter
+Relax
+```
 
-        induce sum = 0;
-        observe "Debug: Summe initialisiert: " + sum;
+## Assertion-Funktionen
 
-        for (induce i = 0; i < ArrayLength(numbers); induce i = i + 1) {
-            induce num = ArrayGet(numbers, i);
-            induce oldSum = sum;
-            induce sum = sum + num;
-            observe "Debug: i=" + i + ", num=" + num + ", " + oldSum + " + " + num + " = " + sum;
-        }
+### assertEqual(actual, expected, message?)
 
-        observe "Debug: Finale Summe: " + sum;
-        observe "=== Debug-Trace Ende ===";
+Prüft, ob zwei Werte gleich sind:
+
+```hypnoscript
+Focus
+    induce result = calculate(5, 3);
+    assertEqual(result, 8, "Addition sollte 8 ergeben");
+Relax
+```
+
+### assertTruthy(value, message?)
+
+Prüft, ob ein Wert als wahr ausgewertet wird:
+
+```hypnoscript
+Focus
+    induce items = getItems();
+    assertTruthy(ArrayLength(items) > 0, "Items sollten vorhanden sein");
+Relax
+```
+
+## Timing-Funktionen
+
+### time(label) / timeEnd(label)
+
+Misst die Ausführungszeit zwischen zwei Punkten:
+
+```hypnoscript
+Focus
+    time("operation");
+
+    // Zeitaufwändige Operation
+    induce result = complexCalculation();
+
+    timeEnd("operation");
+    // Ausgabe: operation: 123.45ms
+Relax
+```
+
+### measureTime(label, callback)
+
+Misst die Ausführungszeit einer Funktion:
+
+```hypnoscript
+Focus
+    induce result = measureTime("sort", suggestion() {
+        awaken sortArray(largeArray);
+    });
+    // Ausgabe: sort: 45.67ms
+Relax
+```
+
+## Logging-Funktionen
+
+### log(message) / warn(message) / error(message)
+
+Verschiedene Log-Level für strukturierte Ausgaben:
+
+```hypnoscript
+Focus
+    log("Info: Verarbeitung gestartet");
+    warn("Warnung: Datei nicht gefunden, verwende Standard");
+    error("Fehler: Ungültiger Eingabewert");
+Relax
+```
+
+### trace(message)
+
+Gibt eine Nachricht mit Stack-Trace aus:
+
+```hypnoscript
+Focus
+    suggestion processItem(item) {
+        trace("Verarbeite Item");
+        // Ausgabe enthält aktuelle Position und Call-Stack
     }
-} Relax;
+Relax
 ```
 
-## Advanced Debugging-Features
+### breakpoint()
 
-### Memory-Debugging
+Pausiert die Ausführung im Debug-Modus:
+
+```hypnoscript
+Focus
+    induce x = 10;
+
+    breakpoint();  // Pausiert hier wenn --debug aktiv ist
+
+    induce y = x * 2;
+Relax
+```
+
+## Interaktive Debug-Befehle
+
+Im interaktiven Debug-Modus stehen diese Befehle zur Verfügung:
+
+### Ausführungssteuerung
+
+| Befehl     | Alias | Beschreibung                                  |
+| ---------- | ----- | --------------------------------------------- |
+| `continue` | `c`   | Bis zum nächsten Breakpoint fortfahren        |
+| `step`     | `s`   | Eine Zeile ausführen (step into)              |
+| `next`     | `n`   | Eine Zeile ausführen, Funktionen überspringen |
+| `finish`   | `f`   | Bis zum Ende der Funktion laufen              |
+| `run`      | `r`   | Ausführung neu starten                        |
+
+### Variablen-Inspektion
+
+| Befehl         | Alias      | Beschreibung                |
+| -------------- | ---------- | --------------------------- |
+| `locals`       | `l`        | Lokale Variablen anzeigen   |
+| `globals`      | `g`        | Globale Variablen anzeigen  |
+| `print <var>`  | `p <var>`  | Variable anzeigen           |
+| `watch <expr>` | `w <expr>` | Watch-Expression hinzufügen |
+| `watches`      |            | Alle Watches anzeigen       |
+
+### Breakpoint-Verwaltung
+
+| Befehl          | Alias      | Beschreibung              |
+| --------------- | ---------- | ------------------------- |
+| `break <line>`  | `b <line>` | Breakpoint setzen         |
+| `delete <line>` | `d <line>` | Breakpoint löschen        |
+| `breakpoints`   | `bl`       | Alle Breakpoints anzeigen |
+| `clear`         |            | Alle Breakpoints löschen  |
+
+### Navigation
+
+| Befehl               | Alias | Beschreibung                   |
+| -------------------- | ----- | ------------------------------ |
+| `list`               |       | Quellcode um aktuelle Position |
+| `list <start> <end>` |       | Quellcode-Bereich anzeigen     |
+| `where`              | `bt`  | Call-Stack anzeigen            |
+| `help`               |       | Hilfe anzeigen                 |
+| `quit`               |       | Debug-Session beenden          |
+
+## Debug-Trace-Datei
+
+Mit `--trace-file` wird eine detaillierte Protokolldatei erstellt:
 
 ```bash
-# Memory-Usage überwachen
-dotnet run --project HypnoScript.CLI -- debug script.hyp --memory-tracking
-
-# Memory-Leaks erkennen
-dotnet run --project HypnoScript.CLI -- debug script.hyp --memory-leak-detection
-
-# Memory-Report generieren
-dotnet run --project HypnoScript.CLI -- debug script.hyp --memory-report --output memory.json
+hypnoscript exec --debug --trace-file debug.log script.hyp
 ```
 
-### Exception-Debugging
+Die Trace-Datei enthält:
+
+- **Ausgeführte Zeilen** mit Zeitstempeln
+- **Variablenänderungen** bei jedem Schritt
+- **Breakpoint-Treffer** mit Kontext
+- **Call-Stack-Änderungen** bei Funktionsaufrufen
+- **Timing-Informationen** für Performance-Analyse
+
+### Beispiel Trace-Ausgabe
 
 ```bash
-# Exception-Details anzeigen
-dotnet run --project HypnoScript.CLI -- debug script.hyp --exception-details
-
-# Exception-Handling debuggen
-dotnet run --project HypnoScript.CLI -- debug script.hyp --exception-tracking
-
-# Exception-Stack-Trace
-dotnet run --project HypnoScript.CLI -- debug script.hyp --stack-trace
-```
-
-### Thread-Debugging
-
-```bash
-# Thread-Informationen anzeigen
-dotnet run --project HypnoScript.CLI -- debug script.hyp --thread-info
-
-# Thread-Switches verfolgen
-dotnet run --project HypnoScript.CLI -- debug script.hyp --thread-tracking
-
-# Deadlock-Erkennung
-dotnet run --project HypnoScript.CLI -- debug script.hyp --deadlock-detection
-```
-
-## Debugging-Konfiguration
-
-### Debug-Konfiguration in hypnoscript.config.json
-
-```json
-{
-  "debugging": {
-    "enabled": true,
-    "breakOnError": true,
-    "showVariables": true,
-    "showCallStack": true,
-    "traceExecution": false,
-    "memoryTracking": false,
-    "profiling": {
-      "enabled": false,
-      "output": "profile.json"
-    },
-    "breakpoints": {
-      "file": "breakpoints.txt",
-      "conditional": true
-    },
-    "logging": {
-      "level": "debug",
-      "output": "debug.log"
-    }
-  }
-}
-```
-
-### Debug-environment variablen
-
-```bash
-# Debug-spezifische Umgebungsvariablen
-export HYPNOSCRIPT_DEBUG=true
-export HYPNOSCRIPT_DEBUG_LEVEL=verbose
-export HYPNOSCRIPT_BREAK_ON_ERROR=true
-export HYPNOSCRIPT_SHOW_VARIABLES=true
-export HYPNOSCRIPT_TRACE_EXECUTION=true
-```
-
-## Debugging-Workflows
-
-### Entwicklungsworkflow mit Debugging
-
-```bash
-#!/bin/bash
-# debug-workflow.sh
-
-echo "=== HypnoScript Debug Workflow ==="
-
-# 1. Syntax prüfen
-echo "1. Validating syntax..."
-dotnet run --project HypnoScript.CLI -- validate script.hyp
-
-# 2. Debug-Modus mit Trace
-echo "2. Running in debug mode..."
-dotnet run --project HypnoScript.CLI -- debug script.hyp --trace --output debug.log
-
-# 3. Performance-Profiling
-echo "3. Performance profiling..."
-dotnet run --project HypnoScript.CLI -- debug script.hyp --profile --output profile.json
-
-# 4. Memory-Analyse
-echo "4. Memory analysis..."
-dotnet run --project HypnoScript.CLI -- debug script.hyp --memory-tracking --output memory.json
-
-echo "Debug workflow completed!"
-```
-
-### Automatisierte Debugging-Tests
-
-```bash
-#!/bin/bash
-# auto-debug.sh
-
-echo "=== Automated Debugging ==="
-
-# Debug-Modus mit allen Features
-dotnet run --project HypnoScript.CLI -- debug script.hyp \
-    --trace \
-    --profile \
-    --memory-tracking \
-    --variables \
-    --call-stack \
-    --output debug-complete.log
-
-# Ergebnisse analysieren
-echo "Debug results saved to debug-complete.log"
+[00:00.001] EXEC   script.hyp:5   induce x = 10;
+[00:00.001] VAR    x = Int(10)
+[00:00.002] EXEC   script.hyp:6   induce y = 20;
+[00:00.002] VAR    y = Int(20)
+[00:00.003] BREAK  script.hyp:7   Breakpoint erreicht
+[00:00.015] EXEC   script.hyp:7   induce result = x + y;
+[00:00.015] VAR    result = Int(30)
+[00:00.016] CALL   script.hyp:8   -> processResult()
+[00:00.020] RET    script.hyp:8   <- processResult() = Null
 ```
 
 ## Best Practices
 
-### Effektives Debugging
+### 1. Debugging-Code entfernen
 
-```hyp
-// 1. Strategische Breakpoints setzen
-Focus {
-    entrance {
-        induce input = "test";
+Entfernen Sie Debug-Funktionen vor dem Produktiveinsatz:
 
-        // Breakpoint 1: Eingabe validieren
-        if (IsEmpty(input)) {
-            observe "Fehler: Leere Eingabe";
-            return;
-        }
+```hypnoscript
+// Entwicklung
+breakpoint();
+dump(value);
 
-        // Breakpoint 2: Verarbeitung
-        induce processed = ToUpper(input);
-
-        // Breakpoint 3: Check result
-        observe "Verarbeitet: " + processed;
-    }
-} Relax;
+// Produktion - diese Zeilen entfernen
 ```
 
-### Debugging-Logging
+### 2. Sinnvolle Timer-Labels
 
-```hyp
-// 2. Strukturiertes Debug-Logging
-Focus {
-    suggestion debugLog(message, data) {
-        induce timestamp = Now();
-        observe "[" + timestamp + "] DEBUG: " + message + " = " + data;
-    }
+Verwenden Sie beschreibende Labels für Timing:
 
-    entrance {
-        debugLog("Start", "Skript beginnt");
-
-        induce result = 42;
-        debugLog("Berechnung", result);
-
-        debugLog("Ende", "Skript beendet");
-    }
-} Relax;
+```hypnoscript
+time("database-query");
+time("json-parsing");
+time("api-call-users");
 ```
 
-### Performance-Debugging
+### 3. Assertions für Tests
 
-```hyp
-// 3. Performance-kritische Bereiche debuggen
-Focus {
-    entrance {
-        induce startTime = Timestamp();
+Nutzen Sie Assertions für automatisierte Tests:
 
-        // Performance-kritischer Code
-        for (induce i = 0; i < 1000; induce i = i + 1) {
-            induce result = Pow(i, 2);
-        }
+```hypnoscript
+Focus
+    induce result = add(2, 3);
+    assertEqual(result, 5, "add() sollte korrekt addieren");
 
-        induce endTime = Timestamp();
-        induce duration = endTime - startTime;
-
-        if (duration > 1.0) {
-            observe "WARNUNG: Langsame Ausführung (" + duration + "s)";
-        }
-    }
-} Relax;
+    induce isEmpty = isListEmpty([]);
+    assertTruthy(isEmpty, "Leere Liste sollte leer sein");
+Relax
 ```
 
-## Troubleshooting
+### 4. Trace-Dateien für Analyse
 
-### Häufige Debugging-Probleme
+Nutzen Sie Trace-Dateien für Post-Mortem-Analyse:
 
-1. **Breakpoints werden ignoriert**
+```bash
+# Trace erstellen
+hypnoscript exec --debug --trace-file crash.log problematic.hyp
 
-   ```bash
-   # Prüfen Sie die Zeilennummern
-   cat -n script.hyp
-
-   # Verwenden Sie absolute Pfade
-   dotnet run --project HypnoScript.CLI -- debug /absolute/path/script.hyp
-   ```
-
-2. **Variablen werden nicht angezeigt**
-
-   ```bash
-   # Debug-Modus mit expliziter Variablen-Anzeige
-   dotnet run --project HypnoScript.CLI -- debug script.hyp --variables --verbose
-
-   # Variablen-Scope prüfen
-   dotnet run --project HypnoScript.CLI -- debug script.hyp --variable-scope
-   ```
-
-3. **Trace-File ist zu groß**
-
-   ```bash
-   # Selektives Tracing
-   dotnet run --project HypnoScript.CLI -- debug script.hyp --trace --filter "function1,function2"
-
-   # Trace komprimieren
-   dotnet run --project HypnoScript.CLI -- debug script.hyp --trace --compressed
-   ```
-
-## Next Steps
-
-- [Debugging-Best-Practices](./best-practices) - Advanced Debugging-Techniken
-- [Performance-Debugging](./performance) - Performance-Optimierung
-- [Error-Handling](../error-handling/overview) - Fehlerbehandlung
-- [Runtime-Debugging](../enterprise/debugging) - Runtime-Debugging-Tools
-
----
-
-**Debugging-Tools gemeistert? Dann lerne [Debugging-Best-Practices](./best-practices) kennen!** 🔍
+# Später analysieren
+cat crash.log | grep "ERROR\|BREAK"
+```

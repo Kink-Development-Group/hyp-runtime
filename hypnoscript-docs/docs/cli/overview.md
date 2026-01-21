@@ -35,25 +35,25 @@ hypnoscript --help
 # Version information
 hypnoscript version
 
-# Run a program
-hypnoscript run hello.hyp
+# Execute a program
+hypnoscript exec hello.hyp
 ```
 
 All subcommands are intentionally kept lean. For a deeper look, check out the following sections.
 
 ## Command Overview
 
-| Command        | Brief Description                                |
-| -------------- | ------------------------------------------------ |
-| `run`          | Executes a HypnoScript program                   |
-| `run --debug`  | Additionally shows tokens, AST and type checking |
-| `lex`          | Tokenizes a file                                 |
-| `parse`        | Shows the AST                                    |
-| `check`        | Performs type checking                           |
-| `compile-wasm` | Generates WebAssembly Text Format (.wat)         |
-| `self-update`  | Checks releases and runs the new installer       |
-| `builtins`     | Lists all available builtin functions            |
-| `version`      | Shows version and feature information            |
+| Command        | Brief Description                                      |
+| -------------- | ------------------------------------------------------ |
+| `exec`         | Executes a HypnoScript program                         |
+| `exec --debug` | Starts interactive debugger with breakpoints, stepping |
+| `lex`          | Tokenizes a file                                       |
+| `parse`        | Shows the AST                                          |
+| `check`        | Performs type checking                                 |
+| `compile-wasm` | Generates WebAssembly Text Format (.wat)               |
+| `self-update`  | Checks releases and runs the new installer             |
+| `builtins`     | Lists all available builtin functions                  |
+| `version`      | Shows version and feature information                  |
 
 Further details are provided on the [CLI Commands](./commands) page.
 

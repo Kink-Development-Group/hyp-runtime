@@ -48,7 +48,10 @@ impl BuiltinModule for DebugBuiltins {
     fn description_localized(locale: Option<&str>) -> String {
         let msg = LocalizedMessage::new("Debugging utilities for HypnoScript programs")
             .with_translation("de", "Debug-Hilfsmittel für HypnoScript-Programme")
-            .with_translation("fr", "Utilitaires de débogage pour les programmes HypnoScript")
+            .with_translation(
+                "fr",
+                "Utilitaires de débogage pour les programmes HypnoScript",
+            )
             .with_translation("es", "Utilidades de depuración para programas HypnoScript");
 
         let loc = crate::localization::detect_locale(locale);
@@ -252,7 +255,9 @@ impl DebugBuiltins {
     /// * `label` - The timer label
     pub fn time(label: &str) {
         TIMERS.with(|timers| {
-            timers.borrow_mut().insert(label.to_string(), Instant::now());
+            timers
+                .borrow_mut()
+                .insert(label.to_string(), Instant::now());
         });
     }
 
@@ -473,10 +478,7 @@ mod tests {
     #[test]
     fn test_inspect() {
         assert_eq!(DebugBuiltins::inspect("42", "number"), "42 (number)");
-        assert_eq!(
-            DebugBuiltins::inspect("hello", "string"),
-            "hello (string)"
-        );
+        assert_eq!(DebugBuiltins::inspect("hello", "string"), "hello (string)");
         assert_eq!(DebugBuiltins::inspect("true", "boolean"), "true (boolean)");
     }
 
