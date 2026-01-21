@@ -146,7 +146,7 @@ induce endsWithHypno = EndsWith(text, "Hypno"); // false
 Finds the first index of a substring.
 
 ```hyp
-induce text = "HypnoScript ist eine Programmiersprache";
+induce text = "HypnoScript is a programming language";
 induce index = IndexOf(text, "Script");
 observe "Index of 'Script': " + index; // 5
 ```
@@ -252,7 +252,7 @@ Pads a string on the right with characters.
 ```hyp
 induce text = "Hello";
 induce padded = PadRight(text, 10, "*");
-observe padded; // "Hallo*****"
+observe padded; // "Hello*****"
 ```
 
 ### FormatString(template, ...args)
@@ -260,10 +260,10 @@ observe padded; // "Hallo*****"
 Formats a string with placeholders.
 
 ```hyp
-induce name = "Max";
+induce name = "Alex";
 induce age = 30;
 induce formatted = FormatString("Hello {0}, you are {1} years old", name, age);
-observe formatted; // "Hello Max, you are 30 years old"
+observe formatted; // "Hello Alex, you are 30 years old"
 ```
 
 ## String Analysis (Advanced)

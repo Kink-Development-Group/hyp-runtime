@@ -16,7 +16,7 @@ use serde::Deserialize;
 use std::io::Write;
 use std::process::{Command, Stdio};
 use std::{env, fs, time::Duration};
-use ureq::{Agent, AgentBuilder};
+use ureq::Agent;
 
 #[cfg(not(target_os = "windows"))]
 use std::path::{Path, PathBuf};
@@ -666,19 +666,22 @@ fn build_agent() -> Agent {
         .and_then(|s| s.parse::<u64>().ok())
         .unwrap_or(DEFAULT_TIMEOUT_SECS);
 
-    AgentBuilder::new()
-        .timeout(Duration::from_secs(timeout_secs))
-        .user_agent(&format!("hypnoscript-cli/{}", env!("CARGO_PKG_VERSION")))
+    Agent::config_builder()
+        .timeout_global(Some(Duration::from_secs(timeout_secs)))
+        .user_agent(format!("hypnoscript-cli/{}", env!("CARGO_PKG_VERSION")))
         .build()
+        .new_agent()
 }
 
-fn github_get(agent: &Agent, url: &str) -> ureq::Request {
-    let mut request = agent.get(url).set("Accept", "application/vnd.github+json");
+fn github_get(agent: &Agent, url: &str) -> ureq::RequestBuilder<ureq::typestate::WithoutBody> {
+    let mut request = agent
+        .get(url)
+        .header("Accept", "application/vnd.github+json");
 
     if let Ok(token) = env::var("GITHUB_TOKEN") {
         request = request
-            .set("Authorization", &format!("Bearer {}", token))
-            .set("X-GitHub-Api-Version", "2022-11-28");
+            .header("Authorization", &format!("Bearer {}", token))
+            .header("X-GitHub-Api-Version", "2022-11-28");
     }
 
     request
@@ -692,7 +695,8 @@ fn fetch_latest_release(agent: &Agent, include_prerelease: bool) -> Result<Githu
         );
         let releases: Vec<GithubRelease> = github_get(agent, &url)
             .call()?
-            .into_json::<Vec<GithubRelease>>()?
+            .body_mut()
+            .read_json::<Vec<GithubRelease>>()?
             .into_iter()
             .filter(|release| !release.draft)
             .collect();
@@ -706,7 +710,7 @@ fn fetch_latest_release(agent: &Agent, include_prerelease: bool) -> Result<Githu
             "{}/repos/{}/{}/releases/latest",
             GITHUB_API, GITHUB_OWNER, GITHUB_REPO
         );
-        let release: GithubRelease = github_get(agent, &url).call()?.into_json()?;
+        let release: GithubRelease = github_get(agent, &url).call()?.body_mut().read_json()?;
         Ok(release)
     }
 }

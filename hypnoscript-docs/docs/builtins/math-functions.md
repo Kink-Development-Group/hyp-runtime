@@ -205,7 +205,7 @@ Checks if a number is prime.
 ```hyp
 Focus {
     induce result: boolean = is_prime(7);  // true
-    observe "7 ist Primzahl: " + result;
+    observe "7 is prime: " + result;
 } Relax
 ```
 
@@ -591,7 +591,7 @@ induce random2 = RandomInt(-100, 100); // Random integer between -100 and 100
 Selects a random element from an array.
 
 ```hyp
-induce fruits = ["Apfel", "Banane", "Orange"];
+induce fruits = ["Apple", "Banana", "Orange"];
 induce randomFruit = RandomChoice(fruits); // Random fruit
 ```
 
@@ -716,16 +716,16 @@ Focus {
             }
         }
 
-        observe "Notenverteilung:";
-        observe "Ausgezeichnet (90+): " + excellent;
-        observe "Gut (80-89): " + good;
-        observe "Durchschnittlich (70-79): " + average;
-        observe "Schwach (<70): " + poor;
+        observe "Grade distribution:";
+        observe "Excellent (90+): " + excellent;
+        observe "Good (80-89): " + good;
+        observe "Average (70-79): " + average;
+        observe "Poor (<70): " + poor;
     }
 } Relax;
 ```
 
-### Finanzmathematik
+### Financial Mathematics
 
 ```hyp
 Focus {
@@ -830,12 +830,12 @@ if (Abs(a - b) < 0.0001) {
 }
 
 // Use Round for output
-observe "Ergebnis: " + Round(result, 4);
+observe "Result: " + Round(result, 4);
 
 // Large numbers
 induce largeNumber = 123456789;
 induce formatted = FormatString("{0:N0}", largeNumber);
-observe "Zahl: " + formatted; // 123,456,789
+observe "Number: " + formatted; // 123,456,789
 ```
 
 ### Performance Optimization

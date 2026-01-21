@@ -14,11 +14,11 @@ anyhow = { workspace = true }
 thiserror = { workspace = true }
 reqwest = { workspace = true }
 csv = { workspace = true }
-chrono = "0.4"
-regex = "1.10"
-num_cpus = "1.16"
-hostname = "0.4"
-sha2 = "0.10"
-md5 = "0.7"
-base64 = "0.22"
-uuid = { version = "1.11", features = ["v4"] }
+chrono = "0.4.43"
+regex = "1.12.2"
+num_cpus = "1.17.0"
+hostname = "0.4.2"
+sha2 = "0.10.9"
+md5 = "0.8.0"
+base64 = "0.22.1"
+uuid = { version = "1.19.0", features = ["v4"] }

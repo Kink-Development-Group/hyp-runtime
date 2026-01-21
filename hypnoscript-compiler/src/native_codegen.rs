@@ -175,8 +175,6 @@ pub struct NativeCodeGenerator {
     function_map: HashMap<String, usize>,
     /// Generate debug information
     debug_info: bool,
-    /// Next variable ID
-    next_var_id: usize,
 }
 
 impl Default for NativeCodeGenerator {
@@ -203,7 +201,6 @@ impl NativeCodeGenerator {
             variable_map: HashMap::new(),
             function_map: HashMap::new(),
             debug_info: false,
-            next_var_id: 0,
         }
     }
 
@@ -259,7 +256,6 @@ impl NativeCodeGenerator {
     pub fn generate(&mut self, program: &AstNode) -> Result<PathBuf, NativeCodegenError> {
         self.variable_map.clear();
         self.function_map.clear();
-        self.next_var_id = 0;
 
         // Determine the target triple (will be used in the future)
         let _triple = self.get_target_triple();
@@ -494,11 +490,8 @@ impl NativeCodeGenerator {
             AstNode::VariableDeclaration {
                 name, initializer, ..
             } => {
-                // Create variable
-                let var = Variable::new(self.next_var_id);
-                self.next_var_id += 1;
-
-                builder.declare_var(var, types::F64);
+                // Create variable - declare_var returns the Variable in newer cranelift
+                let var = builder.declare_var(types::F64);
                 self.variable_map.insert(name.clone(), var);
 
                 // Initialize variable

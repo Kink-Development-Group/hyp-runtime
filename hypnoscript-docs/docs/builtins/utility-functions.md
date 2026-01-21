@@ -45,8 +45,8 @@ induce b4 = ToBoolean(""); // false
 Parses a JSON string into an object/array.
 
 ```hyp
-induce obj = ParseJSON('{"name": "Max", "age": 30}');
-induce name = obj.name; // "Max"
+induce obj = ParseJSON('{"name": "Alex", "age": 30}');
+induce name = obj.name; // "Alex"
 ```
 
 ### StringifyJSON(value)
@@ -92,7 +92,7 @@ induce isNum2 = IsNumber("42"); // false
 Checks whether a value is a string.
 
 ```hyp
-induce isStr1 = IsString("Hallo"); // true
+induce isStr1 = IsString("Hello"); // true
 induce isStr2 = IsString(42); // false
 ```
 
@@ -300,7 +300,7 @@ Focus {
 ```hyp
 Focus {
     entrance {
-        induce names = ["Anna", "Ben", "Carla", "Dieter"];
+        induce names = ["Anna", "Ben", "Carla", "Dylan"];
         induce winner = Sample(names, 1);
         observe "Winner: " + winner;
         induce shuffled = Shuffle(names);
