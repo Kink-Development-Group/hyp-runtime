@@ -87,23 +87,23 @@ impl BuiltinError {
         // Build localized message based on category and key
         let base_msg = match (self.category, self.message_key.as_str()) {
             ("validation", "invalid_email") => LocalizedMessage::new("Invalid email address")
-                .with_translation("de", "Ungültige E-Mail-Adresse")
+                .with_translation("de", "Invalid email address")
                 .with_translation("fr", "Adresse e-mail invalide")
                 .with_translation("es", "Dirección de correo electrónico no válida"),
             ("validation", "invalid_url") => LocalizedMessage::new("Invalid URL")
-                .with_translation("de", "Ungültige URL")
+                .with_translation("de", "Invalid URL")
                 .with_translation("fr", "URL invalide")
                 .with_translation("es", "URL no válida"),
             ("io", "file_not_found") => LocalizedMessage::new("File not found: {}")
-                .with_translation("de", "Datei nicht gefunden: {}")
+                .with_translation("de", "File not found: {}")
                 .with_translation("fr", "Fichier introuvable : {}")
                 .with_translation("es", "Archivo no encontrado: {}"),
             ("math", "division_by_zero") => LocalizedMessage::new("Division by zero")
-                .with_translation("de", "Division durch Null")
+                .with_translation("de", "Division by zero")
                 .with_translation("fr", "Division par zéro")
                 .with_translation("es", "División por cero"),
             ("array", "index_out_of_bounds") => LocalizedMessage::new("Index out of bounds: {}")
-                .with_translation("de", "Index außerhalb des gültigen Bereichs: {}")
+                .with_translation("de", "Index out of bounds: {}")
                 .with_translation("fr", "Index hors limites : {}")
                 .with_translation("es", "Índice fuera de límites: {}"),
             _ => LocalizedMessage::new(format!("Error in {}: {}", self.category, self.message_key)),
@@ -146,7 +146,7 @@ mod tests {
         assert_eq!(en_msg, "Invalid email address");
 
         let de_msg = err.to_localized_string(Some("de"));
-        assert_eq!(de_msg, "Ungültige E-Mail-Adresse");
+        assert_eq!(de_msg, "Invalid email address");
     }
 
     #[test]
@@ -157,6 +157,6 @@ mod tests {
         assert_eq!(en_msg, "File not found: test.txt");
 
         let de_msg = err.to_localized_string(Some("de"));
-        assert_eq!(de_msg, "Datei nicht gefunden: test.txt");
+        assert_eq!(de_msg, "File not found: test.txt");
     }
 }

@@ -170,7 +170,7 @@ dotnet run --project HypnoScript.CLI -- lint *.hyp --severity error
 echo "4. Running tests..."
 dotnet run --project HypnoScript.CLI -- test *.hyp
 
-# 5. Build erstellen
+# 5. Build
 echo "5. Building..."
 dotnet run --project HypnoScript.CLI -- build main.hyp --optimize
 
@@ -219,7 +219,7 @@ jobs:
         run: dotnet run --project HypnoScript.CLI -- package main.hyp --runtime linux-x64
 ```
 
-### Deployment-Skript
+### Deployment Script
 
 ```bash
 #!/bin/bash
@@ -227,13 +227,13 @@ jobs:
 
 echo "=== HypnoScript Deployment ==="
 
-# Umgebungsvariablen prüfen
+# Check environment variables
 if [ -z "$DEPLOY_PATH" ]; then
     echo "Error: DEPLOY_PATH not set"
     exit 1
 fi
 
-# Build erstellen
+# Build
 echo "Building application..."
 dotnet run --project HypnoScript.CLI -- build main.hyp --optimize
 
@@ -241,7 +241,7 @@ dotnet run --project HypnoScript.CLI -- build main.hyp --optimize
 echo "Running tests..."
 dotnet run --project HypnoScript.CLI -- test *.hyp
 
-# Paket erstellen
+# Create package
 echo "Creating deployment package..."
 dotnet run --project HypnoScript.CLI -- package main.hyp --runtime linux-x64 --output app
 
@@ -253,9 +253,9 @@ chmod +x $DEPLOY_PATH/app
 echo "Deployment completed!"
 ```
 
-## Konfiguration und Umgebung
+## Configuration and Environment
 
-### Konfigurationsdatei (hypnoscript.config.json)
+### Configuration File (hypnoscript.config.json)
 
 ```json
 {
@@ -292,41 +292,41 @@ export HYPNOSCRIPT_LOG_LEVEL="debug"
 export HYPNOSCRIPT_CONFIG="./config.json"
 export HYPNOSCRIPT_TIMEOUT="60000"
 
-# Skript mit Umgebungsvariablen ausführen
+# Run script with environment variables
 dotnet run --project HypnoScript.CLI -- run script.hyp
 ```
 
-## Monitoring und Logging
+## Monitoring and Logging
 
-### Logging-Konfiguration
+### Logging Configuration
 
 ```bash
-# Detailliertes Logging
+# Detailed logging
 dotnet run --project HypnoScript.CLI -- run script.hyp --log-level debug
 
-# Nur Fehler loggen
+# Log errors only
 dotnet run --project HypnoScript.CLI -- run script.hyp --log-level error
 
-# Logs in Datei umleiten
+# Redirect logs to file
 dotnet run --project HypnoScript.CLI -- run script.hyp --verbose > script.log 2>&1
 ```
 
-### Performance-Monitoring
+### Performance Monitoring
 
 ```bash
-# Mit Performance-Metriken
+# With performance metrics
 dotnet run --project HypnoScript.CLI -- run script.hyp --verbose --metrics
 
-# Memory-Usage überwachen
+# Monitor memory usage
 dotnet run --project HypnoScript.CLI -- run script.hyp --max-memory 1024
 ```
 
 ## Best Practices
 
-### Skript-Organisation
+### Script Organization
 
 ```bash
-# Projektstruktur
+# Project structure
 my-project/
 ├── src/
 │   ├── main.hyp
@@ -344,7 +344,7 @@ my-project/
     └── dist/
 ```
 
-### Automatisierte Workflows
+### Automated Workflows
 
 ```bash
 # Pre-commit Hook (.git/hooks/pre-commit)
@@ -375,24 +375,24 @@ echo "Pre-commit checks passed!"
 ### Error Handling
 
 ```bash
-# Robuster Workflow mit Fehlerbehandlung
+# Robust workflow with error handling
 #!/bin/bash
 
 set -e  # Exit on error
 
 echo "Starting robust workflow..."
 
-# Funktion für Fehlerbehandlung
+# Error handling function
 handle_error() {
     echo "Error occurred in line $1"
     echo "Cleaning up..."
-    # Cleanup-Code hier
+    # Cleanup code here
     exit 1
 }
 
 trap 'handle_error $LINENO' ERR
 
-# Workflow-Schritte
+# Workflow steps
 dotnet run --project HypnoScript.CLI -- validate *.hyp
 dotnet run --project HypnoScript.CLI -- test *.hyp
 dotnet run --project HypnoScript.CLI -- build main.hyp --optimize
@@ -409,4 +409,3 @@ echo "Workflow completed successfully!"
 ---
 
 **Mastered CLI workflows? Then check out [advanced configuration](../cli/configuration)!** ⚙️
-

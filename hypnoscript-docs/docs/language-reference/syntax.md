@@ -318,7 +318,7 @@ Focus {
     entrance {
         // Create record
         induce person = {
-            name: "Max Mustermann",
+            name: "John Doe",
             age: 30,
             city: "Berlin",
             hobbies: ["Programming", "Reading", "Sports"]
@@ -335,9 +335,9 @@ Focus {
 
         // Nested records
         induce company = {
-            name: "HypnoScript GmbH",
+            name: "HypnoScript LLC",
             address: {
-                street: "Musterstraße 123",
+                street: "Example Street 123",
                 city: "Berlin",
                 zip: "10115"
             },

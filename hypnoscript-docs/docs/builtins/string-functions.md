@@ -37,10 +37,10 @@ induce part2 = Substring(text, 5, 6); // "Script"
 Concatenates multiple strings.
 
 ```hyp
-induce firstName = "Max";
-induce lastName = "Mustermann";
+induce firstName = "John";
+induce lastName = "Doe";
 induce fullName = Concat(firstName, " ", lastName);
-observe fullName; // "Max Mustermann"
+observe fullName; // "John Doe"
 ```
 
 ## String Manipulation
@@ -93,7 +93,7 @@ Checks if a string is empty.
 
 ```hyp
 induce empty = "";
-induce notEmpty = "Hallo";
+induce notEmpty = "Hello";
 induce isEmpty1 = IsEmpty(empty); // true
 induce isEmpty2 = IsEmpty(notEmpty); // false
 ```
@@ -104,7 +104,7 @@ Checks if a string contains only whitespace.
 
 ```hyp
 induce whitespace = "   \t\n  ";
-induce text = "Hallo Welt";
+induce text = "Hello World";
 induce isWhitespace1 = IsWhitespace(whitespace); // true
 induce isWhitespace2 = IsWhitespace(text); // false
 ```
@@ -114,7 +114,7 @@ induce isWhitespace2 = IsWhitespace(text); // false
 Checks if a string contains a substring.
 
 ```hyp
-induce text = "HypnoScript ist eine Programmiersprache";
+induce text = "HypnoScript is a programming language";
 induce hasScript = Contains(text, "Script"); // true
 induce hasPython = Contains(text, "Python"); // false
 ```
@@ -146,9 +146,9 @@ induce endsWithHypno = EndsWith(text, "Hypno"); // false
 Finds the first index of a substring.
 
 ```hyp
-induce text = "HypnoScript ist eine Programmiersprache";
+induce text = "HypnoScript is a programming language";
 induce index = IndexOf(text, "Script");
-observe "Index von 'Script': " + index; // 5
+observe "Index of 'Script': " + index; // 5
 ```
 
 ### LastIndexOf(str, substring)
@@ -158,7 +158,7 @@ Finds the last index of a substring.
 ```hyp
 induce text = "HypnoScript Script Script";
 induce lastIndex = LastIndexOf(text, "Script");
-observe "Letzter Index von 'Script': " + lastIndex; // 18
+observe "Last index of 'Script': " + lastIndex; // 18
 ```
 
 ### CountOccurrences(str, substring)
@@ -168,7 +168,7 @@ Counts the occurrences of a substring.
 ```hyp
 induce text = "HypnoScript Script Script";
 induce count = CountOccurrences(text, "Script");
-observe "Anzahl 'Script': " + count; // 3
+observe "Count of 'Script': " + count; // 3
 ```
 
 ## String Transformation
@@ -218,9 +218,9 @@ observe "'" + trimmed + "'"; // "HypnoScript"
 Replaces all occurrences of a substring.
 
 ```hyp
-induce text = "HypnoScript ist eine Programmiersprache";
-induce replaced = Replace(text, "Programmiersprache", "Sprache");
-observe replaced; // "HypnoScript ist eine Sprache"
+induce text = "HypnoScript is a programming language";
+induce replaced = Replace(text, "programming language", "language");
+observe replaced; // "HypnoScript is a language"
 ```
 
 ### ReplaceAll(str, oldValue, newValue)
@@ -228,8 +228,8 @@ observe replaced; // "HypnoScript ist eine Sprache"
 Replaces all occurrences (alias for Replace).
 
 ```hyp
-induce text = "Hallo Hallo Hallo";
-induce replaced = ReplaceAll(text, "Hallo", "Hi");
+induce text = "Hello Hello Hello";
+induce replaced = ReplaceAll(text, "Hello", "Hi");
 observe replaced; // "Hi Hi Hi"
 ```
 
@@ -250,9 +250,9 @@ observe padded; // "00042"
 Pads a string on the right with characters.
 
 ```hyp
-induce text = "Hallo";
+induce text = "Hello";
 induce padded = PadRight(text, 10, "*");
-observe padded; // "Hallo*****"
+observe padded; // "Hello*****"
 ```
 
 ### FormatString(template, ...args)
@@ -260,10 +260,10 @@ observe padded; // "Hallo*****"
 Formats a string with placeholders.
 
 ```hyp
-induce name = "Max";
+induce name = "Alex";
 induce age = 30;
-induce formatted = FormatString("Hallo {0}, du bist {1} Jahre alt", name, age);
-observe formatted; // "Hallo Max, du bist 30 Jahre alt"
+induce formatted = FormatString("Hello {0}, you are {1} years old", name, age);
+observe formatted; // "Hello Alex, you are 30 years old"
 ```
 
 ## String Analysis (Advanced)
@@ -323,9 +323,9 @@ induce isAlphaNum2 = IsAlphaNumeric(notAlphanumeric); // false
 Splits a string at a delimiter.
 
 ```hyp
-induce text = "Apfel,Banane,Orange";
+induce text = "Apple,Banana,Orange";
 induce fruits = Split(text, ",");
-observe fruits; // ["Apfel", "Banane", "Orange"]
+observe fruits; // ["Apple", "Banana", "Orange"]
 ```
 
 ### SplitLines(str)
@@ -333,9 +333,9 @@ observe fruits; // ["Apfel", "Banane", "Orange"]
 Splits a string at line breaks.
 
 ```hyp
-induce text = "Zeile 1\nZeile 2\nZeile 3";
+induce text = "Line 1\nLine 2\nLine 3";
 induce lines = SplitLines(text);
-observe lines; // ["Zeile 1", "Zeile 2", "Zeile 3"]
+observe lines; // ["Line 1", "Line 2", "Line 3"]
 ```
 
 ### SplitWords(str)
@@ -343,9 +343,9 @@ observe lines; // ["Zeile 1", "Zeile 2", "Zeile 3"]
 Splits a string into words.
 
 ```hyp
-induce text = "HypnoScript ist eine Programmiersprache";
+induce text = "HypnoScript is a programming language";
 induce words = SplitWords(text);
-observe words; // ["HypnoScript", "ist", "eine", "Programmiersprache"]
+observe words; // ["HypnoScript", "is", "a", "programming", "language"]
 ```
 
 ## String Statistics
@@ -355,9 +355,9 @@ observe words; // ["HypnoScript", "ist", "eine", "Programmiersprache"]
 Counts the words in a string.
 
 ```hyp
-induce text = "HypnoScript ist eine Programmiersprache";
+induce text = "HypnoScript is a programming language";
 induce wordCount = CountWords(text);
-observe "Wörter: " + wordCount; // 4
+observe "Words: " + wordCount; // 5
 ```
 
 ### CountCharacters(str)
@@ -365,9 +365,9 @@ observe "Wörter: " + wordCount; // 4
 Counts the characters in a string.
 
 ```hyp
-induce text = "Hallo Welt!";
+induce text = "Hello World!";
 induce charCount = CountCharacters(text);
-observe "Zeichen: " + charCount; // 10
+observe "Characters: " + charCount; // 12
 ```
 
 ### CountLines(str)
@@ -375,9 +375,9 @@ observe "Zeichen: " + charCount; // 10
 Counts the lines in a string.
 
 ```hyp
-induce text = "Zeile 1\nZeile 2\nZeile 3";
+induce text = "Line 1\nLine 2\nLine 3";
 induce lineCount = CountLines(text);
-observe "Zeilen: " + lineCount; // 3
+observe "Lines: " + lineCount; // 3
 ```
 
 ## String Comparisons
@@ -387,8 +387,8 @@ observe "Zeilen: " + lineCount; // 3
 Compares two strings lexicographically.
 
 ```hyp
-induce str1 = "Apfel";
-induce str2 = "Banane";
+induce str1 = "Apple";
+induce str2 = "Banana";
 induce comparison = Compare(str1, str2);
 observe comparison; // -1 (str1 < str2)
 ```
@@ -440,29 +440,29 @@ observe uuid; // "123e4567-e89b-12d3-a456-426614174000"
 ```hyp
 Focus {
     entrance {
-        induce text = "HypnoScript ist eine innovative Programmiersprache mit hypnotischer Syntax.";
+        induce text = "HypnoScript is an innovative programming language with hypnotic syntax.";
 
         observe "Original: " + text;
-        observe "Länge: " + Length(text);
-        observe "Wörter: " + CountWords(text);
-        observe "Zeichen: " + CountCharacters(text);
+        observe "Length: " + Length(text);
+        observe "Words: " + CountWords(text);
+        observe "Characters: " + CountCharacters(text);
 
         induce upperText = ToUpper(text);
-        observe "Großbuchstaben: " + upperText;
+        observe "Uppercase: " + upperText;
 
         induce titleText = TitleCase(text);
         observe "Title Case: " + titleText;
 
         induce words = SplitWords(text);
-        observe "Wörter-Array: " + words;
+        observe "Words array: " + words;
 
         induce hasHypno = Contains(text, "Hypno");
-        observe "Enthält 'Hypno': " + hasHypno;
+        observe "Contains 'Hypno': " + hasHypno;
     }
 } Relax;
 ```
 
-### E-Mail-Validierung
+### Email Validation
 
 ```hyp
 Focus {
@@ -500,55 +500,55 @@ Focus {
         for (induce i = 0; i < ArrayLength(emails); induce i = i + 1) {
             induce email = ArrayGet(emails, i);
             induce isValid = validateEmail(email);
-            observe email + " ist gültig: " + isValid;
+            observe email + " is valid: " + isValid;
         }
     }
 } Relax;
 ```
 
-### Text-Formatierung
+### Text Formatting
 
 ```hyp
 Focus {
     entrance {
-        induce name = "max mustermann";
+        induce name = "john doe";
         induce age = 30;
         induce city = "berlin";
 
-        // Namen formatieren
+        // Format name
         induce formattedName = TitleCase(name);
-        observe "Name: " + formattedName; // "Max Mustermann"
+        observe "Name: " + formattedName; // "John Doe"
 
-        // Adresse formatieren
-        induce address = Concat(formattedName, ", ", ToNumber(age), " Jahre, ", TitleCase(city));
-        observe "Adresse: " + address;
+        // Format address
+        induce address = Concat(formattedName, ", ", ToNumber(age), " years, ", TitleCase(city));
+        observe "Address: " + address;
 
-        // Telefonnummer formatieren
+        // Format phone number
         induce phone = "1234567890";
         induce formattedPhone = FormatString("({0}) {1}-{2}",
             Substring(phone, 0, 3),
             Substring(phone, 3, 3),
             Substring(phone, 6, 4));
-        observe "Telefon: " + formattedPhone; // "(123) 456-7890"
+        observe "Phone: " + formattedPhone; // "(123) 456-7890"
     }
 } Relax;
 ```
 
 ## Best Practices
 
-### Effiziente String-Operationen
+### Efficient String Operations
 
 ```hyp
-// Strings zusammenbauen
-induce parts = ["Hallo", "Welt", "!"];
+// Build strings
+induce parts = ["Hello", "World", "!"];
 induce result = Concat(ArrayGet(parts, 0), " ", ArrayGet(parts, 1), ArrayGet(parts, 2));
 
-// String-Vergleiche
-if (EqualsIgnoreCase(input, "ja")) {
-    // Case-insensitive Vergleich
+// String comparisons
+if (EqualsIgnoreCase(input, "yes")) {
+    // Case-insensitive comparison
 }
 
-// Sichere String-Operationen
+// Safe string operations
 suggestion safeSubstring(str, start, length) {
     if (IsEmpty(str) || start < 0 || length <= 0) {
         awaken "";
@@ -560,17 +560,17 @@ suggestion safeSubstring(str, start, length) {
 }
 ```
 
-### Performance-Optimierung
+### Performance Optimization
 
 ```hyp
 // Process large strings in chunks
-induce largeText = Repeat("Hallo Welt ", 1000);
+induce largeText = Repeat("Hello World ", 1000);
 induce chunkSize = 100;
 induce chunks = ChunkArray(Split(largeText, " "), chunkSize);
 
 for (induce i = 0; i < ArrayLength(chunks); induce i = i + 1) {
     induce chunk = ArrayGet(chunks, i);
-    // Chunk verarbeiten
+    // Process chunk
 }
 ```
 

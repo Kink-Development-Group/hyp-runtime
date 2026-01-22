@@ -1,7 +1,9 @@
+mod debug_repl;
 mod package;
 
 use anyhow::{Result, anyhow};
 use clap::{Parser, Subcommand};
+use debug_repl::{DebugConfig, run_debug_session};
 use hypnoscript_compiler::{
     Interpreter, NativeCodeGenerator, OptimizationLevel, Optimizer, TargetPlatform, TypeChecker,
     WasmBinaryGenerator, WasmCodeGenerator,
@@ -14,7 +16,7 @@ use serde::Deserialize;
 use std::io::Write;
 use std::process::{Command, Stdio};
 use std::{env, fs, time::Duration};
-use ureq::{Agent, AgentBuilder};
+use ureq::Agent;
 
 #[cfg(not(target_os = "windows"))]
 use std::path::{Path, PathBuf};
@@ -23,7 +25,7 @@ const GITHUB_OWNER: &str = "Kink-Development-Group";
 const GITHUB_REPO: &str = "hyp-runtime";
 const GITHUB_API: &str = "https://api.github.com";
 const DEFAULT_TIMEOUT_SECS: u64 = 20;
-const DEFAULT_PACKAGE_VERSION: &str = "^1.0.0";
+const DEFAULT_PACKAGE_VERSION: &str = "^1.2.0";
 #[cfg(not(target_os = "windows"))]
 const INSTALLER_FALLBACK_URL: &str =
     "https://kink-development-group.github.io/hyp-runtime/install.sh";
@@ -54,13 +56,25 @@ enum Commands {
         /// Path to the .hyp file
         file: String,
 
-        /// Enable debug mode
+        /// Enable debug mode (interactive debugger)
         #[arg(short, long)]
         debug: bool,
 
         /// Enable verbose output
         #[arg(short, long)]
         verbose: bool,
+
+        /// Set breakpoints at specific lines (comma-separated)
+        #[arg(long, value_delimiter = ',')]
+        breakpoints: Option<Vec<usize>>,
+
+        /// Watch expressions to monitor (comma-separated)
+        #[arg(long, value_delimiter = ',')]
+        watch: Option<Vec<String>>,
+
+        /// Output trace information to file
+        #[arg(long)]
+        trace_file: Option<String>,
     },
 
     /// Lex a HypnoScript file (tokenize)
@@ -212,6 +226,9 @@ fn main() -> Result<()> {
             file,
             debug,
             verbose,
+            breakpoints,
+            watch,
+            trace_file,
         } => {
             if verbose {
                 println!("Running file: {}", file);
@@ -219,17 +236,27 @@ fn main() -> Result<()> {
 
             let source = fs::read_to_string(&file)?;
 
+            // If debug mode is enabled, start interactive debug session
             if debug {
-                println!("Source code:");
-                println!("{}", source);
-                println!("\n--- Lexing ---");
+                let config = DebugConfig::new()
+                    .with_breakpoints(breakpoints.unwrap_or_default())
+                    .with_watches(watch.unwrap_or_default())
+                    .with_verbose(verbose)
+                    .with_trace_file(trace_file);
+
+                return run_debug_session(source, config);
+            }
+
+            // Normal execution mode
+            if verbose {
+                println!("Source code: {} bytes", source.len());
             }
 
             // Lex
             let mut lexer = Lexer::new(&source);
             let tokens = lexer.lex().map_err(into_anyhow)?;
 
-            if debug {
+            if verbose {
                 println!("Tokens: {}", tokens.len());
             }
 
@@ -237,8 +264,8 @@ fn main() -> Result<()> {
             let mut parser = HypnoParser::new(tokens);
             let ast = parser.parse_program().map_err(into_anyhow)?;
 
-            if debug {
-                println!("\n--- Type Checking ---");
+            if verbose {
+                println!("AST parsed successfully");
             }
 
             // Type check
@@ -249,13 +276,11 @@ fn main() -> Result<()> {
                 for error in errors {
                     eprintln!("  - {}", error);
                 }
-                if !debug {
-                    eprintln!("\nContinuing execution despite type errors...");
-                }
+                eprintln!("\nContinuing execution despite type errors...");
             }
 
-            if debug {
-                println!("\n--- Executing ---");
+            if verbose {
+                println!("Executing program...");
             }
 
             // Execute
@@ -394,11 +419,11 @@ fn main() -> Result<()> {
                 Err(e) => {
                     println!("⚠️  {}", e);
                     println!(
-                        "\nHinweis: Native Code-Generierung wird in einer zukünftigen Version implementiert."
+                        "\nNote: Native code generation will be implemented in a future version."
                     );
-                    println!("Verwenden Sie stattdessen:");
-                    println!("  - 'hypnoscript run {}' für Interpretation", input);
-                    println!("  - 'hypnoscript compile-wasm {}' für WebAssembly", input);
+                    println!("Use instead:");
+                    println!("  - 'hypnoscript run {}' for interpretation", input);
+                    println!("  - 'hypnoscript compile-wasm {}' for WebAssembly", input);
                 }
             }
         }
@@ -450,7 +475,7 @@ fn main() -> Result<()> {
             let output_file = output.unwrap_or_else(|| input.replace(".hyp", ".opt.hyp"));
             println!("✅ Optimized AST available (output generation not yet implemented)");
             println!("   Would write to: {}", output_file);
-            println!("\nOptimierter AST:\n{:#?}", optimized_ast);
+            println!("\nOptimized AST:\n{:#?}", optimized_ast);
         }
 
         Commands::SelfUpdate {
@@ -641,19 +666,22 @@ fn build_agent() -> Agent {
         .and_then(|s| s.parse::<u64>().ok())
         .unwrap_or(DEFAULT_TIMEOUT_SECS);
 
-    AgentBuilder::new()
-        .timeout(Duration::from_secs(timeout_secs))
-        .user_agent(&format!("hypnoscript-cli/{}", env!("CARGO_PKG_VERSION")))
+    Agent::config_builder()
+        .timeout_global(Some(Duration::from_secs(timeout_secs)))
+        .user_agent(format!("hypnoscript-cli/{}", env!("CARGO_PKG_VERSION")))
         .build()
+        .new_agent()
 }
 
-fn github_get(agent: &Agent, url: &str) -> ureq::Request {
-    let mut request = agent.get(url).set("Accept", "application/vnd.github+json");
+fn github_get(agent: &Agent, url: &str) -> ureq::RequestBuilder<ureq::typestate::WithoutBody> {
+    let mut request = agent
+        .get(url)
+        .header("Accept", "application/vnd.github+json");
 
     if let Ok(token) = env::var("GITHUB_TOKEN") {
         request = request
-            .set("Authorization", &format!("Bearer {}", token))
-            .set("X-GitHub-Api-Version", "2022-11-28");
+            .header("Authorization", &format!("Bearer {}", token))
+            .header("X-GitHub-Api-Version", "2022-11-28");
     }
 
     request
@@ -667,7 +695,8 @@ fn fetch_latest_release(agent: &Agent, include_prerelease: bool) -> Result<Githu
         );
         let releases: Vec<GithubRelease> = github_get(agent, &url)
             .call()?
-            .into_json::<Vec<GithubRelease>>()?
+            .body_mut()
+            .read_json::<Vec<GithubRelease>>()?
             .into_iter()
             .filter(|release| !release.draft)
             .collect();
@@ -681,7 +710,7 @@ fn fetch_latest_release(agent: &Agent, include_prerelease: bool) -> Result<Githu
             "{}/repos/{}/{}/releases/latest",
             GITHUB_API, GITHUB_OWNER, GITHUB_REPO
         );
-        let release: GithubRelease = github_get(agent, &url).call()?.into_json()?;
+        let release: GithubRelease = github_get(agent, &url).call()?.body_mut().read_json()?;
         Ok(release)
     }
 }
@@ -848,7 +877,7 @@ fn find_shared_installer(metadata: Option<&InstallMetadata>) -> Option<PathBuf> 
 #[cfg(not(target_os = "windows"))]
 fn download_installer(agent: &Agent) -> Result<InstallerScript> {
     let response = agent.get(INSTALLER_FALLBACK_URL).call()?;
-    let script = response.into_string()?;
+    let script = response.into_body().read_to_string()?;
 
     let mut temp_file = Builder::new()
         .prefix("hypnoscript-installer-")

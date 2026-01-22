@@ -31,7 +31,7 @@ impl BuiltinModule for StringBuiltins {
     fn description_localized(locale: Option<&str>) -> String {
         let locale = crate::localization::detect_locale(locale);
         let msg = LocalizedMessage::new("String manipulation and analysis functions")
-            .with_translation("de", "Zeichenketten-Manipulations- und Analysefunktionen")
+            .with_translation("de", "String manipulation and analysis functions")
             .with_translation("fr", "Fonctions de manipulation et d'analyse de chaînes")
             .with_translation("es", "Funciones de manipulación y análisis de cadenas");
         msg.resolve(&locale).to_string()

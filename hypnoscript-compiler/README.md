@@ -1,47 +1,45 @@
 # HypnoScript Compiler
 
-Der vollständige Compiler und Interpreter für die HypnoScript-Programmiersprache.
+The full compiler and interpreter for the HypnoScript programming language.
 
 ## Features
 
-### 🎯 Mehrere Backends
+### 🎯 Multiple Backends
 
-1. **Interpreter** - Direktes Ausführen von HypnoScript-Code
-
-   - Vollständige Sprachunterstützung
-   - OOP mit Sessions (Klassen)
-   - Integrierte Built-in-Funktionen
-   - Ideal für Entwicklung und Debugging
+1. **Interpreter** - Direct execution of HypnoScript code
+   - Full language support
+   - OOP with sessions (classes)
+   - Built-in functions included
+   - Ideal for development and debugging
 
 2. **Native Code Generator** (Cranelift)
-
-   - Plattformspezifischer Maschinencode
-   - Automatisches Linking zu ausführbaren Binaries
-   - Unterstützte Plattformen:
-     - Windows (x86_64, ARM64) - benötigt Visual Studio Build Tools, GCC oder Clang
-     - macOS (x86_64, ARM64/Apple Silicon) - benötigt Xcode Command Line Tools
-     - Linux (x86_64, ARM64, RISC-V) - benötigt GCC oder Clang
-   - Optimierte Binaries mit verschiedenen Optimierungsstufen
-   - Schneller Build-Prozess im Vergleich zu LLVM
-   - ✅ **Vollständig funktionsfähig** - erzeugt ausführbare .exe/.bin Dateien
+   - Platform-specific machine code
+   - Automatic linking to executable binaries
+   - Supported platforms:
+     - Windows (x86_64, ARM64) - requires Visual Studio Build Tools, GCC, or Clang
+     - macOS (x86_64, ARM64/Apple Silicon) - requires Xcode Command Line Tools
+     - Linux (x86_64, ARM64, RISC-V) - requires GCC or Clang
+   - Optimized binaries with multiple optimization levels
+   - Faster build process compared to LLVM
+   - ✅ **Fully functional** - produces executable .exe/.bin files
 
 3. **WebAssembly Generator**
-   - Text Format (.wat) - menschenlesbar
-   - Binary Format (.wasm) - kompakt
-   - Browser- und Server-Unterstützung
-   - Sandboxed Execution
+   - Text format (.wat) - human-readable
+   - Binary format (.wasm) - compact
+   - Browser and server support
+   - Sandboxed execution
 
-### 🔧 Zusätzliche Features
+### 🔧 Additional Features
 
-- **Type Checker**: Statische Typprüfung
-- **Optimizer**: Code-Optimierungen
+- **Type Checker**: Static type checking
+- **Optimizer**: Code optimizations
   - Constant Folding
   - Dead Code Elimination
   - Common Subexpression Elimination
   - Loop Invariant Code Motion
   - Function Inlining
 
-## Verwendung
+## Usage
 
 ### Interpreter
 
@@ -65,7 +63,7 @@ let mut interpreter = Interpreter::new();
 interpreter.interpret(&ast)?;
 ```
 
-### Native Kompilierung
+### Native Compilation
 
 ```rust
 use hypnoscript_compiler::{NativeCodeGenerator, OptimizationLevel, TargetPlatform};
@@ -77,7 +75,7 @@ generator.set_optimization_level(OptimizationLevel::Release);
 let binary_path = generator.generate(&ast)?;
 ```
 
-### WASM-Generierung
+### WASM Generation
 
 ```rust
 use hypnoscript_compiler::{WasmCodeGenerator, WasmBinaryGenerator};
@@ -93,14 +91,14 @@ let wasm_bytes = wasm_gen.generate(&ast)?;
 std::fs::write("output.wasm", wasm_bytes)?;
 ```
 
-## Architektur
+## Architecture
 
-### Design-Prinzipien
+### Design Principles
 
-- **OOP First**: Sessions als vollwertige Klassen mit Kapselung
-- **DRY**: Keine Code-Duplizierung, gemeinsame Infrastruktur
-- **Type Safety**: Statische Typprüfung vor der Ausführung
-- **Memory Safety**: 100% Rust, keine unsicheren Operationen
+- **OOP First**: Sessions as full classes with encapsulation
+- **DRY**: No code duplication, shared infrastructure
+- **Type Safety**: Static type checking before execution
+- **Memory Safety**: 100% Rust, no unsafe operations
 
 ### Module
 
@@ -108,29 +106,29 @@ std::fs::write("output.wasm", wasm_bytes)?;
 hypnoscript-compiler/
 ├── src/
 │   ├── lib.rs              # Public API
-│   ├── interpreter.rs      # Runtime-Interpreter (2392 Zeilen)
-│   ├── type_checker.rs     # Statische Typprüfung (1683 Zeilen)
-│   ├── optimizer.rs        # Code-Optimierungen (421 Zeilen)
-│   ├── native_codegen.rs   # Cranelift-Backend mit Auto-Linking
+│   ├── interpreter.rs      # Runtime interpreter (2392 lines)
+│   ├── type_checker.rs     # Static type checking (1683 lines)
+│   ├── optimizer.rs        # Code optimizations (421 lines)
+│   ├── native_codegen.rs   # Cranelift backend with auto-linking
 │   ├── wasm_codegen.rs     # WASM Text Generator
 │   └── wasm_binary.rs      # WASM Binary Generator
 └── Cargo.toml
 ```
 
-## Performance-Vergleich
+## Performance Comparison
 
-| Backend            | Kompilierzeit | Ausführungszeit      | Binary-Größe | Use Case               |
-| ------------------ | ------------- | -------------------- | ------------ | ---------------------- |
-| Interpreter        | Sofort        | ~10x langsamer       | N/A          | Entwicklung, Debugging |
-| Native (Cranelift) | ~1-2 Sekunden | Nativ (sehr schnell) | 50-200 KB    | Produktion, Server     |
-| WASM               | ~50ms         | ~2x langsamer        | 10-50 KB     | Web, Embedding         |
+| Backend            | Compile Time | Runtime            | Binary Size | Use Case               |
+| ------------------ | ------------ | ------------------ | ----------- | ---------------------- |
+| Interpreter        | Instant      | ~10x slower        | N/A         | Development, debugging |
+| Native (Cranelift) | ~1-2 seconds | Native (very fast) | 50-200 KB   | Production, server     |
+| WASM               | ~50ms        | ~2x slower         | 10-50 KB    | Web, embedding         |
 
-## Systemvoraussetzungen für Native Kompilierung
+## System Requirements for Native Compilation
 
 ### Windows
 
-- Visual Studio Build Tools (empfohlen) ODER
-- MinGW-w64/GCC ODER
+- Visual Studio Build Tools (recommended) OR
+- MinGW-w64/GCC OR
 - LLVM/Clang
 
 ### macOS
@@ -139,15 +137,15 @@ hypnoscript-compiler/
 
 ### Linux
 
-- GCC (`sudo apt install build-essential`) ODER
+- GCC (`sudo apt install build-essential`) OR
 - Clang (`sudo apt install clang`)
 
 ## Dependencies
 
-- `cranelift`: Native Code-Generierung
-- `hypnoscript-core`: Gemeinsame Typen und Symbol-Tables
-- `hypnoscript-lexer-parser`: AST und Parser
-- `hypnoscript-runtime`: Built-in-Funktionen
+- `cranelift`: Native code generation
+- `hypnoscript-core`: Shared types and symbol tables
+- `hypnoscript-lexer-parser`: AST and parser
+- `hypnoscript-runtime`: Built-in functions
 
 ## Tests
 
@@ -155,35 +153,35 @@ hypnoscript-compiler/
 cargo test --package hypnoscript-compiler
 ```
 
-Aktueller Stand: **34 Tests, alle erfolgreich** ✅
+Current status: **34 tests, all passing** ✅
 
-## Beispiel: Native Kompilierung
+## Example: Native Compilation
 
 ```bash
-# Kompiliere HypnoScript zu nativer ausführbarer Datei
-hypnoscript compile-native mein_programm.hyp
+# Compile HypnoScript to a native executable
+hypnoscript compile-native my_program.hyp
 
-# Mit Optimierung
-hypnoscript compile-native mein_programm.hyp --opt-level release
+# With optimization
+hypnoscript compile-native my_program.hyp --opt-level release
 
-# Spezifisches Output
-hypnoscript compile-native mein_programm.hyp --output mein_programm.exe
+# Specific output
+hypnoscript compile-native my_program.hyp --output my_program.exe
 ```
 
 ## Roadmap
 
-- [x] Interpreter mit vollständiger Sprachunterstützung
+- [x] Interpreter with full language support
 - [x] Type Checker
 - [x] WASM Text Format (.wat)
 - [x] WASM Binary Format (.wasm)
-- [x] Native Code-Generator mit Cranelift
-- [x] Automatisches Linking zu ausführbaren Binaries
-- [x] Code-Optimierungen
+- [x] Native code generator with Cranelift
+- [x] Automatic linking to executable binaries
+- [x] Code optimizations
 - [ ] Advanced Control Flow in WASM
-- [ ] Vollständige Session-Unterstützung in Native/WASM
-- [ ] Debugging-Informationen (DWARF)
+- [ ] Full session support in Native/WASM
+- [ ] Debugging information (DWARF)
 - [ ] Cross-Compilation
 
-## Lizenz
+## License
 
 MIT

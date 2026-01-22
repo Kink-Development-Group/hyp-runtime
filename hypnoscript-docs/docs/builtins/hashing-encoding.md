@@ -19,7 +19,7 @@ Creates an MD5 hash of a string.
 ```hyp
 induce hash = MD5("Hello World");
 observe "MD5 Hash: " + hash;
-// Ausgabe: 5eb63bbbe01eeed093cb22bb8f5acdc3
+// Output: 5eb63bbbe01eeed093cb22bb8f5acdc3
 ```
 
 **Parameters:**
@@ -35,7 +35,7 @@ Creates a SHA1 hash of a string.
 ```hyp
 induce hash = SHA1("Hello World");
 observe "SHA1 Hash: " + hash;
-// Ausgabe: 2aae6c35c94fcfb415dbe95f408b9ce91ee846ed
+// Output: 2aae6c35c94fcfb415dbe95f408b9ce91ee846ed
 ```
 
 **Parameters:**
@@ -51,7 +51,7 @@ Creates a SHA256 hash of a string.
 ```hyp
 induce hash = SHA256("Hello World");
 observe "SHA256 Hash: " + hash;
-// Ausgabe: a591a6d40bf420404a011733cfb7b190d62c65bf0bcda32b57b277d9ad9f146e
+// Output: a591a6d40bf420404a011733cfb7b190d62c65bf0bcda32b57b277d9ad9f146e
 ```
 
 **Parameters:**
@@ -67,7 +67,7 @@ Creates a SHA512 hash of a string.
 ```hyp
 induce hash = SHA512("Hello World");
 observe "SHA512 Hash: " + hash;
-// Ausgabe: 2c74fd17edafd80e8447b0d46741ee243b7eb74dd2149a0ab1b9246fb30382f27e853d8585719e0e67cbda0daa8f51671064615d645ae27acb15bfb1447f459b
+// Output: 2c74fd17edafd80e8447b0d46741ee243b7eb74dd2149a0ab1b9246fb30382f27e853d8585719e0e67cbda0daa8f51671064615d645ae27acb15bfb1447f459b
 ```
 
 **Parameters:**
@@ -105,7 +105,7 @@ Encodes a string in Base64.
 induce original = "Hello World";
 induce encoded = Base64Encode(original);
 observe "Base64 encoded: " + encoded;
-// Ausgabe: SGVsbG8gV29ybGQ=
+// Output: SGVsbG8gV29ybGQ=
 ```
 
 **Parameters:**
@@ -122,7 +122,7 @@ Decodes a Base64-encoded string.
 induce encoded = "SGVsbG8gV29ybGQ=";
 induce decoded = Base64Decode(encoded);
 observe "Base64 decoded: " + decoded;
-// Ausgabe: Hello World
+// Output: Hello World
 ```
 
 **Parameters:**
@@ -139,7 +139,7 @@ Encodes a string for URLs.
 induce original = "Hello World!";
 induce encoded = URLEncode(original);
 observe "URL encoded: " + encoded;
-// Ausgabe: Hello+World%21
+// Output: Hello+World%21
 ```
 
 **Parameters:**
@@ -156,7 +156,7 @@ Decodes a URL-encoded string.
 induce encoded = "Hello+World%21";
 induce decoded = URLDecode(encoded);
 observe "URL decoded: " + decoded;
-// Ausgabe: Hello World!
+// Output: Hello World!
 ```
 
 **Parameters:**
@@ -173,7 +173,7 @@ Encodes a string for HTML.
 induce original = "<script>alert('Hello')</script>";
 induce encoded = HTMLEncode(original);
 observe "HTML encoded: " + encoded;
-// Ausgabe: &lt;script&gt;alert(&#39;Hello&#39;)&lt;/script&gt;
+// Output: &lt;script&gt;alert(&#39;Hello&#39;)&lt;/script&gt;
 ```
 
 **Parameters:**
@@ -190,7 +190,7 @@ Decodes an HTML-encoded string.
 induce encoded = "&lt;script&gt;alert(&#39;Hello&#39;)&lt;/script&gt;";
 induce decoded = HTMLDecode(encoded);
 observe "HTML decoded: " + decoded;
-// Ausgabe: <script>alert('Hello')</script>
+// Output: <script>alert('Hello')</script>
 ```
 
 **Parameters:**
@@ -369,16 +369,16 @@ observe "Hash valid: " + isValid;
 ```hyp
 Focus {
     entrance {
-        // Passwort vom Benutzer erhalten
+        // Get password from user
         induce password = InputProvider("Enter password: ");
 
-        // Salt generieren
+        // Generate salt
         induce salt = GenerateSalt(16);
 
-        // Passwort hashen
+        // Hash password
         induce hash = PBKDF2(password, salt, 10000, 32);
 
-        // Hash und Salt speichern (ohne Passwort)
+        // Store hash and salt (without password)
         induce userData = {
             username: "john_doe",
             passwordHash: hash,
@@ -386,22 +386,22 @@ Focus {
             createdAt: GetCurrentDateTime()
         };
 
-        // In Datenbank speichern
+        // Store in database
         SaveUserData(userData);
 
-        observe "Benutzer sicher gespeichert!";
+        observe "User stored securely!";
     }
 } Relax;
 ```
 
-### File-Integrität prüfen
+### Check File Integrity
 
 ```hyp
 Focus {
     entrance {
         induce filePath = "important-document.pdf";
 
-        // Hash der Original-Datei
+        // Hash of the original file
         induce originalHash = HashFile(filePath, "SHA256");
         observe "Original hash: " + originalHash;
 
@@ -413,41 +413,41 @@ Focus {
         induce isIntegrityValid = VerifyHash(currentHash, originalHash);
 
         if (isIntegrityValid) {
-            observe "Datei-Integrität bestätigt!";
+            observe "File integrity verified!";
         } else {
-            observe "WARNUNG: Datei wurde verändert!";
+            observe "WARNING: File was modified!";
         }
     }
 } Relax;
 ```
 
-### Sichere Datenübertragung
+### Secure Data Transfer
 
 ```hyp
 Focus {
     entrance {
-        induce secretMessage = "Vertrauliche Daten";
+        induce secretMessage = "Confidential data";
         induce key = GenerateRandomKey(32);
 
         // Encrypt message
         induce encrypted = AESEncrypt(secretMessage, key);
-        observe "Verschlüsselt: " + encrypted;
+        observe "Encrypted: " + encrypted;
 
         // Transfer message (simulated)
         induce transmittedData = encrypted;
 
         // Decrypt message
         induce decrypted = AESDecrypt(transmittedData, key);
-        observe "Entschlüsselt: " + decrypted;
+        observe "Decrypted: " + decrypted;
 
         if (decrypted == secretMessage) {
-            observe "Sichere Übertragung erfolgreich!";
+            observe "Secure transfer successful!";
         }
     }
 } Relax;
 ```
 
-### API-Sicherheit
+### API Security
 
 ```hyp
 Focus {
@@ -460,62 +460,62 @@ Focus {
         induce message = timestamp + ":" + data;
         induce signature = HMAC(message, apiKey, "SHA256");
 
-        // API-Request mit Signatur
+        // API request with signature
         induce request = {
             timestamp: timestamp,
             data: data,
             signature: signature
         };
 
-        observe "API-Request: " + ToJson(request);
+        observe "API request: " + ToJson(request);
 
         // On the server side, the signature would be verified
         induce isValidSignature = VerifyHMAC(message, signature, apiKey, "SHA256");
-        observe "Signatur gültig: " + isValidSignature;
+        observe "Signature valid: " + isValidSignature;
     }
 } Relax;
 ```
 
-## Sicherheitshinweise
+## Security Notes
 
-### Wichtige Sicherheitsaspekte
+### Important Security Considerations
 
-1. **Salt-Werte**: Verwenden Sie immer zufällige Salt-Werte für Passwort-Hashing
-2. **Iterationen**: Verwenden Sie mindestens 10.000 Iterationen für PBKDF2
-3. **Schlüssellänge**: Verwenden Sie mindestens 256-Bit-Schlüssel für AES
-4. **Algorithmen**: Vermeiden Sie MD5 und SHA1 für Sicherheitsanwendungen
-5. **Schlüssel-Management**: Speichern Sie Schlüssel sicher und niemals im Code
+1. **Salt values**: Always use random salt values for password hashing
+2. **Iterations**: Use at least 10,000 iterations for PBKDF2
+3. **Key length**: Use at least 256-bit keys for AES
+4. **Algorithms**: Avoid MD5 and SHA1 for security applications
+5. **Key management**: Store keys securely and never in code
 
-### Deprecated-Functionen
+### Deprecated Functions
 
 ```hyp
 // AVOID: MD5 for security applications
 induce weakHash = MD5("password");
 
-// VERWENDEN: Starke Hash-Funktionen
+// USE: Strong hash functions
 induce strongHash = SHA256("password");
 induce secureHash = PBKDF2("password", salt, 10000, 32);
 ```
 
-## Fehlerbehandlung
+## Error Handling
 
-Hashing- und Encoding-Functionen können bei ungültigen Inputn Fehler werfen:
+Hashing and encoding functions can throw errors with invalid input:
 
 ```hyp
 Focus {
     entrance {
         try {
             induce hash = SHA256("valid-input");
-            observe "Hash erfolgreich: " + hash;
+            observe "Hash successful: " + hash;
         } catch (error) {
-            observe "Fehler beim Hashing: " + error;
+            observe "Error hashing: " + error;
         }
 
         try {
             induce decoded = Base64Decode("invalid-base64");
-            observe "Dekodierung erfolgreich: " + decoded;
+            observe "Decoding successful: " + decoded;
         } catch (error) {
-            observe "Fehler beim Dekodieren: " + error;
+            observe "Error decoding: " + error;
         }
     }
 } Relax;

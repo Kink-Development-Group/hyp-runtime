@@ -20,7 +20,7 @@ impl BuiltinModule for TimeBuiltins {
     fn description_localized(locale: Option<&str>) -> String {
         let locale = crate::localization::detect_locale(locale);
         let msg = LocalizedMessage::new("Date and time functions for timestamps, formatting, and calendar operations")
-            .with_translation("de", "Datums- und Zeitfunktionen für Zeitstempel, Formatierung und Kalenderoperationen")
+            .with_translation("de", "Date and time functions for timestamps, formatting, and calendar operations")
             .with_translation("fr", "Fonctions de date et heure pour les horodatages, le formatage et les opérations calendaires")
             .with_translation("es", "Funciones de fecha y hora para marcas de tiempo, formato y operaciones de calendario");
         msg.resolve(&locale).to_string()

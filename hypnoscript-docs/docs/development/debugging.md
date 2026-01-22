@@ -243,6 +243,7 @@ For complex debugging scenarios, you can:
    ```
 
 3. **Generate execution traces:**
+
    ```bash
    hyp profile script.hyp --trace --output trace.json
    ```
@@ -304,7 +305,7 @@ Unhandled runtime exception occurs.
 
 Environment:
 - OS: Windows 10
-- HypnoScript version: 1.0.0
+- HypnoScript version: 1.2.0
 ```
 
 ## Conclusion

@@ -120,7 +120,8 @@ exceptions = [
     # list
     #{ allow = ["Zlib"], crate = "adler32" },
     { crate = "android_system_properties", allow = ["Apache-2.0", "MIT"] },
-    { crate = "webpki-roots", allow = ["MPL-2.0"] },
+    # aws-lc-sys is a dependency of rustls-webpki and uses a combination of licenses
+    { crate = "aws-lc-sys", allow = ["ISC", "MIT", "Apache-2.0", "OpenSSL"] },
 ]
 
 # Some crates don't have (easily) machine readable licensing information,

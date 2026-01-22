@@ -1,42 +1,42 @@
-# Operatoren
+# Operators
 
-HypnoScript unterstützt Standard-Operatoren sowie hypnotische Synonyme für vergleichende und logische Operatoren. Alle Operatoren sind in der Rust-Implementierung vollständig typsicher.
+HypnoScript supports standard operators as well as hypnotic synonyms for comparison and logical operators. All operators are fully type-safe in the Rust implementation.
 
-## Arithmetische Operatoren
+## Arithmetic Operators
 
-| Operator | Bedeutung      | Typ-Anforderung | Beispiel | Ergebnis |
-| -------- | -------------- | --------------- | -------- | -------- |
-| +        | Addition       | number          | 2 + 3    | 5        |
-| -        | Subtraktion    | number          | 5 - 2    | 3        |
-| \*       | Multiplikation | number          | 4 \* 2   | 8        |
-| /        | Division       | number          | 8 / 2    | 4        |
-| %        | Modulo (Rest)  | number          | 7 % 3    | 1        |
+| Operator | Meaning        | Type Requirement | Example | Result |
+| -------- | -------------- | ---------------- | ------- | ------ |
+| +        | Addition       | number           | 2 + 3   | 5      |
+| -        | Subtraction    | number           | 5 - 2   | 3      |
+| \*       | Multiplication | number           | 4 \* 2  | 8      |
+| /        | Division       | number           | 8 / 2   | 4      |
+| %        | Modulo (rest)  | number           | 7 % 3   | 1      |
 
-**String-Konkatenation:** Der `+` Operator funktioniert auch für Strings:
+**String concatenation:** The `+` operator also works for strings:
 
 ```hyp
-induce text: string = "Hallo " + "Welt";  // "Hallo Welt"
-induce mixed: string = "Zahl: " + 42;     // "Zahl: 42"
+induce text: string = "Hello " + "World";  // "Hello World"
+induce mixed: string = "Number: " + 42;     // "Number: 42"
 ```
 
-> ⚠️ **Achtung:** Sobald einer der Operanden ein String ist, werden alle anderen Werte implizit in Strings umgewandelt (intern via `to_string()`). Dadurch entstehen z. B. Ergebnisse wie `null + "text" -> "nulltext"` oder `42 + "px" -> "42px"`. Wenn du striktere Typkontrollen erwartest, konvertiere Werte explizit oder prüfe den Typ vor der Verwendung von `+`.
+> ⚠️ **Warning:** Once one operand is a string, all other values are implicitly converted to strings (internally via `to_string()`). This can produce results like `null + "text" -> "nulltext"` or `42 + "px" -> "42px"`. If you expect stricter type checks, convert values explicitly or validate the type before using `+`.
 
-## Vergleichsoperatoren
+## Comparison Operators
 
-### Standard-Operatoren (Vergleich)
+### Standard Operators (Comparison)
 
-| Operator | Bedeutung      | Beispiel | Ergebnis |
-| -------- | -------------- | -------- | -------- |
-| ==       | Gleich         | 3 == 3   | true     |
-| !=       | Ungleich       | 3 != 4   | true     |
-| >        | Größer         | 5 > 2    | true     |
-| <        | Kleiner        | 2 < 5    | true     |
-| >=       | Größer gleich  | 3 >= 2   | true     |
-| <=       | Kleiner gleich | 2 <= 2   | true     |
+| Operator | Meaning               | Example | Result |
+| -------- | --------------------- | ------- | ------ |
+| ==       | Equal                 | 3 == 3  | true   |
+| !=       | Not equal             | 3 != 4  | true   |
+| >        | Greater than          | 5 > 2   | true   |
+| <        | Less than             | 2 < 5   | true   |
+| >=       | Greater than or equal | 3 >= 2  | true   |
+| <=       | Less than or equal    | 2 <= 2  | true   |
 
-### Hypnotische Synonyme (Vergleich)
+### Hypnotic Synonyms (Comparison)
 
-HypnoScript bietet hypnotische Synonyme für alle Vergleichsoperatoren:
+HypnoScript provides hypnotic synonyms for all comparison operators:
 
 | Hypnotic Synonym        | Standard | Meaning               | Status         |
 | ----------------------- | -------- | --------------------- | -------------- |

@@ -21,7 +21,7 @@ impl BuiltinModule for ArrayBuiltins {
         let msg = LocalizedMessage::new("Array manipulation and functional programming operations")
             .with_translation(
                 "de",
-                "Array-Manipulation und funktionale Programmieroperationen",
+                "Array manipulation and functional programming operations",
             )
             .with_translation(
                 "fr",

@@ -1,24 +1,24 @@
-//! Native Code Generator für HypnoScript
+//! Native code generator for HypnoScript
 //!
-//! Dieses Modul generiert plattformspezifischen nativen Code für:
+//! This module generates platform-specific native code for:
 //! - Windows (x86_64, ARM64)
 //! - macOS (x86_64, ARM64 / Apple Silicon)
 //! - Linux (x86_64, ARM64, RISC-V)
 //!
-//! ## Architektur
+//! ## Architecture
 //!
-//! Der Native Code Generator verwendet Cranelift als Backend für die Kompilierung.
-//! Cranelift ist ein schneller, sicherer Code-Generator, der optimierten,
-//! plattformspezifischen Code mit minimaler Runtime-Abhängigkeit erzeugt.
+//! The native code generator uses Cranelift as the backend for compilation.
+//! Cranelift is a fast, safe code generator that produces optimized,
+//! platform-specific code with minimal runtime dependencies.
 //!
-//! ## Vorteile von Cranelift gegenüber LLVM
+//! ## Advantages of Cranelift over LLVM
 //!
-//! - **Schnellere Kompilierung**: Cranelift ist deutlich schneller als LLVM
-//! - **Einfachere Integration**: Reine Rust-Implementierung, keine C++-Abhängigkeiten
-//! - **Kleinere Binary-Größe**: Geringerer Overhead
-//! - **Sicherheit**: Memory-safe durch Rust
+//! - **Faster compilation**: Cranelift is significantly faster than LLVM
+//! - **Simpler integration**: Pure Rust implementation, no C++ dependencies
+//! - **Smaller binary size**: Lower overhead
+//! - **Security**: Memory-safe via Rust
 //!
-//! ## Verwendung
+//! ## Usage
 //!
 //! ```rust
 //! use hypnoscript_compiler::{NativeCodeGenerator, TargetPlatform, OptimizationLevel};
@@ -40,29 +40,29 @@ use std::path::{Path, PathBuf};
 use target_lexicon::Triple;
 use thiserror::Error;
 
-/// Fehlertypen für die native Code-Generierung
+/// Error types for native code generation
 #[derive(Error, Debug)]
 pub enum NativeCodegenError {
-    #[error("Plattform nicht unterstützt: {0}")]
+    #[error("Platform not supported: {0}")]
     UnsupportedPlatform(String),
 
-    #[error("Cranelift-Initialisierung fehlgeschlagen: {0}")]
+    #[error("Cranelift initialization failed: {0}")]
     LlvmInitializationError(String),
 
-    #[error("Code-Generierung fehlgeschlagen: {0}")]
+    #[error("Code generation failed: {0}")]
     CodeGenerationError(String),
 
-    #[error("Optimierung fehlgeschlagen: {0}")]
+    #[error("Optimization failed: {0}")]
     OptimizationError(String),
 
-    #[error("Linking fehlgeschlagen: {0}")]
+    #[error("Linking failed: {0}")]
     LinkingError(String),
 
-    #[error("I/O-Fehler: {0}")]
+    #[error("I/O error: {0}")]
     IoError(#[from] std::io::Error),
 }
 
-/// Zielplattformen für native Kompilierung
+/// Target platforms for native compilation
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum TargetPlatform {
     /// Windows x86_64
@@ -82,7 +82,7 @@ pub enum TargetPlatform {
 }
 
 impl TargetPlatform {
-    /// Gibt den LLVM-Target-Triple zurück
+    /// Returns the LLVM target triple
     pub fn llvm_triple(&self) -> &'static str {
         match self {
             Self::WindowsX64 => "x86_64-pc-windows-msvc",
@@ -95,7 +95,7 @@ impl TargetPlatform {
         }
     }
 
-    /// Erkennt die aktuelle Plattform zur Build-Zeit
+    /// Detects the current platform at build time
     pub fn current() -> Self {
         #[cfg(all(target_os = "windows", target_arch = "x86_64"))]
         return Self::WindowsX64;
@@ -120,23 +120,23 @@ impl TargetPlatform {
     }
 }
 
-/// Optimierungsstufen für die Code-Generierung
+/// Optimization levels for code generation
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum OptimizationLevel {
-    /// Keine Optimierung (Debug-Build)
+    /// No optimization (debug build)
     None,
-    /// Moderate Optimierung (schnelle Kompilierung)
+    /// Moderate optimization (fast compilation)
     Less,
-    /// Standard-Optimierung (Balance)
+    /// Default optimization (balanced)
     Default,
-    /// Aggressive Optimierung (langsame Kompilierung, schneller Code)
+    /// Aggressive optimization (slower compilation, faster code)
     Aggressive,
-    /// Maximale Optimierung für Releases
+    /// Maximum optimization for releases
     Release,
 }
 
 impl OptimizationLevel {
-    /// Konvertiert zu Cranelift-Optimierungslevel
+    /// Converts to Cranelift optimization level
     pub fn to_cranelift_level(&self) -> &'static str {
         match self {
             Self::None => "none",
@@ -147,7 +147,7 @@ impl OptimizationLevel {
         }
     }
 
-    /// Konvertiert zu LLVM-Optimierungslevel (0-3)
+    /// Converts to LLVM optimization level (0-3)
     pub fn to_llvm_level(&self) -> u32 {
         match self {
             Self::None => 0,
@@ -158,25 +158,23 @@ impl OptimizationLevel {
     }
 }
 
-/// Native Code Generator
+/// Native code generator
 ///
-/// Generiert plattformspezifischen nativen Maschinencode aus HypnoScript AST.
-/// Verwendet Cranelift als Backend für optimierte Binaries.
+/// Generates platform-specific native machine code from the HypnoScript AST.
+/// Uses Cranelift as the backend for optimized binaries.
 pub struct NativeCodeGenerator {
-    /// Zielplattform
+    /// Target platform
     target_platform: TargetPlatform,
-    /// Optimierungslevel
+    /// Optimization level
     optimization_level: OptimizationLevel,
-    /// Ausgabepfad für die Binary
+    /// Output path for the binary
     output_path: Option<PathBuf>,
-    /// Variablen-Mapping (Name -> Cranelift Variable)
+    /// Variable mapping (name -> Cranelift variable)
     variable_map: HashMap<String, Variable>,
-    /// Funktions-Mapping
+    /// Function mapping
     function_map: HashMap<String, usize>,
-    /// Debug-Informationen generieren
+    /// Generate debug information
     debug_info: bool,
-    /// Nächste Variable-ID
-    next_var_id: usize,
 }
 
 impl Default for NativeCodeGenerator {
@@ -186,9 +184,9 @@ impl Default for NativeCodeGenerator {
 }
 
 impl NativeCodeGenerator {
-    /// Erstellt einen neuen Native Code Generator
+    /// Creates a new native code generator
     ///
-    /// # Beispiele
+    /// # Examples
     ///
     /// ```
     /// use hypnoscript_compiler::NativeCodeGenerator;
@@ -203,68 +201,66 @@ impl NativeCodeGenerator {
             variable_map: HashMap::new(),
             function_map: HashMap::new(),
             debug_info: false,
-            next_var_id: 0,
         }
     }
 
-    /// Setzt die Zielplattform
+    /// Sets the target platform
     ///
-    /// # Argumente
+    /// # Arguments
     ///
-    /// * `platform` - Die gewünschte Zielplattform
+    /// * `platform` - The desired target platform
     pub fn set_target_platform(&mut self, platform: TargetPlatform) {
         self.target_platform = platform;
     }
 
-    /// Setzt das Optimierungslevel
+    /// Sets the optimization level
     ///
-    /// # Argumente
+    /// # Arguments
     ///
-    /// * `level` - Das gewünschte Optimierungslevel
+    /// * `level` - The desired optimization level
     pub fn set_optimization_level(&mut self, level: OptimizationLevel) {
         self.optimization_level = level;
     }
 
-    /// Setzt den Ausgabepfad
+    /// Sets the output path
     ///
-    /// # Argumente
+    /// # Arguments
     ///
-    /// * `path` - Der Pfad für die generierte Binary
+    /// * `path` - The path for the generated binary
     pub fn set_output_path(&mut self, path: PathBuf) {
         self.output_path = Some(path);
     }
 
-    /// Aktiviert/Deaktiviert Debug-Informationen
+    /// Enables/disables debug information
     ///
-    /// # Argumente
+    /// # Arguments
     ///
-    /// * `enabled` - true für Debug-Infos, false sonst
+    /// * `enabled` - true for debug info, false otherwise
     pub fn set_debug_info(&mut self, enabled: bool) {
         self.debug_info = enabled;
     }
 
-    /// Generiert nativen Code aus dem AST
+    /// Generates native code from the AST
     ///
-    /// # Argumente
+    /// # Arguments
     ///
-    /// * `program` - Der HypnoScript AST
+    /// * `program` - The HypnoScript AST
     ///
-    /// # Rückgabe
+    /// # Returns
     ///
-    /// Pfad zur generierten Binary
+    /// Path to the generated binary
     ///
-    /// # Fehler
+    /// # Errors
     ///
-    /// Gibt einen `NativeCodegenError` zurück, wenn die Code-Generierung fehlschlägt
+    /// Returns a `NativeCodegenError` when code generation fails
     pub fn generate(&mut self, program: &AstNode) -> Result<PathBuf, NativeCodegenError> {
         self.variable_map.clear();
         self.function_map.clear();
-        self.next_var_id = 0;
 
-        // Bestimme das Target-Triple (wird in Zukunft verwendet)
+        // Determine the target triple (will be used in the future)
         let _triple = self.get_target_triple();
 
-        // Erstelle ObjectModule für die Object-Datei-Generierung
+        // Create ObjectModule for object file generation
         let mut flag_builder = settings::builder();
         flag_builder
             .set("opt_level", self.optimization_level.to_cranelift_level())
@@ -285,16 +281,16 @@ impl NativeCodeGenerator {
 
         let mut module = ObjectModule::new(obj_builder);
 
-        // Erstelle die main-Funktion
+        // Create the main function
         self.generate_main_function(&mut module, program)?;
 
-        // Finalisiere und schreibe Object-Datei
+        // Finalize and write object file
         let object_product = module.finish();
         let object_bytes = object_product
             .emit()
             .map_err(|e| NativeCodegenError::CodeGenerationError(e.to_string()))?;
 
-        // Bestimme Ausgabepfad für Object-Datei
+        // Determine output path for object file
         let obj_extension = if cfg!(target_os = "windows") {
             "obj"
         } else {
@@ -302,10 +298,10 @@ impl NativeCodeGenerator {
         };
         let obj_path = PathBuf::from(format!("hypnoscript_program.{}", obj_extension));
 
-        // Schreibe Object-Datei
+        // Write object file
         std::fs::write(&obj_path, object_bytes)?;
 
-        // Bestimme finalen Ausgabepfad für ausführbare Datei
+        // Determine final output path for executable
         let exe_path = self.output_path.clone().unwrap_or_else(|| {
             let extension = if cfg!(target_os = "windows") {
                 "exe"
@@ -319,20 +315,20 @@ impl NativeCodeGenerator {
             }
         });
 
-        // Linke die Object-Datei zu einer ausführbaren Datei
+        // Link the object file to an executable
         self.link_object_file(&obj_path, &exe_path)?;
 
-        // Cleanup: Entferne Object-Datei
+        // Cleanup: remove object file
         let _ = std::fs::remove_file(&obj_path);
 
         Ok(exe_path)
     }
 
-    /// Linkt eine Object-Datei zu einer ausführbaren Datei
+    /// Links an object file to an executable
     fn link_object_file(&self, obj_path: &Path, exe_path: &Path) -> Result<(), NativeCodegenError> {
         #[cfg(target_os = "windows")]
         {
-            // Versuche verschiedene Windows-Linker
+            // Try different Windows linkers
             let linkers = vec![
                 (
                     "link.exe",
@@ -381,17 +377,17 @@ impl NativeCodeGenerator {
             }
 
             Err(NativeCodegenError::LinkingError(
-                "Kein geeigneter Linker gefunden. Bitte installieren Sie:\n\
-                 - Visual Studio Build Tools (für link.exe)\n\
-                 - GCC/MinGW (für gcc)\n\
-                 - LLVM (für lld-link/clang)"
+                "No suitable linker found. Please install:\n\
+                 - Visual Studio Build Tools (for link.exe)\n\
+                 - GCC/MinGW (for gcc)\n\
+                 - LLVM (for lld-link/clang)"
                     .to_string(),
             ))
         }
 
         #[cfg(not(target_os = "windows"))]
         {
-            // Unix-basierte Systeme (Linux, macOS)
+            // Unix-based systems (Linux, macOS)
             let exe_path_string = exe_path.to_string_lossy().into_owned();
             let obj_path_string = obj_path.to_string_lossy().into_owned();
 
@@ -408,7 +404,7 @@ impl NativeCodeGenerator {
                 if let Ok(output) = std::process::Command::new(linker).args(&args).output()
                     && output.status.success()
                 {
-                    // Mache die Datei ausführbar auf Unix
+                    // Make the file executable on Unix
                     #[cfg(unix)]
                     {
                         use std::os::unix::fs::PermissionsExt;
@@ -421,13 +417,12 @@ impl NativeCodeGenerator {
             }
 
             Err(NativeCodegenError::LinkingError(
-                "Kein geeigneter Linker gefunden. Bitte installieren Sie gcc oder clang."
-                    .to_string(),
+                "No suitable linker found. Please install gcc or clang.".to_string(),
             ))
         }
     }
 
-    /// Konvertiert Cranelift-Triple aus TargetPlatform
+    /// Converts Cranelift triple from TargetPlatform
     fn get_target_triple(&self) -> Triple {
         self.target_platform
             .llvm_triple()
@@ -435,13 +430,13 @@ impl NativeCodeGenerator {
             .unwrap_or_else(|_| Triple::host())
     }
 
-    /// Generiert die main-Funktion
+    /// Generates the main function
     fn generate_main_function(
         &mut self,
         module: &mut ObjectModule,
         program: &AstNode,
     ) -> Result<(), NativeCodegenError> {
-        // Erstelle Funktions-Signatur: main() -> i32
+        // Create function signature: main() -> i32
         let mut sig = module.make_signature();
         sig.returns.push(AbiParam::new(types::I32));
 
@@ -452,16 +447,16 @@ impl NativeCodeGenerator {
         let mut ctx = module.make_context();
         ctx.func.signature = sig;
 
-        // Erstelle Function Builder
+        // Create function builder
         let mut builder_context = FunctionBuilderContext::new();
         let mut builder = FunctionBuilder::new(&mut ctx.func, &mut builder_context);
 
-        // Erstelle Entry-Block
+        // Create entry block
         let entry_block = builder.create_block();
         builder.switch_to_block(entry_block);
         builder.seal_block(entry_block);
 
-        // Generiere Code für das Programm
+        // Generate code for the program
         if let AstNode::Program(statements) = program {
             for stmt in statements {
                 self.generate_statement(&mut builder, stmt)?;
@@ -472,10 +467,10 @@ impl NativeCodeGenerator {
         let zero = builder.ins().iconst(types::I32, 0);
         builder.ins().return_(&[zero]);
 
-        // Finalisiere Funktion
+        // Finalize function
         builder.finalize();
 
-        // Definiere Funktion im Modul
+        // Define function in module
         module
             .define_function(func_id, &mut ctx)
             .map_err(|e| NativeCodegenError::CodeGenerationError(e.to_string()))?;
@@ -485,7 +480,7 @@ impl NativeCodeGenerator {
         Ok(())
     }
 
-    /// Generiert Code für ein Statement
+    /// Generates code for a statement
     fn generate_statement(
         &mut self,
         builder: &mut FunctionBuilder,
@@ -495,14 +490,11 @@ impl NativeCodeGenerator {
             AstNode::VariableDeclaration {
                 name, initializer, ..
             } => {
-                // Erstelle Variable
-                let var = Variable::new(self.next_var_id);
-                self.next_var_id += 1;
-
-                builder.declare_var(var, types::F64);
+                // Create variable - declare_var returns the Variable in newer cranelift
+                let var = builder.declare_var(types::F64);
                 self.variable_map.insert(name.clone(), var);
 
-                // Initialisiere Variable
+                // Initialize variable
                 if let Some(init) = initializer {
                     let value = self.generate_expression(builder, init)?;
                     builder.def_var(var, value);
@@ -522,7 +514,7 @@ impl NativeCodeGenerator {
             }
 
             AstNode::ExpressionStatement(expr) => {
-                // Evaluiere Expression (Ergebnis wird verworfen)
+                // Evaluate expression (result is discarded)
                 let _value = self.generate_expression(builder, expr)?;
             }
 
@@ -535,15 +527,15 @@ impl NativeCodeGenerator {
             }
 
             _ => {
-                // Nicht unterstützte Statements ignorieren
-                // TODO: Erweitern für vollständige Sprachunterstützung
+                // Ignore unsupported statements
+                // TODO: Extend for full language support
             }
         }
 
         Ok(())
     }
 
-    /// Generiert Code für einen Expression
+    /// Generates code for an expression
     fn generate_expression(
         &mut self,
         builder: &mut FunctionBuilder,
@@ -579,14 +571,14 @@ impl NativeCodeGenerator {
                     "*" => builder.ins().fmul(lhs, rhs),
                     "/" => builder.ins().fdiv(lhs, rhs),
                     "%" => {
-                        // Modulo für floats: a - floor(a/b) * b
+                        // Modulo for floats: a - floor(a/b) * b
                         let div = builder.ins().fdiv(lhs, rhs);
                         let floor = builder.ins().floor(div);
                         let mul = builder.ins().fmul(floor, rhs);
                         builder.ins().fsub(lhs, mul)
                     }
                     _ => {
-                        // Unbekannter Operator -> Return 0
+                        // Unknown operator -> return 0
                         builder.ins().f64const(0.0)
                     }
                 };
@@ -600,7 +592,7 @@ impl NativeCodeGenerator {
                 let result = match operator.as_str() {
                     "-" => builder.ins().fneg(val),
                     "!" => {
-                        // Logische Negation (für Integers)
+                        // Logical negation (for integers)
                         builder.ins().bxor_imm(val, 1)
                     }
                     _ => val,
@@ -610,16 +602,16 @@ impl NativeCodeGenerator {
             }
 
             _ => {
-                // Nicht unterstützte Expressions -> Return 0
+                // Unsupported expressions -> return 0
                 Ok(builder.ins().f64const(0.0))
             }
         }
     }
 
-    /// Gibt Informationen über die Zielplattform zurück
+    /// Returns information about the target platform
     pub fn target_info(&self) -> String {
         format!(
-            "Zielplattform: {}\nLLVM-Triple: {}\nOptimierung: {:?}",
+            "Target platform: {}\nLLVM triple: {}\nOptimization: {:?}",
             match self.target_platform {
                 TargetPlatform::WindowsX64 => "Windows x86_64",
                 TargetPlatform::WindowsArm64 => "Windows ARM64",
@@ -732,7 +724,7 @@ Focus {
         let mut generator = NativeCodeGenerator::new();
         generator.set_optimization_level(OptimizationLevel::None);
 
-        // Sollte ohne Fehler kompilieren
+        // Should compile without errors
         let result = generator.generate(&ast);
         assert!(result.is_ok(), "Compilation should succeed");
     }
@@ -742,9 +734,9 @@ Focus {
         let generator = NativeCodeGenerator::new();
         let info = generator.target_info();
 
-        // Sollte Informationen enthalten
-        assert!(info.contains("Zielplattform:"));
-        assert!(info.contains("LLVM-Triple:"));
-        assert!(info.contains("Optimierung:"));
+        // Should contain information
+        assert!(info.contains("Target platform:"));
+        assert!(info.contains("LLVM triple:"));
+        assert!(info.contains("Optimization:"));
     }
 }

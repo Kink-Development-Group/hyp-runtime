@@ -69,11 +69,11 @@ The builtins are organized into categories. A detailed reference can be found un
 ## Development Workflow
 
 ```bash
-# Read source, lex, parse, check and run
+# Read source, lex, parse, check and exec
 hypnoscript lex   examples/test.hyp
 hypnoscript parse examples/test.hyp
 hypnoscript check examples/test.hyp
-hypnoscript run   examples/test.hyp
+hypnoscript exec  examples/test.hyp
 
 # Generate to WebAssembly (wat)
 hypnoscript compile-wasm examples/test.hyp --output output.wat

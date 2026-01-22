@@ -6,17 +6,17 @@ This overview provides a complete overview of HypnoScript's runtime documentatio
 
 ### 📋 Runtime Features
 
-**Datei:** `features.md`
+**File:** `features.md`
 
 - Comprehensive runtime features
 - Scalability and performance
 - High availability
-- Multi-Tenant-Support
-- Runtime-Integrationen
+- Multi-tenant support
+- Runtime integrations
 
 ### 🏗️ Runtime Architecture
 
-**Datei:** `architecture.md`
+**File:** `architecture.md`
 
 - Architecture patterns
 - Modularization
@@ -28,69 +28,69 @@ This overview provides a complete overview of HypnoScript's runtime documentatio
 
 ### 🔒 Runtime Security
 
-**Datei:** `security.md`
+**File:** `security.md`
 
 - Authentication (LDAP, OAuth2, MFA)
 - Authorization (RBAC, ABAC)
 - Encryption (data at rest and in transit)
-- Audit-Logging
+- Audit logging
 - Compliance reporting (SOX, GDPR, PCI DSS)
 - Network security
 - Incident Response
 
 ### 📊 Runtime Monitoring
 
-**Datei:** `monitoring.md`
+**File:** `monitoring.md`
 
 - System and application metrics
 - Structured logging
-- Distributed Tracing
+- Distributed tracing
 - Proactive alerting
 - Grafana dashboards
-- Performance-Monitoring (APM)
+- Performance monitoring (APM)
 - Business metrics
 
 ### 🗄️ Runtime Database
 
-**Datei:** `database.md`
+**File:** `database.md`
 
-- Multi-Database-Support (PostgreSQL, MySQL, SQL Server, Oracle)
-- Connection Pooling
-- ORM und Repository-Pattern
-- Transaktionsmanagement
-- Datenbank-Migrationen
+- Multi-database support (PostgreSQL, MySQL, SQL Server, Oracle)
+- Connection pooling
+- ORM and repository pattern
+- Transaction management
+- Database migrations
 - Performance optimization
-- Backup-Strategien
+- Backup strategies
 
 ### 📨 Runtime Messaging
 
-**Datei:** `messaging.md`
+**File:** `messaging.md`
 
 - Message Broker Integration (Kafka, RabbitMQ, ActiveMQ, AWS SQS/SNS)
-- Event-Driven Architecture
+- Event-driven architecture
 - Message Patterns (Request-Reply, Publish-Subscribe, Dead Letter Queue)
 - Message Reliability (At-Least-Once, Exactly-Once)
-- Message-Monitoring und Tracing
+- Message monitoring and tracing
 
 ### 🔌 Runtime API Management
 
-**Datei:** `api-management.md`
+**File:** `api-management.md`
 
-- RESTful API-Design
-- API-Versionierung
+- RESTful API design
+- API versioning
 - Authentication (OAuth2, API-Keys, JWT)
 - Rate Limiting
-- OpenAPI-Documentation
-- API-Monitoring und Metriken
+- OpenAPI documentation
+- API monitoring and metrics
 
 ### 💾 Runtime Backup & Recovery
 
-**Datei:** `backup-recovery.md`
+**File:** `backup-recovery.md`
 
 - Backup strategies (full, incremental, differential)
 - Disaster Recovery (RTO/RPO)
 - Business Continuity
-- DR-Sites (Hot, Warm, Cold)
+- DR sites (Hot, Warm, Cold)
 - Backup monitoring and validation
 
 ## Runtime Features in Detail
@@ -99,21 +99,21 @@ This overview provides a complete overview of HypnoScript's runtime documentatio
 
 #### Authentication
 
-- **LDAP-Integration:** Enterprise-wide user management
-- **OAuth2-Support:** Sichere API-Authentication
-- **Multi-Faktor-Authentication:** Increased security
-- **Session-Management:** Secure session management
+- **LDAP integration:** Enterprise-wide user management
+- **OAuth2 support:** Secure API authentication
+- **Multi-factor authentication:** Increased security
+- **Session management:** Secure session management
 
 #### Authorization
 
 - **Role-Based Access Control (RBAC):** Role-based permissions
 - **Attribute-Based Access Control (ABAC):** Context-based access control
-- **Granulare Berechtigungen:** Fine-grained access control
+- **Granular permissions:** Fine-grained access control
 
 #### Encryption
 
-- **Data encryption:** AES-256-GCM für ruhende Daten
-- **Transport-Encryption:** TLS 1.3 für übertragene Daten
+- **Data encryption:** AES-256-GCM for data at rest
+- **Transport encryption:** TLS 1.3 for data in transit
 - **Key management:** AWS KMS Integration
 
 #### Compliance
@@ -129,50 +129,50 @@ This overview provides a complete overview of HypnoScript's runtime documentatio
 
 - **Load Balancing:** Automatic load distribution
 - **Auto-Scaling:** Dynamic resource adjustment
-- **Microservices-Architektur:** Modular scaling
+- **Microservices architecture:** Modular scaling
 
 #### Performance optimization
 
-- **Caching strategies:** Redis-Integration
-- **Database-Optimierung:** Query optimization and indexing
+- **Caching strategies:** Redis integration
+- **Database optimization:** Query optimization and indexing
 - **Connection Pooling:** Efficient database connections
 
 #### Monitoring & Observability
 
-- **Metrics collection:** Prometheus-Integration
-- **Log aggregation:** ELK-Stack-Support
-- **Distributed Tracing:** Jaeger-Integration
-- **Performance-Monitoring:** APM-Tools
+- **Metrics collection:** Prometheus integration
+- **Log aggregation:** ELK stack support
+- **Distributed tracing:** Jaeger integration
+- **Performance monitoring:** APM tools
 
 ### 🔄 High availability
 
 #### Disaster Recovery
 
-- **RTO/RPO-Ziele:** Defined recovery times
-- **DR-Sites:** Hot, Warm und Cold Sites
-- **Automatische Failover:** Minimal downtime
+- **RTO/RPO objectives:** Defined recovery times
+- **DR sites:** Hot, Warm, and Cold sites
+- **Automatic failover:** Minimal downtime
 
 #### Business Continuity
 
-- **Kritische Funktionen:** Prioritized recovery
-- **Alternative Prozesse:** Redundant processes
-- **Kommunikationsplan:** Eskalationsmatrix
+- **Critical functions:** Prioritized recovery
+- **Alternative processes:** Redundant processes
+- **Communication plan:** Escalation matrix
 
 ### 🗄️ Data management
 
-#### Multi-Database-Support
+#### Multi-database support
 
 - **PostgreSQL:** Full support
 - **MySQL:** Runtime features
 - **SQL Server:** Windows integration
 - **Oracle:** Runtime databases
 
-#### Backup-Strategien
+#### Backup strategies
 
-- **3-2-1-Regel:** Robust backup strategy
-- **Automatische Backups:** Time-based backup
-- **Cloud-Backups:** AWS S3, Azure Blob, GCP Storage
-- **Backup-Validierung:** Regular tests
+- **3-2-1 rule:** Robust backup strategy
+- **Automatic backups:** Time-based backup
+- **Cloud backups:** AWS S3, Azure Blob, GCP Storage
+- **Backup validation:** Regular tests
 
 ### 📨 Event-Driven Architecture
 
@@ -261,7 +261,7 @@ This overview provides a complete overview of HypnoScript's runtime documentatio
 ### 📈 Performance Best Practices
 
 1. **Caching strategies:** Intelligent caching
-2. **Database-Optimization:** Query-Optimierung
+2. **Database optimization:** Query optimization
 3. **Load Balancing:** Efficient load distribution
 4. **Monitoring:** Proactive monitoring
 5. **Capacity Planning:** Resource planning
@@ -269,9 +269,9 @@ This overview provides a complete overview of HypnoScript's runtime documentatio
 ### 🔄 Reliability Best Practices
 
 1. **Redundancy:** System redundancy
-2. **Backup-Strategien:** Regular backups
+2. **Backup strategies:** Regular backups
 3. **Testing:** Comprehensive testing
-4. **Documentation:** Vollständige Documentation
+4. **Documentation:** Complete documentation
 5. **Training:** Team training
 
 ## Compliance & Governance
@@ -287,7 +287,7 @@ This overview provides a complete overview of HypnoScript's runtime documentatio
 #### GDPR (General Data Protection Regulation)
 
 - **Data Protection:** Data protection
-- **Privacy by Design:** Data protection durch Technik
+- **Privacy by Design:** Data protection by design
 - **Right to be Forgotten:** Right to be forgotten
 
 #### PCI DSS (Payment Card Industry Data Security Standard)
@@ -345,13 +345,13 @@ This overview provides a complete overview of HypnoScript's runtime documentatio
 
 ## Conclusion
 
-Die Runtime-Documentation von HypnoScript bietet eine umfassende Anleitung für die Implementierung und den Betrieb von HypnoScript in Runtime-Umgebungen. Sie deckt alle wichtigen Aspekte ab:
+HypnoScript runtime documentation provides comprehensive guidance for implementing and operating HypnoScript in runtime environments. It covers all critical aspects:
 
 - **Security & Compliance:** Comprehensive security features and compliance frameworks
 - **Scalability & Performance:** Optimized architecture for high loads
 - **High availability:** Robust disaster recovery and business continuity
 - **Monitoring & Observability:** Complete transparency and monitoring
-- **API-Management:** Secure and scalable APIs
+- **API Management:** Secure and scalable APIs
 - **Backup & Recovery:** Reliable data backup and recovery
 
 This documentation ensures that HypnoScript meets the highest standards for security, performance, reliability, and compliance in runtime environments.

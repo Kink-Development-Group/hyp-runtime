@@ -25,7 +25,7 @@ impl BuiltinModule for ValidationBuiltins {
     fn description_localized(locale: Option<&str>) -> String {
         let locale = crate::localization::detect_locale(locale);
         let msg = LocalizedMessage::new("Data validation functions for emails, URLs, phone numbers, and patterns")
-            .with_translation("de", "Datenvalidierungsfunktionen für E-Mails, URLs, Telefonnummern und Muster")
+            .with_translation("de", "Data validation functions for emails, URLs, phone numbers, and patterns")
             .with_translation("fr", "Fonctions de validation de données pour e-mails, URL, numéros de téléphone et motifs")
             .with_translation("es", "Funciones de validación de datos para correos electrónicos, URLs, números de teléfono y patrones");
         msg.resolve(&locale).to_string()

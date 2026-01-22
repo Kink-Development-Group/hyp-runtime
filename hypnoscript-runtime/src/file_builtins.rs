@@ -22,7 +22,7 @@ impl BuiltinModule for FileBuiltins {
     fn description_localized(locale: Option<&str>) -> String {
         let locale = crate::localization::detect_locale(locale);
         let msg = LocalizedMessage::new("File I/O and file system operations")
-            .with_translation("de", "Datei-I/O- und Dateisystemoperationen")
+            .with_translation("de", "File I/O and file system operations")
             .with_translation(
                 "fr",
                 "Opérations d'E/S de fichiers et de système de fichiers",
@@ -300,7 +300,7 @@ mod tests {
     fn test_read_write_lines() {
         let test_file = unique_test_file();
         let path = test_file.to_string_lossy().into_owned();
-        let lines = vec!["eins".to_string(), "zwei".to_string(), "drei".to_string()];
+        let lines = vec!["one".to_string(), "two".to_string(), "three".to_string()];
         FileBuiltins::write_lines(&path, &lines).unwrap();
         let read_back = FileBuiltins::read_lines(&path).unwrap();
         assert_eq!(lines, read_back);

@@ -1,8 +1,7 @@
-# HypnoScript – Rust Implementation
+# HypnoScript
 
 **HypnoScript** is a hypnotically-inspired programming language with its own syntax (`Focus { ... } Relax`).
-The complete runtime environment, compiler, and command-line tools were ported from C# to Rust
-and are exclusively developed in Rust from version 1.0 onwards.
+The complete runtime environment, compiler, and command-line tools are exclusively developed in Rust from version 1.0 onwards.
 
 ---
 

@@ -2,15 +2,15 @@
 sidebar_position: 5
 ---
 
-# Utility-Functionen
+# Utility Functions
 
-Utility-Functionen bieten allgemeine Hilfsmittel für Typumwandlung, Vergleiche, Zeit, Zufall, Fehlerbehandlung und mehr.
+Utility functions provide general helpers for type conversion, comparisons, time, randomness, error handling, and more.
 
-## Typumwandlung
+## Type Conversion
 
 ### ToNumber(value)
 
-Converts einen Wert in eine Zahl (Integer oder Float).
+Converts a value to a number (integer or float).
 
 ```hyp
 induce n1 = ToNumber("42"); // 42
@@ -21,7 +21,7 @@ induce n4 = ToNumber(false); // 0
 
 ### ToString(value)
 
-Converts einen Wert in einen String.
+Converts a value to a string.
 
 ```hyp
 induce s1 = ToString(42); // "42"
@@ -31,7 +31,7 @@ induce s3 = ToString(true); // "true"
 
 ### ToBoolean(value)
 
-Converts einen Wert in einen booleschen Wert.
+Converts a value to a boolean.
 
 ```hyp
 induce b1 = ToBoolean(1); // true
@@ -42,27 +42,27 @@ induce b4 = ToBoolean(""); // false
 
 ### ParseJSON(str)
 
-Parst einen JSON-String in ein Objekt/Array.
+Parses a JSON string into an object/array.
 
 ```hyp
-induce obj = ParseJSON('{"name": "Max", "age": 30}');
-induce name = obj.name; // "Max"
+induce obj = ParseJSON('{"name": "Alex", "age": 30}');
+induce name = obj.name; // "Alex"
 ```
 
 ### StringifyJSON(value)
 
-Wandelt ein Objekt/Array in einen JSON-String um.
+Converts an object/array into a JSON string.
 
 ```hyp
 induce arr = [1, 2, 3];
 induce json = StringifyJSON(arr); // "[1,2,3]"
 ```
 
-## Vergleiche & Prüfungen
+## Comparisons & Checks
 
 ### IsNull(value)
 
-Checks, ob ein Wert null ist.
+Checks whether a value is null.
 
 ```hyp
 induce n = null;
@@ -71,7 +71,7 @@ induce isNull = IsNull(n); // true
 
 ### IsDefined(value)
 
-Checks, ob ein Wert definiert ist (nicht null).
+Checks whether a value is defined (not null).
 
 ```hyp
 induce x = 42;
@@ -80,7 +80,7 @@ induce isDef = IsDefined(x); // true
 
 ### IsNumber(value)
 
-Checks, ob ein Wert eine Zahl ist.
+Checks whether a value is a number.
 
 ```hyp
 induce isNum1 = IsNumber(42); // true
@@ -89,16 +89,16 @@ induce isNum2 = IsNumber("42"); // false
 
 ### IsString(value)
 
-Checks, ob ein Wert ein String ist.
+Checks whether a value is a string.
 
 ```hyp
-induce isStr1 = IsString("Hallo"); // true
+induce isStr1 = IsString("Hello"); // true
 induce isStr2 = IsString(42); // false
 ```
 
 ### IsArray(value)
 
-Checks, ob ein Wert ein Array ist.
+Checks whether a value is an array.
 
 ```hyp
 induce arr = [1,2,3];
@@ -107,7 +107,7 @@ induce isArr = IsArray(arr); // true
 
 ### IsObject(value)
 
-Checks, ob ein Wert ein Objekt ist.
+Checks whether a value is an object.
 
 ```hyp
 induce obj = ParseJSON('{"a":1}');
@@ -116,7 +116,7 @@ induce isObj = IsObject(obj); // true
 
 ### IsBoolean(value)
 
-Checks, ob ein Wert ein boolescher Wert ist.
+Checks whether a value is a boolean.
 
 ```hyp
 induce isBool1 = IsBoolean(true); // true
@@ -125,7 +125,7 @@ induce isBool2 = IsBoolean(0); // false
 
 ### TypeOf(value)
 
-Returns den Typ eines Wertes als String .
+Returns the type of a value as a string.
 
 ```hyp
 induce t1 = TypeOf(42); // "number"
@@ -133,11 +133,11 @@ induce t2 = TypeOf("abc"); // "string"
 induce t3 = TypeOf([1,2,3]); // "array"
 ```
 
-## Zeitfunktionen
+## Time Functions
 
 ### Now()
 
-Returns das aktuelle Datum und die aktuelle Uhrzeit als String .
+Returns the current date and time as a string.
 
 ```hyp
 induce now = Now(); // "2025-05-01T12:34:56Z"
@@ -145,7 +145,7 @@ induce now = Now(); // "2025-05-01T12:34:56Z"
 
 ### Timestamp()
 
-Returns den aktuellen Unix-Timestamp (Sekunden seit 1970-01-01).
+Returns the current Unix timestamp (seconds since 1970-01-01).
 
 ```hyp
 induce ts = Timestamp(); // 1714569296
@@ -153,17 +153,17 @@ induce ts = Timestamp(); // 1714569296
 
 ### Sleep(ms)
 
-Pausiert die Ausführung für die angegebene Zeit in Millisekunden.
+Pauses execution for the specified time in milliseconds.
 
 ```hyp
-Sleep(1000); // 1 Sekunde warten
+Sleep(1000); // wait 1 second
 ```
 
-## Zufallsfunktionen
+## Random Functions
 
 ### Shuffle(array)
 
-Mischt die Elemente eines Arrays zufällig.
+Shuffles the elements of an array randomly.
 
 ```hyp
 induce arr = [1,2,3,4,5];
@@ -172,36 +172,36 @@ induce shuffled = Shuffle(arr);
 
 ### Sample(array, count)
 
-Wählt zufällige Elemente aus einem Array.
+Selects random elements from an array.
 
 ```hyp
 induce arr = [1,2,3,4,5];
-induce sample = Sample(arr, 2); // z.B. [3,5]
+induce sample = Sample(arr, 2); // e.g. [3,5]
 ```
 
-## Fehlerbehandlung
+## Error Handling
 
 ### Try(expr, fallback)
 
-Versucht, einen Ausdruck auszuführen, und gibt im Fehlerfall einen Fallback-Wert .
+Attempts to execute an expression and returns a fallback value on error.
 
 ```hyp
-induce result = Try(Divide(10, 0), "Fehler"); // "Fehler"
+induce result = Try(Divide(10, 0), "Error"); // "Error"
 ```
 
 ### Throw(message)
 
-Löst einen Fehler mit einer Nachricht aus.
+Throws an error with a message.
 
 ```hyp
-Throw("Ungültiger Wert!");
+Throw("Invalid value!");
 ```
 
-## Sonstige Utility-Functionen
+## Other Utility Functions
 
 ### Range(start, end, step)
 
-Erzeugt ein Array von Zahlen im Bereich.
+Creates an array of numbers in a range.
 
 ```hyp
 induce r1 = Range(1, 5); // [1,2,3,4,5]
@@ -210,7 +210,7 @@ induce r2 = Range(0, 10, 2); // [0,2,4,6,8,10]
 
 ### Repeat(value, count)
 
-Erzeugt ein Array mit wiederholten Werten.
+Creates an array with repeated values.
 
 ```hyp
 induce arr = Repeat("A", 3); // ["A","A","A"]
@@ -218,7 +218,7 @@ induce arr = Repeat("A", 3); // ["A","A","A"]
 
 ### Zip(array1, array2)
 
-Verbindet zwei Arrays zu einem Array von Paaren.
+Combines two arrays into an array of pairs.
 
 ```hyp
 induce a = [1,2,3];
@@ -228,7 +228,7 @@ induce zipped = Zip(a, b); // [[1,"a"],[2,"b"],[3,"c"]]
 
 ### Unzip(array)
 
-Teilt ein Array von Paaren in zwei Arrays.
+Splits an array of pairs into two arrays.
 
 ```hyp
 induce pairs = [[1,"a"],[2,"b"]];
@@ -237,7 +237,7 @@ induce [nums, chars] = Unzip(pairs);
 
 ### ChunkArray(array, size)
 
-Teilt ein Array in Blöcke der angegebenen Größe.
+Splits an array into chunks of the specified size.
 
 ```hyp
 induce arr = [1,2,3,4,5,6];
@@ -246,7 +246,7 @@ induce chunks = ChunkArray(arr, 2); // [[1,2],[3,4],[5,6]]
 
 ### Flatten(array)
 
-Makes ein verschachteltes Array flach.
+Flattens a nested array.
 
 ```hyp
 induce nested = [[1,2],[3,4],[5]];
@@ -255,7 +255,7 @@ induce flat = Flatten(nested); // [1,2,3,4,5]
 
 ### Unique(array)
 
-Entfernt doppelte Werte aus einem Array.
+Removes duplicate values from an array.
 
 ```hyp
 induce arr = [1,2,2,3,3,3,4];
@@ -264,7 +264,7 @@ induce unique = Unique(arr); // [1,2,3,4]
 
 ### Sort(array, [compareFn])
 
-Sortiert ein Array (optional mit Vergleichsfunktion).
+Sorts an array (optionally with a comparison function).
 
 ```hyp
 induce arr = [3,1,4,1,5];
@@ -273,13 +273,13 @@ induce sorted = Sort(arr); // [1,1,3,4,5]
 
 ## Best Practices
 
-- Use Typprüfungen (IsNumber, IsString, ...) für robusten Code.
-- Verwende Try für sichere Fehlerbehandlung.
-- Use Utility-Functionen für saubere, lesbare und wiederverwendbare Skripte.
+- Use type checks (IsNumber, IsString, ...) for robust code.
+- Use Try for safe error handling.
+- Use utility functions for clean, readable, and reusable scripts.
 
-## Examplee
+## Examples
 
-### Dynamische Typumwandlung
+### Dynamic Type Conversion
 
 ```hyp
 Focus {
@@ -287,29 +287,29 @@ Focus {
         induce input = "123";
         induce n = ToNumber(input);
         if (IsNumber(n)) {
-            observe "Zahl: " + n;
+            observe "Number: " + n;
         } else {
-            observe "Ungültige Eingabe!";
+            observe "Invalid input!";
         }
     }
 } Relax;
 ```
 
-### Zufällige Auswahl und Mischen
+### Random Selection and Shuffling
 
 ```hyp
 Focus {
     entrance {
-        induce names = ["Anna", "Ben", "Carla", "Dieter"];
+        induce names = ["Anna", "Ben", "Carla", "Dylan"];
         induce winner = Sample(names, 1);
-        observe "Gewinner: " + winner;
+        observe "Winner: " + winner;
         induce shuffled = Shuffle(names);
-        observe "Zufällige Reihenfolge: " + shuffled;
+        observe "Random order: " + shuffled;
     }
 } Relax;
 ```
 
-### Zeitmessung
+### Timing
 
 ```hyp
 Focus {
@@ -317,16 +317,16 @@ Focus {
         induce start = Timestamp();
         Sleep(500);
         induce end = Timestamp();
-        observe "Dauer: " + (end - start) + " Sekunden";
+        observe "Duration: " + (end - start) + " seconds";
     }
 } Relax;
 ```
 
 ## Next Steps
 
-- [System-Functionen](./system-functions) – Interaktion mit dem System
-- [Examplee](../examples/utility-examples) – Praktische Utility-Examplee
+- [System Functions](./system-functions) – Interaction with the system
+- [Examples](../examples/utility-examples) – Practical utility examples
 
 ---
 
-**Utility-Functionen gemeistert? Dann lerne [System-Functionen](./system-functions) kennen!** 🖥️
+**Mastered utility functions? Then explore [System Functions](./system-functions)!** 🖥️

@@ -14,7 +14,7 @@ hypnoscript <COMMAND> [OPTIONS]
 
 | Command        | Description                                 |
 | -------------- | ------------------------------------------- |
-| `run`          | Executes a HypnoScript program              |
+| `exec`         | Executes a HypnoScript program              |
 | `lex`          | Tokenizes a HypnoScript file                |
 | `parse`        | Shows the AST of a file                     |
 | `check`        | Performs type checking                      |
@@ -23,14 +23,14 @@ hypnoscript <COMMAND> [OPTIONS]
 | `version`      | Shows version information                   |
 | `builtins`     | Lists all builtin functions                 |
 
-## run - Run a program
+## exec - Execute a program
 
 Executes a HypnoScript program. This is the main command for running .hyp files.
 
 ### Syntax
 
 ```bash
-hypnoscript run <FILE> [OPTIONS]
+hypnoscript exec <FILE> [OPTIONS]
 ```
 
 ### Arguments
@@ -41,39 +41,83 @@ hypnoscript run <FILE> [OPTIONS]
 
 ### Options
 
-| Option      | Short | Description       |
-| ----------- | ----- | ----------------- |
-| `--debug`   | `-d`  | Enable debug mode |
-| `--verbose` | `-v`  | Verbose output    |
+| Option                  | Short | Description                                        |
+| ----------------------- | ----- | -------------------------------------------------- |
+| `--debug`               | `-d`  | Enable interactive debug mode                      |
+| `--verbose`             | `-v`  | Verbose output                                     |
+| `--breakpoints <LINES>` |       | Set initial breakpoints (comma-separated lines)    |
+| `--watch <VARS>`        |       | Watch variables during execution (comma-separated) |
+| `--trace-file <FILE>`   |       | Write debug trace to file                          |
 
 ### Behavior
 
 1. **Lexing**: Tokenizes the source code
 2. **Parsing**: Creates the AST
 3. **Type checking**: Checks types (errors are output as warnings)
-4. **Execution**: Executes the program
+4. **Execution**: Executes the program (or enters debug mode if `--debug`)
 
 **Note:** Type errors do not cause termination - the program is executed anyway.
 
 ### Examples
 
 ```bash
-# Einfache Ausführung
-hypnoscript run hello.hyp
+# Simple execution
+hypnoscript exec hello.hyp
 
-# Mit Debug-Modus
-hypnoscript run script.hyp --debug
+# With debug mode
+hypnoscript exec script.hyp --debug
 
-# Mit detaillierter Ausgabe
-hypnoscript run complex.hyp --verbose
+# With verbose output
+hypnoscript exec complex.hyp --verbose
 
-# Beide Optionen kombiniert
-hypnoscript run test.hyp -d -v
+# Both options combined
+hypnoscript exec test.hyp -d -v
+
+# Debug with initial breakpoints
+hypnoscript exec script.hyp --debug --breakpoints 10,25,42
+
+# Debug with watch expressions
+hypnoscript exec script.hyp --debug --watch counter,result,total
+
+# Full debug session with trace file
+hypnoscript exec script.hyp --debug --breakpoints 10,20 --watch x,y --trace-file debug.log
 ```
 
-### Debug-Modus Output
+### Debug Mode
 
-Im Debug-Modus werden zusätzliche Informationen ausgegeben:
+When `--debug` is specified, an interactive debugging session starts:
+
+```
+$ hypnoscript exec script.hyp --debug
+
+HypnoScript Debugger v1.2.0
+Type 'help' for available commands.
+
+(hypno-debug) b 10
+Breakpoint set at line 10
+
+(hypno-debug) run
+Starting execution...
+
+-> Breakpoint hit at line 10
+   10 |   induce result = calculate(a, b);
+
+(hypno-debug) locals
+Local variables:
+  a: Int = 42
+  b: Int = 17
+
+(hypno-debug) continue
+Program finished.
+
+(hypno-debug) quit
+```
+
+See the [Debugging documentation](/debugging/debug-mode) for full command reference.
+
+### Verbose Output
+
+With `--verbose`, additional information is displayed:
 
 ```
 Running file: script.hyp
@@ -86,7 +130,7 @@ Tokens: 42
 --- Type Checking ---
 
 --- Executing ---
-<Programm-Ausgabe>
+<Program output>
 
 ✅ Program executed successfully!
 ```
@@ -109,7 +153,7 @@ hypnoscript lex <FILE>
 
 ### Output
 
-Lists alle Token mit Index und Typ:
+Lists all tokens with index and type:
 
 ```
 === Tokens ===
@@ -123,9 +167,9 @@ Total tokens: 42
 
 ### Usage
 
-- **Syntax-Debugging**: Verstehen wie der Lexer Code interpretiert
-- **Token-Analyse**: Prüfen ob Schlüsselwörter korrekt erkannt werden
-- **Lernzwecke**: Verstehen wie HypnoScript-Code tokenisiert wird
+- **Syntax debugging**: Understand how the lexer interprets code
+- **Token analysis**: Verify that keywords are recognized correctly
+- **Learning**: See how HypnoScript code is tokenized
 
 ### Example
 
@@ -151,14 +195,14 @@ hypnoscript parse <FILE>
 
 ### Output
 
-Shows den AST in formatierter Form:
+Shows the AST in a formatted representation:
 
 ```
 === AST ===
 Program([
     FocusBlock([
         ObserveStatement(
-            StringLiteral("Hallo Welt")
+            StringLiteral("Hello World")
         ),
         VariableDeclaration {
             name: "x",
@@ -172,9 +216,9 @@ Program([
 
 ### Usage
 
-- **Struktur-Analyse**: Verstehen wie Code geparst wird
-- **Compiler-Debugging**: Probleme im Parser identifizieren
-- **Entwicklung**: AST-Struktur für Compiler-Erweiterungen verstehen
+- **Structure analysis**: Understand how code is parsed
+- **Compiler debugging**: Identify parser issues
+- **Development**: Understand AST structure for compiler extensions
 
 ### Example
 
@@ -200,13 +244,13 @@ hypnoscript check <FILE>
 
 ### Output
 
-**Ohne Fehler:**
+**No errors:**
 
 ```
 ✅ No type errors found!
 ```
 
-**Mit Fehlern:**
+**With errors:**
 
 ```
 ❌ Type errors found:
@@ -215,22 +259,22 @@ hypnoscript check <FILE>
   - Function 'unknown' not defined at line 12
 ```
 
-### Type checking Regeln
+### Type checking rules
 
-Der Type Checker prüft:
+The type checker validates:
 
-- ✅ Variablendeklarationen
-- ✅ Functionsaufrufe und -signaturen
-- ✅ Typ-Kompatibilität in Zuweisungen
-- ✅ Array-Typen
-- ✅ Session-Member-Zugriffe
-- ✅ Return-Statement Typen
+- ✅ Variable declarations
+- ✅ Function calls and signatures
+- ✅ Type compatibility in assignments
+- ✅ Array types
+- ✅ Session member access
+- ✅ Return statement types
 
 ### Usage
 
-- **Vor Deployment**: Typ-Fehler frühzeitig finden
-- **Entwicklung**: Code-Qualität sicherstellen
-- **CI/CD**: Als Teil der Build-Pipeline
+- **Before deployment**: Catch type errors early
+- **Development**: Ensure code quality
+- **CI/CD**: Use as part of the build pipeline
 
 ### Example
 
@@ -298,15 +342,15 @@ hypnoscript compile-wasm script.hyp
 wat2wasm script.wat -o script.wasm
 ```
 
-### WASM-Integration
+### WASM Integration
 
-Nach Kompilierung kann das WASM-Modul in verschiedenen Umgebungen verwendet werden:
+After compilation, the WASM module can be used in different environments:
 
 **Web (JavaScript):**
 
 ```javascript
 WebAssembly.instantiateStreaming(fetch('script.wasm')).then((module) => {
-  // Nutze exportierte Funktionen
+  // Use exported functions
 });
 ```
 
@@ -376,7 +420,7 @@ hypnoscript version
 ### Output
 
 ```
-HypnoScript v1.0.0
+HypnoScript v1.2.0
 The Hypnotic Programming Language
 
 Migrated from C# to Rust for improved performance
@@ -532,7 +576,7 @@ fi
 ### CI/CD Integration
 
 ```yaml
-# GitHub Actions Beispiel
+# GitHub Actions example
 steps:
   - name: Install HypnoScript
     run: cargo install --path hypnoscript-cli

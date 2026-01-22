@@ -33,7 +33,7 @@ impl BuiltinModule for AdvancedStringBuiltins {
             LocalizedMessage::new("Advanced string similarity and phonetic analysis functions")
                 .with_translation(
                     "de",
-                    "Erweiterte String-Ähnlichkeits- und phonetische Analysefunktionen",
+                    "Advanced string similarity and phonetic analysis functions",
                 )
                 .with_translation(
                     "fr",

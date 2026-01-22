@@ -3,13 +3,13 @@ use std::collections::HashMap;
 
 /// WASM code generator for HypnoScript
 ///
-/// Generiert WebAssembly Text Format (.wat) aus HypnoScript AST.
+/// Generates WebAssembly text format (.wat) from the HypnoScript AST.
 /// Supports:
-/// - Variablen und Funktionen
-/// - Kontrollfluss (if/while/loop)
-/// - Arithmetische und logische Operationen
-/// - Session-Definitionen (OOP)
-/// - Built-in Funktionen
+/// - Variables and functions
+/// - Control flow (if/while/loop)
+/// - Arithmetic and logical operations
+/// - Session definitions (OOP)
+/// - Built-in functions
 pub struct WasmCodeGenerator {
     output: String,
     local_counter: usize,
@@ -365,7 +365,7 @@ impl WasmCodeGenerator {
         }
     }
 
-    /// Emit eine Funktion
+    /// Emit a function
     fn emit_function(
         &mut self,
         name: &str,
@@ -375,13 +375,13 @@ impl WasmCodeGenerator {
         self.emit_line(&format!("(func ${} (export \"{}\")", name, name));
         self.indent_level += 1;
 
-        // Parameter
+        // Parameters
         for param in parameters {
             self.emit_line(&format!("(param ${} f64) ;; {}", param.name, param.name));
         }
         self.emit_line("(result f64)");
 
-        // Lokale Variablen
+        // Local variables
         self.emit_line("(local $temp f64)");
 
         // Body
@@ -397,7 +397,7 @@ impl WasmCodeGenerator {
         self.emit_line("");
     }
 
-    /// Emit Session-Methoden
+    /// Emit session methods
     fn emit_session_methods(
         &mut self,
         session_name: &str,
@@ -415,10 +415,10 @@ impl WasmCodeGenerator {
                 ));
                 self.indent_level += 1;
 
-                // Impliziter 'this' Parameter
+                // Implicit 'this' parameter
                 self.emit_line("(param $this i32)");
 
-                // Weitere Parameter
+                // Additional parameters
                 for _ in &method.parameters {
                     self.emit_line("(param f64)");
                 }
@@ -554,7 +554,7 @@ impl WasmCodeGenerator {
                 if self.function_map.contains_key(&name) {
                     self.emit_line(&format!("call ${}", name));
                 } else {
-                    // Versuch, als Built-in-Funktion aufzurufen
+                    // Attempt to call as a built-in function
                     self.emit_line(&format!("call ${}", name));
                 }
             }
@@ -687,7 +687,7 @@ Focus {
         let mut generator = WasmCodeGenerator::new();
         let wasm = generator.generate(&ast);
 
-        // Prüfe grundlegende WASM-Struktur
+        // Check basic WASM structure
         assert!(wasm.starts_with("(module"));
         assert!(wasm.ends_with(")\n"));
         assert!(wasm.contains("memory"));

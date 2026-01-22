@@ -8,11 +8,11 @@ This guide will walk you through installing the Rust-based HypnoScript toolchain
 
 ## Prerequisites
 
-| Component     | Recommendation                                                                   |
-| ------------- | -------------------------------------------------------------------------------- |
-| Operating System | Windows 10+, macOS 12+, Linux (Ubuntu 20.04+, Fedora 38+, Arch)              |
-| Rust Toolchain  | `rustup` with Rust 1.76 or newer (check with `rustup --version`)              |
-| Build Tools     | Git, C/C++ Build Tools (provided by `rustup` / package manager)               |
+| Component        | Recommendation                                                   |
+| ---------------- | ---------------------------------------------------------------- |
+| Operating System | Windows 10+, macOS 12+, Linux (Ubuntu 20.04+, Fedora 38+, Arch)  |
+| Rust Toolchain   | `rustup` with Rust 1.76 or newer (check with `rustup --version`) |
+| Build Tools      | Git, C/C++ Build Tools (provided by `rustup` / package manager)  |
 
 Optional for documentation: Node.js 18+.
 
@@ -104,23 +104,23 @@ hypnoscript builtins
 
 # Minimal test program
 echo 'Focus { entrance { observe "Installation successful!"; } } Relax' > test.hyp
-hypnoscript run test.hyp
+hypnoscript exec test.hyp
 ```
 
 Expected output (abbreviated):
 
 ```text
-HypnoScript v1.0.0
+HypnoScript v1.2.0
 Installation successful!
 ```
 
 ## Common Issues
 
-| Problem                  | Solution                                                                                            |
-| ------------------------ | --------------------------------------------------------------------------------------------------- |
-| `cargo` not found        | Check if `~/.cargo/bin` (Linux/macOS) or `%USERPROFILE%\.cargo\bin` (Windows) is in your `PATH`.   |
-| Linker errors on Linux   | Install build dependencies (`sudo apt install build-essential` or distribution equivalent).         |
-| No execution permissions | Set `chmod +x hypnoscript` after extracting a release artifact.                                     |
+| Problem                  | Solution                                                                                         |
+| ------------------------ | ------------------------------------------------------------------------------------------------ |
+| `cargo` not found        | Check if `~/.cargo/bin` (Linux/macOS) or `%USERPROFILE%\.cargo\bin` (Windows) is in your `PATH`. |
+| Linker errors on Linux   | Install build dependencies (`sudo apt install build-essential` or distribution equivalent).      |
+| No execution permissions | Set `chmod +x hypnoscript` after extracting a release artifact.                                  |
 
 ## Optional: Development Comfort
 

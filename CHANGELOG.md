@@ -2,6 +2,60 @@
 
 All notable changes to this project will be documented in this file. The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and this project adheres to [Semantic Versioning](https://semver.org/).
 
+## [1.2.0] - 2026-01-22
+
+### Added
+
+- **Complete Debugging Infrastructure** with interactive step-through execution:
+  - New `hypnoscript-compiler/src/debug.rs` module with `DebugState`, `StepMode`, `CallFrame`, `WatchExpression`, and `PauseReason` types
+  - Breakpoint management (set, remove, clear, list)
+  - Step modes: Step Into, Step Over, Step Out, Continue
+  - Call stack tracking with function name, line number, and local variables
+  - Watch expressions for monitoring values during debugging
+  - Source code display with breakpoint markers
+
+- **Debug REPL** (`hypnoscript-cli/src/debug_repl.rs`) for interactive debugging sessions:
+  - Commands: `break`, `delete`, `continue`, `step`, `next`, `out`, `print`, `locals`, `stack`, `watch`, `list`, `where`, `help`, `quit`
+  - Expression evaluation in current scope
+  - Variable inspection (locals, globals, all variables)
+  - Configurable via `DebugConfig` with initial breakpoints and watches
+
+- **Debug Builtins** (`hypnoscript-runtime/src/debug_builtins.rs`):
+  - `inspect(value)` - Returns value with type information
+  - `typeOf(value)` - Returns the type name
+  - `stackTrace()` - Returns formatted call stack
+  - `dump(value)` - Prints detailed value representation
+  - `assertEqual()`, `assertNotEqual()`, `assertTruthy()`, `assertFalsy()`, `assertNull()`, `assertNotNull()` - Assertions with messages
+  - `time(label)`, `timeEnd(label)`, `measureTime(fn)` - Performance timing
+  - `log()`, `warn()`, `error()`, `trace()` - Debug output levels
+  - `breakpoint()` - Programmatic breakpoint
+
+- **Extended CLI Debug Options** for the `exec` command:
+  - `--debug` / `-d` - Enable interactive debug mode
+  - `--breakpoints <LINES>` - Set initial breakpoints (comma-separated line numbers)
+  - `--watch <EXPRS>` - Set initial watch expressions (comma-separated)
+  - `--trace-file <PATH>` - Output trace information to file
+
+- **Interpreter Debug Integration**:
+  - `enable_debug_mode()` / `disable_debug_mode()` methods
+  - `set_breakpoint()`, `remove_breakpoint()`, `has_breakpoint()`, `clear_breakpoints()`
+  - `set_step_mode()`, `step_mode()` for stepping control
+  - `add_watch()`, `remove_watch()` for watch expressions
+  - `debug_locals()`, `debug_globals()`, `debug_all_variables()` for variable inspection
+  - `debug_call_stack()`, `debug_source_context()` for execution context
+
+### Changed
+
+- Extended `Interpreter` struct with optional `debug_state` field
+- Updated CLI `exec` command to support debug mode with REPL integration
+
+### Tests
+
+- Added 9 new debug mode tests in `interpreter.rs`
+- Added comprehensive unit tests for `DebugState`, `DebugCommand`, `CallFrame`
+- Added unit tests for `DebugBuiltins` (assertions, timing, inspection)
+- Added unit tests for `DebugSession` and `DebugConfig`
+
 ## [1.0.0] - 2025-11-15
 
 ### Added
@@ -30,3 +84,4 @@ All notable changes to this project will be documented in this file. The format 
 - Successfully completed `cargo deny check` with cleaned-up license and advisory checks.
 
 [1.0.0]: https://github.com/Kink-Development-Group/hyp-runtime/releases/tag/1.0.0
+[1.2.0]: https://github.com/Kink-Development-Group/hyp-runtime/releases/tag/1.2.0

@@ -1,40 +1,40 @@
 ---
-description: Höhere Kontrollfluss- und Kompositions-Builtins für HypnoScript.
+description: Higher-order control-flow and composition builtins for HypnoScript.
 ---
 
-# DeepMind-Functionen
+# DeepMind Functions
 
-Die DeepMind-Builtins erweitern HypnoScript um mächtige Kontrollfluss- und Functional-Programming-Patterns. Sie
-arbeiten Hand in Hand mit `suggestion`-Blöcken und erlauben es, Schleifen, Verzögerungen, Fehlerbehandlung und
-Functionskomposition deklarativ auszudrücken.
+DeepMind builtins extend HypnoScript with powerful control-flow and functional programming patterns. They
+work hand-in-hand with `suggestion` blocks and allow loops, delays, error handling, and function composition
+to be expressed declaratively.
 
-## Überblick
+## Overview
 
-| Function             | Return value | Brief Description                          |
-| -------------------- | ------------ | ------------------------------------------ |
-| `RepeatAction`       | `void`       | Aktion eine feste Anzahl an Wiederholungen |
-| `DelayedSuggestion`  | `void`       | Aktion nach Millisekunden-Verzögerung      |
-| `IfTranced`          | `void`       | Bedingte Ausführung zweier Vorschläge      |
-| `RepeatUntil`        | `void`       | Wiederhole Aktion bis Bedingung `true`     |
-| `RepeatWhile`        | `void`       | Wiederhole solange Bedingung `true`        |
-| `SequentialTrance`   | `void`       | Liste von Aktionen seriell ausführen       |
-| `Compose` / `Pipe`   | `suggestion` | Functionen kombinieren                     |
-| `TryOrAwaken`        | `void`       | Fehlerpfad behandeln                       |
-| `EnsureAwakening`    | `void`       | Cleanup garantiert ausführen               |
-| `MeasureTranceDepth` | `number`     | Laufzeit in Millisekunden messen           |
-| `Memoize`            | `suggestion` | Functionsresultate zwischenspeichern       |
+| Function             | Return value | Brief Description                        |
+| -------------------- | ------------ | ---------------------------------------- |
+| `RepeatAction`       | `void`       | Repeat an action a fixed number of times |
+| `DelayedSuggestion`  | `void`       | Run an action after a millisecond delay  |
+| `IfTranced`          | `void`       | Conditionally execute two suggestions    |
+| `RepeatUntil`        | `void`       | Repeat action until condition is `true`  |
+| `RepeatWhile`        | `void`       | Repeat action while condition is `true`  |
+| `SequentialTrance`   | `void`       | Execute a list of actions sequentially   |
+| `Compose` / `Pipe`   | `suggestion` | Combine functions                        |
+| `TryOrAwaken`        | `void`       | Handle error path                        |
+| `EnsureAwakening`    | `void`       | Guarantee cleanup execution              |
+| `MeasureTranceDepth` | `number`     | Measure runtime in milliseconds          |
+| `Memoize`            | `suggestion` | Cache function results                   |
 
-:::tip Namenskonventionen
-Alle DeepMind-Builtins verwenden PascalCase (`RepeatAction`) und akzeptieren `suggestion()`-Blöcke als Parameters.
-Die Signaturen sind case-insensitive, so dass `repeataction` ebenfalls funktioniert.
+:::tip Naming conventions
+All DeepMind builtins use PascalCase (`RepeatAction`) and accept `suggestion()` blocks as parameters.
+Signatures are case-insensitive, so `repeataction` works too.
 :::
 
-## Wiederholung & Timing
+## Repetition & Timing
 
 ### RepeatAction(times, action)
 
-- **Signatur:** `(times: number, action: () -> void) -> void`
-- **Description:** Executes `action` `times`-mal aus. Negative Werte werden ignoriert.
+- **Signature:** `(times: number, action: () -> void) -> void`
+- **Description:** Executes `action` `times` times. Negative values are ignored.
 
 ```hyp
 RepeatAction(3, suggestion() {
@@ -44,35 +44,35 @@ RepeatAction(3, suggestion() {
 
 ### DelayedSuggestion(action, delayMs)
 
-- **Signatur:** `(action: () -> void, delay: number) -> void`
-- **Description:** Executes `action` nach `delay` Millisekunden aus. Die Ausführung blockiert bis zum Ablauf der Zeit.
+- **Signature:** `(action: () -> void, delay: number) -> void`
+- **Description:** Executes `action` after `delay` milliseconds. Execution blocks until the time elapses.
 
 ```hyp
 DelayedSuggestion(suggestion() {
-    observe "Willkommen nach 2 Sekunden";
+    observe "Welcome after 2 seconds";
 }, 2000);
 ```
 
-## Bedingte Ausführung
+## Conditional Execution
 
 ### IfTranced(condition, thenAction, elseAction)
 
-- **Signatur:** `(condition: boolean, then: () -> void, otherwise: () -> void) -> void`
-- **Description:** Evaluierte Bedingung; bei `true` wird `then`, sonst `otherwise` ausgeführt.
+- **Signature:** `(condition: boolean, then: () -> void, otherwise: () -> void) -> void`
+- **Description:** Evaluates condition; if `true` runs `then`, otherwise runs `otherwise`.
 
 ```hyp
 IfTranced(audienceSize > 10,
-    suggestion() { observe "Großgruppe"; },
-    suggestion() { observe "Intime Sitzung"; }
+    suggestion() { observe "Large group"; },
+    suggestion() { observe "Intimate session"; }
 );
 ```
 
-## Komposition & Pipelines
+## Composition & Pipelines
 
 ### Compose(f, g)
 
-- **Signatur:** `(f: (B) -> C, g: (A) -> B) -> (A -> C)`
-- **Description:** Erst `g`, dann `f`. Nützlich für wiederverwendbare Datenpipelines.
+- **Signature:** `(f: (B) -> C, g: (A) -> B) -> (A -> C)`
+- **Description:** First `g`, then `f`. Useful for reusable data pipelines.
 
 ```hyp
 suggestion double(x: number): number { awaken x * 2; }
@@ -84,20 +84,20 @@ induce result: number = transformer(5); // 30
 
 ### Pipe(f, g)
 
-- **Signatur:** `(f: (A) -> B, g: (B) -> C) -> (A -> C)`
-- **Description:** Umgekehrte Reihenfolge: zuerst `f`, danach `g`.
+- **Signature:** `(f: (A) -> B, g: (B) -> C) -> (A -> C)`
+- **Description:** Reverse order: first `f`, then `g`.
 
 ```hyp
 induce pipeline = Pipe(double, addTen);
 observe pipeline(5); // 20
 ```
 
-## Schleifensteuerung
+## Loop Control
 
 ### RepeatUntil(action, condition)
 
-- **Signatur:** `(action: () -> void, condition: () -> boolean) -> void`
-- **Description:** Executes `action` aus, solange `condition()` `false` liefert. Bedingung wird nach jedem Durchlauf geprüft.
+- **Signature:** `(action: () -> void, condition: () -> boolean) -> void`
+- **Description:** Executes `action` while `condition()` returns `false`. Condition is checked after each iteration.
 
 ```hyp
 induce counter: number = 0;
@@ -109,26 +109,26 @@ RepeatUntil(
 
 ### RepeatWhile(condition, action)
 
-- **Signatur:** `(condition: () -> boolean, action: () -> void) -> void`
-- **Description:** Checks `condition()` vor jedem Durchlauf; bei `true` läuft `action`, sonst endet die Schleife.
+- **Signature:** `(condition: () -> boolean, action: () -> void) -> void`
+- **Description:** Checks `condition()` before each iteration; if `true` runs `action`, otherwise ends the loop.
 
 ```hyp
 induce energy: number = 3;
 RepeatWhile(
     suggestion(): boolean { awaken energy > 0; },
     suggestion() {
-        observe "Noch Energie: " + energy;
+        observe "Energy left: " + energy;
         energy = energy - 1;
     }
 );
 ```
 
-## Sequenzen & Fehlerbehandlung
+## Sequences & Error Handling
 
 ### SequentialTrance(actions)
 
-- **Signatur:** `(actions: (() -> void)[]) -> void`
-- **Description:** Executes eine Liste von `suggestion`-Blöcken nacheinander aus.
+- **Signature:** `(actions: (() -> void)[]) -> void`
+- **Description:** Executes a list of `suggestion` blocks sequentially.
 
 ```hyp
 SequentialTrance([
@@ -140,8 +140,8 @@ SequentialTrance([
 
 ### TryOrAwaken(tryAction, catchAction)
 
-- **Signatur:** `(try: () -> Result<void, string>, catch: (error: string) -> void) -> void`
-- **Description:** Executes `try` aus und ruft bei Fehlern `catch` mit der Fehlermeldung auf.
+- **Signature:** `(try: () -> Result<void, string>, catch: (error: string) -> void) -> void`
+- **Description:** Executes `try` and calls `catch` with the error message on failure.
 
 ```hyp
 TryOrAwaken(
@@ -149,50 +149,50 @@ TryOrAwaken(
         if (audienceSize < 0) {
             awaken Err("Negative Audience");
         }
-        observe "Session startet";
+        observe "Session starts";
         awaken Ok(());
     },
     suggestion(error: string) {
-        observe "Fehler: " + error;
+        observe "Error: " + error;
     }
 );
 ```
 
 ### EnsureAwakening(mainAction, cleanup)
 
-- **Signatur:** `(main: () -> void, cleanup: () -> void) -> void`
-- **Description:** Executes `main` aus und garantiert, dass `cleanup` anschließend aufgerufen wird.
+- **Signature:** `(main: () -> void, cleanup: () -> void) -> void`
+- **Description:** Executes `main` and guarantees that `cleanup` is called afterwards.
 
 ```hyp
 EnsureAwakening(
     suggestion() {
-        observe "Datei öffnen";
+        observe "Open file";
     },
     suggestion() {
-        observe "Datei schließen";
+        observe "Close file";
     }
 );
 ```
 
-## Messung & Memoisierung
+## Measurement & Memoization
 
 ### MeasureTranceDepth(action)
 
-- **Signatur:** `(action: () -> void) -> number`
-- **Description:** Executes `action` aus und gibt die Dauer in Millisekunden .
+- **Signature:** `(action: () -> void) -> number`
+- **Description:** Executes `action` and returns the duration in milliseconds.
 
 ```hyp
 induce duration: number = MeasureTranceDepth(suggestion() {
     RepeatAction(1000, suggestion() { observe "Tick"; });
 });
-observe "Laufzeit: " + duration + " ms";
+observe "Runtime: " + duration + " ms";
 ```
 
 ### Memoize(f)
 
-- **Signatur:** `(f: (A) -> R) -> (A -> R)`
-- **Description:** Liefert eine Wrapper-Function. In der aktuellen Runtime-Version wird das Ergebnis nicht dauerhaft
-  zwischengespeichert, aber das Interface bleibt stabil für zukünftige Optimierungen.
+- **Signature:** `(f: (A) -> R) -> (A -> R)`
+- **Description:** Returns a wrapper function. In the current runtime version the result is not cached permanently,
+  but the interface stays stable for future optimizations.
 
 ```hyp
 suggestion square(x: number): number { awaken x * x; }
@@ -202,17 +202,16 @@ observe memoSquare(4); // 16
 observe memoSquare(4); // 16 (future calls from cache)
 ```
 
-## Tipps für den Einsatz
+## Usage Tips
 
-- `RepeatAction`, `RepeatUntil` und `RepeatWhile` blockieren synchron; nutze `DelayedSuggestion` für einfache
-  Zeitsteuerung.
-- Kombiniere `Compose` und `Pipe` mit Array- oder String-Builtins, um filter-map-reduce-Ketten lesbar zu halten.
-- `TryOrAwaken` erwartet einen `Result`-ähnlichen Return value. Gib `Ok(())` für Erfolg und `Err("Message")` für Fehler
-  .
-- `MeasureTranceDepth` eignet sich für schnelle Performance-Messungen ohne zusätzliches Werkzeug.
+- `RepeatAction`, `RepeatUntil`, and `RepeatWhile` block synchronously; use `DelayedSuggestion` for simple
+  time-based control.
+- Combine `Compose` and `Pipe` with array or string builtins to keep filter-map-reduce chains readable.
+- `TryOrAwaken` expects a `Result`-like return value. Use `Ok(())` for success and `Err("Message")` for errors.
+- `MeasureTranceDepth` is suitable for quick performance measurements without extra tooling.
 
-## See auch
+## See also
 
-- [Builtin-Overview](./overview)
+- [Builtin Overview](./overview)
 - [Complete Reference – DeepMind](./_complete-reference#deepmind-builtins-higher-order-functions)
-- [CLI Builtins anzeigen](../cli/commands#builtins)
+- [Show CLI builtins](../cli/commands#builtins)

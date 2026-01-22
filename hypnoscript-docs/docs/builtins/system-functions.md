@@ -22,7 +22,7 @@ observe content;
 Writes content to a file.
 
 ```hyp
-WriteFile("output.txt", "Hallo Welt!");
+WriteFile("output.txt", "Hello World!");
 ```
 
 ### AppendFile(path, content)
@@ -30,7 +30,7 @@ WriteFile("output.txt", "Hallo Welt!");
 Appends content to an existing file.
 
 ```hyp
-AppendFile("log.txt", "Neuer Eintrag: " + Now());
+AppendFile("log.txt", "New entry: " + Now());
 ```
 
 ### FileExists(path)
@@ -40,7 +40,7 @@ Checks if a file exists.
 ```hyp
 if (FileExists("config.json")) {
     induce config = ReadFile("config.json");
-    // Verarbeite Konfiguration
+    // Process configuration
 }
 ```
 
@@ -76,7 +76,7 @@ Returns the size of a file in bytes.
 
 ```hyp
 induce size = GetFileSize("large.txt");
-observe "Dateigröße: " + size + " Bytes";
+observe "File size: " + size + " bytes";
 ```
 
 ### GetFileInfo(path)
@@ -85,9 +85,9 @@ Returns information about a file.
 
 ```hyp
 induce info = GetFileInfo("document.txt");
-observe "Erstellt: " + info.created;
-observe "Geändert: " + info.modified;
-observe "Größe: " + info.size + " Bytes";
+observe "Created: " + info.created;
+observe "Modified: " + info.modified;
+observe "Size: " + info.size + " bytes";
 ```
 
 ## Directory Operations
@@ -127,7 +127,7 @@ Lists all subdirectories.
 
 ```hyp
 induce dirs = ListDirectories(".");
-observe "Unterverzeichnisse: " + dirs;
+observe "Subdirectories: " + dirs;
 ```
 
 ### DeleteDirectory(path, recursive)
@@ -144,7 +144,7 @@ Returns the current working directory.
 
 ```hyp
 induce cwd = GetCurrentDirectory();
-observe "Aktuelles Verzeichnis: " + cwd;
+observe "Current directory: " + cwd;
 ```
 
 ### ChangeDirectory(path)
@@ -202,7 +202,7 @@ Returns the process ID of the current script.
 
 ```hyp
 induce pid = GetCurrentProcessId();
-observe "Aktuelle PID: " + pid;
+observe "Current PID: " + pid;
 ```
 
 ## Environment Variables
@@ -221,7 +221,7 @@ induce user = GetEnvironmentVariable("USERNAME");
 Sets an environment variable.
 
 ```hyp
-SetEnvironmentVariable("MY_VAR", "mein_wert");
+SetEnvironmentVariable("MY_VAR", "my_value");
 ```
 
 ### GetAllEnvironmentVariables()
@@ -243,9 +243,9 @@ Returns general system information.
 
 ```hyp
 induce sysInfo = GetSystemInfo();
-observe "Betriebssystem: " + sysInfo.os;
-observe "Architektur: " + sysInfo.architecture;
-observe "Prozessoren: " + sysInfo.processors;
+observe "Operating system: " + sysInfo.os;
+observe "Architecture: " + sysInfo.architecture;
+observe "Processors: " + sysInfo.processors;
 ```
 
 ### GetMemoryInfo()
@@ -254,9 +254,9 @@ Returns memory information.
 
 ```hyp
 induce memInfo = GetMemoryInfo();
-observe "Gesamter RAM: " + memInfo.total + " MB";
-observe "Verfügbarer RAM: " + memInfo.available + " MB";
-observe "Verwendeter RAM: " + memInfo.used + " MB";
+observe "Total RAM: " + memInfo.total + " MB";
+observe "Available RAM: " + memInfo.available + " MB";
+observe "Used RAM: " + memInfo.used + " MB";
 ```
 
 ### GetDiskInfo()
@@ -266,9 +266,9 @@ Returns disk information.
 ```hyp
 induce diskInfo = GetDiskInfo();
 for (induce drive in diskInfo) {
-    observe "Laufwerk " + drive.letter + ":";
-    observe "  Gesamt: " + drive.total + " GB";
-    observe "  Verfügbar: " + drive.free + " GB";
+    observe "Drive " + drive.letter + ":";
+    observe "  Total: " + drive.total + " GB";
+    observe "  Free: " + drive.free + " GB";
 }
 ```
 
@@ -279,7 +279,7 @@ Returns network information.
 ```hyp
 induce netInfo = GetNetworkInfo();
 observe "Hostname: " + netInfo.hostname;
-observe "IP-Adresse: " + netInfo.ipAddress;
+observe "IP address: " + netInfo.ipAddress;
 ```
 
 ## Network Operations
@@ -352,7 +352,7 @@ Registers an event handler for system events.
 
 ```hyp
 OnSystemEvent("fileChanged", function(path) {
-    observe "Datei geändert: " + path;
+    observe "File changed: " + path;
 });
 ```
 
@@ -361,7 +361,7 @@ OnSystemEvent("fileChanged", function(path) {
 Triggers a system event.
 
 ```hyp
-TriggerSystemEvent("customEvent", {"message": "Hallo Welt!"});
+TriggerSystemEvent("customEvent", {"message": "Hello World!"});
 ```
 
 ## Practical Examples
@@ -372,7 +372,7 @@ TriggerSystemEvent("customEvent", {"message": "Hallo Welt!"});
 Focus {
     suggestion createBackup(sourcePath, backupDir) {
         if (!FileExists(sourcePath)) {
-            observe "Quelldatei existiert nicht: " + sourcePath;
+            observe "Source file does not exist: " + sourcePath;
             awaken false;
         }
 
@@ -384,7 +384,7 @@ Focus {
         induce backupPath = backupDir + "/backup_" + timestamp + ".txt";
 
         CopyFile(sourcePath, backupPath);
-        observe "Backup erstellt: " + backupPath;
+        observe "Backup created: " + backupPath;
         return true;
     }
 
@@ -394,39 +394,39 @@ Focus {
 
         if (createBackup(sourceFile, backupDirectory)) {
             induce backupFiles = ListFiles(backupDirectory);
-            observe "Anzahl Backups: " + ArrayLength(backupFiles);
+            observe "Number of backups: " + ArrayLength(backupFiles);
         }
     }
 } Relax;
 ```
 
-### System-Monitoring
+### System Monitoring
 
 ```hyp
 Focus {
     entrance {
-        // System-Informationen sammeln
+        // Collect system information
         induce sysInfo = GetSystemInfo();
         induce memInfo = GetMemoryInfo();
         induce diskInfo = GetDiskInfo();
 
-        observe "=== System-Status ===";
+        observe "=== System Status ===";
         observe "OS: " + sysInfo.os;
         observe "RAM: " + memInfo.used + "/" + memInfo.total + " MB";
 
-        // Festplatten-Status
+        // Disk status
         for (induce drive in diskInfo) {
             induce usagePercent = (drive.total - drive.free) / drive.total * 100;
-            observe "Laufwerk " + drive.letter + ": " + Round(usagePercent, 1) + "% belegt";
+            observe "Drive " + drive.letter + ": " + Round(usagePercent, 1) + "% used";
         }
 
-        // Prozess-Liste (Top 5)
+        // Process list (top 5)
         induce processes = GetProcessList();
         induce sortedProcesses = Sort(processes, function(a, b) {
             return b.memory - a.memory;
         });
 
-        observe "Top 5 Prozesse (nach Speicher):";
+        observe "Top 5 processes (by memory):";
         for (induce i = 0; i < Min(5, ArrayLength(sortedProcesses)); induce i = i + 1) {
             induce proc = ArrayGet(sortedProcesses, i);
             observe "  " + proc.name + ": " + proc.memory + " MB";
@@ -435,7 +435,7 @@ Focus {
 } Relax;
 ```
 
-### Automatisierte Fileverarbeitung
+### Automated File Processing
 
 ```hyp
 Focus {
@@ -444,11 +444,11 @@ Focus {
         induce outputDir = "output";
         induce processedDir = "processed";
 
-        // Verzeichnisse erstellen
+        // Create directories
         if (!DirectoryExists(outputDir)) CreateDirectory(outputDir);
         if (!DirectoryExists(processedDir)) CreateDirectory(processedDir);
 
-        // Alle Dateien im Eingabeverzeichnis verarbeiten
+        // Process all files in the input directory
         induce files = ListFiles(inputDir);
 
         for (induce i = 0; i < ArrayLength(files); induce i = i + 1) {
@@ -457,29 +457,29 @@ Focus {
             induce outputPath = outputDir + "/processed_" + file;
             induce processedPath = processedDir + "/" + file;
 
-            // Datei verarbeiten
+            // Process file
             induce content = ReadFile(inputPath);
-            induce processedContent = ToUpper(content); // Beispiel-Verarbeitung
+            induce processedContent = ToUpper(content); // Example processing
 
             WriteFile(outputPath, processedContent);
             MoveFile(inputPath, processedPath);
 
-            observe "Verarbeitet: " + file;
+            observe "Processed: " + file;
         }
 
-        observe "Verarbeitung abgeschlossen. " + ArrayLength(files) + " Dateien verarbeitet.";
+        observe "Processing complete. " + ArrayLength(files) + " files processed.";
     }
 } Relax;
 ```
 
-### Netzwerk-Monitoring
+### Network Monitoring
 
 ```hyp
 Focus {
     entrance {
         induce hosts = ["google.com", "github.com", "stackoverflow.com"];
 
-        observe "=== Netzwerk-Status ===";
+        observe "=== Network Status ===";
 
         for (induce i = 0; i < ArrayLength(hosts); induce i = i + 1) {
             induce host = ArrayGet(hosts, i);
@@ -496,14 +496,14 @@ Focus {
                     observe host + ": Offline";
                 }
             } catch {
-                observe host + ": Fehler beim Ping";
+                observe host + ": Ping error";
             }
         }
     }
 } Relax;
 ```
 
-### Konfigurations-Management
+### Configuration Management
 
 ```hyp
 Focus {
@@ -516,58 +516,58 @@ Focus {
             "debug": false
         };
 
-        // Konfiguration laden oder Standard erstellen
+        // Load configuration or create default
         if (FileExists(configFile)) {
             induce configContent = ReadFile(configFile);
             induce config = ParseJSON(configContent);
-            observe "Konfiguration geladen";
+            observe "Configuration loaded";
         } else {
             induce config = defaultConfig;
             WriteFile(configFile, StringifyJSON(config));
-            observe "Standard-Konfiguration erstellt";
+            observe "Default configuration created";
         }
 
-        // Konfiguration verwenden
+        // Use configuration
         observe "Server: " + config.server + ":" + config.port;
-        observe "Timeout: " + config.timeout + " Sekunden";
-        observe "Debug-Modus: " + config.debug;
+        observe "Timeout: " + config.timeout + " seconds";
+        observe "Debug mode: " + config.debug;
 
-        // Konfiguration aktualisieren
+        // Update configuration
         config.timeout = 60;
         WriteFile(configFile, StringifyJSON(config));
-        observe "Konfiguration aktualisiert";
+        observe "Configuration updated";
     }
 } Relax;
 ```
 
 ## Best Practices
 
-### Fehlerbehandlung
+### Error Handling
 
 ```hyp
 suggestion safeFileOperation(operation) {
     try {
         awaken operation();
     } catch (error) {
-        observe "Fehler: " + error;
+        observe "Error: " + error;
         return false;
     }
 }
 
-// Verwendung
+// Usage
 safeFileOperation(function() {
     return ReadFile("nonexistent.txt");
 });
 ```
 
-### Ressourcen-Management
+### Resource Management
 
 ```hyp
 // Automatically delete temporary files
 induce tempFile = "temp_" + Timestamp() + ".txt";
-WriteFile(tempFile, "Temporäre Daten");
+WriteFile(tempFile, "Temporary data");
 
-// Verarbeitung...
+// Processing...
 
 // Cleanup
 if (FileExists(tempFile)) {
@@ -575,21 +575,21 @@ if (FileExists(tempFile)) {
 }
 ```
 
-### Sicherheit
+### Security
 
 ```hyp
-// Pfad-Validierung
+// Path validation
 suggestion isValidPath(path) {
     if (Contains(path, "..")) awaken false;
     if (Contains(path, "\\")) return false;
     return true;
 }
 
-// Sichere Dateioperation
+// Safe file operation
 if (isValidPath(userInput)) {
     ReadFile(userInput);
 } else {
-    observe "Ungültiger Pfad!";
+    observe "Invalid path!";
 }
 ```
 

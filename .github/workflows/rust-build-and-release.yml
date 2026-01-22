@@ -189,11 +189,11 @@ jobs:
 
             ## Installation
 
-            ### Automatisches Setup (Linux/macOS)
+            ### Automatic setup (Linux/macOS)
             ```bash
             curl -fsSL https://kink-development-group.github.io/hyp-runtime/install.sh | bash
             ```
-            Das Skript erkennt System & Architektur, verifiziert Checksums und aktualisiert vorhandene Installationen.
+            The script detects system & architecture, verifies checksums, and updates existing installations.
 
             ### Linux/macOS
             ```bash

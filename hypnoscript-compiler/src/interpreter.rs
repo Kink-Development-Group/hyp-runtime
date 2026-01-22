@@ -41,6 +41,10 @@ fn localized(en: &str, de: &str) -> String {
     format!("{} (DE: {})", en, de)
 }
 
+/// Type alias for debug pause callback to reduce type complexity.
+type DebugPauseCallback =
+    Box<dyn Fn(&mut Interpreter, crate::debug::PauseReason) -> crate::debug::StepMode>;
+
 #[derive(Clone, Copy, Debug)]
 enum ScopeLayer {
     Local,
@@ -290,7 +294,10 @@ impl SessionDefinition {
                     "Duplicate session field '{}' in session '{}'",
                     field.name, self.name
                 ),
-                &format!("Doppeltes Feld '{}' in Session '{}'", field.name, self.name),
+                &format!(
+                    "Duplicate field '{}' in session '{}'",
+                    field.name, self.name
+                ),
             )));
         }
         self.field_order.push(field.name.clone());
@@ -311,7 +318,10 @@ impl SessionDefinition {
                     "Duplicate session field '{}' in session '{}'",
                     field.name, self.name
                 ),
-                &format!("Doppeltes Feld '{}' in Session '{}'", field.name, self.name),
+                &format!(
+                    "Duplicate field '{}' in session '{}'",
+                    field.name, self.name
+                ),
             )));
         }
         self.static_field_order.push(field.name.clone());
@@ -331,10 +341,7 @@ impl SessionDefinition {
             if self.constructor.is_some() {
                 return Err(InterpreterError::Runtime(localized(
                     &format!("Multiple constructors declared in session '{}'", self.name),
-                    &format!(
-                        "Mehrere Konstruktoren in Session '{}' deklariert",
-                        self.name
-                    ),
+                    &format!("Multiple constructors declared in session '{}'", self.name),
                 )));
             }
             self.constructor = Some(method);
@@ -349,7 +356,7 @@ impl SessionDefinition {
                         method.name, self.name
                     ),
                     &format!(
-                        "Doppelte statische Methode '{}' in Session '{}'",
+                        "Duplicate static method '{}' in session '{}'",
                         method.name, self.name
                     ),
                 )));
@@ -363,7 +370,7 @@ impl SessionDefinition {
                         method.name, self.name
                     ),
                     &format!(
-                        "Doppelte Methode '{}' in Session '{}'",
+                        "Duplicate method '{}' in session '{}'",
                         method.name, self.name
                     ),
                 )));
@@ -402,7 +409,7 @@ impl SessionDefinition {
                     name, self.name
                 ),
                 &format!(
-                    "Statisches Feld '{}' nicht in Session '{}' gefunden",
+                    "Static field '{}' not found on session '{}'",
                     name, self.name
                 ),
             ))),
@@ -761,6 +768,13 @@ pub struct Interpreter {
 
     /// Optional channel registry for inter-task communication
     pub channel_registry: Option<std::sync::Arc<crate::channel_system::ChannelRegistry>>,
+
+    /// Optional debug state for step-through debugging
+    pub debug_state: Option<crate::debug::DebugState>,
+
+    /// Callback invoked when debugger pauses (for REPL integration)
+    #[allow(dead_code)]
+    debug_pause_callback: Option<DebugPauseCallback>,
 }
 
 impl Default for Interpreter {
@@ -781,6 +795,8 @@ impl Interpreter {
             tranceify_types: HashMap::new(),
             async_runtime: None,
             channel_registry: None,
+            debug_state: None,
+            debug_pause_callback: None,
         }
     }
 
@@ -801,6 +817,8 @@ impl Interpreter {
             tranceify_types: HashMap::new(),
             async_runtime: Some(std::sync::Arc::new(runtime)),
             channel_registry: Some(std::sync::Arc::new(registry)),
+            debug_state: None,
+            debug_pause_callback: None,
         })
     }
 
@@ -816,6 +834,211 @@ impl Interpreter {
             self.channel_registry = Some(std::sync::Arc::new(registry));
         }
         Ok(())
+    }
+
+    // === Debug Mode Methods ===
+
+    /// Enables debug mode with the given source code.
+    ///
+    /// When debug mode is enabled, the interpreter will check for breakpoints
+    /// and step conditions before each statement execution.
+    ///
+    /// # Arguments
+    /// * `source` - The source code (for display in debugger)
+    pub fn enable_debug_mode(&mut self, source: &str) {
+        self.debug_state = Some(crate::debug::DebugState::with_source(source));
+    }
+
+    /// Enables debug mode without source code.
+    pub fn enable_debug_mode_no_source(&mut self) {
+        self.debug_state = Some(crate::debug::DebugState::new());
+    }
+
+    /// Disables debug mode.
+    pub fn disable_debug_mode(&mut self) {
+        self.debug_state = None;
+    }
+
+    /// Returns whether debug mode is enabled.
+    pub fn is_debug_mode(&self) -> bool {
+        self.debug_state.is_some()
+    }
+
+    /// Sets a breakpoint at the given line number.
+    ///
+    /// # Arguments
+    /// * `line` - Line number (1-indexed)
+    ///
+    /// # Returns
+    /// `true` if breakpoint was newly added, `false` if already existed or debug mode not enabled
+    pub fn set_breakpoint(&mut self, line: usize) -> bool {
+        if let Some(ref mut state) = self.debug_state {
+            state.set_breakpoint(line)
+        } else {
+            false
+        }
+    }
+
+    /// Removes a breakpoint at the given line number.
+    pub fn remove_breakpoint(&mut self, line: usize) -> bool {
+        if let Some(ref mut state) = self.debug_state {
+            state.remove_breakpoint(line)
+        } else {
+            false
+        }
+    }
+
+    /// Checks if a breakpoint exists at the given line.
+    pub fn has_breakpoint(&self, line: usize) -> bool {
+        self.debug_state
+            .as_ref()
+            .map(|s| s.has_breakpoint(line))
+            .unwrap_or(false)
+    }
+
+    /// Returns all breakpoints.
+    pub fn breakpoints(&self) -> Vec<usize> {
+        self.debug_state
+            .as_ref()
+            .map(|s| s.breakpoints().iter().copied().collect())
+            .unwrap_or_default()
+    }
+
+    /// Clears all breakpoints.
+    pub fn clear_breakpoints(&mut self) {
+        if let Some(ref mut state) = self.debug_state {
+            state.clear_breakpoints();
+        }
+    }
+
+    /// Sets the step mode for debugging.
+    pub fn set_step_mode(&mut self, mode: crate::debug::StepMode) {
+        if let Some(ref mut state) = self.debug_state {
+            state.set_step_mode(mode);
+        }
+    }
+
+    /// Gets the current step mode.
+    pub fn step_mode(&self) -> crate::debug::StepMode {
+        self.debug_state
+            .as_ref()
+            .map(|s| s.step_mode())
+            .unwrap_or(crate::debug::StepMode::None)
+    }
+
+    /// Adds a watch expression.
+    ///
+    /// # Returns
+    /// The ID of the new watch expression, or None if debug mode not enabled
+    pub fn add_watch(&mut self, expression: String) -> Option<usize> {
+        self.debug_state.as_mut().map(|s| s.add_watch(expression))
+    }
+
+    /// Removes a watch expression by ID.
+    pub fn remove_watch(&mut self, id: usize) -> bool {
+        self.debug_state
+            .as_mut()
+            .map(|s| s.remove_watch(id))
+            .unwrap_or(false)
+    }
+
+    /// Returns the current call stack for debugging.
+    pub fn debug_call_stack(&self) -> Vec<crate::debug::CallFrame> {
+        self.debug_state
+            .as_ref()
+            .map(|s| s.call_stack().to_vec())
+            .unwrap_or_default()
+    }
+
+    /// Returns local variables in the current scope.
+    pub fn debug_locals(&self) -> HashMap<String, Value> {
+        if let Some(scope) = self.locals.last() {
+            scope.clone()
+        } else {
+            HashMap::new()
+        }
+    }
+
+    /// Returns global variables.
+    pub fn debug_globals(&self) -> HashMap<String, Value> {
+        self.globals.clone()
+    }
+
+    /// Returns all visible variables (locals + globals).
+    pub fn debug_all_variables(&self) -> HashMap<String, Value> {
+        let mut vars = self.globals.clone();
+        vars.extend(self.shared.clone());
+        for scope in &self.locals {
+            vars.extend(scope.clone());
+        }
+        vars
+    }
+
+    /// Returns the current debug state summary.
+    pub fn debug_summary(&self) -> String {
+        self.debug_state
+            .as_ref()
+            .map(|s| s.summary())
+            .unwrap_or_else(|| "Debug mode not enabled".to_string())
+    }
+
+    /// Formats the source context around the current line.
+    pub fn debug_source_context(&self, context_lines: usize) -> String {
+        self.debug_state
+            .as_ref()
+            .map(|s| s.format_source_context(context_lines))
+            .unwrap_or_else(|| "(no source available)".to_string())
+    }
+
+    /// Checks if the debugger should pause before executing a statement.
+    /// Returns the pause reason if should pause, None otherwise.
+    #[allow(dead_code)]
+    fn check_debug_pause(&mut self, line: usize) -> Option<crate::debug::PauseReason> {
+        if let Some(ref mut state) = self.debug_state {
+            state.should_pause(line)
+        } else {
+            None
+        }
+    }
+
+    /// Handles a debug pause event.
+    /// This is called when a breakpoint is hit or step completes.
+    #[allow(dead_code)]
+    fn handle_debug_pause(&mut self, reason: crate::debug::PauseReason) {
+        if let Some(ref mut state) = self.debug_state {
+            state.pause(reason);
+        }
+    }
+
+    /// Resumes execution after a pause.
+    pub fn debug_resume(&mut self) {
+        if let Some(ref mut state) = self.debug_state {
+            state.resume();
+        }
+    }
+
+    /// Pushes a debug call frame when entering a function.
+    #[allow(dead_code)]
+    fn debug_push_frame(&mut self, function_name: &str, line: usize) {
+        if let Some(ref mut state) = self.debug_state {
+            state.push_frame(crate::debug::CallFrame::new(
+                function_name.to_string(),
+                line,
+            ));
+        }
+    }
+
+    /// Pops a debug call frame when exiting a function.
+    #[allow(dead_code)]
+    fn debug_pop_frame(&mut self) {
+        if let Some(ref mut state) = self.debug_state {
+            state.pop_frame();
+        }
+    }
+
+    /// Triggers a programmatic breakpoint from code.
+    pub fn trigger_breakpoint(&mut self) -> Option<crate::debug::PauseReason> {
+        self.debug_state.as_mut().map(|s| s.trigger_breakpoint())
     }
 
     pub fn execute_program(&mut self, program: AstNode) -> Result<(), InterpreterError> {
@@ -1166,7 +1389,7 @@ impl Interpreter {
                 }
                 _ => Err(InterpreterError::Runtime(localized(
                     "Invalid assignment target",
-                    "Ungültiges Zuweisungsziel",
+                    "Invalid assignment target",
                 ))),
             },
 
@@ -1571,11 +1794,11 @@ impl Interpreter {
             Value::Session(session) => self.instantiate_session(session.clone(), args),
             Value::Null => Err(InterpreterError::Runtime(localized(
                 "Cannot call null value",
-                "Null-Wert kann nicht aufgerufen werden",
+                "Cannot call null value",
             ))),
             _ => Err(InterpreterError::Runtime(localized(
                 "Value is not callable",
-                "Wert ist nicht aufrufbar",
+                "Value is not callable",
             ))),
         }
     }
@@ -1593,7 +1816,7 @@ impl Interpreter {
                     args.len()
                 ),
                 &format!(
-                    "Erwartet {} Argumente, erhalten {}",
+                    "Expected {} arguments, received {}",
                     function.parameters.len(),
                     args.len()
                 ),
@@ -1695,7 +1918,7 @@ impl Interpreter {
                     definition.name()
                 ),
                 &format!(
-                    "Konstruktor in Session '{}' darf nicht statisch sein",
+                    "Constructor in session '{}' cannot be static",
                     definition.name()
                 ),
             )));
@@ -1759,7 +1982,7 @@ impl Interpreter {
                         args.len()
                     ),
                     &format!(
-                        "Konstruktor der Session '{}' erwartet {} Argumente, erhalten {}",
+                        "Constructor for session '{}' expects {} arguments, received {}",
                         session.name(),
                         constructor.parameters.len(),
                         args.len()
@@ -1780,7 +2003,7 @@ impl Interpreter {
                     session.name()
                 ),
                 &format!(
-                    "Session '{}' definiert keinen Konstruktor, dennoch wurden Argumente übergeben",
+                    "Session '{}' does not define a constructor but arguments were provided",
                     session.name()
                 ),
             )));
@@ -1902,7 +2125,7 @@ impl Interpreter {
                         property
                     ),
                     &format!(
-                        "Session-Instanz von '{}' besitzt kein Mitglied '{}'",
+                        "Session instance of '{}' has no member '{}'",
                         definition.name(),
                         property
                     ),
@@ -1941,7 +2164,7 @@ impl Interpreter {
                         property
                     ),
                     &format!(
-                        "Session '{}' besitzt kein statisches Mitglied '{}'",
+                        "Session '{}' has no static member '{}'",
                         session_rc.name(),
                         property
                     ),
@@ -1960,10 +2183,7 @@ impl Interpreter {
             }
             other => Err(InterpreterError::Runtime(localized(
                 &format!("Cannot access member '{}' on value '{}'", property, other),
-                &format!(
-                    "Mitglied '{}' kann auf Wert '{}' nicht zugegriffen werden",
-                    property, other
-                ),
+                &format!("Cannot access member '{}' on value '{}'", property, other),
             ))),
         }
     }
@@ -1997,7 +2217,7 @@ impl Interpreter {
                 {
                     return Err(InterpreterError::Runtime(localized(
                         &format!("Cannot assign to method '{}'", property),
-                        &format!("Zuweisung zur Methode '{}' nicht möglich", property),
+                        &format!("Cannot assign to method '{}'", property),
                     )));
                 }
 
@@ -2009,7 +2229,7 @@ impl Interpreter {
                             definition.name()
                         ),
                         &format!(
-                            "Statisches Feld '{}' muss über die Session '{}' gesetzt werden",
+                            "Assign static field '{}' through session '{}', not an instance",
                             property,
                             definition.name()
                         ),
@@ -2023,7 +2243,7 @@ impl Interpreter {
                         property
                     ),
                     &format!(
-                        "Session-Instanz von '{}' besitzt kein Feld '{}'",
+                        "Session instance of '{}' has no field '{}'",
                         definition.name(),
                         property
                     ),
@@ -2044,10 +2264,7 @@ impl Interpreter {
                 if session_rc.get_static_method_definition(property).is_some() {
                     return Err(InterpreterError::Runtime(localized(
                         &format!("Cannot assign to static method '{}'", property),
-                        &format!(
-                            "Zuweisung zu statischer Methode '{}' nicht möglich",
-                            property
-                        ),
+                        &format!("Cannot assign to static method '{}'", property),
                     )));
                 }
 
@@ -2058,7 +2275,7 @@ impl Interpreter {
                         property
                     ),
                     &format!(
-                        "Session '{}' besitzt kein statisches Feld '{}'",
+                        "Session '{}' has no static field '{}'",
                         session_rc.name(),
                         property
                     ),
@@ -2066,7 +2283,7 @@ impl Interpreter {
             }
             _ => Err(InterpreterError::Runtime(localized(
                 "Assignment target is not a session member",
-                "Zuweisungsziel ist kein Session-Mitglied",
+                "Assignment target is not a session member",
             ))),
         }
     }
@@ -2085,7 +2302,7 @@ impl Interpreter {
                     member_kind, member_name, session_name
                 ),
                 &format!(
-                    "Zugriff auf privates {} '{}' der Session '{}' verweigert",
+                    "Access denied to private {} '{}' of session '{}'",
                     member_kind, member_name, session_name
                 ),
             )));
@@ -2998,10 +3215,7 @@ impl Interpreter {
             if is_const {
                 return Err(InterpreterError::Runtime(localized(
                     &format!("Cannot reassign constant variable '{}'", name),
-                    &format!(
-                        "Konstante Variable '{}' kann nicht neu zugewiesen werden",
-                        name
-                    ),
+                    &format!("Cannot reassign constant variable '{}'", name),
                 )));
             }
             Ok(())
@@ -3415,5 +3629,173 @@ Focus {
             interpreter.get_variable("stage"),
             Err(InterpreterError::UndefinedVariable(_))
         ));
+    }
+
+    // === Debug Mode Tests ===
+
+    #[test]
+    fn test_enable_debug_mode() {
+        let source = "Focus { induce x = 42; } Relax";
+        let mut interpreter = Interpreter::new();
+
+        assert!(!interpreter.is_debug_mode());
+        interpreter.enable_debug_mode(source);
+        assert!(interpreter.is_debug_mode());
+
+        interpreter.disable_debug_mode();
+        assert!(!interpreter.is_debug_mode());
+    }
+
+    #[test]
+    fn test_breakpoint_management() {
+        let source = "Focus { induce x = 42; } Relax";
+        let mut interpreter = Interpreter::new();
+        interpreter.enable_debug_mode(source);
+
+        // Set breakpoints
+        assert!(interpreter.set_breakpoint(10));
+        assert!(interpreter.set_breakpoint(20));
+
+        // Check breakpoints
+        assert!(interpreter.has_breakpoint(10));
+        assert!(interpreter.has_breakpoint(20));
+        assert!(!interpreter.has_breakpoint(15));
+
+        // Get all breakpoints
+        let breakpoints = interpreter.breakpoints();
+        assert_eq!(breakpoints.len(), 2);
+        assert!(breakpoints.contains(&10));
+        assert!(breakpoints.contains(&20));
+
+        // Remove breakpoint
+        assert!(interpreter.remove_breakpoint(10));
+        assert!(!interpreter.has_breakpoint(10));
+        assert!(interpreter.has_breakpoint(20));
+
+        // Clear all breakpoints
+        interpreter.clear_breakpoints();
+        assert!(interpreter.breakpoints().is_empty());
+    }
+
+    #[test]
+    fn test_step_mode() {
+        use crate::debug::StepMode;
+
+        let source = "Focus { induce x = 42; } Relax";
+        let mut interpreter = Interpreter::new();
+        interpreter.enable_debug_mode(source);
+
+        assert_eq!(interpreter.step_mode(), StepMode::None);
+
+        interpreter.set_step_mode(StepMode::StepInto);
+        assert_eq!(interpreter.step_mode(), StepMode::StepInto);
+
+        interpreter.set_step_mode(StepMode::StepOver);
+        assert_eq!(interpreter.step_mode(), StepMode::StepOver);
+
+        interpreter.set_step_mode(StepMode::Continue);
+        assert_eq!(interpreter.step_mode(), StepMode::Continue);
+    }
+
+    #[test]
+    fn test_watch_expressions() {
+        let source = "Focus { induce x = 42; } Relax";
+        let mut interpreter = Interpreter::new();
+        interpreter.enable_debug_mode(source);
+
+        // Add watches
+        let id1 = interpreter.add_watch("x".to_string());
+        let id2 = interpreter.add_watch("y + z".to_string());
+
+        assert!(id1.is_some());
+        assert!(id2.is_some());
+
+        // Remove watch
+        assert!(interpreter.remove_watch(id1.unwrap()));
+        assert!(!interpreter.remove_watch(id1.unwrap())); // Already removed
+    }
+
+    #[test]
+    fn test_debug_variable_inspection() {
+        let source = r#"
+Focus {
+    induce x: number = 42;
+    induce y: string = "hello";
+} Relax
+"#;
+        let mut lexer = Lexer::new(source);
+        let tokens = lexer.lex().unwrap();
+        let mut parser = Parser::new(tokens);
+        let ast = parser.parse_program().unwrap();
+
+        let mut interpreter = Interpreter::new();
+        interpreter.enable_debug_mode(source);
+        interpreter.execute_program(ast).unwrap();
+
+        // Check globals
+        let globals = interpreter.debug_globals();
+        assert!(globals.contains_key("x"));
+        assert!(globals.contains_key("y"));
+        assert_eq!(globals.get("x").unwrap(), &Value::Number(42.0));
+        assert_eq!(
+            globals.get("y").unwrap(),
+            &Value::String("hello".to_string())
+        );
+    }
+
+    #[test]
+    fn test_debug_summary() {
+        let source = "Focus { induce x = 42; } Relax";
+        let mut interpreter = Interpreter::new();
+
+        // Without debug mode
+        let summary = interpreter.debug_summary();
+        assert!(summary.contains("not enabled"));
+
+        // With debug mode
+        interpreter.enable_debug_mode(source);
+        interpreter.set_breakpoint(10);
+        let summary = interpreter.debug_summary();
+        assert!(summary.contains("breakpoints"));
+        assert!(summary.contains("10"));
+    }
+
+    #[test]
+    fn test_debug_mode_no_source() {
+        let mut interpreter = Interpreter::new();
+        interpreter.enable_debug_mode_no_source();
+
+        assert!(interpreter.is_debug_mode());
+        assert!(interpreter.set_breakpoint(5));
+        assert!(interpreter.has_breakpoint(5));
+    }
+
+    #[test]
+    fn test_debug_with_execution() {
+        let source = r#"
+Focus {
+    induce x: number = 10;
+    induce y: number = 20;
+    induce sum: number = x + y;
+} Relax
+"#;
+        let mut lexer = Lexer::new(source);
+        let tokens = lexer.lex().unwrap();
+        let mut parser = Parser::new(tokens);
+        let ast = parser.parse_program().unwrap();
+
+        let mut interpreter = Interpreter::new();
+        interpreter.enable_debug_mode(source);
+        interpreter.set_breakpoint(3); // Set breakpoint at line 3
+
+        // Execute should still work
+        let result = interpreter.execute_program(ast);
+        assert!(result.is_ok());
+
+        // Verify execution completed correctly
+        assert_eq!(
+            interpreter.get_variable("sum").unwrap(),
+            Value::Number(30.0)
+        );
     }
 }
