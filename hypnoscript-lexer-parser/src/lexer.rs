@@ -453,6 +453,13 @@ impl Lexer {
         Err(format!("Unterminated string at line {}", self.line))
     }
 
+    /// Reads a fixed-width hexadecimal escape sequence from the current position.
+    ///
+    /// `digits` controls how many hexadecimal digits are consumed after the
+    /// escape prefix (for example 4 for `\uXXXX` and 2 for `\xXX`). The method
+    /// returns the decoded Unicode scalar value or an error if the escape is
+    /// truncated, contains non-hex digits, or decodes to an invalid scalar such
+    /// as a UTF-16 surrogate.
     fn read_hex_escape(&mut self, digits: usize, escape_prefix: &str) -> Result<char, String> {
         let mut hex = String::with_capacity(digits);
 
@@ -478,15 +485,18 @@ impl Lexer {
             hex.push(digit);
         }
 
-        let value = u32::from_str_radix(&hex, 16).map_err(|_| {
-            format!(
-                "Invalid {} escape '{}' at line {}, column {}",
+        // Safe because each digit was already validated with `is_ascii_hexdigit`.
+        let value = u32::from_str_radix(&hex, 16).unwrap();
+
+        if (0xD800..=0xDFFF).contains(&value) {
+            return Err(format!(
+                "Invalid Unicode scalar value for {} escape '{}' at line {}, column {}: surrogate code points (U+D800 to U+DFFF) are not valid scalar values",
                 escape_prefix,
                 hex,
                 self.line,
                 self.column.saturating_sub(digits)
-            )
-        })?;
+            ));
+        }
 
         char::from_u32(value).ok_or_else(|| {
             format!(
