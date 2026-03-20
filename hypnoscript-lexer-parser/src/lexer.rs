@@ -549,6 +549,24 @@ mod tests {
     }
 
     #[test]
+    fn test_string_literal_unterminated_unicode_escape() {
+        let mut unicode_lexer = Lexer::new("\"\\u12");
+        let unicode_error = unicode_lexer.lex().unwrap_err();
+        assert!(unicode_error.contains("Unterminated \\u escape"));
+
+        let mut hex_lexer = Lexer::new("\"\\x4");
+        let hex_error = hex_lexer.lex().unwrap_err();
+        assert!(hex_error.contains("Unterminated \\x escape"));
+    }
+
+    #[test]
+    fn test_string_literal_invalid_unicode_scalar_escape() {
+        let mut lexer = Lexer::new(r#""\uD800""#);
+        let error = lexer.lex().unwrap_err();
+        assert!(error.contains("Invalid Unicode scalar value"));
+    }
+
+    #[test]
     fn test_operator_synonym_tokenization() {
         let mut lexer = Lexer::new("if (a youAreFeelingVerySleepy b) { }");
         let tokens = lexer.lex().unwrap();
