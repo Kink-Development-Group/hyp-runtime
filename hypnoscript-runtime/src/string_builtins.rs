@@ -199,13 +199,13 @@ impl StringBuiltins {
 
     /// Pad left with character
     pub fn pad_left(s: &str, total_width: usize, pad_char: char) -> String {
-        let padding = total_width.saturating_sub(s.len());
+        let padding = total_width.saturating_sub(s.chars().count());
         format!("{}{}", pad_char.to_string().repeat(padding), s)
     }
 
     /// Pad right with character
     pub fn pad_right(s: &str, total_width: usize, pad_char: char) -> String {
-        let padding = total_width.saturating_sub(s.len());
+        let padding = total_width.saturating_sub(s.chars().count());
         format!("{}{}", s, pad_char.to_string().repeat(padding))
     }
 
@@ -434,5 +434,15 @@ mod tests {
         let text = "This is a long line that needs to be wrapped";
         let lines = StringBuiltins::wrap_text(text, 20);
         assert!(lines.iter().all(|line| line.chars().count() <= 20));
+    }
+
+    #[test]
+    fn test_padding_is_unicode_aware() {
+        assert_eq!(StringBuiltins::pad_left("hello", 10, '-'), "-----hello");
+        assert_eq!(StringBuiltins::pad_right("hello", 10, '-'), "hello-----");
+        assert_eq!(StringBuiltins::pad_left("🎯", 4, '-'), "---🎯");
+        assert_eq!(StringBuiltins::pad_right("🎯", 4, '-'), "🎯---");
+        assert_eq!(StringBuiltins::pad_left("café", 6, ' '), "  café");
+        assert_eq!(StringBuiltins::pad_right("café", 6, ' '), "café  ");
     }
 }

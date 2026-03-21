@@ -435,6 +435,8 @@ impl Lexer {
                         'r' => string.push('\r'),
                         '\\' => string.push('\\'),
                         '"' => string.push('"'),
+                        'u' => string.push(self.read_hex_escape(4, "\\u")?),
+                        'x' => string.push(self.read_hex_escape(2, "\\x")?),
                         _ => string.push(escaped),
                     }
                 }
@@ -449,6 +451,62 @@ impl Lexer {
         }
 
         Err(format!("Unterminated string at line {}", self.line))
+    }
+
+    /// Reads a fixed-width hexadecimal escape sequence from the current position.
+    ///
+    /// `digits` controls how many hexadecimal digits are consumed after the
+    /// escape prefix (for example 4 for `\uXXXX` and 2 for `\xXX`). The method
+    /// returns the decoded Unicode scalar value or an error if the escape is
+    /// truncated, contains non-hex digits, or decodes to an invalid scalar such
+    /// as a UTF-16 surrogate.
+    fn read_hex_escape(&mut self, digits: usize, escape_prefix: &str) -> Result<char, String> {
+        let mut hex = String::with_capacity(digits);
+
+        for _ in 0..digits {
+            if self.is_at_end() {
+                return Err(format!(
+                    "Unterminated {} escape at line {}, column {}",
+                    escape_prefix, self.line, self.column
+                ));
+            }
+
+            let digit = self.advance();
+            if !digit.is_ascii_hexdigit() {
+                return Err(format!(
+                    "Invalid {} escape digit '{}' at line {}, column {}",
+                    escape_prefix,
+                    digit,
+                    self.line,
+                    self.column.saturating_sub(1)
+                ));
+            }
+
+            hex.push(digit);
+        }
+
+        // Safe because each digit was already validated with `is_ascii_hexdigit`.
+        let value = u32::from_str_radix(&hex, 16).unwrap();
+
+        if (0xD800..=0xDFFF).contains(&value) {
+            return Err(format!(
+                "Invalid Unicode scalar value for {} escape '{}' at line {}, column {}: surrogate code points (U+D800 to U+DFFF) are not valid scalar values",
+                escape_prefix,
+                hex,
+                self.line,
+                self.column.saturating_sub(digits)
+            ));
+        }
+
+        char::from_u32(value).ok_or_else(|| {
+            format!(
+                "Invalid Unicode scalar value for {} escape '{}' at line {}, column {}",
+                escape_prefix,
+                hex,
+                self.line,
+                self.column.saturating_sub(digits)
+            )
+        })
     }
 
     fn keyword_or_identifier(&self, s: &str) -> (TokenType, String) {
@@ -478,6 +536,44 @@ mod tests {
         let tokens = lexer.lex().unwrap();
         assert_eq!(tokens[0].token_type, TokenType::StringLiteral);
         assert_eq!(tokens[0].lexeme, "Hello, World!");
+    }
+
+    #[test]
+    fn test_string_literal_unicode_escapes() {
+        let mut unicode_lexer = Lexer::new(r#""\u0041\u0042\u0043""#);
+        let unicode_tokens = unicode_lexer.lex().unwrap();
+        assert_eq!(unicode_tokens[0].token_type, TokenType::StringLiteral);
+        assert_eq!(unicode_tokens[0].lexeme, "ABC");
+
+        let mut hex_lexer = Lexer::new(r#""Hello\x20World\x21""#);
+        let hex_tokens = hex_lexer.lex().unwrap();
+        assert_eq!(hex_tokens[0].token_type, TokenType::StringLiteral);
+        assert_eq!(hex_tokens[0].lexeme, "Hello World!");
+    }
+
+    #[test]
+    fn test_string_literal_invalid_unicode_escape() {
+        let mut lexer = Lexer::new(r#""\u12G4""#);
+        let error = lexer.lex().unwrap_err();
+        assert!(error.contains("Invalid \\u escape digit"));
+    }
+
+    #[test]
+    fn test_string_literal_unterminated_unicode_escape() {
+        let mut unicode_lexer = Lexer::new("\"\\u12");
+        let unicode_error = unicode_lexer.lex().unwrap_err();
+        assert!(unicode_error.contains("Unterminated \\u escape"));
+
+        let mut hex_lexer = Lexer::new("\"\\x4");
+        let hex_error = hex_lexer.lex().unwrap_err();
+        assert!(hex_error.contains("Unterminated \\x escape"));
+    }
+
+    #[test]
+    fn test_string_literal_invalid_unicode_scalar_escape() {
+        let mut lexer = Lexer::new(r#""\uD800""#);
+        let error = lexer.lex().unwrap_err();
+        assert!(error.contains("Invalid Unicode scalar value"));
     }
 
     #[test]

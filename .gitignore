@@ -88,3 +88,4 @@ hypnoscript-docs/static/install.sh
 *.dylib
 *.wasm
 *.wat
+hypnoscript-compiler/hypnoscript_output*
