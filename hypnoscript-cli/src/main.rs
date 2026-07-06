@@ -82,6 +82,16 @@ enum Commands {
         /// Output trace information to file
         #[arg(long)]
         trace_file: Option<String>,
+
+        /// Restrict file builtins to this directory (filesystem sandbox).
+        /// Can also be set via the HYPNO_SANDBOX environment variable.
+        #[arg(long)]
+        sandbox: Option<String>,
+
+        /// Maximum function call depth before aborting with an error.
+        /// Can also be set via the HYPNO_MAX_CALL_DEPTH environment variable.
+        #[arg(long)]
+        max_call_depth: Option<usize>,
     },
 
     /// Lex a HypnoScript file (tokenize)
@@ -236,9 +246,19 @@ fn main() -> Result<()> {
             breakpoints,
             watch,
             trace_file,
+            sandbox,
+            max_call_depth,
         } => {
             if verbose {
                 println!("Running file: {}", file);
+            }
+
+            if let Some(sandbox_dir) = sandbox {
+                hypnoscript_runtime::set_sandbox_root(&sandbox_dir)
+                    .map_err(|e| anyhow!("Invalid sandbox directory '{}': {}", sandbox_dir, e))?;
+                if verbose {
+                    println!("Filesystem sandbox: {}", sandbox_dir);
+                }
             }
 
             let source = read_source(&file)?;
@@ -292,6 +312,9 @@ fn main() -> Result<()> {
 
             // Execute
             let mut interpreter = Interpreter::new();
+            if let Some(depth) = max_call_depth {
+                interpreter.set_max_call_depth(depth);
+            }
             interpreter.execute_program(ast).map_err(into_anyhow)?;
 
             if verbose {
@@ -590,39 +613,19 @@ fn main() -> Result<()> {
         }
 
         Commands::Builtins => {
-            println!("=== HypnoScript Builtin Functions ===\n");
+            use hypnoscript_compiler::builtin_registry;
 
-            println!("📊 Math Builtins:");
-            println!("  - Sin, Cos, Tan, Sqrt, Pow, Log, Log10");
-            println!("  - Abs, Floor, Ceil, Round, Min, Max");
-            println!("  - Factorial, Gcd, Lcm, IsPrime, Fibonacci");
-            println!("  - Clamp");
-
-            println!("\n📝 String Builtins:");
-            println!("  - Length, ToUpper, ToLower, Trim");
-            println!("  - IndexOf, Replace, Reverse, Capitalize");
-            println!("  - StartsWith, EndsWith, Contains");
-            println!("  - Split, Substring, Repeat");
-            println!("  - PadLeft, PadRight");
-
-            println!("\n📦 Array Builtins:");
-            println!("  - Length, IsEmpty, Get, IndexOf, Contains");
-            println!("  - Reverse, Sum, Average, Min, Max, Sort");
-            println!("  - First, Last, Take, Skip, Slice");
-            println!("  - Join, Count, Distinct");
-
-            println!("\n✨ Hypnotic Builtins:");
-            println!("  - observe (output)");
-            println!("  - drift (sleep)");
-            println!("  - DeepTrance");
-            println!("  - HypnoticCountdown");
-            println!("  - TranceInduction");
-            println!("  - HypnoticVisualization");
-
-            println!("\n🔄 Conversion Functions:");
-            println!("  - ToInt, ToDouble, ToString, ToBoolean");
-
-            println!("\nTotal: 50+ builtin functions implemented");
+            println!("=== HypnoScript Builtin Functions ===");
+            for category in builtin_registry::categories() {
+                println!("\n{}:", category);
+                for sig in builtin_registry::by_category(category) {
+                    println!("  {}", sig.render());
+                }
+            }
+            println!(
+                "\nTotal: {} builtin functions",
+                builtin_registry::BUILTINS.len()
+            );
         }
     }
 

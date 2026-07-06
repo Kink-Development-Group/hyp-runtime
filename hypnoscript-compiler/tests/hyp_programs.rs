@@ -23,6 +23,7 @@ const EXPECTED_PASS: &[&str] = &[
     "test_async_system.hyp",
     "test_basic.hyp",
     "test_channels.hyp",
+    "test_closures_promises.hyp",
     "test_compiler.hyp",
     "test_comprehensive.hyp",
     "test_enterprise_features.hyp",

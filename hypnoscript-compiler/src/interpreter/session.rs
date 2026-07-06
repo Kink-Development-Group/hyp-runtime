@@ -61,7 +61,9 @@ pub(crate) struct SessionFieldDefinition {
 pub(crate) struct SessionMethodDefinition {
     pub(crate) name: String,
     pub(crate) parameters: Vec<String>,
-    pub(crate) body: Vec<AstNode>,
+    /// Shared so that binding a method to an instance is O(1) instead of
+    /// deep-cloning the method body AST.
+    pub(crate) body: Rc<Vec<AstNode>>,
     pub(crate) visibility: SessionVisibility,
     pub(crate) is_static: bool,
     pub(crate) is_constructor: bool,

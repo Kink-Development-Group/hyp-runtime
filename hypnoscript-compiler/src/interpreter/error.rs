@@ -32,9 +32,19 @@ pub enum InterpreterError {
 
     #[error("Type error: {0}")]
     TypeError(String),
+
+    #[error("Maximum call depth of {0} exceeded (possible infinite recursion)")]
+    RecursionLimitExceeded(usize),
 }
 
 /// Provide a simple locale-aware message while we prepare full i18n plumbing.
+///
+/// When both variants are identical (the common case today) the message is
+/// emitted once instead of being duplicated as `msg (DE: msg)`.
 pub(crate) fn localized(en: &str, de: &str) -> String {
-    format!("{} (DE: {})", en, de)
+    if en == de {
+        en.to_string()
+    } else {
+        format!("{} (DE: {})", en, de)
+    }
 }

@@ -35,23 +35,37 @@ use std::rc::Rc;
 pub struct FunctionValue {
     pub(crate) name: String,
     pub(crate) parameters: Vec<String>,
-    pub(crate) body: Vec<AstNode>,
+    /// Shared so that cloning a function value (variable lookups, argument
+    /// passing) never deep-copies the body AST.
+    pub(crate) body: Rc<Vec<AstNode>>,
     pub(crate) this_binding: Option<Rc<RefCell<SessionInstance>>>,
     pub(crate) session_name: Option<String>,
     pub(crate) is_static: bool,
     pub(crate) is_constructor: bool,
+    /// Lexical environment captured when the function was declared inside
+    /// another function (closure by-value snapshot). Installed into the
+    /// activation scope on every call; parameters shadow captures.
+    pub(crate) captured: Rc<HashMap<String, Value>>,
 }
 
 impl FunctionValue {
-    pub(crate) fn new_global(name: String, parameters: Vec<String>, body: Vec<AstNode>) -> Self {
+    /// Creates a function that captures the given lexical environment.
+    /// Top-level functions simply capture an empty environment.
+    pub(crate) fn new_closure(
+        name: String,
+        parameters: Vec<String>,
+        body: Vec<AstNode>,
+        captured: HashMap<String, Value>,
+    ) -> Self {
         Self {
             name,
             parameters,
-            body,
+            body: Rc::new(body),
             this_binding: None,
             session_name: None,
             is_static: false,
             is_constructor: false,
+            captured: Rc::new(captured),
         }
     }
 
@@ -63,11 +77,12 @@ impl FunctionValue {
         Self {
             name: format!("{}::{}", session_name, method.name),
             parameters: method.parameters.clone(),
-            body: method.body.clone(),
+            body: Rc::clone(&method.body),
             this_binding,
             session_name: Some(session_name),
             is_static: method.is_static,
             is_constructor: method.is_constructor,
+            captured: Rc::new(HashMap::new()),
         }
     }
 
@@ -114,10 +129,14 @@ impl Eq for FunctionValue {}
 /// ```
 #[derive(Debug, Clone)]
 pub struct Promise {
-    /// The resolved value (if completed)
+    /// The value this promise resolves to.
     value: Option<Value>,
     /// Whether the promise is resolved
     resolved: bool,
+    /// Remaining simulated delay (in milliseconds) before the promise
+    /// resolves. `await` waits this long (honouring `HYPNO_TIME_SCALE`)
+    /// and then resolves the promise with `value`.
+    delay_ms: Option<u64>,
 }
 
 impl Promise {
@@ -126,14 +145,26 @@ impl Promise {
         Self {
             value: None,
             resolved: false,
+            delay_ms: None,
         }
     }
 
-    #[allow(dead_code)]
+    /// Creates an already-resolved promise.
     pub(crate) fn resolve(value: Value) -> Self {
         Self {
             value: Some(value),
             resolved: true,
+            delay_ms: None,
+        }
+    }
+
+    /// Creates a promise that resolves to `value` after `delay_ms`
+    /// simulated milliseconds (elapsed when the promise is awaited).
+    pub(crate) fn delayed(delay_ms: u64, value: Value) -> Self {
+        Self {
+            value: Some(value),
+            resolved: false,
+            delay_ms: Some(delay_ms),
         }
     }
 
@@ -141,8 +172,17 @@ impl Promise {
         self.resolved
     }
 
-    pub(crate) fn get_value(&self) -> Option<Value> {
-        self.value.clone()
+    /// Remaining simulated delay before this promise resolves.
+    pub(crate) fn pending_delay_ms(&self) -> Option<u64> {
+        if self.resolved { None } else { self.delay_ms }
+    }
+
+    /// Marks the promise as resolved (its delay has elapsed) and returns
+    /// the resolved value.
+    pub(crate) fn mark_resolved(&mut self) -> Value {
+        self.resolved = true;
+        self.delay_ms = None;
+        self.value.clone().unwrap_or(Value::Null)
     }
 }
 
@@ -180,13 +220,28 @@ pub enum Value {
     Number(f64),
     String(String),
     Boolean(bool),
-    Array(Vec<Value>),
+    /// Arrays are immutable values; sharing them via `Rc` makes cloning
+    /// (assignments, function arguments, ...) O(1) instead of deep copies.
+    Array(Rc<Vec<Value>>),
     Function(FunctionValue),
     Session(Rc<SessionDefinition>),
     Instance(Rc<RefCell<SessionInstance>>),
     Promise(Rc<RefCell<Promise>>),
-    Record(RecordValue),
+    /// Records are immutable values; shared via `Rc` like arrays.
+    Record(Rc<RecordValue>),
     Null,
+}
+
+impl Value {
+    /// Creates an array value (shared, cheap to clone).
+    pub fn array(values: Vec<Value>) -> Self {
+        Value::Array(Rc::new(values))
+    }
+
+    /// Creates a record value (shared, cheap to clone).
+    pub fn record(record: RecordValue) -> Self {
+        Value::Record(Rc::new(record))
+    }
 }
 
 /// A record instance (from tranceify declarations).

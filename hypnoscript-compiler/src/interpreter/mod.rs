@@ -102,6 +102,15 @@ pub struct Interpreter {
     /// Label declared immediately before a loop statement; the loop claims it
     /// on entry so `snap label;` / `sink label;` can target that loop.
     pending_loop_label: Option<String>,
+    /// Current function call nesting depth (guards against stack overflow).
+    call_depth: usize,
+    /// Maximum allowed function call nesting depth.
+    max_call_depth: usize,
+    /// Index into `locals` marking the start of the current function
+    /// activation. Variable lookups do not cross this barrier, giving
+    /// lexical (instead of dynamic) scoping; closures re-introduce outer
+    /// variables via their captured environment.
+    scope_barriers: Vec<usize>,
 
     /// Optional async runtime for true async execution
     pub async_runtime: Option<std::sync::Arc<crate::async_runtime::AsyncRuntime>>,
@@ -134,6 +143,9 @@ impl Interpreter {
             execution_context: Vec::new(),
             tranceify_types: HashMap::new(),
             pending_loop_label: None,
+            call_depth: 0,
+            max_call_depth: Self::default_max_call_depth(),
+            scope_barriers: Vec::new(),
             async_runtime: None,
             channel_registry: None,
             debug_state: None,
@@ -141,27 +153,30 @@ impl Interpreter {
         }
     }
 
+    /// Default maximum call depth. Can be overridden via the
+    /// `HYPNO_MAX_CALL_DEPTH` environment variable or [`Self::set_max_call_depth`].
+    fn default_max_call_depth() -> usize {
+        std::env::var("HYPNO_MAX_CALL_DEPTH")
+            .ok()
+            .and_then(|v| v.parse::<usize>().ok())
+            .filter(|&v| v > 0)
+            .unwrap_or(1_000)
+    }
+
+    /// Overrides the maximum function call nesting depth.
+    ///
+    /// Deeply recursive HypnoScript programs abort with
+    /// [`InterpreterError::RecursionLimitExceeded`] instead of crashing the
+    /// host process with a stack overflow.
+    pub fn set_max_call_depth(&mut self, depth: usize) {
+        self.max_call_depth = depth.max(1);
+    }
+
     /// Create interpreter with async runtime support
     pub fn with_async_runtime() -> Result<Self, InterpreterError> {
-        let runtime = crate::async_runtime::AsyncRuntime::new().map_err(|e| {
-            InterpreterError::Runtime(format!("Failed to create async runtime: {}", e))
-        })?;
-        let registry = crate::channel_system::ChannelRegistry::new();
-
-        Ok(Self {
-            globals: HashMap::new(),
-            shared: HashMap::new(),
-            const_globals: HashSet::new(),
-            locals: Vec::new(),
-            const_locals: Vec::new(),
-            execution_context: Vec::new(),
-            tranceify_types: HashMap::new(),
-            pending_loop_label: None,
-            async_runtime: Some(std::sync::Arc::new(runtime)),
-            channel_registry: Some(std::sync::Arc::new(registry)),
-            debug_state: None,
-            debug_pause_callback: None,
-        })
+        let mut interpreter = Self::new();
+        interpreter.enable_async_runtime()?;
+        Ok(interpreter)
     }
 
     /// Enable async runtime for existing interpreter
@@ -427,27 +442,21 @@ impl Interpreter {
                 parameters,
                 return_type: _,
                 body,
-            } => {
-                let param_names: Vec<String> = parameters.iter().map(|p| p.name.clone()).collect();
-                let func = FunctionValue::new_global(name.clone(), param_names, body.clone());
-                self.define_variable(
-                    VariableStorage::Local,
-                    name.clone(),
-                    Value::Function(func),
-                    false,
-                );
-                Ok(())
             }
-
-            AstNode::TriggerDeclaration {
+            // Triggers are handled like functions
+            | AstNode::TriggerDeclaration {
                 name,
                 parameters,
                 return_type: _,
                 body,
             } => {
-                // Triggers are handled like functions
                 let param_names: Vec<String> = parameters.iter().map(|p| p.name.clone()).collect();
-                let func = FunctionValue::new_global(name.clone(), param_names, body.clone());
+                let func = FunctionValue::new_closure(
+                    name.clone(),
+                    param_names,
+                    body.clone(),
+                    self.capture_lexical_environment(),
+                );
                 self.define_variable(
                     VariableStorage::Local,
                     name.clone(),
@@ -726,7 +735,7 @@ impl Interpreter {
                 for elem in elements {
                     values.push(self.evaluate_expression(elem)?);
                 }
-                Ok(Value::Array(values))
+                Ok(Value::array(values))
             }
 
             AstNode::BinaryExpression {
@@ -796,28 +805,10 @@ impl Interpreter {
             AstNode::AwaitExpression { expression } => {
                 // Evaluate the expression - it might return a Promise
                 let value = self.evaluate_expression(expression)?;
-
-                // If it's a Promise, await it (resolve it)
-                if let Value::Promise(promise_ref) = value {
-                    let promise = promise_ref.borrow();
-                    if promise.is_resolved() {
-                        // Promise is already resolved, return its value
-                        Ok(promise.get_value().unwrap_or(Value::Null))
-                    } else {
-                        // Promise not yet resolved - in a real async system, we'd wait
-                        // For now, return null (could simulate delay here)
-                        drop(promise); // Release borrow before potentially waiting
-
-                        // Simulate async operation with small delay
-                        std::thread::sleep(std::time::Duration::from_millis(10));
-
-                        // Re-check if resolved after wait
-                        let promise = promise_ref.borrow();
-                        Ok(promise.get_value().unwrap_or(Value::Null))
-                    }
-                } else {
+                match value {
+                    Value::Promise(promise_ref) => Ok(Self::await_promise(&promise_ref)),
                     // Not a promise, just return the value
-                    Ok(value)
+                    other => Ok(other),
                 }
             }
 
@@ -926,7 +917,7 @@ impl Interpreter {
                     field_values.insert(field_init.name.clone(), value);
                 }
 
-                Ok(Value::Record(RecordValue {
+                Ok(Value::record(RecordValue {
                     type_name: type_name.clone(),
                     fields: field_values,
                 }))
@@ -1008,7 +999,7 @@ impl Interpreter {
                     if let Some(rest_name) = rest {
                         let rest_elements: Vec<Value> =
                             arr.iter().skip(elements.len()).cloned().collect();
-                        bindings.insert(rest_name.clone(), Value::Array(rest_elements));
+                        bindings.insert(rest_name.clone(), Value::array(rest_elements));
                     } else if arr.len() > elements.len() {
                         return Ok(None); // Too many elements and no rest pattern
                     }
@@ -1168,6 +1159,16 @@ impl Interpreter {
         self.invoke_callable(&callee_value, &args)
     }
 
+    /// Resolves a promise: any remaining simulated delay elapses via
+    /// [`CoreBuiltins::drift`] (honouring `HYPNO_TIME_SCALE`), after which
+    /// the promise is marked resolved and its value returned.
+    fn await_promise(promise: &Rc<RefCell<value::Promise>>) -> Value {
+        if let Some(delay) = promise.borrow().pending_delay_ms() {
+            CoreBuiltins::drift(delay);
+        }
+        promise.borrow_mut().mark_resolved()
+    }
+
     fn invoke_callable(
         &mut self,
         callee: &Value,
@@ -1207,6 +1208,32 @@ impl Interpreter {
             )));
         }
 
+        if self.call_depth >= self.max_call_depth {
+            return Err(InterpreterError::RecursionLimitExceeded(
+                self.max_call_depth,
+            ));
+        }
+        self.call_depth += 1;
+
+        // Grow the native stack on demand so that deeply recursive scripts hit
+        // the graceful `RecursionLimitExceeded` error above instead of
+        // overflowing the host stack (tree-walking frames are large,
+        // especially in debug builds).
+        let result = stacker::maybe_grow(128 * 1024, 2 * 1024 * 1024, || {
+            self.call_function_frame(function, args)
+        });
+        self.call_depth -= 1;
+        result
+    }
+
+    /// Executes a single function activation. Only called via
+    /// [`Self::call_function`], which enforces the depth limit and keeps
+    /// enough native stack available.
+    fn call_function_frame(
+        &mut self,
+        function: &FunctionValue,
+        args: &[Value],
+    ) -> Result<Value, InterpreterError> {
         let session_name = function.session_name().map(|name| name.to_string());
         if session_name.is_some() {
             self.execution_context.push(ExecutionContextFrame {
@@ -1215,7 +1242,27 @@ impl Interpreter {
         }
 
         self.push_scope();
+        // Lexical scoping: lookups inside this activation must not see the
+        // caller's locals. Closures bring outer variables along explicitly.
+        self.scope_barriers.push(self.locals.len() - 1);
 
+        // 1. Captured lexical environment (outermost precedence layer)
+        for (name, value) in function.captured.iter() {
+            self.define_variable(VariableStorage::Local, name.clone(), value.clone(), false);
+        }
+
+        // 2. Self-reference so closures can recurse even though their own
+        //    name was not yet visible when the capture snapshot was taken.
+        if session_name.is_none() {
+            self.define_variable(
+                VariableStorage::Local,
+                function.name.clone(),
+                Value::Function(function.clone()),
+                false,
+            );
+        }
+
+        // 3. `this` binding and parameters shadow captures.
         if let Some(instance) = function.this_binding() {
             self.define_variable(
                 VariableStorage::Local,
@@ -1230,12 +1277,13 @@ impl Interpreter {
         }
 
         let result = (|| {
-            for stmt in &function.body {
+            for stmt in function.body.iter() {
                 self.execute_statement(stmt)?;
             }
             Ok(Value::Null)
         })();
 
+        self.scope_barriers.pop();
         self.pop_scope();
 
         if session_name.is_some() {
@@ -1313,7 +1361,7 @@ impl Interpreter {
         let method_def = SessionMethodDefinition {
             name: method.name.clone(),
             parameters,
-            body: method.body.clone(),
+            body: Rc::new(method.body.clone()),
             visibility: method.visibility,
             is_static: method.is_static,
             is_constructor: method.is_constructor,
@@ -1791,7 +1839,7 @@ impl Interpreter {
             }
         }
 
-        for idx in (0..self.locals.len()).rev() {
+        for idx in (self.current_barrier()..self.locals.len()).rev() {
             if self.locals[idx].contains_key(&name) {
                 let is_const = self
                     .const_locals
@@ -1826,8 +1874,7 @@ impl Interpreter {
     }
 
     fn resolve_assignment_scope(&self, name: &str) -> ScopeLayer {
-        if self
-            .locals
+        if self.locals[self.current_barrier()..]
             .iter()
             .rev()
             .any(|scope| scope.contains_key(name))
@@ -1842,9 +1889,28 @@ impl Interpreter {
         }
     }
 
+    /// Index of the first local scope belonging to the current function
+    /// activation. Lookups never cross this barrier (lexical scoping).
+    fn current_barrier(&self) -> usize {
+        self.scope_barriers.last().copied().unwrap_or(0)
+    }
+
+    /// Snapshot of all variables visible in the current activation,
+    /// innermost bindings shadowing outer ones. Used to capture the lexical
+    /// environment of nested function declarations (closures).
+    fn capture_lexical_environment(&self) -> HashMap<String, Value> {
+        let mut captured = HashMap::new();
+        for scope in &self.locals[self.current_barrier()..] {
+            for (name, value) in scope {
+                captured.insert(name.clone(), value.clone());
+            }
+        }
+        captured
+    }
+
     fn get_variable(&self, name: &str) -> Result<Value, InterpreterError> {
-        // Search in local scopes (from innermost to outermost)
-        for scope in self.locals.iter().rev() {
+        // Search visible local scopes (from innermost down to the barrier)
+        for scope in self.locals[self.current_barrier()..].iter().rev() {
             if let Some(value) = scope.get(name) {
                 return Ok(value.clone());
             }
@@ -1866,6 +1932,182 @@ impl Interpreter {
 mod tests {
     use super::*;
     use hypnoscript_lexer_parser::{Lexer, Parser};
+
+    /// Lexes and parses `source`, panicking with a helpful message on failure.
+    fn parse(source: &str) -> AstNode {
+        let tokens = Lexer::new(source).lex().expect("lexing failed");
+        Parser::new(tokens).parse_program().expect("parsing failed")
+    }
+
+    #[test]
+    fn test_delayed_value_promise_resolves_on_await() {
+        // HYPNO_TIME_SCALE=0 keeps the test instant.
+        unsafe { std::env::set_var("HYPNO_TIME_SCALE", "0") };
+        let source = r#"
+Focus {
+    entrance {
+        induce p = delayedValue(50, 42);
+        induce pending = isPromiseResolved(p);
+        induce result = await p;
+        induce resolved = isPromiseResolved(p);
+        induce all = promiseAll([delayedValue(10, 1), instantPromise(2), 3]);
+        induce fastest = promiseRace([delayedValue(500, "slow"), instantPromise("fast")]);
+    }
+} Relax
+"#;
+        let ast = parse(source);
+        let mut interpreter = Interpreter::new();
+        interpreter.execute_program(ast).expect("program failed");
+        assert_eq!(
+            interpreter.get_variable("pending").unwrap(),
+            Value::Boolean(false)
+        );
+        assert_eq!(
+            interpreter.get_variable("result").unwrap(),
+            Value::Number(42.0)
+        );
+        assert_eq!(
+            interpreter.get_variable("resolved").unwrap(),
+            Value::Boolean(true)
+        );
+        assert_eq!(
+            interpreter.get_variable("all").unwrap(),
+            Value::array(vec![
+                Value::Number(1.0),
+                Value::Number(2.0),
+                Value::Number(3.0)
+            ])
+        );
+        assert_eq!(
+            interpreter.get_variable("fastest").unwrap(),
+            Value::String("fast".to_string())
+        );
+    }
+
+    #[test]
+    fn test_closure_captures_outer_variable() {
+        let source = r#"
+Focus {
+    suggestion makeGreeting(name: string): string {
+        induce prefix: string = "Hello, ";
+        suggestion greet(): string {
+            awaken prefix + name;
+        }
+        awaken greet();
+    }
+    entrance {
+        induce message: string = makeGreeting("Trance");
+    }
+} Relax
+"#;
+        let ast = parse(source);
+        let mut interpreter = Interpreter::new();
+        interpreter.execute_program(ast).expect("program failed");
+        assert_eq!(
+            interpreter.get_variable("message").unwrap(),
+            Value::String("Hello, Trance".to_string())
+        );
+    }
+
+    #[test]
+    fn test_nested_function_can_recurse() {
+        let source = r#"
+Focus {
+    suggestion outer(): number {
+        induce base: number = 3;
+        suggestion sumTo(n: number): number {
+            if (n <= 0) deepFocus {
+                awaken base;
+            }
+            awaken n + sumTo(n - 1);
+        }
+        awaken sumTo(4);
+    }
+    entrance {
+        induce total: number = outer();
+    }
+} Relax
+"#;
+        let ast = parse(source);
+        let mut interpreter = Interpreter::new();
+        interpreter.execute_program(ast).expect("program failed");
+        // 4 + 3 + 2 + 1 + base(3) = 13
+        assert_eq!(
+            interpreter.get_variable("total").unwrap(),
+            Value::Number(13.0)
+        );
+    }
+
+    #[test]
+    fn test_lexical_scoping_hides_caller_locals() {
+        // `helper` must NOT see the caller's local `secret` (lexical, not
+        // dynamic scoping).
+        let source = r#"
+Focus {
+    suggestion helper(): number {
+        awaken secret;
+    }
+    suggestion caller(): number {
+        induce secret: number = 99;
+        awaken helper();
+    }
+    entrance {
+        induce x: number = caller();
+    }
+} Relax
+"#;
+        let ast = parse(source);
+        let mut interpreter = Interpreter::new();
+        match interpreter.execute_program(ast) {
+            Err(InterpreterError::UndefinedVariable(name)) => assert_eq!(name, "secret"),
+            other => panic!(
+                "expected UndefinedVariable('secret'), got {:?}",
+                other.err()
+            ),
+        }
+    }
+
+    #[test]
+    fn test_recursion_limit_reports_error_instead_of_crashing() {
+        let source = r#"
+Focus {
+    suggestion infinite(n: number): number {
+        awaken infinite(n + 1);
+    }
+    entrance {
+        infinite(0);
+    }
+} Relax
+"#;
+        let ast = parse(source);
+        let mut interpreter = Interpreter::new();
+        interpreter.set_max_call_depth(64);
+        match interpreter.execute_program(ast) {
+            Err(InterpreterError::RecursionLimitExceeded(64)) => {}
+            other => panic!("expected RecursionLimitExceeded, got {:?}", other.err()),
+        }
+    }
+
+    #[test]
+    fn test_recursion_within_limit_succeeds() {
+        let source = r#"
+Focus {
+    suggestion countdown(n: number): number {
+        if (n <= 0) deepFocus {
+            awaken 0;
+        }
+        awaken countdown(n - 1);
+    }
+    entrance {
+        induce result: number = countdown(50);
+    }
+} Relax
+"#;
+        let ast = parse(source);
+        let mut interpreter = Interpreter::new();
+        interpreter.set_max_call_depth(64);
+        assert!(interpreter.execute_program(ast).is_ok());
+    }
 
     #[test]
     fn test_simple_program() {

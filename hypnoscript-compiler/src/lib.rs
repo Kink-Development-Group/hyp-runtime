@@ -136,6 +136,7 @@
 pub mod async_builtins;
 pub mod async_promise;
 pub mod async_runtime;
+pub mod builtin_registry;
 pub mod channel_system;
 pub mod debug;
 pub mod interpreter;

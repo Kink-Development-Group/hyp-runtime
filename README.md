@@ -24,6 +24,10 @@ The complete runtime environment, compiler, and command-line tools are exclusive
 - 🧵 **String Interpolation** – `"Hello, ${name}!"` with arbitrary expressions inside `${...}`
 - 🔢 **Readable Numbers** – digit separators (`1_000_000`) and exponent notation (`2.5e3`)
 - 🌫️ **Null Safety** – `null` literal, nullable types (`number?` / `lucid number`), enforced by the type checker
+- 🪤 **Closures** – nested suggestions capture their lexical environment and can recurse
+- 🛡️ **Sandboxing** – confine all file builtins to a directory via `--sandbox` / `HYPNO_SANDBOX`
+- 🌀 **Safe Recursion** – graceful `RecursionLimitExceeded` errors instead of stack-overflow crashes (`--max-call-depth` / `HYPNO_MAX_CALL_DEPTH`)
+- ⏳ **Promises** – `delayedValue`, `instantPromise`, `promiseAll`, `promiseRace`, `isPromiseResolved` with deterministic `await`
 - 🔁 **Labeled Loops** – `outer: loop (...) { snap outer; }` for breaking/continuing outer loops
 - ⏸️ **Timed Pauses** – `drift(ms);` statement; scale or skip all pauses via `HYPNO_TIME_SCALE`
 - ✅ **Comprehensive Tests** – 300+ tests across all compiler modules, plus an end-to-end harness over the sample programs

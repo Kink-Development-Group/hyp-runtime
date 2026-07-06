@@ -6,6 +6,40 @@ All notable changes to this project will be documented in this file. The format 
 
 ### Added
 
+- **Closures with lexical scoping**: functions declared inside other functions now
+  capture the enclosing local variables (by-value snapshot at declaration time) and can
+  recurse. Variable lookups no longer leak across function-call boundaries (previously
+  the interpreter used dynamic scoping, so a callee could accidentally read the caller's
+  locals); accessing a caller-local from a callee is now an `UndefinedVariable` error.
+- **Recursion depth limit**: deeply recursive programs abort with a graceful
+  `RecursionLimitExceeded` error instead of crashing the host process with a stack
+  overflow. Default limit is 1,000 calls; configurable via the `HYPNO_MAX_CALL_DEPTH`
+  environment variable, the `--max-call-depth` CLI flag on `exec`, or
+  `Interpreter::set_max_call_depth`. The interpreter additionally grows the native stack
+  on demand (`stacker`), so the limit is reliable in debug and release builds alike.
+- **Filesystem sandbox for file builtins**: setting the `HYPNO_SANDBOX` environment
+  variable (or passing `--sandbox <dir>` to `exec`, or calling
+  `hypnoscript_runtime::set_sandbox_root`) confines `ReadFile`, `WriteFile`,
+  `DeleteFile`, `ListDirectory` and all other file builtins to that directory. Escapes
+  via `..`, absolute paths or symlinks are rejected with `PermissionDenied`; relative
+  paths resolve against the sandbox root. Without a configured root, behaviour is
+  unchanged.
+- **Working promise builtins**: `delayedValue(ms, value)` returns a real promise that
+  resolves when awaited (delay honours `HYPNO_TIME_SCALE`), plus `instantPromise(value)`,
+  `promiseAll(array)` (waits for the longest delay, simulating concurrency),
+  `promiseRace(array)` (waits for the shortest) and `isPromiseResolved(p)`. `await` now
+  resolves pending promises deterministically instead of sleeping a hard-coded 10 ms.
+- **Central builtin registry** (`hypnoscript_compiler::builtin_registry`): all 142
+  builtin signatures are declared once in a table that feeds both the type checker
+  registrations and the CLI `builtins` command (which previously printed a hardcoded,
+  outdated list and now renders every builtin with its full signature).
+- **Value representation optimized**: arrays and records are shared via `Rc` (safe since
+  both are immutable value types in the language), and function bodies are shared via
+  `Rc` as well — cloning a value or looking up a function no longer deep-copies element
+  vectors or the body AST.
+- **`AsyncBuiltins` placeholders removed**: `delayed_value` (returned a fake string
+  "promise"), `promise_all` and `promise_race` (returned wrong results) were replaced by
+  the real interpreter builtins above.
 - **`null` literal**: `null` is now a first-class literal (previously the nullish
   operators `lucidFallback`/`dreamReach` existed but `null` itself could not be written).
   It works in expressions, record fields and as an `entrain` pattern (`when null => ...`).

@@ -1,5 +1,6 @@
 use crate::builtin_trait::BuiltinModule;
 use crate::localization::LocalizedMessage;
+use crate::sandbox;
 use std::fs;
 use std::io::{self, BufRead, BufReader, Write};
 use std::path::Path;
@@ -8,6 +9,14 @@ use std::path::Path;
 ///
 /// Provides comprehensive file system operations including reading, writing,
 /// directory management, and file metadata queries.
+///
+/// # Sandboxing
+///
+/// All functions that touch the filesystem validate their paths through the
+/// [`sandbox`] module. When a sandbox root is configured (via
+/// `HYPNO_SANDBOX` or [`sandbox::set_sandbox_root`]), access outside that
+/// root is rejected with a `PermissionDenied` error. Pure path-string
+/// helpers (`GetFileExtension`, `JoinPath`, ...) are unaffected.
 pub struct FileBuiltins;
 
 impl BuiltinModule for FileBuiltins {
@@ -66,40 +75,40 @@ impl FileBuiltins {
 
     /// Read entire file as string
     pub fn read_file(path: &str) -> io::Result<String> {
-        fs::read_to_string(path)
+        fs::read_to_string(sandbox::checked_path(path)?)
     }
 
     /// Write string to file
     pub fn write_file(path: &str, content: &str) -> io::Result<()> {
-        let path_ref = Path::new(path);
-        Self::ensure_parent_dir(path_ref)?;
-        fs::write(path_ref, content)
+        let path = sandbox::checked_path(path)?;
+        Self::ensure_parent_dir(&path)?;
+        fs::write(&path, content)
     }
 
     /// Append string to file
     pub fn append_file(path: &str, content: &str) -> io::Result<()> {
-        let path_ref = Path::new(path);
-        Self::ensure_parent_dir(path_ref)?;
+        let path = sandbox::checked_path(path)?;
+        Self::ensure_parent_dir(&path)?;
 
         let mut file = fs::OpenOptions::new()
             .create(true)
             .append(true)
-            .open(path_ref)?;
+            .open(&path)?;
         file.write_all(content.as_bytes())
     }
 
     /// Read file contents as lines
     pub fn read_lines(path: &str) -> io::Result<Vec<String>> {
-        let file = fs::File::open(path)?;
+        let file = fs::File::open(sandbox::checked_path(path)?)?;
         let reader = BufReader::new(file);
         reader.lines().collect()
     }
 
     /// Write lines to a file using `\n` separators
     pub fn write_lines(path: &str, lines: &[String]) -> io::Result<()> {
-        let path_ref = Path::new(path);
-        Self::ensure_parent_dir(path_ref)?;
-        let mut file = fs::File::create(path_ref)?;
+        let path = sandbox::checked_path(path)?;
+        Self::ensure_parent_dir(&path)?;
+        let mut file = fs::File::create(&path)?;
         for (index, line) in lines.iter().enumerate() {
             if index > 0 {
                 file.write_all(b"\n")?;
@@ -109,35 +118,35 @@ impl FileBuiltins {
         Ok(())
     }
 
-    /// Check if file exists
+    /// Check if file exists (paths outside the sandbox report `false`)
     pub fn file_exists(path: &str) -> bool {
-        Path::new(path).exists()
+        sandbox::checked_path(path).is_ok_and(|p| p.exists())
     }
 
-    /// Check if path is file
+    /// Check if path is file (paths outside the sandbox report `false`)
     pub fn is_file(path: &str) -> bool {
-        Path::new(path).is_file()
+        sandbox::checked_path(path).is_ok_and(|p| p.is_file())
     }
 
-    /// Check if path is directory
+    /// Check if path is directory (paths outside the sandbox report `false`)
     pub fn is_directory(path: &str) -> bool {
-        Path::new(path).is_dir()
+        sandbox::checked_path(path).is_ok_and(|p| p.is_dir())
     }
 
     /// Delete file
     pub fn delete_file(path: &str) -> io::Result<()> {
-        fs::remove_file(path)
+        fs::remove_file(sandbox::checked_path(path)?)
     }
 
     /// Create directory
     pub fn create_directory(path: &str) -> io::Result<()> {
-        fs::create_dir_all(path)
+        fs::create_dir_all(sandbox::checked_path(path)?)
     }
 
     /// List files in directory
     pub fn list_directory(path: &str) -> io::Result<Vec<String>> {
         let mut files = Vec::new();
-        for entry in fs::read_dir(path)? {
+        for entry in fs::read_dir(sandbox::checked_path(path)?)? {
             let entry = entry?;
             if let Some(name) = entry.file_name().to_str() {
                 files.push(name.to_string());
@@ -148,17 +157,17 @@ impl FileBuiltins {
 
     /// Get file size in bytes
     pub fn get_file_size(path: &str) -> io::Result<u64> {
-        fs::metadata(path).map(|m| m.len())
+        fs::metadata(sandbox::checked_path(path)?).map(|m| m.len())
     }
 
     /// Copy file
     pub fn copy_file(from: &str, to: &str) -> io::Result<u64> {
-        fs::copy(from, to)
+        fs::copy(sandbox::checked_path(from)?, sandbox::checked_path(to)?)
     }
 
     /// Rename/move file
     pub fn rename_file(from: &str, to: &str) -> io::Result<()> {
-        fs::rename(from, to)
+        fs::rename(sandbox::checked_path(from)?, sandbox::checked_path(to)?)
     }
 
     /// Get file extension
@@ -187,8 +196,8 @@ impl FileBuiltins {
 
     /// Copy a directory recursively
     pub fn copy_directory_recursive(from: &str, to: &str) -> io::Result<()> {
-        let source = Path::new(from);
-        let target = Path::new(to);
+        let source = &sandbox::checked_path(from)?;
+        let target = &sandbox::checked_path(to)?;
         if !source.is_dir() {
             return Err(io::Error::new(
                 io::ErrorKind::InvalidInput,
@@ -250,8 +259,17 @@ mod tests {
         temp_file_path(&format!("hypnoscript_dir_{}", timestamp))
     }
 
+    /// Disables the process-global sandbox and returns a guard that keeps
+    /// the sandbox tests from re-enabling it while this test runs.
+    fn without_sandbox() -> std::sync::MutexGuard<'static, ()> {
+        let guard = sandbox::TEST_LOCK.lock().unwrap_or_else(|e| e.into_inner());
+        sandbox::disable_sandbox();
+        guard
+    }
+
     #[test]
     fn test_file_operations() {
+        let _guard = without_sandbox();
         let test_file = unique_test_file();
         let test_file_str = test_file.to_string_lossy().into_owned();
 
@@ -298,6 +316,7 @@ mod tests {
 
     #[test]
     fn test_read_write_lines() {
+        let _guard = without_sandbox();
         let test_file = unique_test_file();
         let path = test_file.to_string_lossy().into_owned();
         let lines = vec!["one".to_string(), "two".to_string(), "three".to_string()];
@@ -309,6 +328,7 @@ mod tests {
 
     #[test]
     fn test_copy_directory_recursive() {
+        let _guard = without_sandbox();
         let source = unique_test_directory();
         let dest = unique_test_directory();
         fs::create_dir_all(&source).unwrap();

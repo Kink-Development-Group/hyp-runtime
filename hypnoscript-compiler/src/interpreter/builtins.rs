@@ -55,7 +55,100 @@ impl Interpreter {
             return Ok(Some(result));
         }
 
+        if let Some(result) = self.call_async_builtin(name, args)? {
+            return Ok(Some(result));
+        }
+
         Ok(None)
+    }
+
+    /// Simulated-async builtins operating on [`Value::Promise`].
+    ///
+    /// The interpreter is single-threaded; promises carry a simulated delay
+    /// that elapses when they are awaited (scaled via `HYPNO_TIME_SCALE`,
+    /// exactly like `drift`).
+    pub(crate) fn call_async_builtin(
+        &self,
+        name: &str,
+        args: &[Value],
+    ) -> Result<Option<Value>, InterpreterError> {
+        use super::value::Promise;
+        use std::cell::RefCell;
+        use std::rc::Rc;
+
+        let result = match name {
+            // delayedValue(ms, value) -> promise resolving to `value` after `ms`
+            "delayedValue" => {
+                let delay = self.number_arg(args, 0, name)?.max(0.0) as u64;
+                let value = self.arg(args, 1, name)?.clone();
+                Some(Value::Promise(Rc::new(RefCell::new(Promise::delayed(
+                    delay, value,
+                )))))
+            }
+            // instantPromise(value) -> already resolved promise
+            "instantPromise" => {
+                let value = self.arg(args, 0, name)?.clone();
+                Some(Value::Promise(Rc::new(RefCell::new(Promise::resolve(
+                    value,
+                )))))
+            }
+            // promiseAll([p1, p2, ...]) -> waits for the *longest* delay
+            // (simulated concurrency) and returns the array of results.
+            "promiseAll" => {
+                let promises = self.array_arg(args, 0, name)?;
+                let max_delay = promises
+                    .iter()
+                    .filter_map(|p| match p {
+                        Value::Promise(p) => p.borrow().pending_delay_ms(),
+                        _ => None,
+                    })
+                    .max()
+                    .unwrap_or(0);
+                CoreBuiltins::drift(max_delay);
+                let results = promises
+                    .iter()
+                    .map(|p| match p {
+                        Value::Promise(p) => p.borrow_mut().mark_resolved(),
+                        other => other.clone(),
+                    })
+                    .collect();
+                Some(Value::array(results))
+            }
+            // promiseRace([p1, p2, ...]) -> waits for the *shortest* delay and
+            // returns that promise's value.
+            "promiseRace" => {
+                let promises = self.array_arg(args, 0, name)?;
+                if promises.is_empty() {
+                    return Err(InterpreterError::Runtime(format!(
+                        "Builtin '{}' requires a non-empty array",
+                        name
+                    )));
+                }
+                let winner = promises
+                    .iter()
+                    .min_by_key(|p| match p {
+                        Value::Promise(p) => p.borrow().pending_delay_ms().unwrap_or(0),
+                        _ => 0,
+                    })
+                    .expect("non-empty array always has a minimum");
+                let value = match winner {
+                    Value::Promise(p) => {
+                        CoreBuiltins::drift(p.borrow().pending_delay_ms().unwrap_or(0));
+                        p.borrow_mut().mark_resolved()
+                    }
+                    other => other.clone(),
+                };
+                Some(value)
+            }
+            // isPromiseResolved(p) -> whether awaiting would complete instantly
+            "isPromiseResolved" => match self.arg(args, 0, name)? {
+                Value::Promise(p) => Some(Value::Boolean(p.borrow().is_resolved())),
+                _ => Some(Value::Boolean(true)),
+            },
+            _ => None,
+        };
+
+        Ok(result)
     }
 
     pub(crate) fn call_math_builtin(
@@ -203,7 +296,7 @@ impl Interpreter {
                 .into_iter()
                 .map(Value::String)
                 .collect();
-                Some(Value::Array(items))
+                Some(Value::array(items))
             }
             "Substring" => Some(Value::String(StringBuiltins::substring(
                 &self.string_arg(args, 0, name)?,
@@ -270,7 +363,7 @@ impl Interpreter {
             }
             "ArrayReverse" => {
                 let array = self.array_arg(args, 0, name)?;
-                Some(Value::Array(ArrayBuiltins::reverse(&array)))
+                Some(Value::array(ArrayBuiltins::reverse(&array)))
             }
             "ArraySum" => {
                 let array = self.array_arg(args, 0, name)?;
@@ -299,7 +392,7 @@ impl Interpreter {
                     .into_iter()
                     .map(Value::Number)
                     .collect();
-                Some(Value::Array(sorted))
+                Some(Value::array(sorted))
             }
             "ArrayFirst" => {
                 let array = self.array_arg(args, 0, name)?;
@@ -312,18 +405,18 @@ impl Interpreter {
             "ArrayTake" => {
                 let array = self.array_arg(args, 0, name)?;
                 let count = self.usize_arg(args, 1, name)?;
-                Some(Value::Array(ArrayBuiltins::take(&array, count)))
+                Some(Value::array(ArrayBuiltins::take(&array, count)))
             }
             "ArraySkip" => {
                 let array = self.array_arg(args, 0, name)?;
                 let count = self.usize_arg(args, 1, name)?;
-                Some(Value::Array(ArrayBuiltins::skip(&array, count)))
+                Some(Value::array(ArrayBuiltins::skip(&array, count)))
             }
             "ArraySlice" => {
                 let array = self.array_arg(args, 0, name)?;
                 let start = self.usize_arg(args, 1, name)?;
                 let end = self.usize_arg(args, 2, name)?;
-                Some(Value::Array(ArrayBuiltins::slice(&array, start, end)))
+                Some(Value::array(ArrayBuiltins::slice(&array, start, end)))
             }
             "ArrayJoin" => {
                 let array = self.array_arg(args, 0, name)?;
@@ -337,7 +430,7 @@ impl Interpreter {
             }
             "ArrayDistinct" => {
                 let array = self.array_arg(args, 0, name)?;
-                Some(Value::Array(ArrayBuiltins::distinct(&array)))
+                Some(Value::array(ArrayBuiltins::distinct(&array)))
             }
             _ => None,
         };
@@ -450,7 +543,7 @@ impl Interpreter {
                     .into_iter()
                     .map(Value::String)
                     .collect();
-                Some(Value::Array(files))
+                Some(Value::array(files))
             }
             "GetFileSize" => Some(Value::Number(
                 FileBuiltins::get_file_size(&self.string_arg(args, 0, name)?)
@@ -574,7 +667,7 @@ impl Interpreter {
                 let x = self.values_to_numbers(&self.array_arg(args, 0, name)?, name)?;
                 let y = self.values_to_numbers(&self.array_arg(args, 1, name)?, name)?;
                 let (slope, intercept) = StatisticsBuiltins::linear_regression(&x, &y);
-                Some(Value::Array(vec![
+                Some(Value::array(vec![
                     Value::Number(slope),
                     Value::Number(intercept),
                 ]))
@@ -610,7 +703,7 @@ impl Interpreter {
             "GetUsername" => Some(Value::String(SystemBuiltins::get_username())),
             "GetHomeDirectory" => Some(Value::String(SystemBuiltins::get_home_directory())),
             "GetTempDirectory" => Some(Value::String(SystemBuiltins::get_temp_directory())),
-            "GetArgs" => Some(Value::Array(
+            "GetArgs" => Some(Value::array(
                 SystemBuiltins::get_args()
                     .into_iter()
                     .map(Value::String)
@@ -812,14 +905,15 @@ impl Interpreter {
         })
     }
 
+    /// Returns the array argument as a shared handle (O(1), no deep copy).
     pub(crate) fn array_arg(
         &self,
         args: &[Value],
         index: usize,
         name: &str,
-    ) -> Result<Vec<Value>, InterpreterError> {
+    ) -> Result<std::rc::Rc<Vec<Value>>, InterpreterError> {
         match self.arg(args, index, name)? {
-            Value::Array(items) => Ok(items.clone()),
+            Value::Array(items) => Ok(std::rc::Rc::clone(items)),
             other => Err(InterpreterError::TypeError(format!(
                 "Builtin '{}' expected array argument at position {}, got {:?}",
                 name,
