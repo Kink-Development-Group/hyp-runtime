@@ -2,6 +2,43 @@
 
 All notable changes to this project will be documented in this file. The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and this project adheres to [Semantic Versioning](https://semver.org/).
 
+## [Unreleased]
+
+### Added
+
+- **String Interpolation**: `"Hello, ${name}!"` embeds arbitrary expressions in string
+  literals. Interpolations are desugared by the lexer into string concatenation, so they
+  work uniformly across the interpreter, type checker and all compile targets.
+  `\${` escapes a literal `${`; nested braces and strings inside `${...}` are supported.
+- **Readable numeric literals**: digit separators (`1_000_000`) and exponent notation
+  (`2.5e3`, `7e-2`) in number literals.
+- **End-to-end sample-program harness** (`hypnoscript-compiler/tests/hyp_programs.rs`):
+  every `.hyp` file in `hypnoscript-tests/` must be categorized as runnable or
+  known-unsupported (with a reason); runnable programs are executed on every
+  `cargo test` run instead of only one file in CI.
+
+### Changed
+
+- **Structured syntax errors**: the lexer and parser now return `SyntaxError` values with
+  line/column information instead of plain strings. Parser errors additionally report the
+  offending token (e.g. `Expected ';' after expression, found 'observe' at line 4, column 5`).
+- **Interpreter modularized**: `hypnoscript-compiler/src/interpreter.rs` (3,800 lines) was
+  split into focused submodules `error`, `value`, `session` and `builtins`; the public API
+  (`Interpreter`, `InterpreterError`, `Value`) is unchanged.
+- **Keyword table deduplicated**: keyword definitions in `token.rs` live in a single
+  declarative table instead of ~570 lines of repetitive map insertions.
+- **Lexer cleanup**: operator lexing extracted into a table-driven helper; comment skipping
+  unified; multi-line strings now report the token's start line.
+
+### Fixed
+
+- `a..b` no longer silently swallows one dot (it is now a clear syntax error suggesting
+  `.` or `...`).
+- Number literals no longer accept multiple decimal points (`1.2.3` previously lexed as a
+  single invalid number; `1.2.member` now lexes correctly as member access).
+- Unterminated block comments are reported as errors instead of being silently accepted.
+- Unterminated strings report the string's start position instead of the end of file.
+
 ## [1.2.0] - 2026-01-22
 
 ### Added

@@ -81,6 +81,8 @@ Focus {
         // Numbers (only number type)
         induce integer: number = 42;
         induce decimal: number = 3.14159;
+        induce large: number = 1_000_000;   // digit separators
+        induce scientific: number = 2.5e3;  // exponent notation
 
         // Boolean
         induce flag: boolean = true;
@@ -94,6 +96,28 @@ Focus {
     }
 } Relax
 ```
+
+### String Interpolation
+
+Embed arbitrary expressions in string literals with `${...}`:
+
+```hyp
+Focus {
+    entrance {
+        induce name: string = "Luna";
+        induce depth: number = 6;
+
+        observe "Guest ${name} sinks to depth ${depth + 1}.";
+        // => Guest Luna sinks to depth 7.
+
+        // Escape with \${ to output a literal ${
+        observe "costs \${price}";  // => costs ${price}
+    }
+} Relax
+```
+
+Interpolations may contain any expression — variables, arithmetic, function
+calls, even nested strings. The result is converted to a string automatically.
 
 ## Output
 
