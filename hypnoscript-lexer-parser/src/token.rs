@@ -40,7 +40,8 @@ pub enum TokenType {
     // Functions
     Suggestion,           // Standard function
     Trigger,              // Event handler/callback function
-    ImperativeSuggestion, // Imperative function modifier
+    Imperative,           // Imperative modifier ('imperative suggestion ...')
+    ImperativeSuggestion, // Imperative function modifier (one-word form)
     DominantSuggestion,   // Static function modifier
     Mesmerize,            // Async function modifier
     Awaken,               // return
@@ -130,6 +131,9 @@ pub enum TokenType {
     True,
     False,
 
+    // Null literal
+    Null,
+
     // Delimiters and brackets
     LParen,   // (
     RParen,   // )
@@ -202,6 +206,7 @@ const KEYWORDS: &[(&str, TokenType, &str)] = &[
     // Functions
     ("suggestion", TokenType::Suggestion, "suggestion"),
     ("trigger", TokenType::Trigger, "trigger"),
+    ("imperative", TokenType::Imperative, "imperative"),
     ("imperativesuggestion", TokenType::ImperativeSuggestion, "imperativeSuggestion"),
     ("dominantsuggestion", TokenType::DominantSuggestion, "dominantSuggestion"),
     ("mesmerize", TokenType::Mesmerize, "mesmerize"),
@@ -255,6 +260,7 @@ const KEYWORDS: &[(&str, TokenType, &str)] = &[
     ("lucid", TokenType::Lucid, "lucid"),
     ("true", TokenType::True, "true"),
     ("false", TokenType::False, "false"),
+    ("null", TokenType::Null, "null"),
     // Assertions
     ("assert", TokenType::Assert, "assert"),
 ];
@@ -308,6 +314,7 @@ impl TokenType {
                 | TokenType::Suspend
                 | TokenType::Suggestion
                 | TokenType::Trigger
+                | TokenType::Imperative
                 | TokenType::ImperativeSuggestion
                 | TokenType::DominantSuggestion
                 | TokenType::Mesmerize
@@ -336,6 +343,7 @@ impl TokenType {
                 | TokenType::Assert
                 | TokenType::True
                 | TokenType::False
+                | TokenType::Null
         )
     }
 
@@ -388,6 +396,7 @@ impl TokenType {
                 | TokenType::BooleanLiteral
                 | TokenType::True
                 | TokenType::False
+                | TokenType::Null
         )
     }
 

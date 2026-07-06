@@ -75,9 +75,24 @@ impl CoreBuiltins {
         println!("{}", value.to_uppercase());
     }
 
-    /// Wait for specified milliseconds (drift)
+    /// Wait for specified milliseconds (drift).
+    ///
+    /// All themed pauses (`drift`, `DeepTrance`, `HypnoticCountdown`, ...)
+    /// flow through this function. The `HYPNO_TIME_SCALE` environment
+    /// variable scales every pause: `0.5` halves them, `0` skips them
+    /// entirely (useful for tests and CI), unset/invalid means real time.
     pub fn drift(ms: u64) {
-        thread::sleep(Duration::from_millis(ms));
+        let scaled = match std::env::var("HYPNO_TIME_SCALE")
+            .ok()
+            .and_then(|v| v.parse::<f64>().ok())
+            .filter(|scale| scale.is_finite() && *scale >= 0.0)
+        {
+            Some(scale) => (ms as f64 * scale) as u64,
+            None => ms,
+        };
+        if scaled > 0 {
+            thread::sleep(Duration::from_millis(scaled));
+        }
     }
 
     /// Deep trance induction

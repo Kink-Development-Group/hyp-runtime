@@ -6,6 +6,34 @@ All notable changes to this project will be documented in this file. The format 
 
 ### Added
 
+- **`null` literal**: `null` is now a first-class literal (previously the nullish
+  operators `lucidFallback`/`dreamReach` existed but `null` itself could not be written).
+  It works in expressions, record fields and as an `entrain` pattern (`when null => ...`).
+- **Nullable types**: `number?` (or the hypnotic spelling `lucid number`) declares a type
+  that admits `null`. The type checker enforces this in both directions: assigning `null`
+  to a non-nullable type is an error, as is assigning a nullable value to a non-nullable
+  target. `lucidFallback` strips nullability from the result type.
+- **Array type annotations**: `string[]`, `number[][]` and combinations like `number[]?`
+  are accepted everywhere a type annotation is allowed, and are checked against array
+  literal element types.
+- **Labeled loops with labeled break/continue**: `outer: loop (...) { ... snap outer; }`
+  breaks out of the named loop from any nesting depth; `sink outer;` continues its next
+  iteration. Also supports the `label name:` keyword form. Unknown labels are runtime
+  errors.
+- **`drift(ms);` / `pauseReality(ms);` statements**: pause execution, with static type
+  checking of the duration expression.
+- **Standalone `deepFocus (cond) { ... }` statement**: the conditional block form that was
+  already in the AST and interpreter is now parseable.
+- **`imperative suggestion` two-word form** for function declarations (top-level and in
+  sessions), alongside the existing one-word `imperativeSuggestion`.
+- **`sharedTrance` shorthand**: `sharedTrance total: number = 0;` now works without an
+  explicit `induce`/`implant`/`embed`/`freeze` keyword.
+- **Source encoding tolerance**: `.hyp` files with UTF-8 BOMs or in UTF-16 (LE/BE, with or
+  without BOM) are decoded transparently by the CLI and test harness
+  (`hypnoscript_lexer_parser::decode_source`).
+- **`HYPNO_TIME_SCALE` environment variable**: scales every themed pause (`drift`,
+  `DeepTrance`, `HypnoticCountdown`, ...). `0` skips pauses entirely (used by the test
+  harness), `0.5` halves them, unset means real time.
 - **String Interpolation**: `"Hello, ${name}!"` embeds arbitrary expressions in string
   literals. Interpolations are desugared by the lexer into string concatenation, so they
   work uniformly across the interpreter, type checker and all compile targets.
@@ -15,7 +43,11 @@ All notable changes to this project will be documented in this file. The format 
 - **End-to-end sample-program harness** (`hypnoscript-compiler/tests/hyp_programs.rs`):
   every `.hyp` file in `hypnoscript-tests/` must be categorized as runnable or
   known-unsupported (with a reason); runnable programs are executed on every
-  `cargo test` run instead of only one file in CI.
+  `cargo test` run instead of only one file in CI. With the language gaps above closed,
+  **all 27 sample programs now run** (previously 16; legacy files with genuine bugs —
+  a duplicated `Focus {`, a missing semicolon, `deeplyLess` used where `<` was meant —
+  were fixed).
+- **`check` command now exits non-zero when type errors are found**, so it can gate CI.
 
 ### Changed
 

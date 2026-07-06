@@ -40,6 +40,13 @@ fn into_anyhow<E: std::fmt::Display>(error: E) -> anyhow::Error {
     anyhow::Error::msg(error.to_string())
 }
 
+/// Read a HypnoScript source file, tolerating UTF-8/UTF-16 BOMs and UTF-16
+/// encodings (common for files created on Windows).
+fn read_source(path: &str) -> Result<String> {
+    let bytes = fs::read(path)?;
+    hypnoscript_lexer_parser::decode_source(&bytes).map_err(|e| anyhow!("{}: {}", path, e))
+}
+
 #[derive(Parser)]
 #[command(name = "hypnoscript")]
 #[command(about = "HypnoScript - The Hypnotic Programming Language", long_about = None)]
@@ -234,7 +241,7 @@ fn main() -> Result<()> {
                 println!("Running file: {}", file);
             }
 
-            let source = fs::read_to_string(&file)?;
+            let source = read_source(&file)?;
 
             // If debug mode is enabled, start interactive debug session
             if debug {
@@ -293,7 +300,7 @@ fn main() -> Result<()> {
         }
 
         Commands::Lex { file } => {
-            let source = fs::read_to_string(&file)?;
+            let source = read_source(&file)?;
             let mut lexer = Lexer::new(&source);
             let tokens = lexer.lex().map_err(into_anyhow)?;
 
@@ -305,7 +312,7 @@ fn main() -> Result<()> {
         }
 
         Commands::Parse { file } => {
-            let source = fs::read_to_string(&file)?;
+            let source = read_source(&file)?;
             let mut lexer = Lexer::new(&source);
             let tokens = lexer.lex().map_err(into_anyhow)?;
             let mut parser = HypnoParser::new(tokens);
@@ -316,7 +323,7 @@ fn main() -> Result<()> {
         }
 
         Commands::Check { file } => {
-            let source = fs::read_to_string(&file)?;
+            let source = read_source(&file)?;
             let mut lexer = Lexer::new(&source);
             let tokens = lexer.lex().map_err(into_anyhow)?;
             let mut parser = HypnoParser::new(tokens);
@@ -329,9 +336,13 @@ fn main() -> Result<()> {
                 println!("✅ No type errors found!");
             } else {
                 println!("❌ Type errors found:");
-                for error in errors {
+                for error in &errors {
                     println!("  - {}", error);
                 }
+                return Err(anyhow!(
+                    "type checking failed with {} error(s)",
+                    errors.len()
+                ));
             }
         }
 
@@ -340,7 +351,7 @@ fn main() -> Result<()> {
             output,
             binary,
         } => {
-            let source = fs::read_to_string(&input)?;
+            let source = read_source(&input)?;
             let mut lexer = Lexer::new(&source);
             let tokens = lexer.lex().map_err(into_anyhow)?;
             let mut parser = HypnoParser::new(tokens);
@@ -371,7 +382,7 @@ fn main() -> Result<()> {
             target,
             opt_level,
         } => {
-            let source = fs::read_to_string(&input)?;
+            let source = read_source(&input)?;
             let mut lexer = Lexer::new(&source);
             let tokens = lexer.lex().map_err(into_anyhow)?;
             let mut parser = HypnoParser::new(tokens);
@@ -433,7 +444,7 @@ fn main() -> Result<()> {
             output,
             stats,
         } => {
-            let source = fs::read_to_string(&input)?;
+            let source = read_source(&input)?;
             let mut lexer = Lexer::new(&source);
             let tokens = lexer.lex().map_err(into_anyhow)?;
             let mut parser = HypnoParser::new(tokens);

@@ -119,6 +119,51 @@ Focus {
 Interpolations may contain any expression — variables, arithmetic, function
 calls, even nested strings. The result is converted to a string automatically.
 
+### Null and Nullable Types
+
+`null` is a first-class literal. A type only admits `null` when it is declared
+nullable — with a `?` suffix or the hypnotic `lucid` modifier:
+
+```hyp
+Focus {
+    entrance {
+        induce maybe: number? = null;        // nullable via '?'
+        induce dreamy: lucid string = null;  // nullable via 'lucid'
+
+        // lucidFallback (??) supplies a default; the result is non-nullable
+        induce certain: number = maybe lucidFallback 42;
+
+        // null works as an entrain pattern
+        induce state: string = entrain maybe {
+            when null => "empty";
+            otherwise => "filled";
+        };
+        observe state;
+    }
+} Relax
+```
+
+The type checker enforces null safety in both directions: assigning `null` (or
+a nullable value) to a non-nullable type is a type error.
+
+### Array Type Annotations
+
+Use the `[]` suffix for typed arrays, including nested and nullable forms:
+
+```hyp
+Focus {
+    tranceify Plan {
+        title: string;
+        tags: string[];
+    }
+    entrance {
+        induce names: string[] = ["Alice", "Bob"];
+        induce matrix: number[][] = [[1, 2], [3, 4]];
+        induce optionalTags: string[]? = null;
+    }
+} Relax
+```
+
 ## Output
 
 ### Observe (Output)
@@ -207,6 +252,48 @@ Focus {
     }
 } Relax
 ```
+
+### Labeled Loops
+
+Label a loop to `snap` (break) or `sink` (continue) it from inside nested
+loops:
+
+```hyp
+Focus {
+    entrance {
+        outer: loop (induce i: number = 0; i < 3; i = i + 1) {
+            loop (induce j: number = 0; j < 3; j = j + 1) {
+                if (i + j == 3) {
+                    snap outer;   // break out of BOTH loops
+                }
+                if (j == 1) {
+                    sink outer;   // continue the OUTER loop
+                }
+            }
+        }
+    }
+} Relax
+```
+
+The keyword form `label outer: loop (...) { ... }` is also accepted.
+
+### Timed Pauses (drift)
+
+`drift(ms);` (synonym: `pauseReality(ms);`) pauses execution for the given
+number of milliseconds:
+
+```hyp
+Focus {
+    entrance {
+        observe "Sinking deeper...";
+        drift(500);
+        observe "...and deeper.";
+    }
+} Relax
+```
+
+The `HYPNO_TIME_SCALE` environment variable scales every themed pause:
+`HYPNO_TIME_SCALE=0` skips all pauses (useful for tests), `0.5` halves them.
 
 ## Functions
 

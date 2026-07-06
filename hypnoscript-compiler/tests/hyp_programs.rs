@@ -8,18 +8,29 @@
 //! categorized fails the sweep test, so coverage cannot silently rot.
 
 use hypnoscript_compiler::Interpreter;
-use hypnoscript_lexer_parser::{Lexer, Parser};
+use hypnoscript_lexer_parser::{Lexer, Parser, decode_source};
 use std::path::PathBuf;
 
 /// Sample programs that must run successfully end-to-end.
 const EXPECTED_PASS: &[&str] = &[
+    "medium_test.hyp",
+    "simple_test.hyp", // UTF-16 LE encoded — also exercises source decoding
+    "test.hyp",
+    "test_advanced.hyp",
+    "test_all_new_features.hyp",
     "test_assertions.hyp",
+    "test_async.hyp",
     "test_async_system.hyp",
     "test_basic.hyp",
     "test_channels.hyp",
     "test_compiler.hyp",
+    "test_comprehensive.hyp",
+    "test_enterprise_features.hyp",
+    "test_enterprise_v3.hyp",
     "test_extended_builtins.hyp",
+    "test_extended_features.hyp",
     "test_new_features.hyp",
+    "test_new_language_features.hyp",
     "test_parallel_execution.hyp",
     "test_pattern_matching.hyp",
     "test_pendulum_debug.hyp",
@@ -33,53 +44,8 @@ const EXPECTED_PASS: &[&str] = &[
 
 /// Sample programs that are known not to run, with the reason. These document
 /// gaps rather than hiding them; when a gap is closed, move the file to
-/// [`EXPECTED_PASS`].
-const KNOWN_UNSUPPORTED: &[(&str, &str)] = &[
-    (
-        "medium_test.hyp",
-        "uses 'drift' as a statement keyword, which the parser does not support",
-    ),
-    (
-        "simple_test.hyp",
-        "file is not valid UTF-8 (UTF-16 encoded legacy file)",
-    ),
-    (
-        "test.hyp",
-        "legacy file with a byte-order mark / stray tokens before 'Focus'",
-    ),
-    (
-        "test_advanced.hyp",
-        "uses generic array type syntax 'array[...]' that the parser does not support",
-    ),
-    (
-        "test_all_new_features.hyp",
-        "uses nullable type suffix 'type?' that the parser does not support",
-    ),
-    (
-        "test_async.hyp",
-        "uses nullable type suffix 'type?' that the parser does not support",
-    ),
-    (
-        "test_comprehensive.hyp",
-        "uses 'drift' as a statement keyword, which the parser does not support",
-    ),
-    (
-        "test_enterprise_features.hyp",
-        "uses 'sharedTrance' with a bare identifier instead of a declaration keyword",
-    ),
-    (
-        "test_enterprise_v3.hyp",
-        "uses 'sharedTrance' with a bare identifier instead of a declaration keyword",
-    ),
-    (
-        "test_extended_features.hyp",
-        "runs an unbounded loop / suspend and never terminates",
-    ),
-    (
-        "test_new_language_features.hyp",
-        "uses multi-expression 'whisper ... command ...' syntax the parser does not support",
-    ),
-];
+/// [`EXPECTED_PASS`]. Currently every sample program runs.
+const KNOWN_UNSUPPORTED: &[(&str, &str)] = &[];
 
 fn samples_dir() -> PathBuf {
     PathBuf::from(env!("CARGO_MANIFEST_DIR"))
@@ -102,13 +68,25 @@ fn run_program(source: &str) -> Result<(), String> {
 
 #[test]
 fn expected_pass_programs_run_successfully() {
+    // Skip all themed pauses (drift, HypnoticCountdown, ...) so the sample
+    // sweep runs in seconds instead of minutes. See CoreBuiltins::drift.
+    // SAFETY: tests in this binary run in-process; nothing else reads this
+    // variable concurrently at this point.
+    unsafe { std::env::set_var("HYPNO_TIME_SCALE", "0") };
+
     let dir = samples_dir();
     let mut failures = Vec::new();
 
     for name in EXPECTED_PASS {
         let path = dir.join(name);
-        let source = match std::fs::read_to_string(&path) {
-            Ok(source) => source,
+        let source = match std::fs::read(&path) {
+            Ok(bytes) => match decode_source(&bytes) {
+                Ok(source) => source,
+                Err(e) => {
+                    failures.push(format!("{}: cannot decode file: {}", name, e));
+                    continue;
+                }
+            },
             Err(e) => {
                 failures.push(format!("{}: cannot read file: {}", name, e));
                 continue;

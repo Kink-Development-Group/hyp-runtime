@@ -171,13 +171,15 @@ impl Parser {
     fn parse_statement(&mut self, context: BlockContext) -> ParseResult<AstNode> {
         // Variable declaration - induce, implant, embed, freeze
         if self.match_token(&TokenType::SharedTrance) {
-            if self.match_tokens(&DECLARATION_KEYWORDS) {
+            // 'sharedTrance induce x = ...;' or the shorthand 'sharedTrance x = ...;'
+            if self.match_tokens(&DECLARATION_KEYWORDS) || self.check(&TokenType::Identifier) {
                 return self.parse_var_declaration(VariableStorage::SharedTrance);
             }
 
-            return Err(
-                self.error_here("'sharedTrance' must be followed by induce/implant/embed/freeze")
-            );
+            return Err(self.error_here(
+                "'sharedTrance' must be followed by a variable declaration \
+                 (induce/implant/embed/freeze or a variable name)",
+            ));
         }
 
         if self.match_tokens(&DECLARATION_KEYWORDS) {
@@ -192,6 +194,12 @@ impl Parser {
         // If statement
         if self.match_token(&TokenType::If) {
             return self.parse_if_statement();
+        }
+
+        // Standalone deepFocus statement: like 'if' with hypnotic emphasis
+        // Example: deepFocus (depth > 5) { ... }
+        if self.match_token(&TokenType::DeepFocus) {
+            return self.parse_deep_focus_statement();
         }
 
         // While loop
@@ -215,8 +223,23 @@ impl Parser {
             return Ok(AstNode::SuspendStatement);
         }
 
-        // Function declaration
-        if self.match_token(&TokenType::Suggestion) {
+        // Drift statement (sleep): drift(milliseconds); / pauseReality(milliseconds);
+        if self.match_tokens(&[TokenType::Drift, TokenType::PauseReality]) {
+            return self.parse_drift_statement();
+        }
+
+        // Function declaration ('suggestion', 'imperativeSuggestion' or
+        // the two-word form 'imperative suggestion')
+        if self.match_token(&TokenType::Suggestion)
+            || self.match_token(&TokenType::ImperativeSuggestion)
+        {
+            return self.parse_function_declaration();
+        }
+        if self.match_token(&TokenType::Imperative) {
+            self.consume(
+                &TokenType::Suggestion,
+                "Expected 'suggestion' after 'imperative'",
+            )?;
             return self.parse_function_declaration();
         }
 
@@ -261,16 +284,18 @@ impl Parser {
             return self.parse_return_statement();
         }
 
-        // Break
+        // Break: snap; / snap someLabel;
         if self.match_token(&TokenType::Snap) {
+            let label = self.parse_optional_label();
             self.consume(&TokenType::Semicolon, "Expected ';' after 'snap'")?;
-            return Ok(AstNode::BreakStatement);
+            return Ok(AstNode::BreakStatement { label });
         }
 
-        // Continue
+        // Continue: sink; / sink someLabel;
         if self.match_token(&TokenType::Sink) {
+            let label = self.parse_optional_label();
             self.consume(&TokenType::Semicolon, "Expected ';' after 'sink'")?;
-            return Ok(AstNode::ContinueStatement);
+            return Ok(AstNode::ContinueStatement { label });
         }
 
         // Oscillate statement (toggle boolean)
@@ -278,10 +303,41 @@ impl Parser {
             return self.parse_oscillate_statement();
         }
 
+        // Labeled statement: 'name: loop (...) { ... }' or 'label name: ...'
+        if self.match_token(&TokenType::Label) {
+            return self.parse_labeled_statement(context);
+        }
+        if self.check(&TokenType::Identifier)
+            && self.peek_next().map(|t| &t.token_type) == Some(&TokenType::Colon)
+        {
+            return self.parse_labeled_statement(context);
+        }
+
         // Expression statement
         let expr = self.parse_expression()?;
         self.consume(&TokenType::Semicolon, "Expected ';' after expression")?;
         Ok(AstNode::ExpressionStatement(Box::new(expr)))
+    }
+
+    /// Parse the optional label name of a `snap`/`sink` statement.
+    fn parse_optional_label(&mut self) -> Option<String> {
+        if self.check(&TokenType::Identifier) {
+            Some(self.advance().lexeme.clone())
+        } else {
+            None
+        }
+    }
+
+    /// Parse a labeled statement: `name: <statement>`. The label usually
+    /// marks a loop so `snap name;` / `sink name;` can target it.
+    fn parse_labeled_statement(&mut self, context: BlockContext) -> ParseResult<AstNode> {
+        let label = self
+            .consume(&TokenType::Identifier, "Expected label name")?
+            .lexeme
+            .clone();
+        self.consume(&TokenType::Colon, "Expected ':' after label name")?;
+        let body = Box::new(self.parse_statement(context)?);
+        Ok(AstNode::LabeledStatement { label, body })
     }
 
     /// Parse an output statement (`observe`, `whisper`, `command`, `murmur`).
@@ -323,7 +379,7 @@ impl Parser {
             .lexeme
             .clone();
 
-        let type_annotation = self.parse_optional_type_annotation();
+        let type_annotation = self.parse_optional_type_annotation()?;
 
         let initializer = if self.match_token(&TokenType::Equals) {
             Some(Box::new(self.parse_expression()?))
@@ -338,6 +394,26 @@ impl Parser {
             is_constant,
             storage,
         })
+    }
+
+    /// Parse drift/pauseReality statement (pause for N milliseconds)
+    /// Example: drift(500);
+    fn parse_drift_statement(&mut self) -> ParseResult<AstNode> {
+        let keyword = self.previous().lexeme.clone();
+        self.consume(
+            &TokenType::LParen,
+            &format!("Expected '(' after '{}'", keyword),
+        )?;
+        let duration = Box::new(self.parse_expression()?);
+        self.consume(
+            &TokenType::RParen,
+            &format!("Expected ')' after '{}' duration", keyword),
+        )?;
+        self.consume(
+            &TokenType::Semicolon,
+            &format!("Expected ';' after '{}' statement", keyword),
+        )?;
+        Ok(AstNode::DriftStatement { duration })
     }
 
     /// Parse anchor declaration (saves variable state)
@@ -389,12 +465,15 @@ impl Parser {
         let parameters = self.parse_parameter_list()?;
         self.consume(&TokenType::RParen, "Expected ')' after parameters")?;
 
-        let return_type = self.parse_optional_type_annotation();
+        let return_type = self.parse_optional_type_annotation()?;
 
         // Parse body
         self.consume(&TokenType::LBrace, "Expected '{' before trigger body")?;
         let body = self.parse_block_statements(BlockContext::Regular)?;
         self.consume(&TokenType::RBrace, "Expected '}' after trigger body")?;
+
+        // The declaration is an assignment, so a trailing ';' is customary.
+        self.match_token(&TokenType::Semicolon);
 
         Ok(AstNode::TriggerDeclaration {
             name,
@@ -436,6 +515,20 @@ impl Parser {
             then_branch,
             else_branch,
         })
+    }
+
+    /// Parse standalone deepFocus statement (conditional block with
+    /// hypnotic emphasis, no else branch)
+    fn parse_deep_focus_statement(&mut self) -> ParseResult<AstNode> {
+        self.consume(&TokenType::LParen, "Expected '(' after 'deepFocus'")?;
+        let condition = Box::new(self.parse_expression()?);
+        self.consume(&TokenType::RParen, "Expected ')' after deepFocus condition")?;
+
+        self.consume(&TokenType::LBrace, "Expected '{' after deepFocus condition")?;
+        let body = self.parse_block_statements(BlockContext::Regular)?;
+        self.consume(&TokenType::RBrace, "Expected '}' after deepFocus block")?;
+
+        Ok(AstNode::DeepFocusStatement { condition, body })
     }
 
     /// Parse while statement
@@ -567,7 +660,7 @@ impl Parser {
         let parameters = self.parse_parameter_list()?;
         self.consume(&TokenType::RParen, "Expected ')' after parameters")?;
 
-        let return_type = self.parse_optional_type_annotation();
+        let return_type = self.parse_optional_type_annotation()?;
 
         self.consume(&TokenType::LBrace, "Expected '{' after function signature")?;
         let body = self.parse_block_statements(BlockContext::Regular)?;
@@ -593,7 +686,7 @@ impl Parser {
                     .consume(&TokenType::Identifier, "Expected parameter name")?
                     .lexeme
                     .clone();
-                let type_annotation = self.parse_optional_type_annotation();
+                let type_annotation = self.parse_optional_type_annotation()?;
                 parameters.push(Parameter::new(param_name, type_annotation));
 
                 if !self.match_token(&TokenType::Comma) {
@@ -606,13 +699,14 @@ impl Parser {
     }
 
     /// Parse an optional `: type` annotation. Returns `None` when no colon
-    /// follows. Accepts any single token as the type name (identifiers as
-    /// well as type keywords like `number`, `string`, `boolean`, `trance`).
-    fn parse_optional_type_annotation(&mut self) -> Option<String> {
+    /// follows. Accepts identifiers as well as type keywords (`number`,
+    /// `string`, `boolean`, `trance`), plus the modifiers described in
+    /// [`Parser::parse_type_annotation`].
+    fn parse_optional_type_annotation(&mut self) -> ParseResult<Option<String>> {
         if self.match_token(&TokenType::Colon) {
-            Some(self.advance().lexeme.clone())
+            Ok(Some(self.parse_type_annotation()?))
         } else {
-            None
+            Ok(None)
         }
     }
 
@@ -724,6 +818,7 @@ impl Parser {
             };
 
             if self.check(&TokenType::Suggestion)
+                || self.check(&TokenType::Imperative)
                 || self.check(&TokenType::ImperativeSuggestion)
                 || self.check(&TokenType::DominantSuggestion)
             {
@@ -747,7 +842,7 @@ impl Parser {
             .lexeme
             .clone();
 
-        let type_annotation = self.parse_optional_type_annotation();
+        let type_annotation = self.parse_optional_type_annotation()?;
 
         let initializer = if self.match_token(&TokenType::Equals) {
             Some(Box::new(self.parse_expression()?))
@@ -778,6 +873,11 @@ impl Parser {
 
         if self.match_token(&TokenType::DominantSuggestion) {
             is_static = true;
+        } else if self.match_token(&TokenType::Imperative) {
+            self.consume(
+                &TokenType::Suggestion,
+                "Expected 'suggestion' after 'imperative'",
+            )?;
         } else if !self.match_token(&TokenType::Suggestion)
             && !self.match_token(&TokenType::ImperativeSuggestion)
         {
@@ -798,7 +898,7 @@ impl Parser {
         let parameters = self.parse_parameter_list()?;
         self.consume(&TokenType::RParen, "Expected ')' after parameters")?;
 
-        let return_type = self.parse_optional_type_annotation();
+        let return_type = self.parse_optional_type_annotation()?;
 
         self.consume(&TokenType::LBrace, "Expected '{' after method signature")?;
         let body = self.parse_block_statements(BlockContext::Regular)?;
@@ -1059,6 +1159,11 @@ impl Parser {
             return Ok(AstNode::BooleanLiteral(false));
         }
 
+        // Null literal
+        if self.match_token(&TokenType::Null) {
+            return Ok(AstNode::NullLiteral);
+        }
+
         // Identifier or Record Literal
         if self.check(&TokenType::Identifier) {
             let identifier = self.advance().lexeme.clone();
@@ -1189,6 +1294,10 @@ impl Parser {
             return Ok(Pattern::Literal(Box::new(AstNode::BooleanLiteral(false))));
         }
 
+        if self.match_token(&TokenType::Null) {
+            return Ok(Pattern::Literal(Box::new(AstNode::NullLiteral)));
+        }
+
         // Array pattern: [first, second, ...rest]
         if self.match_token(&TokenType::LBracket) {
             let mut elements = Vec::new();
@@ -1287,10 +1396,25 @@ impl Parser {
         }
     }
 
-    /// Parse type annotation (returns the type as a string)
+    /// Parse type annotation (returns the type as a string).
+    ///
+    /// Supported forms:
+    /// - Base types: identifiers and the keywords `number`, `string`,
+    ///   `boolean`, `trance`
+    /// - Nullable: `number?` or the hypnotic prefix `lucid number`
+    ///   (both normalize to `number?`)
+    /// - Arrays: `string[]`, including combinations like `number[]?`
     fn parse_type_annotation(&mut self) -> ParseResult<String> {
-        // Accept identifiers and type keywords (number, string, boolean)
-        let type_name = match self.peek().token_type {
+        // 'lucid T' is the hypnotic spelling of 'T?'.
+        if self.match_token(&TokenType::Lucid) {
+            let inner = self.parse_type_annotation()?;
+            if inner.ends_with('?') {
+                return Ok(inner);
+            }
+            return Ok(format!("{}?", inner));
+        }
+
+        let mut type_name = match self.peek().token_type {
             TokenType::Identifier => self.advance().lexeme.clone(),
             TokenType::Number => {
                 self.advance();
@@ -1304,6 +1428,10 @@ impl Parser {
                 self.advance();
                 "boolean".to_string()
             }
+            TokenType::Trance => {
+                self.advance();
+                "trance".to_string()
+            }
             _ => {
                 return Err(self.error_here(format!(
                     "Expected type annotation, got '{}'",
@@ -1311,6 +1439,22 @@ impl Parser {
                 )));
             }
         };
+
+        // Suffix modifiers: '[]' for arrays, '?' for nullable types.
+        loop {
+            if self.check(&TokenType::LBracket)
+                && self.peek_next().map(|t| &t.token_type) == Some(&TokenType::RBracket)
+            {
+                self.advance();
+                self.advance();
+                type_name.push_str("[]");
+            } else if self.match_token(&TokenType::QuestionMark) {
+                type_name.push('?');
+            } else {
+                break;
+            }
+        }
+
         Ok(type_name)
     }
 
@@ -1556,6 +1700,159 @@ Focus {
         assert_eq!(error.line, 4);
         assert!(error.message.contains("Expected ';'"));
         assert!(error.message.contains("found 'observe'"));
+    }
+
+    #[test]
+    fn test_parse_null_literal_and_pattern() {
+        let ast = parse(
+            r#"
+Focus {
+    entrance {
+        induce x = null;
+        induce state: string = entrain x {
+            when null => "empty";
+            otherwise => "filled";
+        };
+        observe state;
+    }
+} Relax
+"#,
+        );
+        assert!(ast.is_ok(), "parse failed: {:?}", ast.err());
+    }
+
+    #[test]
+    fn test_parse_nullable_and_array_type_annotations() {
+        let ast = parse(
+            r#"
+Focus {
+    tranceify Note {
+        title: string;
+        content: string?;
+        tags: string[];
+    }
+    entrance {
+        induce maybe: number? = null;
+        induce clear: lucid string = null;
+        induce names: string[] = ["a", "b"];
+        induce matrix: number[][] = [[1], [2]];
+        observe maybe lucidFallback 0;
+        observe clear lucidFallback "d";
+        observe names;
+        observe matrix;
+    }
+} Relax
+"#,
+        );
+        assert!(ast.is_ok(), "parse failed: {:?}", ast.err());
+    }
+
+    #[test]
+    fn test_parse_drift_statement() {
+        let ast = parse(
+            r#"
+Focus {
+    entrance {
+        drift(50);
+        pauseReality(10 + 5);
+    }
+} Relax
+"#,
+        );
+        assert!(ast.is_ok(), "parse failed: {:?}", ast.err());
+    }
+
+    #[test]
+    fn test_parse_shared_trance_shorthand() {
+        let ast = parse(
+            r#"
+Focus {
+    sharedTrance total: number = 0;
+    sharedTrance induce classic: number = 1;
+    entrance {
+        observe total + classic;
+    }
+} Relax
+"#,
+        );
+        assert!(ast.is_ok(), "parse failed: {:?}", ast.err());
+    }
+
+    #[test]
+    fn test_parse_labeled_loop_with_labeled_break() {
+        let ast = parse(
+            r#"
+Focus {
+    entrance {
+        outer: loop (induce i: number = 0; i < 3; i = i + 1) {
+            loop (induce j: number = 0; j < 3; j = j + 1) {
+                if (j == 1) {
+                    snap outer;
+                }
+                sink outer;
+            }
+        }
+    }
+} Relax
+"#,
+        );
+        assert!(ast.is_ok(), "parse failed: {:?}", ast.err());
+    }
+
+    #[test]
+    fn test_parse_deep_focus_statement() {
+        let ast = parse(
+            r#"
+Focus {
+    entrance {
+        induce depth: number = 7;
+        deepFocus (depth > 5) {
+            observe "deep";
+        }
+    }
+} Relax
+"#,
+        );
+        assert!(ast.is_ok(), "parse failed: {:?}", ast.err());
+    }
+
+    #[test]
+    fn test_parse_imperative_suggestion_forms() {
+        let ast = parse(
+            r#"
+Focus {
+    imperativeSuggestion announce(message: string) {
+        observe message;
+    }
+    imperative suggestion narrate(message: string) {
+        whisper message;
+    }
+    session Voice {
+        expose imperative suggestion speak(text: string) {
+            observe text;
+        }
+    }
+} Relax
+"#,
+        );
+        assert!(ast.is_ok(), "parse failed: {:?}", ast.err());
+    }
+
+    #[test]
+    fn test_trigger_declaration_allows_trailing_semicolon() {
+        let ast = parse(
+            r#"
+Focus {
+    trigger onDone = suggestion(name: string) {
+        observe name;
+    };
+    entrance {
+        onDone("x");
+    }
+} Relax
+"#,
+        );
+        assert!(ast.is_ok(), "parse failed: {:?}", ast.err());
     }
 
     #[test]

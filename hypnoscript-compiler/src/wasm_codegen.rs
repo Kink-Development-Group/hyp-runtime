@@ -311,7 +311,10 @@ impl WasmCodeGenerator {
                 self.break_labels.pop();
             }
 
-            AstNode::BreakStatement => {
+            AstNode::BreakStatement { label: loop_label } => {
+                if loop_label.is_some() {
+                    self.emit_line(";; warning: labeled break is not supported in WASM yet");
+                }
                 self.emit_line(";; break");
                 if let Some(label) = self.break_labels.last() {
                     self.emit_line(&format!("br {}", label));
@@ -320,7 +323,10 @@ impl WasmCodeGenerator {
                 }
             }
 
-            AstNode::ContinueStatement => {
+            AstNode::ContinueStatement { label: loop_label } => {
+                if loop_label.is_some() {
+                    self.emit_line(";; warning: labeled continue is not supported in WASM yet");
+                }
                 self.emit_line(";; continue");
                 if let Some(label) = self.continue_labels.last() {
                     self.emit_line(&format!("br {}", label));

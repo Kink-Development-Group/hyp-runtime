@@ -522,13 +522,29 @@ impl TypeChecker {
             .insert(name.to_string(), (parameter_types, return_type));
     }
 
-    /// Parse type annotation string to HypnoType
+    /// Parse type annotation string to HypnoType.
+    ///
+    /// Handles the suffix modifiers produced by the parser: `?` marks a
+    /// nullable type (`number?` / `lucid number`) and `[]` an array type
+    /// (`string[]`, `number[]?`, ...).
     fn parse_type_annotation(&self, type_str: Option<&str>) -> HypnoType {
+        let Some(type_str) = type_str else {
+            return HypnoType::unknown();
+        };
+
+        if let Some(inner) = type_str.strip_suffix('?') {
+            return self.parse_type_annotation(Some(inner)).into_nullable();
+        }
+
+        if let Some(inner) = type_str.strip_suffix("[]") {
+            return HypnoType::create_array(self.parse_type_annotation(Some(inner)));
+        }
+
         match type_str {
-            Some("number") => HypnoType::number(),
-            Some("string") => HypnoType::string(),
-            Some("boolean") => HypnoType::boolean(),
-            Some("trance") => HypnoType::new(HypnoBaseType::Trance, None),
+            "number" => HypnoType::number(),
+            "string" => HypnoType::string(),
+            "boolean" => HypnoType::boolean(),
+            "trance" => HypnoType::new(HypnoBaseType::Trance, None),
             _ => HypnoType::unknown(),
         }
     }
@@ -1289,6 +1305,18 @@ impl TypeChecker {
                 }
             }
 
+            AstNode::DriftStatement { duration } => {
+                let duration_type = self.infer_type(duration);
+                if duration_type.base_type != HypnoBaseType::Number
+                    && duration_type.base_type != HypnoBaseType::Unknown
+                {
+                    self.errors.push(format!(
+                        "drift duration must be a number of milliseconds, got {}",
+                        duration_type
+                    ));
+                }
+            }
+
             AstNode::IfStatement {
                 condition,
                 then_branch,
@@ -1431,6 +1459,7 @@ impl TypeChecker {
             AstNode::NumberLiteral(_) => HypnoType::number(),
             AstNode::StringLiteral(_) => HypnoType::string(),
             AstNode::BooleanLiteral(_) => HypnoType::boolean(),
+            AstNode::NullLiteral => HypnoType::null(),
 
             AstNode::Identifier(name) => {
                 if name == "this" && self.in_static_context {
@@ -1700,10 +1729,14 @@ impl TypeChecker {
 
             AstNode::NullishCoalescing { left, right } => {
                 let left_type = self.infer_type(left);
-                let _right_type = self.infer_type(right);
-                // Nullish coalescing returns the type of the right side if left is null
-                // For simplicity, we return the left type (as it's usually the expected type)
-                left_type
+                let right_type = self.infer_type(right);
+                // 'left lucidFallback right' only yields the right side when the
+                // left side is null, so the result is never null itself.
+                if left_type.base_type == HypnoBaseType::Null {
+                    right_type
+                } else {
+                    left_type.into_non_nullable()
+                }
             }
 
             AstNode::OptionalChaining { object, property } => {
@@ -1994,5 +2027,123 @@ Focus {
         let errors = checker.check_program(&ast);
         assert!(!errors.is_empty());
         assert!(errors[0].contains("Type mismatch"));
+    }
+
+    fn check_source(source: &str) -> Vec<String> {
+        let mut lexer = Lexer::new(source);
+        let tokens = lexer.lex().unwrap();
+        let mut parser = Parser::new(tokens);
+        let ast = parser.parse_program().unwrap();
+        let mut checker = TypeChecker::new();
+        checker.check_program(&ast)
+    }
+
+    #[test]
+    fn test_null_requires_nullable_type() {
+        let errors = check_source(
+            r#"
+Focus {
+    induce x: number = null;
+} Relax
+"#,
+        );
+        assert!(
+            errors
+                .iter()
+                .any(|e| e.contains("expected Number, got null")),
+            "expected null assignment error, got {:?}",
+            errors
+        );
+    }
+
+    #[test]
+    fn test_nullable_annotation_accepts_null() {
+        let errors = check_source(
+            r#"
+Focus {
+    induce x: number? = null;
+    induce y: lucid string = null;
+    induce z: number? = 42;
+} Relax
+"#,
+        );
+        assert!(errors.is_empty(), "unexpected errors: {:?}", errors);
+    }
+
+    #[test]
+    fn test_nullable_value_needs_nullable_target() {
+        let errors = check_source(
+            r#"
+Focus {
+    induce maybe: number? = null;
+    induce strict: number = maybe;
+} Relax
+"#,
+        );
+        assert!(
+            errors
+                .iter()
+                .any(|e| e.contains("expected Number, got Number?")),
+            "expected nullable-to-strict error, got {:?}",
+            errors
+        );
+    }
+
+    #[test]
+    fn test_lucid_fallback_strips_nullability() {
+        let errors = check_source(
+            r#"
+Focus {
+    induce maybe: number? = null;
+    induce strict: number = maybe lucidFallback 5;
+} Relax
+"#,
+        );
+        assert!(errors.is_empty(), "unexpected errors: {:?}", errors);
+    }
+
+    #[test]
+    fn test_array_annotation_matches_array_literal() {
+        let errors = check_source(
+            r#"
+Focus {
+    induce names: string[] = ["a", "b"];
+    induce wrong: number[] = ["a"];
+} Relax
+"#,
+        );
+        assert_eq!(errors.len(), 1, "expected exactly one error: {:?}", errors);
+        assert!(errors[0].contains("wrong"));
+    }
+
+    #[test]
+    fn test_drift_duration_must_be_numeric() {
+        let errors = check_source(
+            r#"
+Focus {
+    entrance {
+        drift("soon");
+    }
+} Relax
+"#,
+        );
+        assert!(
+            errors
+                .iter()
+                .any(|e| e.contains("drift duration must be a number")),
+            "expected drift type error, got {:?}",
+            errors
+        );
+
+        let ok = check_source(
+            r#"
+Focus {
+    entrance {
+        drift(100);
+    }
+} Relax
+"#,
+        );
+        assert!(ok.is_empty(), "unexpected errors: {:?}", ok);
     }
 }

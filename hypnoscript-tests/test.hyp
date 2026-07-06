@@ -1,5 +1,4 @@
 Focus {
-Focus {
     entrance {
         observe "🌌 HypnoScript – Komplettüberblick";
         observe "Ein Rundgang durch Sprachelemente und reale Builtins.";
@@ -42,7 +41,7 @@ Focus {
         awaken ToUpper(message) + "!";
     }
 
-    imperative suggestion narrate(message: string) {
+    imperativeSuggestion narrate(message: string) {
         whisper message;
     }
 
@@ -98,9 +97,9 @@ Focus {
         observe name + " erwacht sanft.";
     };
 
-    suggestion closeSession(session: HypnoSession) {
-        observe "Session beendet für " + session.subject;
-        onSessionComplete(session.subject);
+    suggestion closeSession(hypnoSession: HypnoSession) {
+        observe "Session beendet für " + hypnoSession.subject;
+        onSessionComplete(hypnoSession.subject);
     }
 
     closeSession(nightly);

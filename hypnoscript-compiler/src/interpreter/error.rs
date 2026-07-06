@@ -18,6 +18,12 @@ pub enum InterpreterError {
     #[error("Continue statement outside of loop")]
     ContinueOutsideLoop,
 
+    #[error("'snap {0}' does not match any enclosing label")]
+    LabeledBreak(String),
+
+    #[error("'sink {0}' does not match any enclosing label")]
+    LabeledContinue(String),
+
     #[error("Return from function: {0:?}")]
     Return(Value),
 

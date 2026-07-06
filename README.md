@@ -23,6 +23,9 @@ The complete runtime environment, compiler, and command-line tools are exclusive
 - 🖥️ **Extended CLI** – `run`, `lex`, `parse`, `check`, `compile-wasm`, `compile-native`, `optimize`, `builtins`, `version`
 - 🧵 **String Interpolation** – `"Hello, ${name}!"` with arbitrary expressions inside `${...}`
 - 🔢 **Readable Numbers** – digit separators (`1_000_000`) and exponent notation (`2.5e3`)
+- 🌫️ **Null Safety** – `null` literal, nullable types (`number?` / `lucid number`), enforced by the type checker
+- 🔁 **Labeled Loops** – `outer: loop (...) { snap outer; }` for breaking/continuing outer loops
+- ⏸️ **Timed Pauses** – `drift(ms);` statement; scale or skip all pauses via `HYPNO_TIME_SCALE`
 - ✅ **Comprehensive Tests** – 300+ tests across all compiler modules, plus an end-to-end harness over the sample programs
 - 📚 **Documentation** – VitePress + extensive architecture docs + complete Rustdoc
 - 🚀 **Performance** – Zero-cost abstractions, no garbage collector, optimized native code

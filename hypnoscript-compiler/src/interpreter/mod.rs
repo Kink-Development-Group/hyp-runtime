@@ -99,6 +99,9 @@ pub struct Interpreter {
     execution_context: Vec<ExecutionContextFrame>,
     /// Tranceify type definitions (field names for each type)
     tranceify_types: HashMap<String, Vec<String>>,
+    /// Label declared immediately before a loop statement; the loop claims it
+    /// on entry so `snap label;` / `sink label;` can target that loop.
+    pending_loop_label: Option<String>,
 
     /// Optional async runtime for true async execution
     pub async_runtime: Option<std::sync::Arc<crate::async_runtime::AsyncRuntime>>,
@@ -130,6 +133,7 @@ impl Interpreter {
             const_locals: Vec::new(),
             execution_context: Vec::new(),
             tranceify_types: HashMap::new(),
+            pending_loop_label: None,
             async_runtime: None,
             channel_registry: None,
             debug_state: None,
@@ -152,6 +156,7 @@ impl Interpreter {
             const_locals: Vec::new(),
             execution_context: Vec::new(),
             tranceify_types: HashMap::new(),
+            pending_loop_label: None,
             async_runtime: Some(std::sync::Arc::new(runtime)),
             channel_registry: Some(std::sync::Arc::new(registry)),
             debug_state: None,
@@ -557,6 +562,7 @@ impl Interpreter {
             }
 
             AstNode::WhileStatement { condition, body } => {
+                let my_label = self.pending_loop_label.take();
                 loop {
                     let cond_value = self.evaluate_expression(condition)?;
                     if !cond_value.is_truthy() {
@@ -566,6 +572,14 @@ impl Interpreter {
                     match self.execute_block(body) {
                         Err(InterpreterError::BreakOutsideLoop) => break,
                         Err(InterpreterError::ContinueOutsideLoop) => continue,
+                        Err(InterpreterError::LabeledBreak(l)) if Some(&l) == my_label.as_ref() => {
+                            break;
+                        }
+                        Err(InterpreterError::LabeledContinue(l))
+                            if Some(&l) == my_label.as_ref() =>
+                        {
+                            continue;
+                        }
                         Err(e) => return Err(e),
                         Ok(()) => {}
                     }
@@ -579,6 +593,7 @@ impl Interpreter {
                 update,
                 body,
             } => {
+                let my_label = self.pending_loop_label.take();
                 if let Some(init_stmt) = init.as_ref() {
                     self.execute_statement(init_stmt)?;
                 }
@@ -591,14 +606,15 @@ impl Interpreter {
                         }
                     }
 
+                    // 'continue' skips the rest of the body but not the update.
                     match self.execute_loop_body(body) {
                         Err(InterpreterError::BreakOutsideLoop) => break,
-                        Err(InterpreterError::ContinueOutsideLoop) => {
-                            if let Some(update_stmt) = update.as_ref() {
-                                self.execute_statement(update_stmt)?;
-                            }
-                            continue;
+                        Err(InterpreterError::LabeledBreak(l)) if Some(&l) == my_label.as_ref() => {
+                            break;
                         }
+                        Err(InterpreterError::ContinueOutsideLoop) => {}
+                        Err(InterpreterError::LabeledContinue(l))
+                            if Some(&l) == my_label.as_ref() => {}
                         Err(e) => return Err(e),
                         Ok(()) => {}
                     }
@@ -610,11 +626,35 @@ impl Interpreter {
                 Ok(())
             }
 
+            AstNode::LabeledStatement { label, body } => {
+                self.pending_loop_label = Some(label.clone());
+                let result = self.execute_statement(body);
+                self.pending_loop_label = None;
+                match result {
+                    // Fallback for labels on non-loop statements: a matching
+                    // labeled break simply exits the labeled statement.
+                    Err(InterpreterError::LabeledBreak(l)) if l == *label => Ok(()),
+                    other => other,
+                }
+            }
+
             AstNode::SuspendStatement => {
                 // Suspend is an infinite pause - in practice, this should wait for external input
                 // For now, we'll just log a warning
                 CoreBuiltins::whisper("[SUSPEND] Program suspended - press Ctrl+C to exit");
                 std::thread::sleep(std::time::Duration::from_secs(3600)); // Sleep for 1 hour
+                Ok(())
+            }
+
+            AstNode::DriftStatement { duration } => {
+                let value = self.evaluate_expression(duration)?;
+                let milliseconds = value.to_number().map_err(|_| {
+                    InterpreterError::TypeError(localized(
+                        "drift duration must be a number of milliseconds",
+                        "drift-Dauer muss eine Zahl in Millisekunden sein",
+                    ))
+                })?;
+                CoreBuiltins::drift(milliseconds.max(0.0) as u64);
                 Ok(())
             }
 
@@ -627,9 +667,15 @@ impl Interpreter {
                 Err(InterpreterError::Return(ret_value))
             }
 
-            AstNode::BreakStatement => Err(InterpreterError::BreakOutsideLoop),
+            AstNode::BreakStatement { label } => match label {
+                Some(label) => Err(InterpreterError::LabeledBreak(label.clone())),
+                None => Err(InterpreterError::BreakOutsideLoop),
+            },
 
-            AstNode::ContinueStatement => Err(InterpreterError::ContinueOutsideLoop),
+            AstNode::ContinueStatement { label } => match label {
+                Some(label) => Err(InterpreterError::LabeledContinue(label.clone())),
+                None => Err(InterpreterError::ContinueOutsideLoop),
+            },
 
             AstNode::ExpressionStatement(expr) => {
                 self.evaluate_expression(expr)?;
@@ -671,6 +717,7 @@ impl Interpreter {
             AstNode::StringLiteral(s) => Ok(Value::String(s.clone())),
 
             AstNode::BooleanLiteral(b) => Ok(Value::Boolean(*b)),
+            AstNode::NullLiteral => Ok(Value::Null),
 
             AstNode::Identifier(name) => self.get_variable(name),
 
@@ -2080,6 +2127,129 @@ Focus {
 
         let status = interpreter.get_variable("status").unwrap();
         assert_eq!(status, Value::String("Luna".to_string()));
+    }
+
+    /// Run a program and return the interpreter for state inspection.
+    fn run_program(source: &str) -> Interpreter {
+        let mut lexer = Lexer::new(source);
+        let tokens = lexer.lex().unwrap();
+        let mut parser = Parser::new(tokens);
+        let ast = parser.parse_program().unwrap();
+        let mut interpreter = Interpreter::new();
+        let result = interpreter.execute_program(ast);
+        assert!(result.is_ok(), "execution failed: {:?}", result.err());
+        interpreter
+    }
+
+    #[test]
+    fn test_labeled_break_exits_outer_loop() {
+        let interpreter = run_program(
+            r#"
+Focus {
+    induce hits: number = 0;
+    entrance {
+        outer: loop (induce i: number = 0; i < 5; i = i + 1) {
+            loop (induce j: number = 0; j < 5; j = j + 1) {
+                hits = hits + 1;
+                if (hits == 3) {
+                    snap outer;
+                }
+            }
+        }
+    }
+} Relax
+"#,
+        );
+        assert_eq!(
+            interpreter.debug_globals().get("hits"),
+            Some(&Value::Number(3.0)),
+            "labeled break must exit both loops"
+        );
+    }
+
+    #[test]
+    fn test_labeled_continue_advances_outer_loop() {
+        let interpreter = run_program(
+            r#"
+Focus {
+    induce outerRuns: number = 0;
+    induce innerRuns: number = 0;
+    entrance {
+        outer: loop (induce i: number = 0; i < 3; i = i + 1) {
+            outerRuns = outerRuns + 1;
+            loop (induce j: number = 0; j < 3; j = j + 1) {
+                innerRuns = innerRuns + 1;
+                sink outer;
+            }
+            outerRuns = outerRuns + 100;
+        }
+    }
+} Relax
+"#,
+        );
+        let globals = interpreter.debug_globals();
+        assert_eq!(
+            globals.get("outerRuns"),
+            Some(&Value::Number(3.0)),
+            "outer body after inner loop must be skipped"
+        );
+        assert_eq!(
+            globals.get("innerRuns"),
+            Some(&Value::Number(3.0)),
+            "inner loop must run once per outer iteration"
+        );
+    }
+
+    #[test]
+    fn test_labeled_break_with_unknown_label_errors() {
+        let source = r#"
+Focus {
+    entrance {
+        loop (induce i: number = 0; i < 3; i = i + 1) {
+            snap nowhere;
+        }
+    }
+} Relax
+"#;
+        let mut lexer = Lexer::new(source);
+        let tokens = lexer.lex().unwrap();
+        let mut parser = Parser::new(tokens);
+        let ast = parser.parse_program().unwrap();
+        let mut interpreter = Interpreter::new();
+        let result = interpreter.execute_program(ast);
+        assert!(result.is_err(), "unknown label must be a runtime error");
+        assert!(result.unwrap_err().to_string().contains("nowhere"));
+    }
+
+    #[test]
+    fn test_null_literal_and_nullish_operators() {
+        let interpreter = run_program(
+            r#"
+Focus {
+    induce value: number = 0;
+    induce state: string = "";
+    entrance {
+        induce maybe: number? = null;
+        value = maybe lucidFallback 42;
+        state = entrain maybe {
+            when null => "empty";
+            otherwise => "filled";
+        };
+    }
+} Relax
+"#,
+        );
+        let globals = interpreter.debug_globals();
+        assert_eq!(
+            globals.get("value"),
+            Some(&Value::Number(42.0)),
+            "lucidFallback must supply the default"
+        );
+        assert_eq!(
+            globals.get("state"),
+            Some(&Value::String("empty".to_string())),
+            "null pattern must match"
+        );
     }
 
     #[test]
