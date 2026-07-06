@@ -40,7 +40,8 @@ pub enum TokenType {
     // Functions
     Suggestion,           // Standard function
     Trigger,              // Event handler/callback function
-    ImperativeSuggestion, // Imperative function modifier
+    Imperative,           // Imperative modifier ('imperative suggestion ...')
+    ImperativeSuggestion, // Imperative function modifier (one-word form)
     DominantSuggestion,   // Static function modifier
     Mesmerize,            // Async function modifier
     Awaken,               // return
@@ -130,6 +131,9 @@ pub enum TokenType {
     True,
     False,
 
+    // Null literal
+    Null,
+
     // Delimiters and brackets
     LParen,   // (
     RParen,   // )
@@ -160,575 +164,121 @@ pub struct KeywordDefinition {
     pub canonical_lexeme: &'static str,
 }
 
+/// Keyword table: `(normalized lowercase form, token type, canonical lexeme)`.
+///
+/// Lookups normalize the source lexeme to ASCII lowercase, so each keyword is
+/// listed once here regardless of how it is capitalized in source code.
+/// Plain-language aliases (`break`, `continue`, `return`) map to the same
+/// token as their hypnotic counterparts.
+#[rustfmt::skip]
+const KEYWORDS: &[(&str, TokenType, &str)] = &[
+    // Core structure keywords
+    ("focus", TokenType::Focus, "Focus"),
+    ("relax", TokenType::Relax, "Relax"),
+    ("entrance", TokenType::Entrance, "entrance"),
+    ("finale", TokenType::Finale, "finale"),
+    ("deepfocus", TokenType::DeepFocus, "deepFocus"),
+    ("deeperstill", TokenType::DeeperStill, "deeperStill"),
+    // Variable declarations and sourcing
+    ("induce", TokenType::Induce, "induce"),
+    ("implant", TokenType::Implant, "implant"),
+    ("embed", TokenType::Embed, "embed"),
+    ("freeze", TokenType::Freeze, "freeze"),
+    ("anchor", TokenType::Anchor, "anchor"),
+    ("from", TokenType::From, "from"),
+    ("external", TokenType::External, "external"),
+    // Control flow constructs
+    ("if", TokenType::If, "if"),
+    ("else", TokenType::Else, "else"),
+    ("when", TokenType::When, "when"),
+    ("otherwise", TokenType::Otherwise, "otherwise"),
+    ("entrain", TokenType::Entrain, "entrain"),
+    ("while", TokenType::While, "while"),
+    ("loop", TokenType::Loop, "loop"),
+    ("pendulum", TokenType::Pendulum, "pendulum"),
+    ("snap", TokenType::Snap, "snap"),
+    ("break", TokenType::Snap, "snap"),
+    ("sink", TokenType::Sink, "sink"),
+    ("continue", TokenType::Sink, "sink"),
+    ("sinkto", TokenType::SinkTo, "sinkTo"),
+    ("oscillate", TokenType::Oscillate, "oscillate"),
+    ("suspend", TokenType::Suspend, "suspend"),
+    // Functions
+    ("suggestion", TokenType::Suggestion, "suggestion"),
+    ("trigger", TokenType::Trigger, "trigger"),
+    ("imperative", TokenType::Imperative, "imperative"),
+    ("imperativesuggestion", TokenType::ImperativeSuggestion, "imperativeSuggestion"),
+    ("dominantsuggestion", TokenType::DominantSuggestion, "dominantSuggestion"),
+    ("mesmerize", TokenType::Mesmerize, "mesmerize"),
+    ("awaken", TokenType::Awaken, "awaken"),
+    ("return", TokenType::Awaken, "awaken"),
+    ("await", TokenType::Await, "await"),
+    ("surrenderto", TokenType::SurrenderTo, "surrenderTo"),
+    ("call", TokenType::Call, "call"),
+    // Sessions (classes)
+    ("session", TokenType::Session, "session"),
+    ("constructor", TokenType::Constructor, "constructor"),
+    ("expose", TokenType::Expose, "expose"),
+    ("conceal", TokenType::Conceal, "conceal"),
+    ("dominant", TokenType::Dominant, "dominant"),
+    // Structures and observations
+    ("tranceify", TokenType::Tranceify, "tranceify"),
+    ("observe", TokenType::Observe, "observe"),
+    ("whisper", TokenType::Whisper, "whisper"),
+    ("command", TokenType::Command, "command"),
+    ("murmur", TokenType::Murmur, "murmur"),
+    ("drift", TokenType::Drift, "drift"),
+    ("pausereality", TokenType::PauseReality, "pauseReality"),
+    ("acceleratetime", TokenType::AccelerateTime, "accelerateTime"),
+    ("deceleratetime", TokenType::DecelerateTime, "decelerateTime"),
+    ("subconscious", TokenType::Subconscious, "subconscious"),
+    // Modules and globals
+    ("mindlink", TokenType::MindLink, "mindLink"),
+    ("sharedtrance", TokenType::SharedTrance, "sharedTrance"),
+    ("label", TokenType::Label, "label"),
+    // Operator synonyms (equality)
+    ("youarefeelingverysleepy", TokenType::YouAreFeelingVerySleepy, "youAreFeelingVerySleepy"),
+    ("youcannotresist", TokenType::YouCannotResist, "youCannotResist"),
+    ("notsodeep", TokenType::NotSoDeep, "notSoDeep"),
+    // Operator synonyms (comparison)
+    ("lookatthewatch", TokenType::LookAtTheWatch, "lookAtTheWatch"),
+    ("fallundermyspell", TokenType::FallUnderMySpell, "fallUnderMySpell"),
+    ("youreyesaregettingheavy", TokenType::YourEyesAreGettingHeavy, "yourEyesAreGettingHeavy"),
+    ("goingdeeper", TokenType::GoingDeeper, "goingDeeper"),
+    ("deeplygreater", TokenType::DeeplyGreater, "deeplyGreater"),
+    ("deeplyless", TokenType::DeeplyLess, "deeplyLess"),
+    // Logical operator synonyms
+    ("undermycontrol", TokenType::UnderMyControl, "underMyControl"),
+    ("resistanceisfutile", TokenType::ResistanceIsFutile, "resistanceIsFutile"),
+    ("lucidfallback", TokenType::LucidFallback, "lucidFallback"),
+    ("dreamreach", TokenType::DreamReach, "dreamReach"),
+    // Primitive type aliases and literals
+    ("number", TokenType::Number, "number"),
+    ("string", TokenType::String, "string"),
+    ("boolean", TokenType::Boolean, "boolean"),
+    ("trance", TokenType::Trance, "trance"),
+    ("lucid", TokenType::Lucid, "lucid"),
+    ("true", TokenType::True, "true"),
+    ("false", TokenType::False, "false"),
+    ("null", TokenType::Null, "null"),
+    // Assertions
+    ("assert", TokenType::Assert, "assert"),
+];
+
 /// All reserved words and hypnotic operator synonyms mapped by their normalized form.
 static KEYWORD_DEFINITIONS: Lazy<HashMap<&'static str, KeywordDefinition>> = Lazy::new(|| {
-    use TokenType::*;
-
-    let mut map = HashMap::with_capacity(64);
-
-    // Core structure keywords
-    map.insert(
-        "focus",
-        KeywordDefinition {
-            token: Focus,
-            canonical_lexeme: "Focus",
-        },
-    );
-    map.insert(
-        "relax",
-        KeywordDefinition {
-            token: Relax,
-            canonical_lexeme: "Relax",
-        },
-    );
-    map.insert(
-        "entrance",
-        KeywordDefinition {
-            token: Entrance,
-            canonical_lexeme: "entrance",
-        },
-    );
-    map.insert(
-        "finale",
-        KeywordDefinition {
-            token: Finale,
-            canonical_lexeme: "finale",
-        },
-    );
-    map.insert(
-        "deepfocus",
-        KeywordDefinition {
-            token: DeepFocus,
-            canonical_lexeme: "deepFocus",
-        },
-    );
-    map.insert(
-        "deeperstill",
-        KeywordDefinition {
-            token: DeeperStill,
-            canonical_lexeme: "deeperStill",
-        },
-    );
-
-    // Variable declarations and sourcing
-    map.insert(
-        "induce",
-        KeywordDefinition {
-            token: Induce,
-            canonical_lexeme: "induce",
-        },
-    );
-    map.insert(
-        "implant",
-        KeywordDefinition {
-            token: Implant,
-            canonical_lexeme: "implant",
-        },
-    );
-    map.insert(
-        "embed",
-        KeywordDefinition {
-            token: Embed,
-            canonical_lexeme: "embed",
-        },
-    );
-    map.insert(
-        "freeze",
-        KeywordDefinition {
-            token: Freeze,
-            canonical_lexeme: "freeze",
-        },
-    );
-    map.insert(
-        "anchor",
-        KeywordDefinition {
-            token: Anchor,
-            canonical_lexeme: "anchor",
-        },
-    );
-    map.insert(
-        "from",
-        KeywordDefinition {
-            token: From,
-            canonical_lexeme: "from",
-        },
-    );
-    map.insert(
-        "external",
-        KeywordDefinition {
-            token: External,
-            canonical_lexeme: "external",
-        },
-    );
-
-    // Control flow constructs
-    map.insert(
-        "if",
-        KeywordDefinition {
-            token: If,
-            canonical_lexeme: "if",
-        },
-    );
-    map.insert(
-        "else",
-        KeywordDefinition {
-            token: Else,
-            canonical_lexeme: "else",
-        },
-    );
-    map.insert(
-        "when",
-        KeywordDefinition {
-            token: When,
-            canonical_lexeme: "when",
-        },
-    );
-    map.insert(
-        "otherwise",
-        KeywordDefinition {
-            token: Otherwise,
-            canonical_lexeme: "otherwise",
-        },
-    );
-    map.insert(
-        "entrain",
-        KeywordDefinition {
-            token: Entrain,
-            canonical_lexeme: "entrain",
-        },
-    );
-    map.insert(
-        "while",
-        KeywordDefinition {
-            token: While,
-            canonical_lexeme: "while",
-        },
-    );
-    map.insert(
-        "loop",
-        KeywordDefinition {
-            token: Loop,
-            canonical_lexeme: "loop",
-        },
-    );
-    map.insert(
-        "pendulum",
-        KeywordDefinition {
-            token: Pendulum,
-            canonical_lexeme: "pendulum",
-        },
-    );
-    map.insert(
-        "snap",
-        KeywordDefinition {
-            token: Snap,
-            canonical_lexeme: "snap",
-        },
-    );
-    map.insert(
-        "break",
-        KeywordDefinition {
-            token: Snap,
-            canonical_lexeme: "snap",
-        },
-    );
-    map.insert(
-        "sink",
-        KeywordDefinition {
-            token: Sink,
-            canonical_lexeme: "sink",
-        },
-    );
-    map.insert(
-        "continue",
-        KeywordDefinition {
-            token: Sink,
-            canonical_lexeme: "sink",
-        },
-    );
-    map.insert(
-        "sinkto",
-        KeywordDefinition {
-            token: SinkTo,
-            canonical_lexeme: "sinkTo",
-        },
-    );
-    map.insert(
-        "oscillate",
-        KeywordDefinition {
-            token: Oscillate,
-            canonical_lexeme: "oscillate",
-        },
-    );
-    map.insert(
-        "suspend",
-        KeywordDefinition {
-            token: Suspend,
-            canonical_lexeme: "suspend",
-        },
-    );
-
-    // Functions
-    map.insert(
-        "suggestion",
-        KeywordDefinition {
-            token: Suggestion,
-            canonical_lexeme: "suggestion",
-        },
-    );
-    map.insert(
-        "trigger",
-        KeywordDefinition {
-            token: Trigger,
-            canonical_lexeme: "trigger",
-        },
-    );
-    map.insert(
-        "imperativesuggestion",
-        KeywordDefinition {
-            token: ImperativeSuggestion,
-            canonical_lexeme: "imperativeSuggestion",
-        },
-    );
-    map.insert(
-        "dominantsuggestion",
-        KeywordDefinition {
-            token: DominantSuggestion,
-            canonical_lexeme: "dominantSuggestion",
-        },
-    );
-    map.insert(
-        "mesmerize",
-        KeywordDefinition {
-            token: Mesmerize,
-            canonical_lexeme: "mesmerize",
-        },
-    );
-    map.insert(
-        "awaken",
-        KeywordDefinition {
-            token: Awaken,
-            canonical_lexeme: "awaken",
-        },
-    );
-    map.insert(
-        "await",
-        KeywordDefinition {
-            token: Await,
-            canonical_lexeme: "await",
-        },
-    );
-    map.insert(
-        "surrenderto",
-        KeywordDefinition {
-            token: SurrenderTo,
-            canonical_lexeme: "surrenderTo",
-        },
-    );
-    map.insert(
-        "return",
-        KeywordDefinition {
-            token: Awaken,
-            canonical_lexeme: "awaken",
-        },
-    );
-    map.insert(
-        "call",
-        KeywordDefinition {
-            token: Call,
-            canonical_lexeme: "call",
-        },
-    );
-
-    // Sessions (classes)
-    map.insert(
-        "session",
-        KeywordDefinition {
-            token: Session,
-            canonical_lexeme: "session",
-        },
-    );
-    map.insert(
-        "constructor",
-        KeywordDefinition {
-            token: Constructor,
-            canonical_lexeme: "constructor",
-        },
-    );
-    map.insert(
-        "expose",
-        KeywordDefinition {
-            token: Expose,
-            canonical_lexeme: "expose",
-        },
-    );
-    map.insert(
-        "conceal",
-        KeywordDefinition {
-            token: Conceal,
-            canonical_lexeme: "conceal",
-        },
-    );
-    map.insert(
-        "dominant",
-        KeywordDefinition {
-            token: Dominant,
-            canonical_lexeme: "dominant",
-        },
-    );
-
-    // Structures and observations
-    map.insert(
-        "tranceify",
-        KeywordDefinition {
-            token: Tranceify,
-            canonical_lexeme: "tranceify",
-        },
-    );
-    map.insert(
-        "observe",
-        KeywordDefinition {
-            token: Observe,
-            canonical_lexeme: "observe",
-        },
-    );
-    map.insert(
-        "whisper",
-        KeywordDefinition {
-            token: Whisper,
-            canonical_lexeme: "whisper",
-        },
-    );
-    map.insert(
-        "command",
-        KeywordDefinition {
-            token: Command,
-            canonical_lexeme: "command",
-        },
-    );
-    map.insert(
-        "murmur",
-        KeywordDefinition {
-            token: Murmur,
-            canonical_lexeme: "murmur",
-        },
-    );
-    map.insert(
-        "drift",
-        KeywordDefinition {
-            token: Drift,
-            canonical_lexeme: "drift",
-        },
-    );
-    map.insert(
-        "pausereality",
-        KeywordDefinition {
-            token: PauseReality,
-            canonical_lexeme: "pauseReality",
-        },
-    );
-    map.insert(
-        "acceleratetime",
-        KeywordDefinition {
-            token: AccelerateTime,
-            canonical_lexeme: "accelerateTime",
-        },
-    );
-    map.insert(
-        "deceleratetime",
-        KeywordDefinition {
-            token: DecelerateTime,
-            canonical_lexeme: "decelerateTime",
-        },
-    );
-    map.insert(
-        "subconscious",
-        KeywordDefinition {
-            token: Subconscious,
-            canonical_lexeme: "subconscious",
-        },
-    );
-
-    // Modules and globals
-    map.insert(
-        "mindlink",
-        KeywordDefinition {
-            token: MindLink,
-            canonical_lexeme: "mindLink",
-        },
-    );
-    map.insert(
-        "sharedtrance",
-        KeywordDefinition {
-            token: SharedTrance,
-            canonical_lexeme: "sharedTrance",
-        },
-    );
-    map.insert(
-        "label",
-        KeywordDefinition {
-            token: Label,
-            canonical_lexeme: "label",
-        },
-    );
-
-    // Operator synonyms (equality)
-    map.insert(
-        "youarefeelingverysleepy",
-        KeywordDefinition {
-            token: YouAreFeelingVerySleepy,
-            canonical_lexeme: "youAreFeelingVerySleepy",
-        },
-    );
-    map.insert(
-        "youcannotresist",
-        KeywordDefinition {
-            token: YouCannotResist,
-            canonical_lexeme: "youCannotResist",
-        },
-    );
-    map.insert(
-        "notsodeep",
-        KeywordDefinition {
-            token: NotSoDeep,
-            canonical_lexeme: "notSoDeep",
-        },
-    );
-
-    // Operator synonyms (comparison)
-    map.insert(
-        "lookatthewatch",
-        KeywordDefinition {
-            token: LookAtTheWatch,
-            canonical_lexeme: "lookAtTheWatch",
-        },
-    );
-    map.insert(
-        "fallundermyspell",
-        KeywordDefinition {
-            token: FallUnderMySpell,
-            canonical_lexeme: "fallUnderMySpell",
-        },
-    );
-    map.insert(
-        "youreyesaregettingheavy",
-        KeywordDefinition {
-            token: YourEyesAreGettingHeavy,
-            canonical_lexeme: "yourEyesAreGettingHeavy",
-        },
-    );
-    map.insert(
-        "goingdeeper",
-        KeywordDefinition {
-            token: GoingDeeper,
-            canonical_lexeme: "goingDeeper",
-        },
-    );
-    map.insert(
-        "deeplygreater",
-        KeywordDefinition {
-            token: DeeplyGreater,
-            canonical_lexeme: "deeplyGreater",
-        },
-    );
-    map.insert(
-        "deeplyless",
-        KeywordDefinition {
-            token: DeeplyLess,
-            canonical_lexeme: "deeplyLess",
-        },
-    );
-
-    // Logical operator synonyms
-    map.insert(
-        "undermycontrol",
-        KeywordDefinition {
-            token: UnderMyControl,
-            canonical_lexeme: "underMyControl",
-        },
-    );
-    map.insert(
-        "resistanceisfutile",
-        KeywordDefinition {
-            token: ResistanceIsFutile,
-            canonical_lexeme: "resistanceIsFutile",
-        },
-    );
-    map.insert(
-        "lucidfallback",
-        KeywordDefinition {
-            token: LucidFallback,
-            canonical_lexeme: "lucidFallback",
-        },
-    );
-    map.insert(
-        "dreamreach",
-        KeywordDefinition {
-            token: DreamReach,
-            canonical_lexeme: "dreamReach",
-        },
-    );
-
-    // Primitive type aliases and literals
-    map.insert(
-        "number",
-        KeywordDefinition {
-            token: Number,
-            canonical_lexeme: "number",
-        },
-    );
-    map.insert(
-        "string",
-        KeywordDefinition {
-            token: String,
-            canonical_lexeme: "string",
-        },
-    );
-    map.insert(
-        "boolean",
-        KeywordDefinition {
-            token: Boolean,
-            canonical_lexeme: "boolean",
-        },
-    );
-    map.insert(
-        "trance",
-        KeywordDefinition {
-            token: Trance,
-            canonical_lexeme: "trance",
-        },
-    );
-    map.insert(
-        "lucid",
-        KeywordDefinition {
-            token: Lucid,
-            canonical_lexeme: "lucid",
-        },
-    );
-    map.insert(
-        "true",
-        KeywordDefinition {
-            token: True,
-            canonical_lexeme: "true",
-        },
-    );
-    map.insert(
-        "false",
-        KeywordDefinition {
-            token: False,
-            canonical_lexeme: "false",
-        },
-    );
-
-    map.insert(
-        "assert",
-        KeywordDefinition {
-            token: Assert,
-            canonical_lexeme: "assert",
-        },
-    );
-
-    map
+    KEYWORDS
+        .iter()
+        .map(|&(normalized, token, canonical_lexeme)| {
+            (
+                normalized,
+                KeywordDefinition {
+                    token,
+                    canonical_lexeme,
+                },
+            )
+        })
+        .collect()
 });
 
 impl TokenType {
@@ -764,6 +314,7 @@ impl TokenType {
                 | TokenType::Suspend
                 | TokenType::Suggestion
                 | TokenType::Trigger
+                | TokenType::Imperative
                 | TokenType::ImperativeSuggestion
                 | TokenType::DominantSuggestion
                 | TokenType::Mesmerize
@@ -792,6 +343,7 @@ impl TokenType {
                 | TokenType::Assert
                 | TokenType::True
                 | TokenType::False
+                | TokenType::Null
         )
     }
 
@@ -844,6 +396,7 @@ impl TokenType {
                 | TokenType::BooleanLiteral
                 | TokenType::True
                 | TokenType::False
+                | TokenType::Null
         )
     }
 

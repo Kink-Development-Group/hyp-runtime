@@ -48,6 +48,14 @@ Focus {
 } Relax
 ```
 
+### Source File Encoding
+
+`.hyp` files are usually plain UTF-8, but the CLI and test harness decode
+other common encodings transparently: UTF-8 with a byte-order mark (BOM),
+and UTF-16 (little- or big-endian, with or without BOM). Files saved by
+editors that default to UTF-16 — such as some Windows tools — simply work,
+no re-encoding required.
+
 ## Variables and Assignments
 
 ### Induce (Variable Declaration)
@@ -68,6 +76,36 @@ Focus {
 } Relax
 ```
 
+### SharedTrance (Global Variables)
+
+`sharedTrance` declares a module-level variable that every suggestion shares —
+one trance, one mind. The declaration keyword (`induce`, `implant`, `embed`,
+`freeze`) is optional; the shorthand `sharedTrance name: type = value;` works
+on its own:
+
+```hyp
+Focus {
+    // Shorthand — no induce needed
+    sharedTrance total: number = 0;
+
+    // Classic long form is still valid
+    sharedTrance induce sessionName: string = "Deep Dive";
+
+    suggestion addToTotal(n: number) {
+        total = total + n;
+    }
+
+    entrance {
+        addToTotal(5);
+        addToTotal(7);
+        observe "Total: " + total;  // 12
+    }
+} Relax
+```
+
+`sharedTrance` must be followed by a variable declaration; anything else is a
+parse error.
+
 ### Data Types
 
 HypnoScript supports various data types:
@@ -81,6 +119,8 @@ Focus {
         // Numbers (only number type)
         induce integer: number = 42;
         induce decimal: number = 3.14159;
+        induce large: number = 1_000_000;   // digit separators
+        induce scientific: number = 2.5e3;  // exponent notation
 
         // Boolean
         induce flag: boolean = true;
@@ -91,6 +131,103 @@ Focus {
 
         // Records (defined with tranceify)
         // See Records documentation for details
+    }
+} Relax
+```
+
+### String Escape Sequences
+
+String literals support the usual escapes plus hexadecimal Unicode escapes:
+
+| Escape   | Meaning                                        |
+| -------- | ---------------------------------------------- |
+| `\n`     | Newline                                        |
+| `\t`     | Tab                                            |
+| `\r`     | Carriage return                                |
+| `\\`     | Backslash                                      |
+| `\"`     | Double quote                                   |
+| `\$`     | Literal `$` (suppresses interpolation)         |
+| `\uXXXX` | Unicode code point (exactly 4 hex digits)      |
+| `\xNN`   | Unicode code point (exactly 2 hex digits)      |
+
+```hyp
+Focus {
+    entrance {
+        observe "\u0048\u0079\u0070\u006E\u006F";  // => Hypno
+        observe "Hello\x20World\x21";              // => Hello World!
+        observe "Spiral: \u25CC";                  // => Spiral: ◌
+    }
+} Relax
+```
+
+Both forms consume a fixed number of hex digits. A truncated escape, a
+non-hex digit, or a value that is not a valid Unicode scalar (such as a
+surrogate code point `\uD800`–`\uDFFF`) is a **lexer error** — the program
+does not even reach the parser.
+
+### String Interpolation
+
+Embed arbitrary expressions in string literals with `${...}`:
+
+```hyp
+Focus {
+    entrance {
+        induce name: string = "Luna";
+        induce depth: number = 6;
+
+        observe "Guest ${name} sinks to depth ${depth + 1}.";
+        // => Guest Luna sinks to depth 7.
+
+        // Escape with \${ to output a literal ${
+        observe "costs \${price}";  // => costs ${price}
+    }
+} Relax
+```
+
+Interpolations may contain any expression — variables, arithmetic, function
+calls, even nested strings. The result is converted to a string automatically.
+
+### Null and Nullable Types
+
+`null` is a first-class literal. A type only admits `null` when it is declared
+nullable — with a `?` suffix or the hypnotic `lucid` modifier:
+
+```hyp
+Focus {
+    entrance {
+        induce maybe: number? = null;        // nullable via '?'
+        induce dreamy: lucid string = null;  // nullable via 'lucid'
+
+        // lucidFallback (??) supplies a default; the result is non-nullable
+        induce certain: number = maybe lucidFallback 42;
+
+        // null works as an entrain pattern
+        induce state: string = entrain maybe {
+            when null => "empty";
+            otherwise => "filled";
+        };
+        observe state;
+    }
+} Relax
+```
+
+The type checker enforces null safety in both directions: assigning `null` (or
+a nullable value) to a non-nullable type is a type error.
+
+### Array Type Annotations
+
+Use the `[]` suffix for typed arrays, including nested and nullable forms:
+
+```hyp
+Focus {
+    tranceify Plan {
+        title: string;
+        tags: string[];
+    }
+    entrance {
+        induce names: string[] = ["Alice", "Bob"];
+        induce matrix: number[][] = [[1, 2], [3, 4]];
+        induce optionalTags: string[]? = null;
     }
 } Relax
 ```
@@ -143,6 +280,40 @@ Focus {
 } Relax
 ```
 
+### DeepFocus (Conditional Block)
+
+`deepFocus (condition) { ... }` is a standalone conditional statement — an
+`if` with hypnotic emphasis, marking a block the program sinks into only when
+the condition holds. There is no `else` branch:
+
+```hyp
+Focus {
+    entrance {
+        induce depth: number = 7;
+
+        deepFocus (depth > 5) {
+            observe "You are in deep trance now...";
+        }
+    }
+} Relax
+```
+
+`deepFocus` may also follow an `if` condition as a block marker:
+
+```hyp
+Focus {
+    entrance {
+        induce n: number = 0;
+        if (n <= 0) deepFocus {
+            observe "Fully grounded.";
+        }
+    }
+} Relax
+```
+
+The condition must be a boolean — the type checker reports
+`DeepFocus condition must be boolean` otherwise.
+
 ### While Loop
 
 ```hyp
@@ -184,6 +355,48 @@ Focus {
 } Relax
 ```
 
+### Labeled Loops
+
+Label a loop to `snap` (break) or `sink` (continue) it from inside nested
+loops:
+
+```hyp
+Focus {
+    entrance {
+        outer: loop (induce i: number = 0; i < 3; i = i + 1) {
+            loop (induce j: number = 0; j < 3; j = j + 1) {
+                if (i + j == 3) {
+                    snap outer;   // break out of BOTH loops
+                }
+                if (j == 1) {
+                    sink outer;   // continue the OUTER loop
+                }
+            }
+        }
+    }
+} Relax
+```
+
+The keyword form `label outer: loop (...) { ... }` is also accepted.
+
+### Timed Pauses (drift)
+
+`drift(ms);` (synonym: `pauseReality(ms);`) pauses execution for the given
+number of milliseconds:
+
+```hyp
+Focus {
+    entrance {
+        observe "Sinking deeper...";
+        drift(500);
+        observe "...and deeper.";
+    }
+} Relax
+```
+
+The `HYPNO_TIME_SCALE` environment variable scales every themed pause:
+`HYPNO_TIME_SCALE=0` skips all pauses (useful for tests), `0.5` halves them.
+
 ## Functions
 
 ### Suggestion (Function Definition)
@@ -216,6 +429,38 @@ Focus {
 
         induce fact: number = factorial(5);
         observe "5! = " + fact;
+    }
+} Relax
+```
+
+### Imperative Suggestions
+
+`imperativeSuggestion` declares a function in commanding style. Since 1.3.0
+the two-word form `imperative suggestion` is accepted as well — both are
+interchangeable, at the top level and inside sessions:
+
+```hyp
+Focus {
+    // One-word form
+    imperativeSuggestion obey(command: string) {
+        observe "You will " + command + ".";
+    }
+
+    // Two-word form — identical meaning
+    imperative suggestion comply(command: string) {
+        observe "You must " + command + ".";
+    }
+
+    session Hypnotist {
+        // Works as an instance method too
+        expose imperative suggestion command(target: string) {
+            observe "Sleep now, " + target + "!";
+        }
+    }
+
+    entrance {
+        obey("relax");
+        comply("focus");
     }
 } Relax
 ```

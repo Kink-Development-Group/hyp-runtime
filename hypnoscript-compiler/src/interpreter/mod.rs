@@ -1,45 +1,32 @@
+//! The HypnoScript tree-walking interpreter.
+//!
+//! Split into focused submodules:
+//! - [`error`]: runtime error types
+//! - [`value`]: runtime values (numbers, strings, functions, promises, ...)
+//! - [`session`]: session (class) definitions and instances
+//! - [`builtins`]: dispatch into the `hypnoscript-runtime` builtin modules
+
+mod builtins;
+mod error;
+mod session;
+mod value;
+
+pub use error::InterpreterError;
+pub use value::{FunctionValue, Promise, RecordValue, Value};
+
+pub use session::{SessionDefinition, SessionInstance};
+
+use error::localized;
+use session::{SessionFieldDefinition, SessionMethodDefinition};
+
 use hypnoscript_lexer_parser::ast::{
     AstNode, Pattern, SessionField, SessionMember, SessionMethod, SessionVisibility,
     VariableStorage,
 };
-use hypnoscript_runtime::{
-    ArrayBuiltins, CoreBuiltins, FileBuiltins, HashingBuiltins, MathBuiltins, StatisticsBuiltins,
-    StringBuiltins, SystemBuiltins, TimeBuiltins, ValidationBuiltins,
-};
+use hypnoscript_runtime::CoreBuiltins;
 use std::cell::RefCell;
 use std::collections::{HashMap, HashSet};
 use std::rc::Rc;
-use thiserror::Error;
-
-/// Interpreter errors that can occur during program execution.
-///
-/// These errors represent runtime failures in HypnoScript programs,
-/// including type mismatches, undefined variables, and control flow errors.
-#[derive(Error, Debug)]
-pub enum InterpreterError {
-    #[error("Runtime error: {0}")]
-    Runtime(String),
-
-    #[error("Break statement outside of loop")]
-    BreakOutsideLoop,
-
-    #[error("Continue statement outside of loop")]
-    ContinueOutsideLoop,
-
-    #[error("Return from function: {0:?}")]
-    Return(Value),
-
-    #[error("Variable '{0}' not found")]
-    UndefinedVariable(String),
-
-    #[error("Type error: {0}")]
-    TypeError(String),
-}
-
-/// Provide a simple locale-aware message while we prepare full i18n plumbing.
-fn localized(en: &str, de: &str) -> String {
-    format!("{} (DE: {})", en, de)
-}
 
 /// Type alias for debug pause callback to reduce type complexity.
 type DebugPauseCallback =
@@ -52,659 +39,9 @@ enum ScopeLayer {
     Shared,
 }
 
-/// Represents a callable suggestion (function) within the interpreter.
-///
-/// HypnoScript functions can be:
-/// - Global suggestions (top-level functions)
-/// - Session methods (instance methods)
-/// - Static session methods (`dominant` keyword)
-/// - Constructors (special session methods)
-/// - Triggers (event-driven callbacks)
-///
-/// # Examples
-///
-/// ```hyp
-/// // Global suggestion
-/// suggestion greet(name: string) {
-///     awaken "Hello, " + name;
-/// }
-///
-/// // Session method
-/// session Calculator {
-///     suggestion add(a: number, b: number) {
-///         awaken a + b;
-///     }
-/// }
-/// ```
-#[derive(Debug, Clone)]
-pub struct FunctionValue {
-    name: String,
-    parameters: Vec<String>,
-    body: Vec<AstNode>,
-    this_binding: Option<Rc<RefCell<SessionInstance>>>,
-    session_name: Option<String>,
-    is_static: bool,
-    is_constructor: bool,
-}
-
-impl FunctionValue {
-    fn new_global(name: String, parameters: Vec<String>, body: Vec<AstNode>) -> Self {
-        Self {
-            name,
-            parameters,
-            body,
-            this_binding: None,
-            session_name: None,
-            is_static: false,
-            is_constructor: false,
-        }
-    }
-
-    fn new_session_member(
-        session_name: String,
-        method: &SessionMethodDefinition,
-        this_binding: Option<Rc<RefCell<SessionInstance>>>,
-    ) -> Self {
-        Self {
-            name: format!("{}::{}", session_name, method.name),
-            parameters: method.parameters.clone(),
-            body: method.body.clone(),
-            this_binding,
-            session_name: Some(session_name),
-            is_static: method.is_static,
-            is_constructor: method.is_constructor,
-        }
-    }
-
-    fn this_binding(&self) -> Option<Rc<RefCell<SessionInstance>>> {
-        self.this_binding.as_ref().map(Rc::clone)
-    }
-
-    fn session_name(&self) -> Option<&str> {
-        self.session_name.as_deref()
-    }
-}
-
-impl PartialEq for FunctionValue {
-    fn eq(&self, other: &Self) -> bool {
-        self.name == other.name
-            && self.parameters == other.parameters
-            && self.body == other.body
-            && self.session_name == other.session_name
-            && self.is_static == other.is_static
-            && self.is_constructor == other.is_constructor
-    }
-}
-
-impl Eq for FunctionValue {}
-
-/// Definition of a session field (instance scope).
-///
-/// Session fields represent instance-level variables in HypnoScript sessions (classes).
-/// They can have visibility modifiers (`expose`/`conceal`) and optional type annotations.
-///
-/// # Examples
-///
-/// ```hyp
-/// session Person {
-///     expose name: string = "Unknown";
-///     conceal age: number = 0;
-/// }
-/// ```
-#[derive(Debug, Clone)]
-struct SessionFieldDefinition {
-    name: String,
-    #[allow(dead_code)]
-    type_annotation: Option<String>,
-    visibility: SessionVisibility,
-    initializer: Option<AstNode>,
-}
-
-/// Definition of a session method.
-///
-/// Session methods represent callable functions within HypnoScript sessions.
-/// They can be:
-/// - Instance methods (default)
-/// - Static methods (`dominant` keyword)
-/// - Constructors (special methods with `constructor` keyword)
-///
-/// # Examples
-///
-/// ```hyp
-/// session Calculator {
-///     // Constructor
-///     constructor(initial: number) {
-///         induce this.value = initial;
-///     }
-///
-///     // Instance method
-///     expose suggestion add(n: number) {
-///         induce this.value = this.value + n;
-///     }
-///
-///     // Static method
-///     dominant suggestion createDefault() {
-///         awaken Calculator(0);
-///     }
-/// }
-/// ```
-#[derive(Debug, Clone)]
-struct SessionMethodDefinition {
-    name: String,
-    parameters: Vec<String>,
-    body: Vec<AstNode>,
-    visibility: SessionVisibility,
-    is_static: bool,
-    is_constructor: bool,
-}
-
-/// Runtime data for a static field, including its initializer AST.
-///
-/// Static fields are initialized once and shared across all session instances.
-/// They are declared with the `dominant` keyword in HypnoScript.
-///
-/// # Examples
-///
-/// ```hyp
-/// session Counter {
-///     dominant instanceCount: number = 0;
-///
-///     constructor() {
-///         induce Counter.instanceCount = Counter.instanceCount + 1;
-///     }
-/// }
-/// ```
-#[derive(Debug, Clone)]
-struct SessionStaticField {
-    definition: SessionFieldDefinition,
-    initializer: Option<AstNode>,
-    value: Value,
-}
-
-/// Stores metadata and static members for a session (class-like construct).
-///
-/// Sessions are HypnoScript's OOP construct, similar to classes in other languages.
-/// They support:
-/// - Instance and static fields
-/// - Instance and static methods
-/// - Constructors
-/// - Visibility modifiers (`expose`/`conceal`)
-///
-/// # Examples
-///
-/// ```hyp
-/// session BankAccount {
-///     conceal balance: number = 0;
-///     dominant totalAccounts: number = 0;
-///
-///     constructor(initialBalance: number) {
-///         induce this.balance = initialBalance;
-///         induce BankAccount.totalAccounts = BankAccount.totalAccounts + 1;
-///     }
-///
-///     expose suggestion deposit(amount: number) {
-///         induce this.balance = this.balance + amount;
-///     }
-///
-///     expose suggestion getBalance() {
-///         awaken this.balance;
-///     }
-///
-///     dominant suggestion getTotalAccounts() {
-///         awaken BankAccount.totalAccounts;
-///     }
-/// }
-/// ```
-#[derive(Debug)]
-pub struct SessionDefinition {
-    name: String,
-    fields: HashMap<String, SessionFieldDefinition>,
-    field_order: Vec<String>,
-    methods: HashMap<String, SessionMethodDefinition>,
-    static_methods: HashMap<String, SessionMethodDefinition>,
-    static_fields: RefCell<HashMap<String, SessionStaticField>>,
-    static_field_order: Vec<String>,
-    constructor: Option<SessionMethodDefinition>,
-}
-
-impl SessionDefinition {
-    fn new(name: String) -> Self {
-        Self {
-            name,
-            fields: HashMap::new(),
-            field_order: Vec::new(),
-            methods: HashMap::new(),
-            static_methods: HashMap::new(),
-            static_fields: RefCell::new(HashMap::new()),
-            static_field_order: Vec::new(),
-            constructor: None,
-        }
-    }
-
-    fn name(&self) -> &str {
-        &self.name
-    }
-
-    fn push_field(&mut self, field: SessionFieldDefinition) -> Result<(), InterpreterError> {
-        if self.fields.contains_key(&field.name)
-            || self.static_fields.borrow().contains_key(&field.name)
-        {
-            return Err(InterpreterError::Runtime(localized(
-                &format!(
-                    "Duplicate session field '{}' in session '{}'",
-                    field.name, self.name
-                ),
-                &format!(
-                    "Duplicate field '{}' in session '{}'",
-                    field.name, self.name
-                ),
-            )));
-        }
-        self.field_order.push(field.name.clone());
-        self.fields.insert(field.name.clone(), field);
-        Ok(())
-    }
-
-    fn push_static_field(
-        &mut self,
-        field: SessionFieldDefinition,
-        initializer: Option<AstNode>,
-    ) -> Result<(), InterpreterError> {
-        if self.fields.contains_key(&field.name)
-            || self.static_fields.borrow().contains_key(&field.name)
-        {
-            return Err(InterpreterError::Runtime(localized(
-                &format!(
-                    "Duplicate session field '{}' in session '{}'",
-                    field.name, self.name
-                ),
-                &format!(
-                    "Duplicate field '{}' in session '{}'",
-                    field.name, self.name
-                ),
-            )));
-        }
-        self.static_field_order.push(field.name.clone());
-        self.static_fields.borrow_mut().insert(
-            field.name.clone(),
-            SessionStaticField {
-                definition: field,
-                initializer,
-                value: Value::Null,
-            },
-        );
-        Ok(())
-    }
-
-    fn push_method(&mut self, method: SessionMethodDefinition) -> Result<(), InterpreterError> {
-        if method.is_constructor {
-            if self.constructor.is_some() {
-                return Err(InterpreterError::Runtime(localized(
-                    &format!("Multiple constructors declared in session '{}'", self.name),
-                    &format!("Multiple constructors declared in session '{}'", self.name),
-                )));
-            }
-            self.constructor = Some(method);
-            return Ok(());
-        }
-
-        if method.is_static {
-            if self.static_methods.contains_key(&method.name) {
-                return Err(InterpreterError::Runtime(localized(
-                    &format!(
-                        "Duplicate static method '{}' in session '{}'",
-                        method.name, self.name
-                    ),
-                    &format!(
-                        "Duplicate static method '{}' in session '{}'",
-                        method.name, self.name
-                    ),
-                )));
-            }
-            self.static_methods.insert(method.name.clone(), method);
-        } else {
-            if self.methods.contains_key(&method.name) {
-                return Err(InterpreterError::Runtime(localized(
-                    &format!(
-                        "Duplicate method '{}' in session '{}'",
-                        method.name, self.name
-                    ),
-                    &format!(
-                        "Duplicate method '{}' in session '{}'",
-                        method.name, self.name
-                    ),
-                )));
-            }
-            self.methods.insert(method.name.clone(), method);
-        }
-        Ok(())
-    }
-
-    fn get_field_definition(&self, name: &str) -> Option<&SessionFieldDefinition> {
-        self.fields.get(name)
-    }
-
-    fn get_method_definition(&self, name: &str) -> Option<&SessionMethodDefinition> {
-        self.methods.get(name)
-    }
-
-    fn get_static_method_definition(&self, name: &str) -> Option<&SessionMethodDefinition> {
-        self.static_methods.get(name)
-    }
-
-    fn get_static_field_snapshot(&self, name: &str) -> Option<SessionStaticField> {
-        self.static_fields.borrow().get(name).cloned()
-    }
-
-    fn set_static_field_value(&self, name: &str, value: Value) -> Result<(), InterpreterError> {
-        let mut fields = self.static_fields.borrow_mut();
-        match fields.get_mut(name) {
-            Some(field) => {
-                field.value = value;
-                Ok(())
-            }
-            None => Err(InterpreterError::Runtime(localized(
-                &format!(
-                    "Static field '{}' not found on session '{}'",
-                    name, self.name
-                ),
-                &format!(
-                    "Static field '{}' not found on session '{}'",
-                    name, self.name
-                ),
-            ))),
-        }
-    }
-
-    fn take_static_field_initializer(&self, name: &str) -> Option<AstNode> {
-        self.static_fields
-            .borrow()
-            .get(name)
-            .and_then(|field| field.initializer.clone())
-    }
-
-    fn field_order(&self) -> &[String] {
-        &self.field_order
-    }
-
-    fn static_field_order(&self) -> &[String] {
-        &self.static_field_order
-    }
-
-    fn constructor(&self) -> Option<&SessionMethodDefinition> {
-        self.constructor.as_ref()
-    }
-}
-
-/// Runtime representation of a session instance.
-///
-/// Each instantiated session creates a `SessionInstance` that holds:
-/// - A reference to the session definition (metadata)
-/// - Instance-specific field values
-///
-/// # Examples
-///
-/// ```hyp
-/// session Person {
-///     expose name: string = "Unknown";
-///     expose age: number = 0;
-///
-///     constructor(n: string, a: number) {
-///         induce this.name = n;
-///         induce this.age = a;
-///     }
-/// }
-///
-/// // Creates a SessionInstance
-/// induce person = Person("Alice", 30);
-/// ```
-#[derive(Debug)]
-pub struct SessionInstance {
-    definition: Rc<SessionDefinition>,
-    field_values: HashMap<String, Value>,
-}
-
-impl SessionInstance {
-    fn new(definition: Rc<SessionDefinition>) -> Self {
-        let mut field_values = HashMap::new();
-        for name in definition.field_order() {
-            field_values.insert(name.clone(), Value::Null);
-        }
-        Self {
-            definition,
-            field_values,
-        }
-    }
-
-    fn definition(&self) -> Rc<SessionDefinition> {
-        Rc::clone(&self.definition)
-    }
-
-    fn definition_name(&self) -> &str {
-        self.definition.name()
-    }
-
-    fn get_field(&self, name: &str) -> Option<Value> {
-        self.field_values.get(name).cloned()
-    }
-
-    fn set_field(&mut self, name: &str, value: Value) {
-        self.field_values.insert(name.to_string(), value);
-    }
-}
-
 #[derive(Debug, Clone)]
 struct ExecutionContextFrame {
     session_name: Option<String>,
-}
-
-/// Simple Promise/Future wrapper for async operations.
-///
-/// Promises represent asynchronous computations in HypnoScript.
-/// They are created by `mesmerize` suggestions and resolved with `await` or `surrenderTo`.
-///
-/// # Examples
-///
-/// ```hyp
-/// // Async suggestion returns a Promise
-/// mesmerize suggestion fetchData() {
-///     induce data = "some data";
-///     awaken data;
-/// }
-///
-/// entrance {
-///     induce result = await fetchData();
-///     observe result;
-/// }
-/// ```
-#[derive(Debug, Clone)]
-pub struct Promise {
-    /// The resolved value (if completed)
-    value: Option<Value>,
-    /// Whether the promise is resolved
-    resolved: bool,
-}
-
-impl Promise {
-    #[allow(dead_code)]
-    fn new() -> Self {
-        Self {
-            value: None,
-            resolved: false,
-        }
-    }
-
-    #[allow(dead_code)]
-    fn resolve(value: Value) -> Self {
-        Self {
-            value: Some(value),
-            resolved: true,
-        }
-    }
-
-    fn is_resolved(&self) -> bool {
-        self.resolved
-    }
-
-    fn get_value(&self) -> Option<Value> {
-        self.value.clone()
-    }
-}
-
-/// Runtime value in HypnoScript.
-///
-/// Represents all possible runtime values in the HypnoScript interpreter.
-/// This includes primitives, collections, functions, sessions, and async values.
-///
-/// # Variants
-///
-/// - `Number(f64)` - Numeric values (e.g., `42`, `3.14`)
-/// - `String(String)` - Text values (e.g., `"Hello"`)
-/// - `Boolean(bool)` - Boolean values (`true`/`false`)
-/// - `Array(Vec<Value>)` - Arrays (e.g., `[1, 2, 3]`)
-/// - `Function(FunctionValue)` - Callable suggestions
-/// - `Session(Rc<SessionDefinition>)` - Session type (class constructor)
-/// - `Instance(Rc<RefCell<SessionInstance>>)` - Session instance
-/// - `Promise(Rc<RefCell<Promise>>)` - Async promise from `mesmerize`
-/// - `Record(RecordValue)` - Record/struct from `tranceify`
-/// - `Null` - Null value
-///
-/// # Examples
-///
-/// ```hyp
-/// induce num: number = 42;                    // Value::Number
-/// induce text: string = "Hello";              // Value::String
-/// induce flag: boolean = true;                // Value::Boolean
-/// induce list: number[] = [1, 2, 3];          // Value::Array
-/// induce account = BankAccount(100);          // Value::Instance
-/// induce promise = mesmerize getData();       // Value::Promise
-/// induce nothing: null = null;                // Value::Null
-/// ```
-#[derive(Debug, Clone)]
-pub enum Value {
-    Number(f64),
-    String(String),
-    Boolean(bool),
-    Array(Vec<Value>),
-    Function(FunctionValue),
-    Session(Rc<SessionDefinition>),
-    Instance(Rc<RefCell<SessionInstance>>),
-    Promise(Rc<RefCell<Promise>>),
-    Record(RecordValue),
-    Null,
-}
-
-/// A record instance (from tranceify declarations).
-///
-/// Records are user-defined structured data types in HypnoScript,
-/// similar to structs in other languages.
-///
-/// # Examples
-///
-/// ```hyp
-/// tranceify Point {
-///     x: number,
-///     y: number
-/// }
-///
-/// entrance {
-///     induce p = Point { x: 10, y: 20 };
-///     observe p.x;  // 10
-/// }
-/// ```
-#[derive(Debug, Clone)]
-pub struct RecordValue {
-    pub type_name: String,
-    pub fields: HashMap<String, Value>,
-}
-
-impl PartialEq for RecordValue {
-    fn eq(&self, other: &Self) -> bool {
-        self.type_name == other.type_name && self.fields == other.fields
-    }
-}
-
-impl Eq for RecordValue {}
-
-impl PartialEq for Value {
-    fn eq(&self, other: &Self) -> bool {
-        match (self, other) {
-            (Value::Number(a), Value::Number(b)) => (a - b).abs() < f64::EPSILON,
-            (Value::String(a), Value::String(b)) => a == b,
-            (Value::Boolean(a), Value::Boolean(b)) => a == b,
-            (Value::Null, Value::Null) => true,
-            (Value::Array(a), Value::Array(b)) => a == b,
-            (Value::Function(fa), Value::Function(fb)) => fa == fb,
-            (Value::Session(sa), Value::Session(sb)) => Rc::ptr_eq(sa, sb),
-            (Value::Instance(ia), Value::Instance(ib)) => Rc::ptr_eq(ia, ib),
-            (Value::Promise(pa), Value::Promise(pb)) => Rc::ptr_eq(pa, pb),
-            (Value::Record(ra), Value::Record(rb)) => ra == rb,
-            _ => false,
-        }
-    }
-}
-
-impl Eq for Value {}
-
-impl Value {
-    pub fn is_truthy(&self) -> bool {
-        match self {
-            Value::Boolean(b) => *b,
-            Value::Null => false,
-            Value::Number(n) => *n != 0.0,
-            Value::String(s) => !s.is_empty(),
-            Value::Array(a) => !a.is_empty(),
-            Value::Function(_)
-            | Value::Session(_)
-            | Value::Instance(_)
-            | Value::Promise(_)
-            | Value::Record(_) => true,
-        }
-    }
-
-    pub fn to_number(&self) -> Result<f64, InterpreterError> {
-        match self {
-            Value::Number(n) => Ok(*n),
-            Value::String(s) => s.parse::<f64>().map_err(|_| {
-                InterpreterError::TypeError(format!("Cannot convert '{}' to number", s))
-            }),
-            Value::Boolean(b) => Ok(if *b { 1.0 } else { 0.0 }),
-            _ => Err(InterpreterError::TypeError(
-                "Cannot convert to number".to_string(),
-            )),
-        }
-    }
-}
-
-impl std::fmt::Display for Value {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        match self {
-            Value::Number(n) => write!(f, "{}", n),
-            Value::String(s) => write!(f, "{}", s),
-            Value::Boolean(b) => write!(f, "{}", b),
-            Value::Null => write!(f, "null"),
-            Value::Array(arr) => {
-                let elements: Vec<String> = arr.iter().map(|v| v.to_string()).collect();
-                write!(f, "[{}]", elements.join(", "))
-            }
-            Value::Function(func) => write!(f, "<function {}>", func.name),
-            Value::Session(session) => write!(f, "<session {}>", session.name()),
-            Value::Instance(instance) => {
-                let name = instance.borrow().definition_name().to_string();
-                write!(f, "<session-instance {}>", name)
-            }
-            Value::Promise(promise) => {
-                if promise.borrow().is_resolved() {
-                    write!(f, "<promise resolved>")
-                } else {
-                    write!(f, "<promise pending>")
-                }
-            }
-            Value::Record(record) => {
-                write!(f, "<record {}>", record.type_name)
-            }
-        }
-    }
 }
 
 /// The HypnoScript interpreter.
@@ -762,6 +99,18 @@ pub struct Interpreter {
     execution_context: Vec<ExecutionContextFrame>,
     /// Tranceify type definitions (field names for each type)
     tranceify_types: HashMap<String, Vec<String>>,
+    /// Label declared immediately before a loop statement; the loop claims it
+    /// on entry so `snap label;` / `sink label;` can target that loop.
+    pending_loop_label: Option<String>,
+    /// Current function call nesting depth (guards against stack overflow).
+    call_depth: usize,
+    /// Maximum allowed function call nesting depth.
+    max_call_depth: usize,
+    /// Index into `locals` marking the start of the current function
+    /// activation. Variable lookups do not cross this barrier, giving
+    /// lexical (instead of dynamic) scoping; closures re-introduce outer
+    /// variables via their captured environment.
+    scope_barriers: Vec<usize>,
 
     /// Optional async runtime for true async execution
     pub async_runtime: Option<std::sync::Arc<crate::async_runtime::AsyncRuntime>>,
@@ -793,6 +142,10 @@ impl Interpreter {
             const_locals: Vec::new(),
             execution_context: Vec::new(),
             tranceify_types: HashMap::new(),
+            pending_loop_label: None,
+            call_depth: 0,
+            max_call_depth: Self::default_max_call_depth(),
+            scope_barriers: Vec::new(),
             async_runtime: None,
             channel_registry: None,
             debug_state: None,
@@ -800,26 +153,30 @@ impl Interpreter {
         }
     }
 
+    /// Default maximum call depth. Can be overridden via the
+    /// `HYPNO_MAX_CALL_DEPTH` environment variable or [`Self::set_max_call_depth`].
+    fn default_max_call_depth() -> usize {
+        std::env::var("HYPNO_MAX_CALL_DEPTH")
+            .ok()
+            .and_then(|v| v.parse::<usize>().ok())
+            .filter(|&v| v > 0)
+            .unwrap_or(1_000)
+    }
+
+    /// Overrides the maximum function call nesting depth.
+    ///
+    /// Deeply recursive HypnoScript programs abort with
+    /// [`InterpreterError::RecursionLimitExceeded`] instead of crashing the
+    /// host process with a stack overflow.
+    pub fn set_max_call_depth(&mut self, depth: usize) {
+        self.max_call_depth = depth.max(1);
+    }
+
     /// Create interpreter with async runtime support
     pub fn with_async_runtime() -> Result<Self, InterpreterError> {
-        let runtime = crate::async_runtime::AsyncRuntime::new().map_err(|e| {
-            InterpreterError::Runtime(format!("Failed to create async runtime: {}", e))
-        })?;
-        let registry = crate::channel_system::ChannelRegistry::new();
-
-        Ok(Self {
-            globals: HashMap::new(),
-            shared: HashMap::new(),
-            const_globals: HashSet::new(),
-            locals: Vec::new(),
-            const_locals: Vec::new(),
-            execution_context: Vec::new(),
-            tranceify_types: HashMap::new(),
-            async_runtime: Some(std::sync::Arc::new(runtime)),
-            channel_registry: Some(std::sync::Arc::new(registry)),
-            debug_state: None,
-            debug_pause_callback: None,
-        })
+        let mut interpreter = Self::new();
+        interpreter.enable_async_runtime()?;
+        Ok(interpreter)
     }
 
     /// Enable async runtime for existing interpreter
@@ -1085,27 +442,21 @@ impl Interpreter {
                 parameters,
                 return_type: _,
                 body,
-            } => {
-                let param_names: Vec<String> = parameters.iter().map(|p| p.name.clone()).collect();
-                let func = FunctionValue::new_global(name.clone(), param_names, body.clone());
-                self.define_variable(
-                    VariableStorage::Local,
-                    name.clone(),
-                    Value::Function(func),
-                    false,
-                );
-                Ok(())
             }
-
-            AstNode::TriggerDeclaration {
+            // Triggers are handled like functions
+            | AstNode::TriggerDeclaration {
                 name,
                 parameters,
                 return_type: _,
                 body,
             } => {
-                // Triggers are handled like functions
                 let param_names: Vec<String> = parameters.iter().map(|p| p.name.clone()).collect();
-                let func = FunctionValue::new_global(name.clone(), param_names, body.clone());
+                let func = FunctionValue::new_closure(
+                    name.clone(),
+                    param_names,
+                    body.clone(),
+                    self.capture_lexical_environment(),
+                );
                 self.define_variable(
                     VariableStorage::Local,
                     name.clone(),
@@ -1220,6 +571,7 @@ impl Interpreter {
             }
 
             AstNode::WhileStatement { condition, body } => {
+                let my_label = self.pending_loop_label.take();
                 loop {
                     let cond_value = self.evaluate_expression(condition)?;
                     if !cond_value.is_truthy() {
@@ -1229,6 +581,14 @@ impl Interpreter {
                     match self.execute_block(body) {
                         Err(InterpreterError::BreakOutsideLoop) => break,
                         Err(InterpreterError::ContinueOutsideLoop) => continue,
+                        Err(InterpreterError::LabeledBreak(l)) if Some(&l) == my_label.as_ref() => {
+                            break;
+                        }
+                        Err(InterpreterError::LabeledContinue(l))
+                            if Some(&l) == my_label.as_ref() =>
+                        {
+                            continue;
+                        }
                         Err(e) => return Err(e),
                         Ok(()) => {}
                     }
@@ -1242,6 +602,7 @@ impl Interpreter {
                 update,
                 body,
             } => {
+                let my_label = self.pending_loop_label.take();
                 if let Some(init_stmt) = init.as_ref() {
                     self.execute_statement(init_stmt)?;
                 }
@@ -1254,14 +615,15 @@ impl Interpreter {
                         }
                     }
 
+                    // 'continue' skips the rest of the body but not the update.
                     match self.execute_loop_body(body) {
                         Err(InterpreterError::BreakOutsideLoop) => break,
-                        Err(InterpreterError::ContinueOutsideLoop) => {
-                            if let Some(update_stmt) = update.as_ref() {
-                                self.execute_statement(update_stmt)?;
-                            }
-                            continue;
+                        Err(InterpreterError::LabeledBreak(l)) if Some(&l) == my_label.as_ref() => {
+                            break;
                         }
+                        Err(InterpreterError::ContinueOutsideLoop) => {}
+                        Err(InterpreterError::LabeledContinue(l))
+                            if Some(&l) == my_label.as_ref() => {}
                         Err(e) => return Err(e),
                         Ok(()) => {}
                     }
@@ -1273,11 +635,35 @@ impl Interpreter {
                 Ok(())
             }
 
+            AstNode::LabeledStatement { label, body } => {
+                self.pending_loop_label = Some(label.clone());
+                let result = self.execute_statement(body);
+                self.pending_loop_label = None;
+                match result {
+                    // Fallback for labels on non-loop statements: a matching
+                    // labeled break simply exits the labeled statement.
+                    Err(InterpreterError::LabeledBreak(l)) if l == *label => Ok(()),
+                    other => other,
+                }
+            }
+
             AstNode::SuspendStatement => {
                 // Suspend is an infinite pause - in practice, this should wait for external input
                 // For now, we'll just log a warning
                 CoreBuiltins::whisper("[SUSPEND] Program suspended - press Ctrl+C to exit");
                 std::thread::sleep(std::time::Duration::from_secs(3600)); // Sleep for 1 hour
+                Ok(())
+            }
+
+            AstNode::DriftStatement { duration } => {
+                let value = self.evaluate_expression(duration)?;
+                let milliseconds = value.to_number().map_err(|_| {
+                    InterpreterError::TypeError(localized(
+                        "drift duration must be a number of milliseconds",
+                        "drift-Dauer muss eine Zahl in Millisekunden sein",
+                    ))
+                })?;
+                CoreBuiltins::drift(milliseconds.max(0.0) as u64);
                 Ok(())
             }
 
@@ -1290,9 +676,15 @@ impl Interpreter {
                 Err(InterpreterError::Return(ret_value))
             }
 
-            AstNode::BreakStatement => Err(InterpreterError::BreakOutsideLoop),
+            AstNode::BreakStatement { label } => match label {
+                Some(label) => Err(InterpreterError::LabeledBreak(label.clone())),
+                None => Err(InterpreterError::BreakOutsideLoop),
+            },
 
-            AstNode::ContinueStatement => Err(InterpreterError::ContinueOutsideLoop),
+            AstNode::ContinueStatement { label } => match label {
+                Some(label) => Err(InterpreterError::LabeledContinue(label.clone())),
+                None => Err(InterpreterError::ContinueOutsideLoop),
+            },
 
             AstNode::ExpressionStatement(expr) => {
                 self.evaluate_expression(expr)?;
@@ -1334,6 +726,7 @@ impl Interpreter {
             AstNode::StringLiteral(s) => Ok(Value::String(s.clone())),
 
             AstNode::BooleanLiteral(b) => Ok(Value::Boolean(*b)),
+            AstNode::NullLiteral => Ok(Value::Null),
 
             AstNode::Identifier(name) => self.get_variable(name),
 
@@ -1342,7 +735,7 @@ impl Interpreter {
                 for elem in elements {
                     values.push(self.evaluate_expression(elem)?);
                 }
-                Ok(Value::Array(values))
+                Ok(Value::array(values))
             }
 
             AstNode::BinaryExpression {
@@ -1412,28 +805,10 @@ impl Interpreter {
             AstNode::AwaitExpression { expression } => {
                 // Evaluate the expression - it might return a Promise
                 let value = self.evaluate_expression(expression)?;
-
-                // If it's a Promise, await it (resolve it)
-                if let Value::Promise(promise_ref) = value {
-                    let promise = promise_ref.borrow();
-                    if promise.is_resolved() {
-                        // Promise is already resolved, return its value
-                        Ok(promise.get_value().unwrap_or(Value::Null))
-                    } else {
-                        // Promise not yet resolved - in a real async system, we'd wait
-                        // For now, return null (could simulate delay here)
-                        drop(promise); // Release borrow before potentially waiting
-
-                        // Simulate async operation with small delay
-                        std::thread::sleep(std::time::Duration::from_millis(10));
-
-                        // Re-check if resolved after wait
-                        let promise = promise_ref.borrow();
-                        Ok(promise.get_value().unwrap_or(Value::Null))
-                    }
-                } else {
+                match value {
+                    Value::Promise(promise_ref) => Ok(Self::await_promise(&promise_ref)),
                     // Not a promise, just return the value
-                    Ok(value)
+                    other => Ok(other),
                 }
             }
 
@@ -1542,7 +917,7 @@ impl Interpreter {
                     field_values.insert(field_init.name.clone(), value);
                 }
 
-                Ok(Value::Record(RecordValue {
+                Ok(Value::record(RecordValue {
                     type_name: type_name.clone(),
                     fields: field_values,
                 }))
@@ -1624,7 +999,7 @@ impl Interpreter {
                     if let Some(rest_name) = rest {
                         let rest_elements: Vec<Value> =
                             arr.iter().skip(elements.len()).cloned().collect();
-                        bindings.insert(rest_name.clone(), Value::Array(rest_elements));
+                        bindings.insert(rest_name.clone(), Value::array(rest_elements));
                     } else if arr.len() > elements.len() {
                         return Ok(None); // Too many elements and no rest pattern
                     }
@@ -1784,6 +1159,16 @@ impl Interpreter {
         self.invoke_callable(&callee_value, &args)
     }
 
+    /// Resolves a promise: any remaining simulated delay elapses via
+    /// [`CoreBuiltins::drift`] (honouring `HYPNO_TIME_SCALE`), after which
+    /// the promise is marked resolved and its value returned.
+    fn await_promise(promise: &Rc<RefCell<value::Promise>>) -> Value {
+        if let Some(delay) = promise.borrow().pending_delay_ms() {
+            CoreBuiltins::drift(delay);
+        }
+        promise.borrow_mut().mark_resolved()
+    }
+
     fn invoke_callable(
         &mut self,
         callee: &Value,
@@ -1823,6 +1208,32 @@ impl Interpreter {
             )));
         }
 
+        if self.call_depth >= self.max_call_depth {
+            return Err(InterpreterError::RecursionLimitExceeded(
+                self.max_call_depth,
+            ));
+        }
+        self.call_depth += 1;
+
+        // Grow the native stack on demand so that deeply recursive scripts hit
+        // the graceful `RecursionLimitExceeded` error above instead of
+        // overflowing the host stack (tree-walking frames are large,
+        // especially in debug builds).
+        let result = stacker::maybe_grow(128 * 1024, 2 * 1024 * 1024, || {
+            self.call_function_frame(function, args)
+        });
+        self.call_depth -= 1;
+        result
+    }
+
+    /// Executes a single function activation. Only called via
+    /// [`Self::call_function`], which enforces the depth limit and keeps
+    /// enough native stack available.
+    fn call_function_frame(
+        &mut self,
+        function: &FunctionValue,
+        args: &[Value],
+    ) -> Result<Value, InterpreterError> {
         let session_name = function.session_name().map(|name| name.to_string());
         if session_name.is_some() {
             self.execution_context.push(ExecutionContextFrame {
@@ -1831,7 +1242,27 @@ impl Interpreter {
         }
 
         self.push_scope();
+        // Lexical scoping: lookups inside this activation must not see the
+        // caller's locals. Closures bring outer variables along explicitly.
+        self.scope_barriers.push(self.locals.len() - 1);
 
+        // 1. Captured lexical environment (outermost precedence layer)
+        for (name, value) in function.captured.iter() {
+            self.define_variable(VariableStorage::Local, name.clone(), value.clone(), false);
+        }
+
+        // 2. Self-reference so closures can recurse even though their own
+        //    name was not yet visible when the capture snapshot was taken.
+        if session_name.is_none() {
+            self.define_variable(
+                VariableStorage::Local,
+                function.name.clone(),
+                Value::Function(function.clone()),
+                false,
+            );
+        }
+
+        // 3. `this` binding and parameters shadow captures.
         if let Some(instance) = function.this_binding() {
             self.define_variable(
                 VariableStorage::Local,
@@ -1846,12 +1277,13 @@ impl Interpreter {
         }
 
         let result = (|| {
-            for stmt in &function.body {
+            for stmt in function.body.iter() {
                 self.execute_statement(stmt)?;
             }
             Ok(Value::Null)
         })();
 
+        self.scope_barriers.pop();
         self.pop_scope();
 
         if session_name.is_some() {
@@ -1929,7 +1361,7 @@ impl Interpreter {
         let method_def = SessionMethodDefinition {
             name: method.name.clone(),
             parameters,
-            body: method.body.clone(),
+            body: Rc::new(method.body.clone()),
             visibility: method.visibility,
             is_static: method.is_static,
             is_constructor: method.is_constructor,
@@ -2317,846 +1749,6 @@ impl Interpreter {
             .find_map(|frame| frame.session_name.as_deref())
             == Some(session_name)
     }
-
-    fn call_builtin(
-        &mut self,
-        name: &str,
-        args: &[Value],
-    ) -> Result<Option<Value>, InterpreterError> {
-        if let Some(result) = self.call_math_builtin(name, args)? {
-            return Ok(Some(result));
-        }
-
-        if let Some(result) = self.call_string_builtin(name, args)? {
-            return Ok(Some(result));
-        }
-
-        if let Some(result) = self.call_array_builtin(name, args)? {
-            return Ok(Some(result));
-        }
-
-        if let Some(result) = self.call_core_builtin(name, args)? {
-            return Ok(Some(result));
-        }
-
-        if let Some(result) = self.call_file_builtin(name, args)? {
-            return Ok(Some(result));
-        }
-
-        if let Some(result) = self.call_hashing_builtin(name, args)? {
-            return Ok(Some(result));
-        }
-
-        if let Some(result) = self.call_statistics_builtin(name, args)? {
-            return Ok(Some(result));
-        }
-
-        if let Some(result) = self.call_system_builtin(name, args)? {
-            return Ok(Some(result));
-        }
-
-        if let Some(result) = self.call_time_builtin(name, args)? {
-            return Ok(Some(result));
-        }
-
-        if let Some(result) = self.call_validation_builtin(name, args)? {
-            return Ok(Some(result));
-        }
-
-        Ok(None)
-    }
-
-    fn call_math_builtin(
-        &self,
-        name: &str,
-        args: &[Value],
-    ) -> Result<Option<Value>, InterpreterError> {
-        let result = match name {
-            "Sin" => Some(Value::Number(MathBuiltins::sin(
-                self.number_arg(args, 0, name)?,
-            ))),
-            "Cos" => Some(Value::Number(MathBuiltins::cos(
-                self.number_arg(args, 0, name)?,
-            ))),
-            "Tan" => Some(Value::Number(MathBuiltins::tan(
-                self.number_arg(args, 0, name)?,
-            ))),
-            "Sqrt" => Some(Value::Number(MathBuiltins::sqrt(
-                self.number_arg(args, 0, name)?,
-            ))),
-            "Log" => Some(Value::Number(MathBuiltins::log(
-                self.number_arg(args, 0, name)?,
-            ))),
-            "Log10" => Some(Value::Number(MathBuiltins::log10(
-                self.number_arg(args, 0, name)?,
-            ))),
-            "Abs" => Some(Value::Number(MathBuiltins::abs(
-                self.number_arg(args, 0, name)?,
-            ))),
-            "Floor" => Some(Value::Number(MathBuiltins::floor(
-                self.number_arg(args, 0, name)?,
-            ))),
-            "Ceil" => Some(Value::Number(MathBuiltins::ceil(
-                self.number_arg(args, 0, name)?,
-            ))),
-            "Round" => Some(Value::Number(MathBuiltins::round(
-                self.number_arg(args, 0, name)?,
-            ))),
-            "Min" => Some(Value::Number(MathBuiltins::min(
-                self.number_arg(args, 0, name)?,
-                self.number_arg(args, 1, name)?,
-            ))),
-            "Max" => Some(Value::Number(MathBuiltins::max(
-                self.number_arg(args, 0, name)?,
-                self.number_arg(args, 1, name)?,
-            ))),
-            "Pow" => Some(Value::Number(MathBuiltins::pow(
-                self.number_arg(args, 0, name)?,
-                self.number_arg(args, 1, name)?,
-            ))),
-            "Factorial" => Some(Value::Number(MathBuiltins::factorial(
-                self.integer_arg(args, 0, name)?,
-            ) as f64)),
-            "Gcd" => Some(Value::Number(MathBuiltins::gcd(
-                self.integer_arg(args, 0, name)?,
-                self.integer_arg(args, 1, name)?,
-            ) as f64)),
-            "Lcm" => Some(Value::Number(MathBuiltins::lcm(
-                self.integer_arg(args, 0, name)?,
-                self.integer_arg(args, 1, name)?,
-            ) as f64)),
-            "IsPrime" => Some(Value::Boolean(MathBuiltins::is_prime(
-                self.integer_arg(args, 0, name)?,
-            ))),
-            "Fibonacci" => Some(Value::Number(MathBuiltins::fibonacci(
-                self.integer_arg(args, 0, name)?,
-            ) as f64)),
-            "Clamp" => Some(Value::Number(MathBuiltins::clamp(
-                self.number_arg(args, 0, name)?,
-                self.number_arg(args, 1, name)?,
-                self.number_arg(args, 2, name)?,
-            ))),
-            _ => None,
-        };
-
-        Ok(result)
-    }
-
-    fn call_string_builtin(
-        &self,
-        name: &str,
-        args: &[Value],
-    ) -> Result<Option<Value>, InterpreterError> {
-        let result = match name {
-            "Length" => {
-                // Length works for both strings and arrays
-                if args.is_empty() {
-                    return Err(InterpreterError::Runtime(format!(
-                        "Function '{}' requires at least 1 argument",
-                        name
-                    )));
-                }
-                match &args[0] {
-                    Value::String(s) => Some(Value::Number(s.len() as f64)),
-                    Value::Array(arr) => Some(Value::Number(arr.len() as f64)),
-                    _ => {
-                        return Err(InterpreterError::TypeError(format!(
-                            "Function 'Length' expects string or array argument, got {}",
-                            args[0]
-                        )));
-                    }
-                }
-            }
-            "ToUpper" => Some(Value::String(StringBuiltins::to_upper(
-                &self.string_arg(args, 0, name)?,
-            ))),
-            "ToLower" => Some(Value::String(StringBuiltins::to_lower(
-                &self.string_arg(args, 0, name)?,
-            ))),
-            "Trim" => Some(Value::String(StringBuiltins::trim(
-                &self.string_arg(args, 0, name)?,
-            ))),
-            "IndexOf" => Some(Value::Number(StringBuiltins::index_of(
-                &self.string_arg(args, 0, name)?,
-                &self.string_arg(args, 1, name)?,
-            ) as f64)),
-            "Replace" => Some(Value::String(StringBuiltins::replace(
-                &self.string_arg(args, 0, name)?,
-                &self.string_arg(args, 1, name)?,
-                &self.string_arg(args, 2, name)?,
-            ))),
-            "Reverse" => Some(Value::String(StringBuiltins::reverse(
-                &self.string_arg(args, 0, name)?,
-            ))),
-            "Capitalize" => Some(Value::String(StringBuiltins::capitalize(
-                &self.string_arg(args, 0, name)?,
-            ))),
-            "StartsWith" => Some(Value::Boolean(StringBuiltins::starts_with(
-                &self.string_arg(args, 0, name)?,
-                &self.string_arg(args, 1, name)?,
-            ))),
-            "EndsWith" => Some(Value::Boolean(StringBuiltins::ends_with(
-                &self.string_arg(args, 0, name)?,
-                &self.string_arg(args, 1, name)?,
-            ))),
-            "Contains" => Some(Value::Boolean(StringBuiltins::contains(
-                &self.string_arg(args, 0, name)?,
-                &self.string_arg(args, 1, name)?,
-            ))),
-            "Split" => {
-                let items = StringBuiltins::split(
-                    &self.string_arg(args, 0, name)?,
-                    &self.string_arg(args, 1, name)?,
-                )
-                .into_iter()
-                .map(Value::String)
-                .collect();
-                Some(Value::Array(items))
-            }
-            "Substring" => Some(Value::String(StringBuiltins::substring(
-                &self.string_arg(args, 0, name)?,
-                self.usize_arg(args, 1, name)?,
-                self.usize_arg(args, 2, name)?,
-            ))),
-            "Repeat" => Some(Value::String(StringBuiltins::repeat(
-                &self.string_arg(args, 0, name)?,
-                self.usize_arg(args, 1, name)?,
-            ))),
-            "PadLeft" => Some(Value::String(StringBuiltins::pad_left(
-                &self.string_arg(args, 0, name)?,
-                self.usize_arg(args, 1, name)?,
-                self.char_arg(args, 2, name)?,
-            ))),
-            "PadRight" => Some(Value::String(StringBuiltins::pad_right(
-                &self.string_arg(args, 0, name)?,
-                self.usize_arg(args, 1, name)?,
-                self.char_arg(args, 2, name)?,
-            ))),
-            "IsEmpty" => Some(Value::Boolean(StringBuiltins::is_empty(
-                &self.string_arg(args, 0, name)?,
-            ))),
-            "IsWhitespace" => Some(Value::Boolean(StringBuiltins::is_whitespace(
-                &self.string_arg(args, 0, name)?,
-            ))),
-            _ => None,
-        };
-
-        Ok(result)
-    }
-
-    fn call_array_builtin(
-        &self,
-        name: &str,
-        args: &[Value],
-    ) -> Result<Option<Value>, InterpreterError> {
-        let result = match name {
-            "ArrayLength" => {
-                let array = self.array_arg(args, 0, name)?;
-                Some(Value::Number(ArrayBuiltins::length(&array) as f64))
-            }
-            "ArrayIsEmpty" => {
-                let array = self.array_arg(args, 0, name)?;
-                Some(Value::Boolean(ArrayBuiltins::is_empty(&array)))
-            }
-            "ArrayGet" => {
-                let array = self.array_arg(args, 0, name)?;
-                let index = self.usize_arg(args, 1, name)?;
-                let value = ArrayBuiltins::get(&array, index).unwrap_or(Value::Null);
-                Some(value)
-            }
-            "ArrayIndexOf" => {
-                let array = self.array_arg(args, 0, name)?;
-                let target = self.arg(args, 1, name)?.clone();
-                Some(Value::Number(
-                    ArrayBuiltins::index_of(&array, &target) as f64
-                ))
-            }
-            "ArrayContains" => {
-                let array = self.array_arg(args, 0, name)?;
-                let target = self.arg(args, 1, name)?.clone();
-                Some(Value::Boolean(ArrayBuiltins::contains(&array, &target)))
-            }
-            "ArrayReverse" => {
-                let array = self.array_arg(args, 0, name)?;
-                Some(Value::Array(ArrayBuiltins::reverse(&array)))
-            }
-            "ArraySum" => {
-                let array = self.array_arg(args, 0, name)?;
-                let numbers = self.values_to_numbers(&array, name)?;
-                Some(Value::Number(ArrayBuiltins::sum(&numbers)))
-            }
-            "ArrayAverage" => {
-                let array = self.array_arg(args, 0, name)?;
-                let numbers = self.values_to_numbers(&array, name)?;
-                Some(Value::Number(ArrayBuiltins::average(&numbers)))
-            }
-            "ArrayMin" => {
-                let array = self.array_arg(args, 0, name)?;
-                let numbers = self.values_to_numbers(&array, name)?;
-                Some(Value::Number(ArrayBuiltins::min(&numbers)))
-            }
-            "ArrayMax" => {
-                let array = self.array_arg(args, 0, name)?;
-                let numbers = self.values_to_numbers(&array, name)?;
-                Some(Value::Number(ArrayBuiltins::max(&numbers)))
-            }
-            "ArraySort" => {
-                let array = self.array_arg(args, 0, name)?;
-                let numbers = self.values_to_numbers(&array, name)?;
-                let sorted = ArrayBuiltins::sort(&numbers)
-                    .into_iter()
-                    .map(Value::Number)
-                    .collect();
-                Some(Value::Array(sorted))
-            }
-            "ArrayFirst" => {
-                let array = self.array_arg(args, 0, name)?;
-                Some(ArrayBuiltins::first(&array).unwrap_or(Value::Null))
-            }
-            "ArrayLast" => {
-                let array = self.array_arg(args, 0, name)?;
-                Some(ArrayBuiltins::last(&array).unwrap_or(Value::Null))
-            }
-            "ArrayTake" => {
-                let array = self.array_arg(args, 0, name)?;
-                let count = self.usize_arg(args, 1, name)?;
-                Some(Value::Array(ArrayBuiltins::take(&array, count)))
-            }
-            "ArraySkip" => {
-                let array = self.array_arg(args, 0, name)?;
-                let count = self.usize_arg(args, 1, name)?;
-                Some(Value::Array(ArrayBuiltins::skip(&array, count)))
-            }
-            "ArraySlice" => {
-                let array = self.array_arg(args, 0, name)?;
-                let start = self.usize_arg(args, 1, name)?;
-                let end = self.usize_arg(args, 2, name)?;
-                Some(Value::Array(ArrayBuiltins::slice(&array, start, end)))
-            }
-            "ArrayJoin" => {
-                let array = self.array_arg(args, 0, name)?;
-                let separator = self.string_arg(args, 1, name)?;
-                Some(Value::String(ArrayBuiltins::join(&array, &separator)))
-            }
-            "ArrayCount" => {
-                let array = self.array_arg(args, 0, name)?;
-                let target = self.arg(args, 1, name)?.clone();
-                Some(Value::Number(ArrayBuiltins::count(&array, &target) as f64))
-            }
-            "ArrayDistinct" => {
-                let array = self.array_arg(args, 0, name)?;
-                Some(Value::Array(ArrayBuiltins::distinct(&array)))
-            }
-            _ => None,
-        };
-
-        Ok(result)
-    }
-
-    fn call_core_builtin(
-        &self,
-        name: &str,
-        args: &[Value],
-    ) -> Result<Option<Value>, InterpreterError> {
-        let result = match name {
-            "Observe" => {
-                let message = self.arg(args, 0, name)?.to_string();
-                CoreBuiltins::observe(&message);
-                Some(Value::Null)
-            }
-            "Drift" => {
-                let duration = self.number_arg(args, 0, name)?;
-                CoreBuiltins::drift(duration.max(0.0) as u64);
-                Some(Value::Null)
-            }
-            "DeepTrance" => {
-                let duration = self.number_arg(args, 0, name)?;
-                CoreBuiltins::deep_trance(duration.max(0.0) as u64);
-                Some(Value::Null)
-            }
-            "HypnoticCountdown" => {
-                CoreBuiltins::hypnotic_countdown(self.integer_arg(args, 0, name)?);
-                Some(Value::Null)
-            }
-            "TranceInduction" => {
-                CoreBuiltins::trance_induction(&self.string_arg(args, 0, name)?);
-                Some(Value::Null)
-            }
-            "HypnoticVisualization" => {
-                CoreBuiltins::hypnotic_visualization(&self.string_arg(args, 0, name)?);
-                Some(Value::Null)
-            }
-            "ToInt" => Some(Value::Number(
-                CoreBuiltins::to_int(self.number_arg(args, 0, name)?) as f64,
-            )),
-            "ToDouble" => Some(Value::Number(
-                CoreBuiltins::to_double(&self.string_arg(args, 0, name)?)
-                    .map_err(InterpreterError::Runtime)?,
-            )),
-            "ToString" => Some(Value::String(
-                args.first()
-                    .map(|v| v.to_string())
-                    .unwrap_or_else(|| "null".to_string()),
-            )),
-            "ToBoolean" => Some(Value::Boolean(CoreBuiltins::to_boolean(
-                &self.string_arg(args, 0, name)?,
-            ))),
-            _ => None,
-        };
-
-        Ok(result)
-    }
-
-    fn call_file_builtin(
-        &self,
-        name: &str,
-        args: &[Value],
-    ) -> Result<Option<Value>, InterpreterError> {
-        let result = match name {
-            "ReadFile" => Some(Value::String(
-                FileBuiltins::read_file(&self.string_arg(args, 0, name)?)
-                    .map_err(|e| InterpreterError::Runtime(e.to_string()))?,
-            )),
-            "WriteFile" => {
-                FileBuiltins::write_file(
-                    &self.string_arg(args, 0, name)?,
-                    &self.string_arg(args, 1, name)?,
-                )
-                .map_err(|e| InterpreterError::Runtime(e.to_string()))?;
-                Some(Value::Null)
-            }
-            "AppendFile" => {
-                FileBuiltins::append_file(
-                    &self.string_arg(args, 0, name)?,
-                    &self.string_arg(args, 1, name)?,
-                )
-                .map_err(|e| InterpreterError::Runtime(e.to_string()))?;
-                Some(Value::Null)
-            }
-            "FileExists" => Some(Value::Boolean(FileBuiltins::file_exists(
-                &self.string_arg(args, 0, name)?,
-            ))),
-            "IsFile" => Some(Value::Boolean(FileBuiltins::is_file(
-                &self.string_arg(args, 0, name)?,
-            ))),
-            "IsDirectory" => Some(Value::Boolean(FileBuiltins::is_directory(
-                &self.string_arg(args, 0, name)?,
-            ))),
-            "DeleteFile" => {
-                FileBuiltins::delete_file(&self.string_arg(args, 0, name)?)
-                    .map_err(|e| InterpreterError::Runtime(e.to_string()))?;
-                Some(Value::Null)
-            }
-            "CreateDirectory" => {
-                FileBuiltins::create_directory(&self.string_arg(args, 0, name)?)
-                    .map_err(|e| InterpreterError::Runtime(e.to_string()))?;
-                Some(Value::Null)
-            }
-            "ListDirectory" => {
-                let files = FileBuiltins::list_directory(&self.string_arg(args, 0, name)?)
-                    .map_err(|e| InterpreterError::Runtime(e.to_string()))?
-                    .into_iter()
-                    .map(Value::String)
-                    .collect();
-                Some(Value::Array(files))
-            }
-            "GetFileSize" => Some(Value::Number(
-                FileBuiltins::get_file_size(&self.string_arg(args, 0, name)?)
-                    .map_err(|e| InterpreterError::Runtime(e.to_string()))? as f64,
-            )),
-            "CopyFile" => Some(Value::Number(
-                FileBuiltins::copy_file(
-                    &self.string_arg(args, 0, name)?,
-                    &self.string_arg(args, 1, name)?,
-                )
-                .map_err(|e| InterpreterError::Runtime(e.to_string()))? as f64,
-            )),
-            "RenameFile" => {
-                FileBuiltins::rename_file(
-                    &self.string_arg(args, 0, name)?,
-                    &self.string_arg(args, 1, name)?,
-                )
-                .map_err(|e| InterpreterError::Runtime(e.to_string()))?;
-                Some(Value::Null)
-            }
-            "GetFileExtension" => Some(self.option_string_to_value(
-                FileBuiltins::get_file_extension(&self.string_arg(args, 0, name)?),
-            )),
-            "GetFileName" => Some(self.option_string_to_value(FileBuiltins::get_file_name(
-                &self.string_arg(args, 0, name)?,
-            ))),
-            "GetParentDirectory" => Some(self.option_string_to_value(
-                FileBuiltins::get_parent_directory(&self.string_arg(args, 0, name)?),
-            )),
-            _ => None,
-        };
-
-        Ok(result)
-    }
-
-    fn call_hashing_builtin(
-        &self,
-        name: &str,
-        args: &[Value],
-    ) -> Result<Option<Value>, InterpreterError> {
-        let result = match name {
-            "HashString" => Some(Value::Number(HashingBuiltins::hash_string(
-                &self.string_arg(args, 0, name)?,
-            ) as f64)),
-            "HashNumber" => Some(Value::Number(HashingBuiltins::hash_number(
-                self.number_arg(args, 0, name)?,
-            ) as f64)),
-            "SimpleRandom" => Some(Value::Number(HashingBuiltins::simple_random(
-                self.u64_arg(args, 0, name)?,
-            ) as f64)),
-            "AreAnagrams" => Some(Value::Boolean(HashingBuiltins::are_anagrams(
-                &self.string_arg(args, 0, name)?,
-                &self.string_arg(args, 1, name)?,
-            ))),
-            "IsPalindrome" => Some(Value::Boolean(HashingBuiltins::is_palindrome(
-                &self.string_arg(args, 0, name)?,
-            ))),
-            "CountOccurrences" => Some(Value::Number(HashingBuiltins::count_occurrences(
-                &self.string_arg(args, 0, name)?,
-                &self.string_arg(args, 1, name)?,
-            ) as f64)),
-            "RemoveDuplicates" => Some(Value::String(HashingBuiltins::remove_duplicates(
-                &self.string_arg(args, 0, name)?,
-            ))),
-            "UniqueCharacters" => Some(Value::String(HashingBuiltins::unique_characters(
-                &self.string_arg(args, 0, name)?,
-            ))),
-            "ReverseWords" => Some(Value::String(HashingBuiltins::reverse_words(
-                &self.string_arg(args, 0, name)?,
-            ))),
-            "TitleCase" => Some(Value::String(HashingBuiltins::title_case(
-                &self.string_arg(args, 0, name)?,
-            ))),
-            _ => None,
-        };
-
-        Ok(result)
-    }
-
-    fn call_statistics_builtin(
-        &self,
-        name: &str,
-        args: &[Value],
-    ) -> Result<Option<Value>, InterpreterError> {
-        let numbers_primary = |this: &Self| -> Result<Vec<f64>, InterpreterError> {
-            let array = this.array_arg(args, 0, name)?;
-            this.values_to_numbers(&array, name)
-        };
-
-        let result = match name {
-            "Mean" => Some(Value::Number(StatisticsBuiltins::calculate_mean(
-                &numbers_primary(self)?,
-            ))),
-            "Median" => Some(Value::Number(StatisticsBuiltins::calculate_median(
-                &numbers_primary(self)?,
-            ))),
-            "Mode" => Some(Value::Number(StatisticsBuiltins::calculate_mode(
-                &numbers_primary(self)?,
-            ))),
-            "StandardDeviation" => Some(Value::Number(
-                StatisticsBuiltins::calculate_standard_deviation(&numbers_primary(self)?),
-            )),
-            "Variance" => Some(Value::Number(StatisticsBuiltins::calculate_variance(
-                &numbers_primary(self)?,
-            ))),
-            "Range" => Some(Value::Number(StatisticsBuiltins::calculate_range(
-                &numbers_primary(self)?,
-            ))),
-            "Percentile" => Some(Value::Number(StatisticsBuiltins::calculate_percentile(
-                &numbers_primary(self)?,
-                self.number_arg(args, 1, name)?,
-            ))),
-            "Correlation" => {
-                let x = self.values_to_numbers(&self.array_arg(args, 0, name)?, name)?;
-                let y = self.values_to_numbers(&self.array_arg(args, 1, name)?, name)?;
-                Some(Value::Number(StatisticsBuiltins::calculate_correlation(
-                    &x, &y,
-                )))
-            }
-            "LinearRegression" => {
-                let x = self.values_to_numbers(&self.array_arg(args, 0, name)?, name)?;
-                let y = self.values_to_numbers(&self.array_arg(args, 1, name)?, name)?;
-                let (slope, intercept) = StatisticsBuiltins::linear_regression(&x, &y);
-                Some(Value::Array(vec![
-                    Value::Number(slope),
-                    Value::Number(intercept),
-                ]))
-            }
-            _ => None,
-        };
-
-        Ok(result)
-    }
-
-    fn call_system_builtin(
-        &self,
-        name: &str,
-        args: &[Value],
-    ) -> Result<Option<Value>, InterpreterError> {
-        let result = match name {
-            "GetCurrentDirectory" => Some(Value::String(SystemBuiltins::get_current_directory())),
-            "GetEnv" => Some(self.option_string_to_value(SystemBuiltins::get_env_var(
-                &self.string_arg(args, 0, name)?,
-            ))),
-            "SetEnv" => {
-                SystemBuiltins::set_env_var(
-                    &self.string_arg(args, 0, name)?,
-                    &self.string_arg(args, 1, name)?,
-                )
-                .map_err(InterpreterError::Runtime)?;
-                Some(Value::Null)
-            }
-            "GetOperatingSystem" => Some(Value::String(SystemBuiltins::get_operating_system())),
-            "GetArchitecture" => Some(Value::String(SystemBuiltins::get_architecture())),
-            "GetCpuCount" => Some(Value::Number(SystemBuiltins::get_cpu_count() as f64)),
-            "GetHostname" => Some(Value::String(SystemBuiltins::get_hostname())),
-            "GetUsername" => Some(Value::String(SystemBuiltins::get_username())),
-            "GetHomeDirectory" => Some(Value::String(SystemBuiltins::get_home_directory())),
-            "GetTempDirectory" => Some(Value::String(SystemBuiltins::get_temp_directory())),
-            "GetArgs" => Some(Value::Array(
-                SystemBuiltins::get_args()
-                    .into_iter()
-                    .map(Value::String)
-                    .collect(),
-            )),
-            "Exit" => {
-                // Exit mirrors the legacy runtime behavior by terminating the host process immediately.
-                SystemBuiltins::exit(self.integer_arg(args, 0, name)? as i32);
-            }
-            _ => None,
-        };
-
-        Ok(result)
-    }
-
-    fn call_time_builtin(
-        &self,
-        name: &str,
-        args: &[Value],
-    ) -> Result<Option<Value>, InterpreterError> {
-        let result = match name {
-            "CurrentTimestamp" => Some(Value::Number(TimeBuiltins::get_current_time() as f64)),
-            "CurrentDate" => Some(Value::String(TimeBuiltins::get_current_date())),
-            "CurrentTime" => Some(Value::String(TimeBuiltins::get_current_time_string())),
-            "CurrentDateTime" => Some(Value::String(TimeBuiltins::get_current_date_time())),
-            "FormatDateTime" => Some(Value::String(TimeBuiltins::format_date_time(
-                &self.string_arg(args, 0, name)?,
-            ))),
-            "DayOfWeek" => Some(Value::Number(TimeBuiltins::get_day_of_week() as f64)),
-            "DayOfYear" => Some(Value::Number(TimeBuiltins::get_day_of_year() as f64)),
-            "IsLeapYear" => Some(Value::Boolean(TimeBuiltins::is_leap_year(
-                self.integer_arg(args, 0, name)? as i32,
-            ))),
-            "DaysInMonth" => Some(self.option_u32_to_value(TimeBuiltins::get_days_in_month(
-                self.integer_arg(args, 0, name)? as i32,
-                self.usize_arg(args, 1, name)? as u32,
-            ))),
-            "CurrentYear" => Some(Value::Number(TimeBuiltins::get_year() as f64)),
-            "CurrentMonth" => Some(Value::Number(TimeBuiltins::get_month() as f64)),
-            "CurrentDay" => Some(Value::Number(TimeBuiltins::get_day() as f64)),
-            "CurrentHour" => Some(Value::Number(TimeBuiltins::get_hour() as f64)),
-            "CurrentMinute" => Some(Value::Number(TimeBuiltins::get_minute() as f64)),
-            "CurrentSecond" => Some(Value::Number(TimeBuiltins::get_second() as f64)),
-            _ => None,
-        };
-
-        Ok(result)
-    }
-
-    fn call_validation_builtin(
-        &self,
-        name: &str,
-        args: &[Value],
-    ) -> Result<Option<Value>, InterpreterError> {
-        let result = match name {
-            "IsValidEmail" => Some(Value::Boolean(ValidationBuiltins::is_valid_email(
-                &self.string_arg(args, 0, name)?,
-            ))),
-            "IsValidUrl" => Some(Value::Boolean(ValidationBuiltins::is_valid_url(
-                &self.string_arg(args, 0, name)?,
-            ))),
-            "IsValidPhoneNumber" => Some(Value::Boolean(
-                ValidationBuiltins::is_valid_phone_number(&self.string_arg(args, 0, name)?),
-            )),
-            "IsAlphanumeric" => Some(Value::Boolean(ValidationBuiltins::is_alphanumeric(
-                &self.string_arg(args, 0, name)?,
-            ))),
-            "IsAlphabetic" => Some(Value::Boolean(ValidationBuiltins::is_alphabetic(
-                &self.string_arg(args, 0, name)?,
-            ))),
-            "IsNumeric" => Some(Value::Boolean(ValidationBuiltins::is_numeric(
-                &self.string_arg(args, 0, name)?,
-            ))),
-            "IsLowercase" => Some(Value::Boolean(ValidationBuiltins::is_lowercase(
-                &self.string_arg(args, 0, name)?,
-            ))),
-            "IsUppercase" => Some(Value::Boolean(ValidationBuiltins::is_uppercase(
-                &self.string_arg(args, 0, name)?,
-            ))),
-            "IsInRange" => Some(Value::Boolean(ValidationBuiltins::is_in_range(
-                self.number_arg(args, 0, name)?,
-                self.number_arg(args, 1, name)?,
-                self.number_arg(args, 2, name)?,
-            ))),
-            "MatchesPattern" => Some(Value::Boolean(ValidationBuiltins::matches_pattern(
-                &self.string_arg(args, 0, name)?,
-                &self.string_arg(args, 1, name)?,
-            ))),
-            _ => None,
-        };
-
-        Ok(result)
-    }
-
-    fn arg<'a>(
-        &self,
-        args: &'a [Value],
-        index: usize,
-        name: &str,
-    ) -> Result<&'a Value, InterpreterError> {
-        args.get(index).ok_or_else(|| {
-            InterpreterError::Runtime(format!(
-                "Builtin '{}' expected argument at position {}",
-                name,
-                index + 1
-            ))
-        })
-    }
-
-    fn number_arg(
-        &self,
-        args: &[Value],
-        index: usize,
-        name: &str,
-    ) -> Result<f64, InterpreterError> {
-        self.arg(args, index, name)?.to_number().map_err(|_| {
-            InterpreterError::TypeError(format!(
-                "Builtin '{}' expected numeric argument at position {}",
-                name,
-                index + 1
-            ))
-        })
-    }
-
-    fn integer_arg(
-        &self,
-        args: &[Value],
-        index: usize,
-        name: &str,
-    ) -> Result<i64, InterpreterError> {
-        let value = self.number_arg(args, index, name)?;
-        Ok(value.round() as i64)
-    }
-
-    fn u64_arg(&self, args: &[Value], index: usize, name: &str) -> Result<u64, InterpreterError> {
-        let value = self.number_arg(args, index, name)?;
-        if value < 0.0 {
-            return Err(InterpreterError::TypeError(format!(
-                "Builtin '{}' expected non-negative number at position {}",
-                name,
-                index + 1
-            )));
-        }
-        Ok(value.round() as u64)
-    }
-
-    fn usize_arg(
-        &self,
-        args: &[Value],
-        index: usize,
-        name: &str,
-    ) -> Result<usize, InterpreterError> {
-        let value = self.number_arg(args, index, name)?;
-        if value < 0.0 {
-            return Err(InterpreterError::TypeError(format!(
-                "Builtin '{}' expected non-negative number at position {}",
-                name,
-                index + 1
-            )));
-        }
-        Ok(value.round() as usize)
-    }
-
-    fn string_arg(
-        &self,
-        args: &[Value],
-        index: usize,
-        name: &str,
-    ) -> Result<String, InterpreterError> {
-        match self.arg(args, index, name)? {
-            Value::String(s) => Ok(s.clone()),
-            other => Err(InterpreterError::TypeError(format!(
-                "Builtin '{}' expected string argument at position {}, got {:?}",
-                name,
-                index + 1,
-                other
-            ))),
-        }
-    }
-
-    fn char_arg(&self, args: &[Value], index: usize, name: &str) -> Result<char, InterpreterError> {
-        let text = self.string_arg(args, index, name)?;
-        text.chars().next().ok_or_else(|| {
-            InterpreterError::TypeError(format!(
-                "Builtin '{}' expected non-empty string to derive character at position {}",
-                name,
-                index + 1
-            ))
-        })
-    }
-
-    fn array_arg(
-        &self,
-        args: &[Value],
-        index: usize,
-        name: &str,
-    ) -> Result<Vec<Value>, InterpreterError> {
-        match self.arg(args, index, name)? {
-            Value::Array(items) => Ok(items.clone()),
-            other => Err(InterpreterError::TypeError(format!(
-                "Builtin '{}' expected array argument at position {}, got {:?}",
-                name,
-                index + 1,
-                other
-            ))),
-        }
-    }
-
-    fn option_string_to_value(&self, input: Option<String>) -> Value {
-        input.map(Value::String).unwrap_or(Value::Null)
-    }
-
-    fn option_u32_to_value(&self, input: Option<u32>) -> Value {
-        input
-            .map(|v| Value::Number(v as f64))
-            .unwrap_or(Value::Null)
-    }
-
-    fn values_to_numbers(
-        &self,
-        values: &[Value],
-        name: &str,
-    ) -> Result<Vec<f64>, InterpreterError> {
-        values
-            .iter()
-            .enumerate()
-            .map(|(i, value)| {
-                value.to_number().map_err(|_| {
-                    InterpreterError::TypeError(format!(
-                        "Builtin '{}' expected numeric array element at position {}",
-                        name,
-                        i + 1
-                    ))
-                })
-            })
-            .collect()
-    }
-
     fn push_scope(&mut self) {
         self.locals.push(HashMap::new());
         self.const_locals.push(HashSet::new());
@@ -3247,7 +1839,7 @@ impl Interpreter {
             }
         }
 
-        for idx in (0..self.locals.len()).rev() {
+        for idx in (self.current_barrier()..self.locals.len()).rev() {
             if self.locals[idx].contains_key(&name) {
                 let is_const = self
                     .const_locals
@@ -3282,8 +1874,7 @@ impl Interpreter {
     }
 
     fn resolve_assignment_scope(&self, name: &str) -> ScopeLayer {
-        if self
-            .locals
+        if self.locals[self.current_barrier()..]
             .iter()
             .rev()
             .any(|scope| scope.contains_key(name))
@@ -3298,9 +1889,28 @@ impl Interpreter {
         }
     }
 
+    /// Index of the first local scope belonging to the current function
+    /// activation. Lookups never cross this barrier (lexical scoping).
+    fn current_barrier(&self) -> usize {
+        self.scope_barriers.last().copied().unwrap_or(0)
+    }
+
+    /// Snapshot of all variables visible in the current activation,
+    /// innermost bindings shadowing outer ones. Used to capture the lexical
+    /// environment of nested function declarations (closures).
+    fn capture_lexical_environment(&self) -> HashMap<String, Value> {
+        let mut captured = HashMap::new();
+        for scope in &self.locals[self.current_barrier()..] {
+            for (name, value) in scope {
+                captured.insert(name.clone(), value.clone());
+            }
+        }
+        captured
+    }
+
     fn get_variable(&self, name: &str) -> Result<Value, InterpreterError> {
-        // Search in local scopes (from innermost to outermost)
-        for scope in self.locals.iter().rev() {
+        // Search visible local scopes (from innermost down to the barrier)
+        for scope in self.locals[self.current_barrier()..].iter().rev() {
             if let Some(value) = scope.get(name) {
                 return Ok(value.clone());
             }
@@ -3322,6 +1932,182 @@ impl Interpreter {
 mod tests {
     use super::*;
     use hypnoscript_lexer_parser::{Lexer, Parser};
+
+    /// Lexes and parses `source`, panicking with a helpful message on failure.
+    fn parse(source: &str) -> AstNode {
+        let tokens = Lexer::new(source).lex().expect("lexing failed");
+        Parser::new(tokens).parse_program().expect("parsing failed")
+    }
+
+    #[test]
+    fn test_delayed_value_promise_resolves_on_await() {
+        // HYPNO_TIME_SCALE=0 keeps the test instant.
+        unsafe { std::env::set_var("HYPNO_TIME_SCALE", "0") };
+        let source = r#"
+Focus {
+    entrance {
+        induce p = delayedValue(50, 42);
+        induce pending = isPromiseResolved(p);
+        induce result = await p;
+        induce resolved = isPromiseResolved(p);
+        induce all = promiseAll([delayedValue(10, 1), instantPromise(2), 3]);
+        induce fastest = promiseRace([delayedValue(500, "slow"), instantPromise("fast")]);
+    }
+} Relax
+"#;
+        let ast = parse(source);
+        let mut interpreter = Interpreter::new();
+        interpreter.execute_program(ast).expect("program failed");
+        assert_eq!(
+            interpreter.get_variable("pending").unwrap(),
+            Value::Boolean(false)
+        );
+        assert_eq!(
+            interpreter.get_variable("result").unwrap(),
+            Value::Number(42.0)
+        );
+        assert_eq!(
+            interpreter.get_variable("resolved").unwrap(),
+            Value::Boolean(true)
+        );
+        assert_eq!(
+            interpreter.get_variable("all").unwrap(),
+            Value::array(vec![
+                Value::Number(1.0),
+                Value::Number(2.0),
+                Value::Number(3.0)
+            ])
+        );
+        assert_eq!(
+            interpreter.get_variable("fastest").unwrap(),
+            Value::String("fast".to_string())
+        );
+    }
+
+    #[test]
+    fn test_closure_captures_outer_variable() {
+        let source = r#"
+Focus {
+    suggestion makeGreeting(name: string): string {
+        induce prefix: string = "Hello, ";
+        suggestion greet(): string {
+            awaken prefix + name;
+        }
+        awaken greet();
+    }
+    entrance {
+        induce message: string = makeGreeting("Trance");
+    }
+} Relax
+"#;
+        let ast = parse(source);
+        let mut interpreter = Interpreter::new();
+        interpreter.execute_program(ast).expect("program failed");
+        assert_eq!(
+            interpreter.get_variable("message").unwrap(),
+            Value::String("Hello, Trance".to_string())
+        );
+    }
+
+    #[test]
+    fn test_nested_function_can_recurse() {
+        let source = r#"
+Focus {
+    suggestion outer(): number {
+        induce base: number = 3;
+        suggestion sumTo(n: number): number {
+            if (n <= 0) deepFocus {
+                awaken base;
+            }
+            awaken n + sumTo(n - 1);
+        }
+        awaken sumTo(4);
+    }
+    entrance {
+        induce total: number = outer();
+    }
+} Relax
+"#;
+        let ast = parse(source);
+        let mut interpreter = Interpreter::new();
+        interpreter.execute_program(ast).expect("program failed");
+        // 4 + 3 + 2 + 1 + base(3) = 13
+        assert_eq!(
+            interpreter.get_variable("total").unwrap(),
+            Value::Number(13.0)
+        );
+    }
+
+    #[test]
+    fn test_lexical_scoping_hides_caller_locals() {
+        // `helper` must NOT see the caller's local `secret` (lexical, not
+        // dynamic scoping).
+        let source = r#"
+Focus {
+    suggestion helper(): number {
+        awaken secret;
+    }
+    suggestion caller(): number {
+        induce secret: number = 99;
+        awaken helper();
+    }
+    entrance {
+        induce x: number = caller();
+    }
+} Relax
+"#;
+        let ast = parse(source);
+        let mut interpreter = Interpreter::new();
+        match interpreter.execute_program(ast) {
+            Err(InterpreterError::UndefinedVariable(name)) => assert_eq!(name, "secret"),
+            other => panic!(
+                "expected UndefinedVariable('secret'), got {:?}",
+                other.err()
+            ),
+        }
+    }
+
+    #[test]
+    fn test_recursion_limit_reports_error_instead_of_crashing() {
+        let source = r#"
+Focus {
+    suggestion infinite(n: number): number {
+        awaken infinite(n + 1);
+    }
+    entrance {
+        infinite(0);
+    }
+} Relax
+"#;
+        let ast = parse(source);
+        let mut interpreter = Interpreter::new();
+        interpreter.set_max_call_depth(64);
+        match interpreter.execute_program(ast) {
+            Err(InterpreterError::RecursionLimitExceeded(64)) => {}
+            other => panic!("expected RecursionLimitExceeded, got {:?}", other.err()),
+        }
+    }
+
+    #[test]
+    fn test_recursion_within_limit_succeeds() {
+        let source = r#"
+Focus {
+    suggestion countdown(n: number): number {
+        if (n <= 0) deepFocus {
+            awaken 0;
+        }
+        awaken countdown(n - 1);
+    }
+    entrance {
+        induce result: number = countdown(50);
+    }
+} Relax
+"#;
+        let ast = parse(source);
+        let mut interpreter = Interpreter::new();
+        interpreter.set_max_call_depth(64);
+        assert!(interpreter.execute_program(ast).is_ok());
+    }
 
     #[test]
     fn test_simple_program() {
@@ -3583,6 +2369,129 @@ Focus {
 
         let status = interpreter.get_variable("status").unwrap();
         assert_eq!(status, Value::String("Luna".to_string()));
+    }
+
+    /// Run a program and return the interpreter for state inspection.
+    fn run_program(source: &str) -> Interpreter {
+        let mut lexer = Lexer::new(source);
+        let tokens = lexer.lex().unwrap();
+        let mut parser = Parser::new(tokens);
+        let ast = parser.parse_program().unwrap();
+        let mut interpreter = Interpreter::new();
+        let result = interpreter.execute_program(ast);
+        assert!(result.is_ok(), "execution failed: {:?}", result.err());
+        interpreter
+    }
+
+    #[test]
+    fn test_labeled_break_exits_outer_loop() {
+        let interpreter = run_program(
+            r#"
+Focus {
+    induce hits: number = 0;
+    entrance {
+        outer: loop (induce i: number = 0; i < 5; i = i + 1) {
+            loop (induce j: number = 0; j < 5; j = j + 1) {
+                hits = hits + 1;
+                if (hits == 3) {
+                    snap outer;
+                }
+            }
+        }
+    }
+} Relax
+"#,
+        );
+        assert_eq!(
+            interpreter.debug_globals().get("hits"),
+            Some(&Value::Number(3.0)),
+            "labeled break must exit both loops"
+        );
+    }
+
+    #[test]
+    fn test_labeled_continue_advances_outer_loop() {
+        let interpreter = run_program(
+            r#"
+Focus {
+    induce outerRuns: number = 0;
+    induce innerRuns: number = 0;
+    entrance {
+        outer: loop (induce i: number = 0; i < 3; i = i + 1) {
+            outerRuns = outerRuns + 1;
+            loop (induce j: number = 0; j < 3; j = j + 1) {
+                innerRuns = innerRuns + 1;
+                sink outer;
+            }
+            outerRuns = outerRuns + 100;
+        }
+    }
+} Relax
+"#,
+        );
+        let globals = interpreter.debug_globals();
+        assert_eq!(
+            globals.get("outerRuns"),
+            Some(&Value::Number(3.0)),
+            "outer body after inner loop must be skipped"
+        );
+        assert_eq!(
+            globals.get("innerRuns"),
+            Some(&Value::Number(3.0)),
+            "inner loop must run once per outer iteration"
+        );
+    }
+
+    #[test]
+    fn test_labeled_break_with_unknown_label_errors() {
+        let source = r#"
+Focus {
+    entrance {
+        loop (induce i: number = 0; i < 3; i = i + 1) {
+            snap nowhere;
+        }
+    }
+} Relax
+"#;
+        let mut lexer = Lexer::new(source);
+        let tokens = lexer.lex().unwrap();
+        let mut parser = Parser::new(tokens);
+        let ast = parser.parse_program().unwrap();
+        let mut interpreter = Interpreter::new();
+        let result = interpreter.execute_program(ast);
+        assert!(result.is_err(), "unknown label must be a runtime error");
+        assert!(result.unwrap_err().to_string().contains("nowhere"));
+    }
+
+    #[test]
+    fn test_null_literal_and_nullish_operators() {
+        let interpreter = run_program(
+            r#"
+Focus {
+    induce value: number = 0;
+    induce state: string = "";
+    entrance {
+        induce maybe: number? = null;
+        value = maybe lucidFallback 42;
+        state = entrain maybe {
+            when null => "empty";
+            otherwise => "filled";
+        };
+    }
+} Relax
+"#,
+        );
+        let globals = interpreter.debug_globals();
+        assert_eq!(
+            globals.get("value"),
+            Some(&Value::Number(42.0)),
+            "lucidFallback must supply the default"
+        );
+        assert_eq!(
+            globals.get("state"),
+            Some(&Value::String("empty".to_string())),
+            "null pattern must match"
+        );
     }
 
     #[test]

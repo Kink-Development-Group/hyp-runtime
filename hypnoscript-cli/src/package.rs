@@ -232,7 +232,7 @@ impl PackageManager {
         if !path.exists() {
             // Return empty lock file if it doesn't exist
             return Ok(TranceLock {
-                lock_version: "1.2.0".to_string(),
+                lock_version: "1.3.0".to_string(),
                 locked_anchors: HashMap::new(),
             });
         }
@@ -450,7 +450,7 @@ impl PackageManager {
         // For now, we'll create a lock file with the dependencies
         // In a full implementation, this would fetch packages from a registry
         let mut lock = TranceLock {
-            lock_version: "1.2.0".to_string(),
+            lock_version: "1.3.0".to_string(),
             locked_anchors: HashMap::new(),
         };
 
@@ -586,7 +586,7 @@ mod tests {
         pm.init("test-package".to_string(), None)?;
         pm.add_dependency(
             "hypnoscript-runtime".to_string(),
-            "^1.2.0".to_string(),
+            "^1.3.0".to_string(),
             false,
         )?;
 

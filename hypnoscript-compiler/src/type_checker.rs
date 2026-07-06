@@ -170,346 +170,18 @@ impl TypeChecker {
         checker
     }
 
-    /// Register builtin function signatures
+    /// Register builtin function signatures from the central registry.
+    ///
+    /// The signatures live in [`crate::builtin_registry::BUILTINS`], the
+    /// single source of truth shared with the CLI documentation output.
     fn register_builtins(&mut self) {
-        // Math
-        for name in [
-            "Sin", "Cos", "Tan", "Sqrt", "Log", "Log10", "Abs", "Floor", "Ceil", "Round",
-        ] {
-            self.register_builtin(name, vec![HypnoType::number()], HypnoType::number());
-        }
-        for name in ["Min", "Max", "Pow"] {
+        for sig in crate::builtin_registry::BUILTINS {
             self.register_builtin(
-                name,
-                vec![HypnoType::number(), HypnoType::number()],
-                HypnoType::number(),
+                sig.name,
+                sig.params.iter().map(|ty| ty.to_hypno_type()).collect(),
+                sig.returns.to_hypno_type(),
             );
         }
-        for name in ["Factorial", "Gcd", "Lcm", "Fibonacci"] {
-            self.register_builtin(name, vec![HypnoType::number()], HypnoType::number());
-        }
-        self.register_builtin("IsPrime", vec![HypnoType::number()], HypnoType::boolean());
-        self.register_builtin(
-            "Clamp",
-            vec![
-                HypnoType::number(),
-                HypnoType::number(),
-                HypnoType::number(),
-            ],
-            HypnoType::number(),
-        );
-
-        // Strings
-        self.register_builtin("Length", vec![HypnoType::string()], HypnoType::number());
-        for name in [
-            "ToUpper",
-            "ToLower",
-            "Trim",
-            "Reverse",
-            "Capitalize",
-            "RemoveDuplicates",
-            "UniqueCharacters",
-            "ReverseWords",
-            "TitleCase",
-        ] {
-            self.register_builtin(name, vec![HypnoType::string()], HypnoType::string());
-        }
-        self.register_builtin(
-            "IndexOf",
-            vec![HypnoType::string(), HypnoType::string()],
-            HypnoType::number(),
-        );
-        self.register_builtin(
-            "Replace",
-            vec![
-                HypnoType::string(),
-                HypnoType::string(),
-                HypnoType::string(),
-            ],
-            HypnoType::string(),
-        );
-        self.register_builtin(
-            "StartsWith",
-            vec![HypnoType::string(), HypnoType::string()],
-            HypnoType::boolean(),
-        );
-        self.register_builtin(
-            "EndsWith",
-            vec![HypnoType::string(), HypnoType::string()],
-            HypnoType::boolean(),
-        );
-        self.register_builtin(
-            "Contains",
-            vec![HypnoType::string(), HypnoType::string()],
-            HypnoType::boolean(),
-        );
-        self.register_builtin(
-            "Split",
-            vec![HypnoType::string(), HypnoType::string()],
-            HypnoType::create_array(HypnoType::string()),
-        );
-        self.register_builtin(
-            "Substring",
-            vec![
-                HypnoType::string(),
-                HypnoType::number(),
-                HypnoType::number(),
-            ],
-            HypnoType::string(),
-        );
-        self.register_builtin(
-            "Repeat",
-            vec![HypnoType::string(), HypnoType::number()],
-            HypnoType::string(),
-        );
-        for name in ["PadLeft", "PadRight"] {
-            self.register_builtin(
-                name,
-                vec![
-                    HypnoType::string(),
-                    HypnoType::number(),
-                    HypnoType::string(),
-                ],
-                HypnoType::string(),
-            );
-        }
-        self.register_builtin("IsEmpty", vec![HypnoType::string()], HypnoType::boolean());
-        self.register_builtin(
-            "IsWhitespace",
-            vec![HypnoType::string()],
-            HypnoType::boolean(),
-        );
-
-        // Arrays
-        let any_array = || HypnoType::create_array(HypnoType::unknown());
-        let number_array = || HypnoType::create_array(HypnoType::number());
-        let string_array = || HypnoType::create_array(HypnoType::string());
-
-        self.register_builtin("ArrayLength", vec![any_array()], HypnoType::number());
-        self.register_builtin("ArrayIsEmpty", vec![any_array()], HypnoType::boolean());
-        self.register_builtin(
-            "ArrayGet",
-            vec![any_array(), HypnoType::number()],
-            HypnoType::unknown(),
-        );
-        self.register_builtin(
-            "ArrayIndexOf",
-            vec![any_array(), HypnoType::unknown()],
-            HypnoType::number(),
-        );
-        self.register_builtin(
-            "ArrayContains",
-            vec![any_array(), HypnoType::unknown()],
-            HypnoType::boolean(),
-        );
-        self.register_builtin("ArrayReverse", vec![any_array()], any_array());
-        for name in ["ArraySum", "ArrayAverage", "ArrayMin", "ArrayMax"] {
-            self.register_builtin(name, vec![number_array()], HypnoType::number());
-        }
-        self.register_builtin("ArraySort", vec![number_array()], number_array());
-        for name in ["ArrayFirst", "ArrayLast"] {
-            self.register_builtin(name, vec![any_array()], HypnoType::unknown());
-        }
-        for name in ["ArrayTake", "ArraySkip"] {
-            self.register_builtin(name, vec![any_array(), HypnoType::number()], any_array());
-        }
-        self.register_builtin(
-            "ArraySlice",
-            vec![any_array(), HypnoType::number(), HypnoType::number()],
-            any_array(),
-        );
-        self.register_builtin(
-            "ArrayJoin",
-            vec![any_array(), HypnoType::string()],
-            HypnoType::string(),
-        );
-        self.register_builtin(
-            "ArrayCount",
-            vec![any_array(), HypnoType::unknown()],
-            HypnoType::number(),
-        );
-        self.register_builtin("ArrayDistinct", vec![any_array()], any_array());
-
-        // Core / Hypnotic
-        self.register_builtin("Observe", vec![HypnoType::unknown()], HypnoType::unknown());
-        for name in ["Drift", "DeepTrance", "HypnoticCountdown"] {
-            self.register_builtin(name, vec![HypnoType::number()], HypnoType::unknown());
-        }
-        self.register_builtin(
-            "TranceInduction",
-            vec![HypnoType::string()],
-            HypnoType::unknown(),
-        );
-        self.register_builtin(
-            "HypnoticVisualization",
-            vec![HypnoType::string()],
-            HypnoType::unknown(),
-        );
-        self.register_builtin("ToInt", vec![HypnoType::number()], HypnoType::number());
-        self.register_builtin("ToDouble", vec![HypnoType::string()], HypnoType::number());
-        self.register_builtin("ToString", vec![HypnoType::unknown()], HypnoType::string());
-        self.register_builtin("ToBoolean", vec![HypnoType::string()], HypnoType::boolean());
-
-        // File / IO
-        self.register_builtin("ReadFile", vec![HypnoType::string()], HypnoType::string());
-        for name in ["WriteFile", "AppendFile"] {
-            self.register_builtin(
-                name,
-                vec![HypnoType::string(), HypnoType::string()],
-                HypnoType::unknown(),
-            );
-        }
-        for name in ["DeleteFile", "CreateDirectory"] {
-            self.register_builtin(name, vec![HypnoType::string()], HypnoType::unknown());
-        }
-        for name in ["FileExists", "IsFile", "IsDirectory"] {
-            self.register_builtin(name, vec![HypnoType::string()], HypnoType::boolean());
-        }
-        self.register_builtin("ListDirectory", vec![HypnoType::string()], string_array());
-        self.register_builtin(
-            "GetFileSize",
-            vec![HypnoType::string()],
-            HypnoType::number(),
-        );
-        self.register_builtin(
-            "CopyFile",
-            vec![HypnoType::string(), HypnoType::string()],
-            HypnoType::number(),
-        );
-        self.register_builtin(
-            "RenameFile",
-            vec![HypnoType::string(), HypnoType::string()],
-            HypnoType::unknown(),
-        );
-        for name in ["GetFileExtension", "GetFileName", "GetParentDirectory"] {
-            self.register_builtin(name, vec![HypnoType::string()], HypnoType::string());
-        }
-
-        // Hashing / Utility
-        self.register_builtin("HashString", vec![HypnoType::string()], HypnoType::number());
-        self.register_builtin("HashNumber", vec![HypnoType::number()], HypnoType::number());
-        self.register_builtin(
-            "SimpleRandom",
-            vec![HypnoType::number()],
-            HypnoType::number(),
-        );
-        self.register_builtin(
-            "AreAnagrams",
-            vec![HypnoType::string(), HypnoType::string()],
-            HypnoType::boolean(),
-        );
-        self.register_builtin(
-            "IsPalindrome",
-            vec![HypnoType::string()],
-            HypnoType::boolean(),
-        );
-        self.register_builtin(
-            "CountOccurrences",
-            vec![HypnoType::string(), HypnoType::string()],
-            HypnoType::number(),
-        );
-
-        // Statistics
-        for name in [
-            "Mean",
-            "Median",
-            "Mode",
-            "StandardDeviation",
-            "Variance",
-            "Range",
-        ] {
-            self.register_builtin(name, vec![number_array()], HypnoType::number());
-        }
-        self.register_builtin(
-            "Percentile",
-            vec![number_array(), HypnoType::number()],
-            HypnoType::number(),
-        );
-        self.register_builtin(
-            "Correlation",
-            vec![number_array(), number_array()],
-            HypnoType::number(),
-        );
-        self.register_builtin(
-            "LinearRegression",
-            vec![number_array(), number_array()],
-            number_array(),
-        );
-
-        // System
-        self.register_builtin("GetCurrentDirectory", vec![], HypnoType::string());
-        self.register_builtin("GetEnv", vec![HypnoType::string()], HypnoType::string());
-        self.register_builtin(
-            "SetEnv",
-            vec![HypnoType::string(), HypnoType::string()],
-            HypnoType::unknown(),
-        );
-        self.register_builtin("GetOperatingSystem", vec![], HypnoType::string());
-        self.register_builtin("GetArchitecture", vec![], HypnoType::string());
-        self.register_builtin("GetCpuCount", vec![], HypnoType::number());
-        self.register_builtin("GetHostname", vec![], HypnoType::string());
-        self.register_builtin("GetUsername", vec![], HypnoType::string());
-        self.register_builtin("GetHomeDirectory", vec![], HypnoType::string());
-        self.register_builtin("GetTempDirectory", vec![], HypnoType::string());
-        self.register_builtin("GetArgs", vec![], string_array());
-        self.register_builtin("Exit", vec![HypnoType::number()], HypnoType::unknown());
-
-        // Time / Date
-        self.register_builtin("CurrentTimestamp", vec![], HypnoType::number());
-        self.register_builtin("CurrentDate", vec![], HypnoType::string());
-        self.register_builtin("CurrentTime", vec![], HypnoType::string());
-        self.register_builtin("CurrentDateTime", vec![], HypnoType::string());
-        self.register_builtin(
-            "FormatDateTime",
-            vec![HypnoType::string()],
-            HypnoType::string(),
-        );
-        self.register_builtin("DayOfWeek", vec![], HypnoType::number());
-        self.register_builtin("DayOfYear", vec![], HypnoType::number());
-        self.register_builtin(
-            "IsLeapYear",
-            vec![HypnoType::number()],
-            HypnoType::boolean(),
-        );
-        self.register_builtin(
-            "DaysInMonth",
-            vec![HypnoType::number(), HypnoType::number()],
-            HypnoType::number(),
-        );
-        self.register_builtin("CurrentYear", vec![], HypnoType::number());
-        self.register_builtin("CurrentMonth", vec![], HypnoType::number());
-        self.register_builtin("CurrentDay", vec![], HypnoType::number());
-        self.register_builtin("CurrentHour", vec![], HypnoType::number());
-        self.register_builtin("CurrentMinute", vec![], HypnoType::number());
-        self.register_builtin("CurrentSecond", vec![], HypnoType::number());
-
-        // Validation
-        for name in [
-            "IsValidEmail",
-            "IsValidUrl",
-            "IsValidPhoneNumber",
-            "IsAlphanumeric",
-            "IsAlphabetic",
-            "IsNumeric",
-            "IsLowercase",
-            "IsUppercase",
-        ] {
-            self.register_builtin(name, vec![HypnoType::string()], HypnoType::boolean());
-        }
-        self.register_builtin(
-            "IsInRange",
-            vec![
-                HypnoType::number(),
-                HypnoType::number(),
-                HypnoType::number(),
-            ],
-            HypnoType::boolean(),
-        );
-        self.register_builtin(
-            "MatchesPattern",
-            vec![HypnoType::string(), HypnoType::string()],
-            HypnoType::boolean(),
-        );
     }
 
     fn register_builtin(
@@ -522,13 +194,29 @@ impl TypeChecker {
             .insert(name.to_string(), (parameter_types, return_type));
     }
 
-    /// Parse type annotation string to HypnoType
+    /// Parse type annotation string to HypnoType.
+    ///
+    /// Handles the suffix modifiers produced by the parser: `?` marks a
+    /// nullable type (`number?` / `lucid number`) and `[]` an array type
+    /// (`string[]`, `number[]?`, ...).
     fn parse_type_annotation(&self, type_str: Option<&str>) -> HypnoType {
+        let Some(type_str) = type_str else {
+            return HypnoType::unknown();
+        };
+
+        if let Some(inner) = type_str.strip_suffix('?') {
+            return self.parse_type_annotation(Some(inner)).into_nullable();
+        }
+
+        if let Some(inner) = type_str.strip_suffix("[]") {
+            return HypnoType::create_array(self.parse_type_annotation(Some(inner)));
+        }
+
         match type_str {
-            Some("number") => HypnoType::number(),
-            Some("string") => HypnoType::string(),
-            Some("boolean") => HypnoType::boolean(),
-            Some("trance") => HypnoType::new(HypnoBaseType::Trance, None),
+            "number" => HypnoType::number(),
+            "string" => HypnoType::string(),
+            "boolean" => HypnoType::boolean(),
+            "trance" => HypnoType::new(HypnoBaseType::Trance, None),
             _ => HypnoType::unknown(),
         }
     }
@@ -1289,6 +977,18 @@ impl TypeChecker {
                 }
             }
 
+            AstNode::DriftStatement { duration } => {
+                let duration_type = self.infer_type(duration);
+                if duration_type.base_type != HypnoBaseType::Number
+                    && duration_type.base_type != HypnoBaseType::Unknown
+                {
+                    self.errors.push(format!(
+                        "drift duration must be a number of milliseconds, got {}",
+                        duration_type
+                    ));
+                }
+            }
+
             AstNode::IfStatement {
                 condition,
                 then_branch,
@@ -1431,6 +1131,7 @@ impl TypeChecker {
             AstNode::NumberLiteral(_) => HypnoType::number(),
             AstNode::StringLiteral(_) => HypnoType::string(),
             AstNode::BooleanLiteral(_) => HypnoType::boolean(),
+            AstNode::NullLiteral => HypnoType::null(),
 
             AstNode::Identifier(name) => {
                 if name == "this" && self.in_static_context {
@@ -1700,10 +1401,14 @@ impl TypeChecker {
 
             AstNode::NullishCoalescing { left, right } => {
                 let left_type = self.infer_type(left);
-                let _right_type = self.infer_type(right);
-                // Nullish coalescing returns the type of the right side if left is null
-                // For simplicity, we return the left type (as it's usually the expected type)
-                left_type
+                let right_type = self.infer_type(right);
+                // 'left lucidFallback right' only yields the right side when the
+                // left side is null, so the result is never null itself.
+                if left_type.base_type == HypnoBaseType::Null {
+                    right_type
+                } else {
+                    left_type.into_non_nullable()
+                }
             }
 
             AstNode::OptionalChaining { object, property } => {
@@ -1994,5 +1699,123 @@ Focus {
         let errors = checker.check_program(&ast);
         assert!(!errors.is_empty());
         assert!(errors[0].contains("Type mismatch"));
+    }
+
+    fn check_source(source: &str) -> Vec<String> {
+        let mut lexer = Lexer::new(source);
+        let tokens = lexer.lex().unwrap();
+        let mut parser = Parser::new(tokens);
+        let ast = parser.parse_program().unwrap();
+        let mut checker = TypeChecker::new();
+        checker.check_program(&ast)
+    }
+
+    #[test]
+    fn test_null_requires_nullable_type() {
+        let errors = check_source(
+            r#"
+Focus {
+    induce x: number = null;
+} Relax
+"#,
+        );
+        assert!(
+            errors
+                .iter()
+                .any(|e| e.contains("expected Number, got null")),
+            "expected null assignment error, got {:?}",
+            errors
+        );
+    }
+
+    #[test]
+    fn test_nullable_annotation_accepts_null() {
+        let errors = check_source(
+            r#"
+Focus {
+    induce x: number? = null;
+    induce y: lucid string = null;
+    induce z: number? = 42;
+} Relax
+"#,
+        );
+        assert!(errors.is_empty(), "unexpected errors: {:?}", errors);
+    }
+
+    #[test]
+    fn test_nullable_value_needs_nullable_target() {
+        let errors = check_source(
+            r#"
+Focus {
+    induce maybe: number? = null;
+    induce strict: number = maybe;
+} Relax
+"#,
+        );
+        assert!(
+            errors
+                .iter()
+                .any(|e| e.contains("expected Number, got Number?")),
+            "expected nullable-to-strict error, got {:?}",
+            errors
+        );
+    }
+
+    #[test]
+    fn test_lucid_fallback_strips_nullability() {
+        let errors = check_source(
+            r#"
+Focus {
+    induce maybe: number? = null;
+    induce strict: number = maybe lucidFallback 5;
+} Relax
+"#,
+        );
+        assert!(errors.is_empty(), "unexpected errors: {:?}", errors);
+    }
+
+    #[test]
+    fn test_array_annotation_matches_array_literal() {
+        let errors = check_source(
+            r#"
+Focus {
+    induce names: string[] = ["a", "b"];
+    induce wrong: number[] = ["a"];
+} Relax
+"#,
+        );
+        assert_eq!(errors.len(), 1, "expected exactly one error: {:?}", errors);
+        assert!(errors[0].contains("wrong"));
+    }
+
+    #[test]
+    fn test_drift_duration_must_be_numeric() {
+        let errors = check_source(
+            r#"
+Focus {
+    entrance {
+        drift("soon");
+    }
+} Relax
+"#,
+        );
+        assert!(
+            errors
+                .iter()
+                .any(|e| e.contains("drift duration must be a number")),
+            "expected drift type error, got {:?}",
+            errors
+        );
+
+        let ok = check_source(
+            r#"
+Focus {
+    entrance {
+        drift(100);
+    }
+} Relax
+"#,
+        );
+        assert!(ok.is_empty(), "unexpected errors: {:?}", ok);
     }
 }

@@ -114,9 +114,32 @@ pub enum AstNode {
     /// suspend: Pause without fixed end (infinite loop or wait)
     SuspendStatement,
 
+    /// drift/pauseReality: Pause execution for the given number of milliseconds
+    /// Example: drift(500);
+    DriftStatement {
+        duration: Box<AstNode>,
+    },
+
     ReturnStatement(Option<Box<AstNode>>),
-    BreakStatement,
-    ContinueStatement,
+
+    /// snap: Break out of a loop, optionally naming an enclosing label
+    /// Example: snap; / snap outerLoop;
+    BreakStatement {
+        label: Option<String>,
+    },
+
+    /// sink: Continue with the next loop iteration, optionally naming a label
+    /// Example: sink; / sink outerLoop;
+    ContinueStatement {
+        label: Option<String>,
+    },
+
+    /// A labeled statement, used as a target for `snap`/`sink`
+    /// Example: outerLoop: loop (...) { ... }
+    LabeledStatement {
+        label: String,
+        body: Box<AstNode>,
+    },
 
     /// oscillate: Toggle a boolean variable
     /// Example: oscillate myFlag;
@@ -136,6 +159,7 @@ pub enum AstNode {
     NumberLiteral(f64),
     StringLiteral(String),
     BooleanLiteral(bool),
+    NullLiteral,
     Identifier(String),
 
     BinaryExpression {
@@ -239,6 +263,7 @@ impl AstNode {
             AstNode::NumberLiteral(_)
                 | AstNode::StringLiteral(_)
                 | AstNode::BooleanLiteral(_)
+                | AstNode::NullLiteral
                 | AstNode::Identifier(_)
                 | AstNode::BinaryExpression { .. }
                 | AstNode::UnaryExpression { .. }
@@ -270,9 +295,11 @@ impl AstNode {
                 | AstNode::WhileStatement { .. }
                 | AstNode::LoopStatement { .. }
                 | AstNode::SuspendStatement
+                | AstNode::DriftStatement { .. }
                 | AstNode::ReturnStatement(_)
-                | AstNode::BreakStatement
-                | AstNode::ContinueStatement
+                | AstNode::BreakStatement { .. }
+                | AstNode::ContinueStatement { .. }
+                | AstNode::LabeledStatement { .. }
                 | AstNode::OscillateStatement { .. }
         )
     }

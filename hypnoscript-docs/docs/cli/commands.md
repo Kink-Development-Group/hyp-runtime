@@ -48,6 +48,8 @@ hypnoscript exec <FILE> [OPTIONS]
 | `--breakpoints <LINES>` |       | Set initial breakpoints (comma-separated lines)    |
 | `--watch <VARS>`        |       | Watch variables during execution (comma-separated) |
 | `--trace-file <FILE>`   |       | Write debug trace to file                          |
+| `--sandbox <DIR>`       |       | Confine all file builtins to this directory        |
+| `--max-call-depth <N>`  |       | Maximum function call depth (default: 1000)        |
 
 ### Behavior
 
@@ -81,6 +83,36 @@ hypnoscript exec script.hyp --debug --watch counter,result,total
 
 # Full debug session with trace file
 hypnoscript exec script.hyp --debug --breakpoints 10,20 --watch x,y --trace-file debug.log
+
+# Confine file builtins to a working directory
+hypnoscript exec script.hyp --sandbox ./workspace
+
+# Allow deeper recursion
+hypnoscript exec recursive.hyp --max-call-depth 10000
+```
+
+### Filesystem Sandbox
+
+`--sandbox <DIR>` restricts every file builtin (`ReadFile`, `WriteFile`, `AppendFile`, `DeleteFile`, `ListDirectory`, `CreateDirectory`, ...) to the given directory:
+
+- Relative paths in the script resolve **against the sandbox root**, not the process working directory.
+- Escape attempts via `..`, absolute paths outside the root, or symlinks pointing outside are rejected with a `PermissionDenied` error.
+- Pure path-string helpers (`GetFileExtension`, `GetFileName`, ...) are unaffected.
+- Without `--sandbox` (or the `HYPNO_SANDBOX` environment variable), file access behaves as before — unrestricted.
+
+```bash
+# Equivalent via environment variable
+HYPNO_SANDBOX=./workspace hypnoscript exec script.hyp
+```
+
+See [File Functions](../builtins/file-functions) for the affected builtins.
+
+### Recursion Depth Limit
+
+`--max-call-depth <N>` sets the maximum function call depth. When exceeded, the program aborts with a graceful `RecursionLimitExceeded` error instead of a stack overflow. The default is **1,000**; the `HYPNO_MAX_CALL_DEPTH` environment variable works as an alternative:
+
+```bash
+HYPNO_MAX_CALL_DEPTH=5000 hypnoscript exec deep_trance.hyp
 ```
 
 ### Debug Mode
@@ -90,7 +122,7 @@ When `--debug` is specified, an interactive debugging session starts:
 ```
 $ hypnoscript exec script.hyp --debug
 
-HypnoScript Debugger v1.2.0
+HypnoScript Debugger v1.3.0
 Type 'help' for available commands.
 
 (hypno-debug) b 10
@@ -420,7 +452,7 @@ hypnoscript version
 ### Output
 
 ```
-HypnoScript v1.2.0
+HypnoScript v1.3.0
 The Hypnotic Programming Language
 
 Migrated from C# to Rust for improved performance

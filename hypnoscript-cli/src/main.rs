@@ -25,7 +25,7 @@ const GITHUB_OWNER: &str = "Kink-Development-Group";
 const GITHUB_REPO: &str = "hyp-runtime";
 const GITHUB_API: &str = "https://api.github.com";
 const DEFAULT_TIMEOUT_SECS: u64 = 20;
-const DEFAULT_PACKAGE_VERSION: &str = "^1.2.0";
+const DEFAULT_PACKAGE_VERSION: &str = "^1.3.0";
 #[cfg(not(target_os = "windows"))]
 const INSTALLER_FALLBACK_URL: &str =
     "https://kink-development-group.github.io/hyp-runtime/install.sh";
@@ -38,6 +38,13 @@ use std::os::unix::fs::PermissionsExt;
 
 fn into_anyhow<E: std::fmt::Display>(error: E) -> anyhow::Error {
     anyhow::Error::msg(error.to_string())
+}
+
+/// Read a HypnoScript source file, tolerating UTF-8/UTF-16 BOMs and UTF-16
+/// encodings (common for files created on Windows).
+fn read_source(path: &str) -> Result<String> {
+    let bytes = fs::read(path)?;
+    hypnoscript_lexer_parser::decode_source(&bytes).map_err(|e| anyhow!("{}: {}", path, e))
 }
 
 #[derive(Parser)]
@@ -75,6 +82,16 @@ enum Commands {
         /// Output trace information to file
         #[arg(long)]
         trace_file: Option<String>,
+
+        /// Restrict file builtins to this directory (filesystem sandbox).
+        /// Can also be set via the HYPNO_SANDBOX environment variable.
+        #[arg(long)]
+        sandbox: Option<String>,
+
+        /// Maximum function call depth before aborting with an error.
+        /// Can also be set via the HYPNO_MAX_CALL_DEPTH environment variable.
+        #[arg(long)]
+        max_call_depth: Option<usize>,
     },
 
     /// Lex a HypnoScript file (tokenize)
@@ -229,12 +246,22 @@ fn main() -> Result<()> {
             breakpoints,
             watch,
             trace_file,
+            sandbox,
+            max_call_depth,
         } => {
             if verbose {
                 println!("Running file: {}", file);
             }
 
-            let source = fs::read_to_string(&file)?;
+            if let Some(sandbox_dir) = sandbox {
+                hypnoscript_runtime::set_sandbox_root(&sandbox_dir)
+                    .map_err(|e| anyhow!("Invalid sandbox directory '{}': {}", sandbox_dir, e))?;
+                if verbose {
+                    println!("Filesystem sandbox: {}", sandbox_dir);
+                }
+            }
+
+            let source = read_source(&file)?;
 
             // If debug mode is enabled, start interactive debug session
             if debug {
@@ -285,6 +312,9 @@ fn main() -> Result<()> {
 
             // Execute
             let mut interpreter = Interpreter::new();
+            if let Some(depth) = max_call_depth {
+                interpreter.set_max_call_depth(depth);
+            }
             interpreter.execute_program(ast).map_err(into_anyhow)?;
 
             if verbose {
@@ -293,7 +323,7 @@ fn main() -> Result<()> {
         }
 
         Commands::Lex { file } => {
-            let source = fs::read_to_string(&file)?;
+            let source = read_source(&file)?;
             let mut lexer = Lexer::new(&source);
             let tokens = lexer.lex().map_err(into_anyhow)?;
 
@@ -305,7 +335,7 @@ fn main() -> Result<()> {
         }
 
         Commands::Parse { file } => {
-            let source = fs::read_to_string(&file)?;
+            let source = read_source(&file)?;
             let mut lexer = Lexer::new(&source);
             let tokens = lexer.lex().map_err(into_anyhow)?;
             let mut parser = HypnoParser::new(tokens);
@@ -316,7 +346,7 @@ fn main() -> Result<()> {
         }
 
         Commands::Check { file } => {
-            let source = fs::read_to_string(&file)?;
+            let source = read_source(&file)?;
             let mut lexer = Lexer::new(&source);
             let tokens = lexer.lex().map_err(into_anyhow)?;
             let mut parser = HypnoParser::new(tokens);
@@ -329,9 +359,13 @@ fn main() -> Result<()> {
                 println!("✅ No type errors found!");
             } else {
                 println!("❌ Type errors found:");
-                for error in errors {
+                for error in &errors {
                     println!("  - {}", error);
                 }
+                return Err(anyhow!(
+                    "type checking failed with {} error(s)",
+                    errors.len()
+                ));
             }
         }
 
@@ -340,7 +374,7 @@ fn main() -> Result<()> {
             output,
             binary,
         } => {
-            let source = fs::read_to_string(&input)?;
+            let source = read_source(&input)?;
             let mut lexer = Lexer::new(&source);
             let tokens = lexer.lex().map_err(into_anyhow)?;
             let mut parser = HypnoParser::new(tokens);
@@ -371,7 +405,7 @@ fn main() -> Result<()> {
             target,
             opt_level,
         } => {
-            let source = fs::read_to_string(&input)?;
+            let source = read_source(&input)?;
             let mut lexer = Lexer::new(&source);
             let tokens = lexer.lex().map_err(into_anyhow)?;
             let mut parser = HypnoParser::new(tokens);
@@ -433,7 +467,7 @@ fn main() -> Result<()> {
             output,
             stats,
         } => {
-            let source = fs::read_to_string(&input)?;
+            let source = read_source(&input)?;
             let mut lexer = Lexer::new(&source);
             let tokens = lexer.lex().map_err(into_anyhow)?;
             let mut parser = HypnoParser::new(tokens);
@@ -579,39 +613,19 @@ fn main() -> Result<()> {
         }
 
         Commands::Builtins => {
-            println!("=== HypnoScript Builtin Functions ===\n");
+            use hypnoscript_compiler::builtin_registry;
 
-            println!("📊 Math Builtins:");
-            println!("  - Sin, Cos, Tan, Sqrt, Pow, Log, Log10");
-            println!("  - Abs, Floor, Ceil, Round, Min, Max");
-            println!("  - Factorial, Gcd, Lcm, IsPrime, Fibonacci");
-            println!("  - Clamp");
-
-            println!("\n📝 String Builtins:");
-            println!("  - Length, ToUpper, ToLower, Trim");
-            println!("  - IndexOf, Replace, Reverse, Capitalize");
-            println!("  - StartsWith, EndsWith, Contains");
-            println!("  - Split, Substring, Repeat");
-            println!("  - PadLeft, PadRight");
-
-            println!("\n📦 Array Builtins:");
-            println!("  - Length, IsEmpty, Get, IndexOf, Contains");
-            println!("  - Reverse, Sum, Average, Min, Max, Sort");
-            println!("  - First, Last, Take, Skip, Slice");
-            println!("  - Join, Count, Distinct");
-
-            println!("\n✨ Hypnotic Builtins:");
-            println!("  - observe (output)");
-            println!("  - drift (sleep)");
-            println!("  - DeepTrance");
-            println!("  - HypnoticCountdown");
-            println!("  - TranceInduction");
-            println!("  - HypnoticVisualization");
-
-            println!("\n🔄 Conversion Functions:");
-            println!("  - ToInt, ToDouble, ToString, ToBoolean");
-
-            println!("\nTotal: 50+ builtin functions implemented");
+            println!("=== HypnoScript Builtin Functions ===");
+            for category in builtin_registry::categories() {
+                println!("\n{}:", category);
+                for sig in builtin_registry::by_category(category) {
+                    println!("  {}", sig.render());
+                }
+            }
+            println!(
+                "\nTotal: {} builtin functions",
+                builtin_registry::BUILTINS.len()
+            );
         }
     }
 

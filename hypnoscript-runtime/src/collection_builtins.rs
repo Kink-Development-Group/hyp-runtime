@@ -200,7 +200,7 @@ impl CollectionBuiltins {
     pub fn most_common<T: Clone + Eq + Hash>(arr: &[T], n: usize) -> Vec<(T, usize)> {
         let freq = Self::frequency(arr);
         let mut freq_vec: Vec<_> = freq.into_iter().collect();
-        freq_vec.sort_by(|a, b| b.1.cmp(&a.1));
+        freq_vec.sort_by_key(|&(_, count)| std::cmp::Reverse(count));
         freq_vec.into_iter().take(n).collect()
     }
 
@@ -215,7 +215,7 @@ impl CollectionBuiltins {
     pub fn least_common<T: Clone + Eq + Hash>(arr: &[T], n: usize) -> Vec<(T, usize)> {
         let freq = Self::frequency(arr);
         let mut freq_vec: Vec<_> = freq.into_iter().collect();
-        freq_vec.sort_by(|a, b| a.1.cmp(&b.1));
+        freq_vec.sort_by_key(|&(_, count)| count);
         freq_vec.into_iter().take(n).collect()
     }
 

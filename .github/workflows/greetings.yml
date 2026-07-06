@@ -1,16 +1,49 @@
+# Welcomes first-time contributors with useful onboarding information.
+#
+# Docs: https://github.com/actions/first-interaction
 name: Greetings
 
-on: [pull_request_target, issues]
+on:
+  issues:
+    types: [opened]
+  pull_request_target:
+    types: [opened]
+
+permissions:
+  issues: write
+  pull-requests: write
 
 jobs:
   greeting:
     runs-on: ubuntu-latest
-    permissions:
-      issues: write
-      pull-requests: write
     steps:
-    - uses: actions/first-interaction@v1
-      with:
-        repo-token: ${{ secrets.GITHUB_TOKEN }}
-        issue-message: "Message that will be displayed on users' first issue"
-        pr-message: "Message that will be displayed on users' first pull request"
+      - uses: actions/first-interaction@v3
+        with:
+          repo_token: ${{ secrets.GITHUB_TOKEN }}
+          issue_message: |
+            👋 Thanks for opening your first issue in **HypnoScript**!
+
+            To help us triage it quickly, please make sure your report includes:
+
+            - **What you expected** to happen and **what actually** happened
+            - A **minimal `.hyp` snippet** or the CLI command that reproduces the problem
+              (e.g. `hypnoscript check file.hyp` / `hypnoscript exec file.hyp`)
+            - The output of `hypnoscript version` and your OS
+
+            A maintainer will take a look as soon as possible. If you don't get a
+            response within a couple of weeks, feel free to ping the thread —
+            inactive issues are marked as stale automatically.
+          pr_message: |
+            👋 Thanks for your first pull request to **HypnoScript** — welcome aboard!
+
+            Before a review, please check that:
+
+            - [ ] `cargo fmt --all -- --check` passes
+            - [ ] `cargo clippy --all-targets --all-features -- -D warnings` is clean
+            - [ ] `cargo test --workspace` succeeds
+            - [ ] New language features come with tests (see `hypnoscript-tests/`)
+            - [ ] The PR targets the `dev` branch (unless it's a hotfix/release)
+
+            CI will run the full build-and-test matrix automatically, and labels
+            are applied based on the paths you touched. A maintainer will review
+            your changes soon — thanks for contributing! 🎉

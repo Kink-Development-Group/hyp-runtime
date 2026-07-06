@@ -1,0 +1,59 @@
+// End-to-end test: closures (lexical captures + recursion) and promises.
+Focus {
+    // Nested suggestions capture their lexical environment.
+    suggestion makeAdder(offset: number): number {
+        induce bonus: number = 10;
+        suggestion add(n: number): number {
+            awaken n + offset + bonus;
+        }
+        awaken add(5);
+    }
+
+    // Nested suggestions can recurse.
+    suggestion sumBelow(limit: number): number {
+        suggestion helper(n: number): number {
+            if (n <= 0) deepFocus {
+                awaken 0;
+            }
+            awaken n + helper(n - 1);
+        }
+        awaken helper(limit);
+    }
+
+    entrance {
+        induce added: number = makeAdder(100);
+        if (added != 115) deepFocus {
+            closureCaptureBroken();
+        }
+
+        induce total: number = sumBelow(4);
+        if (total != 10) deepFocus {
+            closureRecursionBroken();
+        }
+
+        // Promises: delayed values resolve on await (HYPNO_TIME_SCALE aware).
+        induce slow = delayedValue(20, "slow");
+        induce fast = instantPromise("fast");
+
+        if (isPromiseResolved(slow)) deepFocus {
+            promiseShouldBePending();
+        }
+
+        induce winner = promiseRace([slow, fast]);
+        if (winner != "fast") deepFocus {
+            promiseRaceBroken();
+        }
+
+        induce all = promiseAll([delayedValue(5, 1), instantPromise(2)]);
+        if (ArrayLength(all) != 2) deepFocus {
+            promiseAllBroken();
+        }
+
+        induce value = await delayedValue(5, 42);
+        if (value != 42) deepFocus {
+            awaitBroken();
+        }
+
+        observe "closures & promises: ok";
+    }
+} Relax

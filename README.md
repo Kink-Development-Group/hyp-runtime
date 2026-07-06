@@ -21,7 +21,16 @@ The complete runtime environment, compiler, and command-line tools are exclusive
 - 💎 **Nullish Operators** – `lucidFallback` (`??`) and `dreamReach` (`?.`) for safe null handling
 - 🏛️ **OOP Support** – Sessions with `constructor`, `expose`/`conceal`, `dominant` (static)
 - 🖥️ **Extended CLI** – `run`, `lex`, `parse`, `check`, `compile-wasm`, `compile-native`, `optimize`, `builtins`, `version`
-- ✅ **Comprehensive Tests** – 185+ tests across all compiler modules
+- 🧵 **String Interpolation** – `"Hello, ${name}!"` with arbitrary expressions inside `${...}`
+- 🔢 **Readable Numbers** – digit separators (`1_000_000`) and exponent notation (`2.5e3`)
+- 🌫️ **Null Safety** – `null` literal, nullable types (`number?` / `lucid number`), enforced by the type checker
+- 🪤 **Closures** – nested suggestions capture their lexical environment and can recurse
+- 🛡️ **Sandboxing** – confine all file builtins to a directory via `--sandbox` / `HYPNO_SANDBOX`
+- 🌀 **Safe Recursion** – graceful `RecursionLimitExceeded` errors instead of stack-overflow crashes (`--max-call-depth` / `HYPNO_MAX_CALL_DEPTH`)
+- ⏳ **Promises** – `delayedValue`, `instantPromise`, `promiseAll`, `promiseRace`, `isPromiseResolved` with deterministic `await`
+- 🔁 **Labeled Loops** – `outer: loop (...) { snap outer; }` for breaking/continuing outer loops
+- ⏸️ **Timed Pauses** – `drift(ms);` statement; scale or skip all pauses via `HYPNO_TIME_SCALE`
+- ✅ **Comprehensive Tests** – 300+ tests across all compiler modules, plus an end-to-end harness over the sample programs
 - 📚 **Documentation** – VitePress + extensive architecture docs + complete Rustdoc
 - 🚀 **Performance** – Zero-cost abstractions, no garbage collector, optimized native code
 
@@ -32,21 +41,23 @@ The complete runtime environment, compiler, and command-line tools are exclusive
 ```text
 hyp-runtime/
 ├── Cargo.toml                    # Workspace configuration
-├── COMPILER_ARCHITECTURE.md      # Detailed compiler documentation
 ├── hypnoscript-core/             # Type system & symbols (100%)
 ├── hypnoscript-lexer-parser/     # Tokens, Lexer, AST, Parser (100%)
+│   ├── lexer.rs                  # ✅ Tokenizer incl. string interpolation
+│   ├── parser.rs                 # ✅ Recursive-descent parser
+│   └── error.rs                  # ✅ Syntax errors with line/column info
 ├── hypnoscript-compiler/         # Compiler backend (100%)
-│   ├── interpreter.rs            # ✅ Tree-walking interpreter
+│   ├── interpreter/              # ✅ Tree-walking interpreter (error/value/session/builtins)
 │   ├── type_checker.rs           # ✅ Static type checking
 │   ├── wasm_codegen.rs           # ✅ WASM Text Format (.wat)
 │   ├── wasm_binary.rs            # ✅ WASM Binary Format (.wasm)
 │   ├── optimizer.rs              # ✅ Code optimizations
-│   └── native_codegen.rs         # 🚧 Native compilation (LLVM)
+│   └── native_codegen.rs         # 🚧 Native compilation (planned)
 ├── hypnoscript-runtime/          # 180+ builtin functions (100%)
 └── hypnoscript-cli/              # Command-line interface (100%)
 ```
 
-Documentation is available in `hypnoscript-docs/` (Docusaurus).
+Documentation is available in `hypnoscript-docs/` (VitePress).
 
 ---
 
@@ -108,6 +119,9 @@ Focus {
 
     observe message;
     observe x;
+
+    // String interpolation
+    observe "The answer is ${x}, doubled it is ${x * 2}.";
 
     // Hypnotic operator synonym
     if (x yourEyesAreGettingHeavy 40) deepFocus {
@@ -247,15 +261,15 @@ Example `trance.json`:
 
 ```json
 {
-  “ritualName”: “my-hypno-app”,
-  “mantra”: “1.0.0”,
-  “intent”: “cli”,
-  “suggestions”: {
-    “focus”: “hypnoscript exec src/main.hyp”,
-    “test”: “hypnoscript exec tests/test.hyp”
+  "ritualName": "my-hypno-app",
+  "mantra": "1.0.0",
+  "intent": "cli",
+  "suggestions": {
+    "focus": "hypnoscript exec src/main.hyp",
+    "test": "hypnoscript exec tests/test.hyp"
   },
-  “anchors”: {
-    “hypnoscript-runtime”: “^1.0.0”
+  "anchors": {
+    "hypnoscript-runtime": "^1.0.0"
   }
 }
 ```
@@ -274,19 +288,16 @@ cargo test --all
 
 **Test Coverage**:
 
-- ✅ Lexer: 15+ tests
-- ✅ Parser: 20+ tests
-- ✅ Type Checker: 10+ tests
-- ✅ Interpreter: 12+ tests
-- ✅ WASM Generator: 4+ tests
-- ✅ Optimizer: 6+ tests
-- ✅ Native Generator: 5+ tests
-- ✅ Runtime Builtins: 30+ tests
-- ✅ Pattern Matching: Full coverage
-- ✅ Triggers: Full coverage
-- ✅ Nullish Operators: Full coverage
+- ✅ Lexer: tokenization, escapes, interpolation, numeric literals
+- ✅ Parser: all statements/expressions, positions in error messages
+- ✅ Type Checker, Interpreter, Optimizer, WASM & Native Generators
+- ✅ Runtime Builtins (math, string, array, collection, dict, file, ...)
+- ✅ Pattern Matching, Triggers, Nullish Operators: full coverage
+- ✅ End-to-end harness: every sample program in `hypnoscript-tests/` is
+  categorized and the supported ones are executed on every test run
+  (`hypnoscript-compiler/tests/hyp_programs.rs`)
 
-### Total: 185+ tests (all passing)
+### Total: 300+ tests (all passing)
 
 ### Compiler Tests
 
@@ -622,7 +633,8 @@ mod tests {
 - [x] Complete program execution
 - [x] CLI integration (10 commands)
 - [x] CI/CD pipelines
-- [x] Comprehensive tests (100+ tests)
+- [x] Comprehensive tests (300+ tests)
+- [x] String interpolation (`"${...}"`)
 - [x] Multilingual documentation
 
 ### In Development 🚧
@@ -662,10 +674,8 @@ mod tests {
 - ✅ C# codebase removed (all former `.csproj` projects deleted)
 - ✅ Rust workspace production-ready
 - ✅ Complete port of core functionality
-- ✅ All 48 tests passing
+- ✅ All tests passing (300+)
 - 🔄 Optional extensions (e.g., Network/ML builtins) possible as roadmap items
-
-Migration details: see `IMPLEMENTATION_SUMMARY.md`.
 
 ---
 
@@ -673,7 +683,7 @@ Migration details: see `IMPLEMENTATION_SUMMARY.md`.
 
 - 📘 [Rust Book](https://doc.rust-lang.org/book/)
 - 📦 [Cargo Documentation](https://doc.rust-lang.org/cargo/)
-- 🧾 Project Docs: `HypnoScript.Dokumentation/`
+- 🧾 Project Docs: `hypnoscript-docs/` (VitePress)
 - 🐞 Issues & Discussions: <https://github.com/Kink-Development-Group/hyp-runtime>
 
 ---

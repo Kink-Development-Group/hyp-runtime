@@ -255,6 +255,10 @@ induce padded = PadRight(text, 10, "*");
 observe padded; // "Hello*****"
 ```
 
+:::info Unicode-aware width
+Since 1.3.0, `PadLeft` and `PadRight` measure the target width in **characters**, not bytes. Multi-byte characters like `é` or `🎯` count as one, so `PadLeft("café", 6, " ")` yields `"  café"` — exactly two spaces of padding.
+:::
+
 ### FormatString(template, ...args)
 
 Formats a string with placeholders.

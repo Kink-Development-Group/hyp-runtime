@@ -47,7 +47,7 @@ Focus {
 
     // Multiple output channels remain combinable
     observe "Standard output active.";
-    whisper "soft whisper"
+    whisper "soft whisper";
     command "COMMAND CHANNEL";
 
     finale {

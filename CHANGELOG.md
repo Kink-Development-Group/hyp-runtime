@@ -2,6 +2,115 @@
 
 All notable changes to this project will be documented in this file. The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and this project adheres to [Semantic Versioning](https://semver.org/).
 
+## [1.3.0] - 2026-07-06
+
+### Added
+
+- **Unicode string escapes**: `\uXXXX` (4 hex digits) and `\xNN` (2 hex digits) escape
+  sequences in string literals, with clear errors for invalid digits and invalid Unicode
+  scalar values.
+
+- **Closures with lexical scoping**: functions declared inside other functions now
+  capture the enclosing local variables (by-value snapshot at declaration time) and can
+  recurse. Variable lookups no longer leak across function-call boundaries (previously
+  the interpreter used dynamic scoping, so a callee could accidentally read the caller's
+  locals); accessing a caller-local from a callee is now an `UndefinedVariable` error.
+- **Recursion depth limit**: deeply recursive programs abort with a graceful
+  `RecursionLimitExceeded` error instead of crashing the host process with a stack
+  overflow. Default limit is 1,000 calls; configurable via the `HYPNO_MAX_CALL_DEPTH`
+  environment variable, the `--max-call-depth` CLI flag on `exec`, or
+  `Interpreter::set_max_call_depth`. The interpreter additionally grows the native stack
+  on demand (`stacker`), so the limit is reliable in debug and release builds alike.
+- **Filesystem sandbox for file builtins**: setting the `HYPNO_SANDBOX` environment
+  variable (or passing `--sandbox <dir>` to `exec`, or calling
+  `hypnoscript_runtime::set_sandbox_root`) confines `ReadFile`, `WriteFile`,
+  `DeleteFile`, `ListDirectory` and all other file builtins to that directory. Escapes
+  via `..`, absolute paths or symlinks are rejected with `PermissionDenied`; relative
+  paths resolve against the sandbox root. Without a configured root, behaviour is
+  unchanged.
+- **Working promise builtins**: `delayedValue(ms, value)` returns a real promise that
+  resolves when awaited (delay honours `HYPNO_TIME_SCALE`), plus `instantPromise(value)`,
+  `promiseAll(array)` (waits for the longest delay, simulating concurrency),
+  `promiseRace(array)` (waits for the shortest) and `isPromiseResolved(p)`. `await` now
+  resolves pending promises deterministically instead of sleeping a hard-coded 10 ms.
+- **Central builtin registry** (`hypnoscript_compiler::builtin_registry`): all 142
+  builtin signatures are declared once in a table that feeds both the type checker
+  registrations and the CLI `builtins` command (which previously printed a hardcoded,
+  outdated list and now renders every builtin with its full signature).
+- **Value representation optimized**: arrays and records are shared via `Rc` (safe since
+  both are immutable value types in the language), and function bodies are shared via
+  `Rc` as well — cloning a value or looking up a function no longer deep-copies element
+  vectors or the body AST.
+- **`AsyncBuiltins` placeholders removed**: `delayed_value` (returned a fake string
+  "promise"), `promise_all` and `promise_race` (returned wrong results) were replaced by
+  the real interpreter builtins above.
+- **`null` literal**: `null` is now a first-class literal (previously the nullish
+  operators `lucidFallback`/`dreamReach` existed but `null` itself could not be written).
+  It works in expressions, record fields and as an `entrain` pattern (`when null => ...`).
+- **Nullable types**: `number?` (or the hypnotic spelling `lucid number`) declares a type
+  that admits `null`. The type checker enforces this in both directions: assigning `null`
+  to a non-nullable type is an error, as is assigning a nullable value to a non-nullable
+  target. `lucidFallback` strips nullability from the result type.
+- **Array type annotations**: `string[]`, `number[][]` and combinations like `number[]?`
+  are accepted everywhere a type annotation is allowed, and are checked against array
+  literal element types.
+- **Labeled loops with labeled break/continue**: `outer: loop (...) { ... snap outer; }`
+  breaks out of the named loop from any nesting depth; `sink outer;` continues its next
+  iteration. Also supports the `label name:` keyword form. Unknown labels are runtime
+  errors.
+- **`drift(ms);` / `pauseReality(ms);` statements**: pause execution, with static type
+  checking of the duration expression.
+- **Standalone `deepFocus (cond) { ... }` statement**: the conditional block form that was
+  already in the AST and interpreter is now parseable.
+- **`imperative suggestion` two-word form** for function declarations (top-level and in
+  sessions), alongside the existing one-word `imperativeSuggestion`.
+- **`sharedTrance` shorthand**: `sharedTrance total: number = 0;` now works without an
+  explicit `induce`/`implant`/`embed`/`freeze` keyword.
+- **Source encoding tolerance**: `.hyp` files with UTF-8 BOMs or in UTF-16 (LE/BE, with or
+  without BOM) are decoded transparently by the CLI and test harness
+  (`hypnoscript_lexer_parser::decode_source`).
+- **`HYPNO_TIME_SCALE` environment variable**: scales every themed pause (`drift`,
+  `DeepTrance`, `HypnoticCountdown`, ...). `0` skips pauses entirely (used by the test
+  harness), `0.5` halves them, unset means real time.
+- **String Interpolation**: `"Hello, ${name}!"` embeds arbitrary expressions in string
+  literals. Interpolations are desugared by the lexer into string concatenation, so they
+  work uniformly across the interpreter, type checker and all compile targets.
+  `\${` escapes a literal `${`; nested braces and strings inside `${...}` are supported.
+- **Readable numeric literals**: digit separators (`1_000_000`) and exponent notation
+  (`2.5e3`, `7e-2`) in number literals.
+- **End-to-end sample-program harness** (`hypnoscript-compiler/tests/hyp_programs.rs`):
+  every `.hyp` file in `hypnoscript-tests/` must be categorized as runnable or
+  known-unsupported (with a reason); runnable programs are executed on every
+  `cargo test` run instead of only one file in CI. With the language gaps above closed,
+  **all 27 sample programs now run** (previously 16; legacy files with genuine bugs —
+  a duplicated `Focus {`, a missing semicolon, `deeplyLess` used where `<` was meant —
+  were fixed).
+- **`check` command now exits non-zero when type errors are found**, so it can gate CI.
+
+### Changed
+
+- **Structured syntax errors**: the lexer and parser now return `SyntaxError` values with
+  line/column information instead of plain strings. Parser errors additionally report the
+  offending token (e.g. `Expected ';' after expression, found 'observe' at line 4, column 5`).
+- **Interpreter modularized**: `hypnoscript-compiler/src/interpreter.rs` (3,800 lines) was
+  split into focused submodules `error`, `value`, `session` and `builtins`; the public API
+  (`Interpreter`, `InterpreterError`, `Value`) is unchanged.
+- **Keyword table deduplicated**: keyword definitions in `token.rs` live in a single
+  declarative table instead of ~570 lines of repetitive map insertions.
+- **Lexer cleanup**: operator lexing extracted into a table-driven helper; comment skipping
+  unified; multi-line strings now report the token's start line.
+
+### Fixed
+
+- `a..b` no longer silently swallows one dot (it is now a clear syntax error suggesting
+  `.` or `...`).
+- Number literals no longer accept multiple decimal points (`1.2.3` previously lexed as a
+  single invalid number; `1.2.member` now lexes correctly as member access).
+- Unterminated block comments are reported as errors instead of being silently accepted.
+- Unterminated strings report the string's start position instead of the end of file.
+- `PadLeft` / `PadRight` now count characters instead of bytes, so padding widths are
+  correct for non-ASCII strings (e.g. `café`, emoji).
+
 ## [1.2.0] - 2026-01-22
 
 ### Added
@@ -85,3 +194,4 @@ All notable changes to this project will be documented in this file. The format 
 
 [1.0.0]: https://github.com/Kink-Development-Group/hyp-runtime/releases/tag/1.0.0
 [1.2.0]: https://github.com/Kink-Development-Group/hyp-runtime/releases/tag/1.2.0
+[1.3.0]: https://github.com/Kink-Development-Group/hyp-runtime/releases/tag/v1.3.0

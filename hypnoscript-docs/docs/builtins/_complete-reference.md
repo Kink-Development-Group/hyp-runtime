@@ -379,6 +379,16 @@ All array functions use the `Array` prefix to distinguish from string functions 
 | `MeasureTranceDepth` | `(action: () -> void) -> number`    | Measure execution time       |
 | `Memoize`            | `(f: A -> R) -> (A -> R)`           | Function with caching        |
 
+## Async / Promise Builtins
+
+| Function            | Signature                            | Description                                |
+| ------------------- | ------------------------------------ | ------------------------------------------ |
+| `delayedValue`      | `(delayMs: number, value: any) -> promise` | Promise resolved after delay (on await) |
+| `instantPromise`    | `(value: any) -> promise`            | Already-resolved promise                   |
+| `promiseAll`        | `(promises: any[]) -> any[]`         | Wait for all promises (longest delay)      |
+| `promiseRace`       | `(promises: any[]) -> any`           | Value of the fastest promise               |
+| `isPromiseResolved` | `(promise: any) -> boolean`          | Check promise state without waiting        |
+
 ## Usage Notes
 
 ### Naming Conventions

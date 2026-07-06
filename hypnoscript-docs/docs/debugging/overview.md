@@ -134,7 +134,7 @@ HypnoScript provides detailed error reports with:
 ```hyp
 $ hypnoscript exec calculator.hyp --debug --breakpoints 10
 
-HypnoScript Debugger v1.2.0
+HypnoScript Debugger v1.3.0
 Type 'help' for available commands.
 
 (hypno-debug) run

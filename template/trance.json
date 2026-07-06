@@ -29,8 +29,8 @@
     "test": "hypnoscript run tests/smoke.hyp"
   },
   "anchors": {
-    "hypnoscript-runtime": "^1.2.0",
-    "hypnoscript-cli": "^1.2.0"
+    "hypnoscript-runtime": "^1.3.0",
+    "hypnoscript-cli": "^1.3.0"
   },
   "deepAnchors": {
     "@hypno/testing-lab": "^0.3.0"

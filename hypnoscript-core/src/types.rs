@@ -14,6 +14,8 @@ pub enum HypnoBaseType {
     Function,
     Session,
     Record,
+    /// The type of the `null` literal. Only compatible with nullable types.
+    Null,
     Unknown,
 }
 
@@ -26,6 +28,10 @@ pub struct HypnoType {
     pub fields: Option<HashMap<String, HypnoType>>,
     pub parameter_types: Option<Vec<HypnoType>>,
     pub return_type: Option<Box<HypnoType>>,
+    /// Whether the type admits `null` (declared with a `?` suffix or the
+    /// `lucid` modifier, e.g. `number?` / `lucid number`).
+    #[serde(default)]
+    pub nullable: bool,
 }
 
 impl HypnoType {
@@ -38,42 +44,32 @@ impl HypnoType {
             fields: None,
             parameter_types: None,
             return_type: None,
+            nullable: false,
         }
     }
 
     /// Create an array type
     pub fn create_array(element_type: HypnoType) -> Self {
         Self {
-            base_type: HypnoBaseType::Array,
-            name: None,
             element_type: Some(Box::new(element_type)),
-            fields: None,
-            parameter_types: None,
-            return_type: None,
+            ..Self::new(HypnoBaseType::Array, None)
         }
     }
 
     /// Create a record type
     pub fn create_record(name: String, fields: HashMap<String, HypnoType>) -> Self {
         Self {
-            base_type: HypnoBaseType::Record,
-            name: Some(name),
-            element_type: None,
             fields: Some(fields),
-            parameter_types: None,
-            return_type: None,
+            ..Self::new(HypnoBaseType::Record, Some(name))
         }
     }
 
     /// Create a function type
     pub fn create_function(parameter_types: Vec<HypnoType>, return_type: HypnoType) -> Self {
         Self {
-            base_type: HypnoBaseType::Function,
-            name: None,
-            element_type: None,
-            fields: None,
             parameter_types: Some(parameter_types),
             return_type: Some(Box::new(return_type)),
+            ..Self::new(HypnoBaseType::Function, None)
         }
     }
 
@@ -92,6 +88,31 @@ impl HypnoType {
 
     pub fn unknown() -> Self {
         Self::new(HypnoBaseType::Unknown, None)
+    }
+
+    /// The type of the `null` literal.
+    pub fn null() -> Self {
+        Self {
+            nullable: true,
+            ..Self::new(HypnoBaseType::Null, None)
+        }
+    }
+
+    /// Return this type marked as nullable (`T?` / `lucid T`).
+    pub fn into_nullable(mut self) -> Self {
+        self.nullable = true;
+        self
+    }
+
+    /// Return this type with the nullable marker removed. Used when an
+    /// operation (e.g. `lucidFallback`) guarantees a non-null result.
+    pub fn into_non_nullable(mut self) -> Self {
+        self.nullable = false;
+        self
+    }
+
+    pub fn is_nullable(&self) -> bool {
+        self.nullable || self.base_type == HypnoBaseType::Null
     }
 
     /// Type checking predicates
@@ -114,8 +135,20 @@ impl HypnoType {
         )
     }
 
-    /// Check if this type is compatible with another type
+    /// Check if this type is compatible with another type.
+    ///
+    /// `self` is the expected type, `other` the actual one. A `null` value
+    /// only fits nullable types; a nullable actual value only fits nullable
+    /// expected types (it might be null at runtime).
     pub fn is_compatible_with(&self, other: &HypnoType) -> bool {
+        if other.base_type == HypnoBaseType::Null {
+            return self.is_nullable();
+        }
+
+        if other.nullable && !self.nullable {
+            return false;
+        }
+
         if self.base_type != other.base_type {
             return false;
         }
@@ -172,7 +205,18 @@ impl HypnoType {
 
 impl fmt::Display for HypnoType {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        self.fmt_base(f)?;
+        if self.nullable && self.base_type != HypnoBaseType::Null {
+            write!(f, "?")?;
+        }
+        Ok(())
+    }
+}
+
+impl HypnoType {
+    fn fmt_base(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         match self.base_type {
+            HypnoBaseType::Null => write!(f, "null"),
             HypnoBaseType::Array => {
                 if let Some(ref elem) = self.element_type {
                     write!(f, "[{}]", elem)
@@ -226,3 +270,52 @@ impl std::hash::Hash for HypnoType {
 }
 
 impl Eq for HypnoType {}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_null_only_fits_nullable_types() {
+        let null_type = HypnoType::null();
+        assert!(!HypnoType::number().is_compatible_with(&null_type));
+        assert!(
+            HypnoType::number()
+                .into_nullable()
+                .is_compatible_with(&null_type)
+        );
+    }
+
+    #[test]
+    fn test_nullable_actual_needs_nullable_expected() {
+        let nullable_number = HypnoType::number().into_nullable();
+        assert!(!HypnoType::number().is_compatible_with(&nullable_number));
+        assert!(
+            HypnoType::number()
+                .into_nullable()
+                .is_compatible_with(&nullable_number)
+        );
+        // Non-nullable values still fit nullable slots.
+        assert!(
+            HypnoType::number()
+                .into_nullable()
+                .is_compatible_with(&HypnoType::number())
+        );
+    }
+
+    #[test]
+    fn test_nullable_display() {
+        assert_eq!(HypnoType::number().into_nullable().to_string(), "Number?");
+        assert_eq!(HypnoType::null().to_string(), "null");
+        assert_eq!(
+            HypnoType::create_array(HypnoType::string()).to_string(),
+            "[String]"
+        );
+    }
+
+    #[test]
+    fn test_non_nullable_strips_marker() {
+        let t = HypnoType::string().into_nullable().into_non_nullable();
+        assert!(!t.is_nullable());
+    }
+}

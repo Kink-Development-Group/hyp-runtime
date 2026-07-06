@@ -20,7 +20,7 @@ Focus {
     // === DeepFocus & verschachtelte Bedingungen ===
     induce desiredDepth: number = 6;
     forFocus:
-    loop (induce i: number = 0; i deeplyLess ArrayLength(plans); i = i + 1) {
+    loop (induce i: number = 0; i fallUnderMySpell ArrayLength(plans); i = i + 1) {
         induce plan = plans[i];
 
         deepFocus (plan.depth lookAtTheWatch desiredDepth) {
@@ -30,7 +30,7 @@ Focus {
     }
 
     // === entrain mit Guard & Pattern ===
-    loop (induce i: number = 0; i deeplyLess ArrayLength(plans); i = i + 1) {
+    loop (induce i: number = 0; i fallUnderMySpell ArrayLength(plans); i = i + 1) {
         induce current = plans[i];
         induce classification: string = entrain current {
             when SuggestionPlan { depth: d } if d lookAtTheWatch 7 => "intensiv"
@@ -62,7 +62,7 @@ Focus {
     induce minDepth: number = plans[0].depth;
     induce maxDepth: number = plans[0].depth;
 
-    loop (induce i: number = 0; i deeplyLess ArrayLength(plans); i = i + 1) {
+    loop (induce i: number = 0; i fallUnderMySpell ArrayLength(plans); i = i + 1) {
         induce depthValue: number = plans[i].depth;
         sumDepth = sumDepth + depthValue;
         if (depthValue fallUnderMySpell minDepth) {

@@ -24,22 +24,6 @@ impl AsyncBuiltins {
         Value::Null
     }
 
-    /// Create a promise that resolves after a delay
-    ///
-    /// # Example (HypnoScript)
-    /// ```hypnoscript
-    /// induce promise = delayedValue(1000, 42);
-    /// induce result = await promise; // Returns 42 after 1 second
-    /// ```
-    ///
-    /// Note: Due to Value containing Rc (not Send), this returns a placeholder.
-    /// For true async promises with arbitrary values, Value needs to use Arc.
-    pub fn delayed_value(milliseconds: f64, _value: Value) -> Value {
-        // Cannot use promise_delay with Value due to Send requirement
-        // This would require refactoring Value to use Arc instead of Rc
-        Value::String(format!("<async promise: {}ms>", milliseconds))
-    }
-
     /// Execute function with timeout
     ///
     /// # Example (HypnoScript)
@@ -73,34 +57,6 @@ impl AsyncBuiltins {
             tokio::time::sleep(std::time::Duration::from_millis(100)).await;
             Ok(TaskResult::Null)
         })
-    }
-
-    /// Wait for multiple promises to complete (Promise.all)
-    ///
-    /// # Example (HypnoScript)
-    /// ```hypnoscript
-    /// induce results = await promiseAll([promise1, promise2, promise3]);
-    /// ```
-    pub async fn promise_all(promises: Vec<Value>) -> Result<Value, String> {
-        // In real implementation, would convert Value::Promise to AsyncPromise
-        // and use crate::async_promise::promise_all
-
-        Ok(Value::Array(promises))
-    }
-
-    /// Race multiple promises (first to complete wins)
-    ///
-    /// # Example (HypnoScript)
-    /// ```hypnoscript
-    /// induce fastest = await promiseRace([promise1, promise2]);
-    /// ```
-    pub async fn promise_race(promises: Vec<Value>) -> Result<Value, String> {
-        if promises.is_empty() {
-            return Err("No promises provided".to_string());
-        }
-
-        // Return first promise for now
-        Ok(promises[0].clone())
     }
 
     /// Create MPSC channel

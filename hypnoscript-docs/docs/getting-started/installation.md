@@ -110,7 +110,7 @@ hypnoscript exec test.hyp
 Expected output (abbreviated):
 
 ```text
-HypnoScript v1.2.0
+HypnoScript v1.3.0
 Installation successful!
 ```
 

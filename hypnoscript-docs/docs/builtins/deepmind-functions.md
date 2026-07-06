@@ -23,6 +23,11 @@ to be expressed declaratively.
 | `EnsureAwakening`    | `void`       | Guarantee cleanup execution              |
 | `MeasureTranceDepth` | `number`     | Measure runtime in milliseconds          |
 | `Memoize`            | `suggestion` | Cache function results                   |
+| `delayedValue`       | `promise`    | Promise resolved after a delay           |
+| `instantPromise`     | `promise`    | Already-resolved promise                 |
+| `promiseAll`         | `array`      | Wait for all promises                    |
+| `promiseRace`        | `any`        | Value of the fastest promise             |
+| `isPromiseResolved`  | `boolean`    | Check promise state without waiting      |
 
 :::tip Naming conventions
 All DeepMind builtins use PascalCase (`RepeatAction`) and accept `suggestion()` blocks as parameters.
@@ -201,6 +206,65 @@ induce memoSquare = Memoize(square);
 observe memoSquare(4); // 16
 observe memoSquare(4); // 16 (future calls from cache)
 ```
+
+## Promises & await
+
+Promise builtins create real pending values that resolve deterministically when awaited — like a post-hypnotic suggestion that fires exactly on cue. Unlike the other DeepMind builtins, they use camelCase names (`delayedValue`), matching the async style of the language.
+
+### delayedValue(delayMs, value)
+
+- **Signature:** `(delayMs: number, value: any) -> promise`
+- **Description:** Returns a pending promise that resolves to `value` after `delayMs` milliseconds. The delay honours `HYPNO_TIME_SCALE` (`0` resolves immediately — useful for tests).
+
+```hyp
+induce slow = delayedValue(20, "slow");
+induce value = await delayedValue(5, 42);
+observe value; // 42
+```
+
+### instantPromise(value)
+
+- **Signature:** `(value: any) -> promise`
+- **Description:** Returns an already-resolved promise wrapping `value`.
+
+```hyp
+induce fast = instantPromise("fast");
+observe await fast; // "fast"
+```
+
+### promiseAll(promises)
+
+- **Signature:** `(promises: any[]) -> any[]`
+- **Description:** Waits for **all** promises in the array (i.e., for the longest delay) and returns their values in order.
+
+```hyp
+induce all = promiseAll([delayedValue(5, 1), instantPromise(2)]);
+observe ArrayLength(all); // 2
+```
+
+### promiseRace(promises)
+
+- **Signature:** `(promises: any[]) -> any`
+- **Description:** Waits only for the **fastest** promise (the shortest delay) and returns its value.
+
+```hyp
+induce winner = promiseRace([delayedValue(20, "slow"), instantPromise("fast")]);
+observe winner; // "fast"
+```
+
+### isPromiseResolved(promise)
+
+- **Signature:** `(promise: any) -> boolean`
+- **Description:** Checks whether a promise has already resolved, without waiting.
+
+```hyp
+induce slow = delayedValue(20, "slow");
+observe isPromiseResolved(slow); // false — still pending
+```
+
+:::tip await
+`await` resolves pending promises deterministically: `await delayedValue(5, 42)` always yields `42` once the delay has elapsed. Awaiting a non-promise value simply returns the value itself.
+:::
 
 ## Usage Tips
 
