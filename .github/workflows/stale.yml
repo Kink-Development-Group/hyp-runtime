@@ -1,27 +1,67 @@
-# This workflow warns and then closes issues and PRs that have had no activity for a specified amount of time.
+# Warns and then closes issues and PRs that have had no activity for a
+# specified amount of time.
 #
-# You can adjust the behavior by modifying this file.
-# For more information, see:
-# https://github.com/actions/stale
+# Docs: https://github.com/actions/stale
 name: Mark stale issues and pull requests
 
 on:
   schedule:
-  - cron: '30 14 * * *'
+    - cron: '30 14 * * *'
+  workflow_dispatch: # allow manual runs
+
+concurrency:
+  group: stale
+  cancel-in-progress: true
+
+permissions:
+  issues: write
+  pull-requests: write
 
 jobs:
   stale:
-
     runs-on: ubuntu-latest
-    permissions:
-      issues: write
-      pull-requests: write
-
     steps:
-    - uses: actions/stale@v5
-      with:
-        repo-token: ${{ secrets.GITHUB_TOKEN }}
-        stale-issue-message: 'Stale issue message'
-        stale-pr-message: 'Stale pull request message'
-        stale-issue-label: 'no-issue-activity'
-        stale-pr-label: 'no-pr-activity'
+      - uses: actions/stale@v10
+        with:
+          repo-token: ${{ secrets.GITHUB_TOKEN }}
+
+          # --- Issues ---
+          days-before-issue-stale: 60
+          days-before-issue-close: 14
+          stale-issue-label: 'status:stale'
+          close-issue-label: 'status:auto-closed'
+          exempt-issue-labels: 'pinned,security,type:bug,help wanted,good first issue,status:blocked'
+          stale-issue-message: >
+            This issue has been automatically marked as stale because it has had
+            no activity in the last 60 days. It will be closed in 14 days if no
+            further activity occurs. If this issue is still relevant, please
+            leave a comment or remove the `status:stale` label. Thank you for
+            your contributions!
+          close-issue-message: >
+            This issue was closed automatically because it has been stale for
+            14 days with no activity. Feel free to reopen it or create a new
+            issue with up-to-date context if the problem persists.
+
+          # --- Pull requests ---
+          days-before-pr-stale: 30
+          days-before-pr-close: 14
+          stale-pr-label: 'status:stale'
+          close-pr-label: 'status:auto-closed'
+          exempt-pr-labels: 'pinned,security,status:blocked,type:release'
+          exempt-draft-pr: true
+          delete-branch: false
+          stale-pr-message: >
+            This pull request has been automatically marked as stale because it
+            has had no activity in the last 30 days. It will be closed in
+            14 days if no further activity occurs. Please rebase, push an
+            update, or leave a comment if you intend to continue working on it.
+          close-pr-message: >
+            This pull request was closed automatically because it has been
+            stale for 14 days with no activity. Feel free to reopen it once you
+            are ready to continue.
+
+          # --- General behaviour ---
+          exempt-all-milestones: true
+          remove-stale-when-updated: true
+          operations-per-run: 200
+          ascending: true # process oldest first so nothing starves
