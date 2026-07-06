@@ -25,7 +25,7 @@ const GITHUB_OWNER: &str = "Kink-Development-Group";
 const GITHUB_REPO: &str = "hyp-runtime";
 const GITHUB_API: &str = "https://api.github.com";
 const DEFAULT_TIMEOUT_SECS: u64 = 20;
-const DEFAULT_PACKAGE_VERSION: &str = "^1.2.0";
+const DEFAULT_PACKAGE_VERSION: &str = "^1.3.0";
 #[cfg(not(target_os = "windows"))]
 const INSTALLER_FALLBACK_URL: &str =
     "https://kink-development-group.github.io/hyp-runtime/install.sh";

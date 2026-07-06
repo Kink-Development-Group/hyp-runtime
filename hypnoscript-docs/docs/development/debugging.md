@@ -305,7 +305,7 @@ Unhandled runtime exception occurs.
 
 Environment:
 - OS: Windows 10
-- HypnoScript version: 1.2.0
+- HypnoScript version: 1.3.0
 ```
 
 ## Conclusion

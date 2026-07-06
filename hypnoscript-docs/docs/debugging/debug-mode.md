@@ -81,7 +81,7 @@ In interactive debug mode, the following commands are available:
 ```bash
 $ hypnoscript exec --debug examples/calculator.hyp
 
-HypnoScript Debugger v1.2.0
+HypnoScript Debugger v1.3.0
 Type 'help' for available commands.
 
 (hypno-debug) b 10

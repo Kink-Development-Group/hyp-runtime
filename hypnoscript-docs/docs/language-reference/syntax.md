@@ -48,6 +48,14 @@ Focus {
 } Relax
 ```
 
+### Source File Encoding
+
+`.hyp` files are usually plain UTF-8, but the CLI and test harness decode
+other common encodings transparently: UTF-8 with a byte-order mark (BOM),
+and UTF-16 (little- or big-endian, with or without BOM). Files saved by
+editors that default to UTF-16 — such as some Windows tools — simply work,
+no re-encoding required.
+
 ## Variables and Assignments
 
 ### Induce (Variable Declaration)
@@ -67,6 +75,36 @@ Focus {
     }
 } Relax
 ```
+
+### SharedTrance (Global Variables)
+
+`sharedTrance` declares a module-level variable that every suggestion shares —
+one trance, one mind. The declaration keyword (`induce`, `implant`, `embed`,
+`freeze`) is optional; the shorthand `sharedTrance name: type = value;` works
+on its own:
+
+```hyp
+Focus {
+    // Shorthand — no induce needed
+    sharedTrance total: number = 0;
+
+    // Classic long form is still valid
+    sharedTrance induce sessionName: string = "Deep Dive";
+
+    suggestion addToTotal(n: number) {
+        total = total + n;
+    }
+
+    entrance {
+        addToTotal(5);
+        addToTotal(7);
+        observe "Total: " + total;  // 12
+    }
+} Relax
+```
+
+`sharedTrance` must be followed by a variable declaration; anything else is a
+parse error.
 
 ### Data Types
 
@@ -96,6 +134,36 @@ Focus {
     }
 } Relax
 ```
+
+### String Escape Sequences
+
+String literals support the usual escapes plus hexadecimal Unicode escapes:
+
+| Escape   | Meaning                                        |
+| -------- | ---------------------------------------------- |
+| `\n`     | Newline                                        |
+| `\t`     | Tab                                            |
+| `\r`     | Carriage return                                |
+| `\\`     | Backslash                                      |
+| `\"`     | Double quote                                   |
+| `\$`     | Literal `$` (suppresses interpolation)         |
+| `\uXXXX` | Unicode code point (exactly 4 hex digits)      |
+| `\xNN`   | Unicode code point (exactly 2 hex digits)      |
+
+```hyp
+Focus {
+    entrance {
+        observe "\u0048\u0079\u0070\u006E\u006F";  // => Hypno
+        observe "Hello\x20World\x21";              // => Hello World!
+        observe "Spiral: \u25CC";                  // => Spiral: ◌
+    }
+} Relax
+```
+
+Both forms consume a fixed number of hex digits. A truncated escape, a
+non-hex digit, or a value that is not a valid Unicode scalar (such as a
+surrogate code point `\uD800`–`\uDFFF`) is a **lexer error** — the program
+does not even reach the parser.
 
 ### String Interpolation
 
@@ -212,6 +280,40 @@ Focus {
 } Relax
 ```
 
+### DeepFocus (Conditional Block)
+
+`deepFocus (condition) { ... }` is a standalone conditional statement — an
+`if` with hypnotic emphasis, marking a block the program sinks into only when
+the condition holds. There is no `else` branch:
+
+```hyp
+Focus {
+    entrance {
+        induce depth: number = 7;
+
+        deepFocus (depth > 5) {
+            observe "You are in deep trance now...";
+        }
+    }
+} Relax
+```
+
+`deepFocus` may also follow an `if` condition as a block marker:
+
+```hyp
+Focus {
+    entrance {
+        induce n: number = 0;
+        if (n <= 0) deepFocus {
+            observe "Fully grounded.";
+        }
+    }
+} Relax
+```
+
+The condition must be a boolean — the type checker reports
+`DeepFocus condition must be boolean` otherwise.
+
 ### While Loop
 
 ```hyp
@@ -327,6 +429,38 @@ Focus {
 
         induce fact: number = factorial(5);
         observe "5! = " + fact;
+    }
+} Relax
+```
+
+### Imperative Suggestions
+
+`imperativeSuggestion` declares a function in commanding style. Since 1.3.0
+the two-word form `imperative suggestion` is accepted as well — both are
+interchangeable, at the top level and inside sessions:
+
+```hyp
+Focus {
+    // One-word form
+    imperativeSuggestion obey(command: string) {
+        observe "You will " + command + ".";
+    }
+
+    // Two-word form — identical meaning
+    imperative suggestion comply(command: string) {
+        observe "You must " + command + ".";
+    }
+
+    session Hypnotist {
+        // Works as an instance method too
+        expose imperative suggestion command(target: string) {
+            observe "Sleep now, " + target + "!";
+        }
+    }
+
+    entrance {
+        obey("relax");
+        comply("focus");
     }
 } Relax
 ```

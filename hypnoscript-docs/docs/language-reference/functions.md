@@ -137,6 +137,82 @@ Focus {
 } Relax;
 ```
 
+## Closures and Lexical Scoping
+
+Suggestions can be declared inside other suggestions. An inner suggestion is a **closure**: it captures the local variables of its enclosing function **by value, at the moment it is declared** — a hypnotic snapshot of the surrounding trance.
+
+```hyp
+Focus {
+    suggestion makeAdder(offset: number): number {
+        induce bonus: number = 10;
+
+        // 'add' captures 'offset' and 'bonus' from the enclosing scope
+        suggestion add(n: number): number {
+            awaken n + offset + bonus;
+        }
+
+        awaken add(5);
+    }
+
+    entrance {
+        induce result: number = makeAdder(100);
+        observe result; // 115
+    }
+} Relax;
+```
+
+Nested suggestions can also recurse — the closure sees its own name:
+
+```hyp
+Focus {
+    suggestion sumBelow(limit: number): number {
+        suggestion helper(n: number): number {
+            if (n <= 0) {
+                awaken 0;
+            }
+            awaken n + helper(n - 1);
+        }
+        awaken helper(limit);
+    }
+
+    entrance {
+        observe sumBelow(4); // 10
+    }
+} Relax;
+```
+
+**Scoping rules (since 1.3.0):**
+
+- Captures are **by-value snapshots**: mutating the outer variable after the inner suggestion is declared does not change what the closure sees.
+- HypnoScript uses strict **lexical scoping**. Earlier versions allowed a called function to read the *caller's* locals (dynamic scoping); this is gone. A function that references a variable which is neither a parameter, a local, a captured value, nor a global now fails with an `UndefinedVariable` error.
+
+## Recursion Depth Limit
+
+Deep recursion no longer crashes the interpreter with a stack overflow. When the call depth exceeds the limit (**1,000 calls** by default), execution aborts gracefully with a `RecursionLimitExceeded` error.
+
+The limit is configurable:
+
+| Mechanism                        | Example                                        |
+| -------------------------------- | ---------------------------------------------- |
+| Environment variable             | `HYPNO_MAX_CALL_DEPTH=5000 hypnoscript exec f.hyp` |
+| CLI flag on `exec`               | `hypnoscript exec f.hyp --max-call-depth 5000` |
+| Rust API (embedding)             | `Interpreter::set_max_call_depth(5000)`        |
+
+```hyp
+Focus {
+    suggestion sinkForever(n: number): number {
+        awaken sinkForever(n + 1); // no base case!
+    }
+
+    entrance {
+        sinkForever(0);
+        // => Error: RecursionLimitExceeded (after 1000 calls)
+    }
+} Relax;
+```
+
+See [CLI Commands](../cli/commands#exec---execute-a-program) for the `exec` options.
+
 ## Functions with Arrays
 
 ```hyp

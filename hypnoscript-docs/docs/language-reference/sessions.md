@@ -32,7 +32,7 @@ Key points:
 
 - `session Name { ... }` declares the type.
 - Fields require an explicit visibility keyword (`expose` for public, `conceal` for private). Initialisers are optional.
-- Methods use `suggestion`, `imperativeSuggestion`, or `dominant suggestion` depending on the style you prefer. The parser treats `imperativeSuggestion` as an instance method and `dominant suggestion` as static.
+- Methods use `suggestion`, `imperativeSuggestion` (or the two-word form `imperative suggestion`), or `dominant suggestion` depending on the style you prefer. The parser treats `imperativeSuggestion` as an instance method and `dominant suggestion` as static.
 - The optional `constructor` keyword after `suggestion` marks a constructor. Constructors cannot be static and always return an instance of the surrounding session. The type checker enforces those rules.
 
 ## Field visibility

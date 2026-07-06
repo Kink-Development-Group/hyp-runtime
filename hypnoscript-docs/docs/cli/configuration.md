@@ -8,14 +8,15 @@ The Rust-based HypnoScript CLI deliberately avoids global configuration files. I
 
 ## CLI Runtime Flags
 
-| Subcommand                          | Options                | Effect                                                                    |
-| ----------------------------------- | ---------------------- | ------------------------------------------------------------------------- |
-| `run <file>`                        | `--debug`, `--verbose` | Debug shows tokens, AST, and type checks; verbose outputs status messages |
-| `compile-wasm`                      | `--output <file>`      | Selects the name of the `.wat` file (default: `<input>.wat`)              |
-| `version`                           | _(none)_               | Outputs toolchain information                                             |
-| `lex`, `parse`, `check`, `builtins` | _(none)_               | Use no additional options                                                 |
+| Subcommand                          | Options                                     | Effect                                                                    |
+| ----------------------------------- | ------------------------------------------- | ------------------------------------------------------------------------- |
+| `run <file>`                        | `--debug`, `--verbose`                      | Debug shows tokens, AST, and type checks; verbose outputs status messages |
+| `exec <file>`                       | `--sandbox <dir>`, `--max-call-depth <n>`   | Confines file builtins to a directory; caps recursion depth (default 1000) |
+| `compile-wasm`                      | `--output <file>`                           | Selects the name of the `.wat` file (default: `<input>.wat`)              |
+| `version`                           | _(none)_                                    | Outputs toolchain information                                             |
+| `lex`, `parse`, `check`, `builtins` | _(none)_                                    | Use no additional options                                                 |
 
-More flags currently don't exist. This makes the CLI simple but also very predictable – especially for scripts and CI.
+This keeps the CLI simple but also very predictable – especially for scripts and CI. See [CLI Commands](./commands#exec---execute-a-program) for the full `exec` reference.
 
 ## Creating Custom Wrappers
 
@@ -75,7 +76,23 @@ This documents how the project should be built or checked – without custom CLI
 
 ## Environment Variables
 
-The CLI currently does not read any special `HYPNOSCRIPT_*` variables. You can still use environment variables to control file paths or flags:
+The runtime reads a small set of `HYPNO_*` variables:
+
+| Variable               | Effect                                                                                             |
+| ---------------------- | -------------------------------------------------------------------------------------------------- |
+| `HYPNO_SANDBOX`        | Confines all file builtins to the given directory (same as `exec --sandbox`)                        |
+| `HYPNO_MAX_CALL_DEPTH` | Maximum function call depth before `RecursionLimitExceeded` (default: `1000`)                       |
+| `HYPNO_TIME_SCALE`     | Scales all themed pauses and promise delays (`0` skips them entirely – useful for tests)            |
+
+```bash
+# Run a script fully sandboxed, with deeper recursion and no pauses
+HYPNO_SANDBOX=./workspace \
+HYPNO_MAX_CALL_DEPTH=5000 \
+HYPNO_TIME_SCALE=0 \
+hypnoscript exec script.hyp
+```
+
+Beyond these, you can of course use your own environment variables to control file paths or flags:
 
 ```bash
 export HYPNO_DEFAULT=examples/intro.hyp

@@ -141,10 +141,10 @@ The lock file ensures reproducible builds by capturing exact dependency versions
 
 ```json
 {
-  "lockVersion": "1.2.0",
+  "lockVersion": "1.3.0",
   "lockedAnchors": {
     "hypnoscript-runtime": {
-      "version": "^1.2.0",
+      "version": "^1.3.0",
       "source": "registry",
       "integrity": null,
       "dependencies": {}

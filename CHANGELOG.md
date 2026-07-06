@@ -2,9 +2,13 @@
 
 All notable changes to this project will be documented in this file. The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and this project adheres to [Semantic Versioning](https://semver.org/).
 
-## [Unreleased]
+## [1.3.0] - 2026-07-06
 
 ### Added
+
+- **Unicode string escapes**: `\uXXXX` (4 hex digits) and `\xNN` (2 hex digits) escape
+  sequences in string literals, with clear errors for invalid digits and invalid Unicode
+  scalar values.
 
 - **Closures with lexical scoping**: functions declared inside other functions now
   capture the enclosing local variables (by-value snapshot at declaration time) and can
@@ -104,6 +108,8 @@ All notable changes to this project will be documented in this file. The format 
   single invalid number; `1.2.member` now lexes correctly as member access).
 - Unterminated block comments are reported as errors instead of being silently accepted.
 - Unterminated strings report the string's start position instead of the end of file.
+- `PadLeft` / `PadRight` now count characters instead of bytes, so padding widths are
+  correct for non-ASCII strings (e.g. `café`, emoji).
 
 ## [1.2.0] - 2026-01-22
 
@@ -188,3 +194,4 @@ All notable changes to this project will be documented in this file. The format 
 
 [1.0.0]: https://github.com/Kink-Development-Group/hyp-runtime/releases/tag/1.0.0
 [1.2.0]: https://github.com/Kink-Development-Group/hyp-runtime/releases/tag/1.2.0
+[1.3.0]: https://github.com/Kink-Development-Group/hyp-runtime/releases/tag/v1.3.0

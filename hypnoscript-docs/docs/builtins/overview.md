@@ -296,6 +296,7 @@ Advanced functional programming and control flow.
 | ------------------ | ---------------------------------------------------------------- |
 | **Loops**          | `RepeatAction`, `RepeatUntil`, `RepeatWhile`                     |
 | **Delay**          | `DelayedSuggestion`                                              |
+| **Promises**       | `delayedValue`, `instantPromise`, `promiseAll`, `promiseRace`, `isPromiseResolved` |
 | **Composition**    | `Compose`, `Pipe`                                                |
 | **Error Handling** | `TryOrAwaken`, `EnsureAwakening`                                 |
 | **More**           | `IfTranced`, `SequentialTrance`, `MeasureTranceDepth`, `Memoize` |

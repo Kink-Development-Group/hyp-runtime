@@ -16,7 +16,7 @@ $ErrorActionPreference = "Stop"
 # Configuration
 $NAME = "HypnoScript"
 $BUNDLE_ID = "com.kinkdev.hypnoscript"
-$VERSION = "1.2.0"
+$VERSION = "1.3.0"
 $BINARY_NAME = "hypnoscript-cli"
 $INSTALL_NAME = "hypnoscript"
 

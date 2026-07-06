@@ -10,7 +10,7 @@ Complete reference of all keywords in HypnoScript based on the Rust implementati
 | `Relax`   | Program end (required)                  | `Focus { ... } Relax`           |
 | `entrance`| Initialization block (optional)         | `entrance { observe "Start"; }` |
 | `finale`  | Cleanup/destructor block (optional)     | `finale { observe "End"; }`     |
-| `deepFocus`| Extended if block with deeper scope    | `if (x > 5) deepFocus { ... }`  |
+| `deepFocus`| Conditional block, standalone or after `if` | `deepFocus (x > 5) { ... }` |
 
 ## Variable Declarations
 
